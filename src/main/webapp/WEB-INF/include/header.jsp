@@ -41,7 +41,14 @@
                                     Đăng ký
                                 </button>
                             </li>
-                            <li><a class="dropdown-item" href="#">Đăng ký</a></li>
+                            <li>
+                                <button type="button"
+                                        class="btn btn-primary"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
+                                    Đăng nhập
+                                </button>
+                            </li>
                         </ul>
                     </li>
                 </ul>
