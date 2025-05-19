@@ -4,6 +4,7 @@
  */
 package Controller;
 
+import DAO.UserDao;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -16,6 +17,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -53,7 +55,9 @@ public class GoogleLoginServlet extends HttpServlet {
             if (idToken != null) {
                 String email = idToken.getPayload().getEmail();
                 String name = (String) idToken.getPayload().get("name");
-
+                // Tự động lưu vào database nếu chưa có
+                UserDao dao = new UserDao();
+                dao.quickRegisterIfNotExistsG(email, name, email); // dùng email làm usernam
                 HttpSession session = request.getSession();
                 session.setAttribute("username", email);
                 session.setAttribute("role", "customer");
@@ -68,6 +72,8 @@ public class GoogleLoginServlet extends HttpServlet {
             json.put("status", "error");
             json.put("message", "Google login failed: " + e.getMessage());
         } catch (GeneralSecurityException ex) {
+            Logger.getLogger(GoogleLoginServlet.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (SQLException ex) {
             Logger.getLogger(GoogleLoginServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
 

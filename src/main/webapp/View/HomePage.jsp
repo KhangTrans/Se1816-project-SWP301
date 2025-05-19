@@ -9,6 +9,7 @@
 <%@include file="../WEB-INF/include/head.jsp" %>
 <%@include file="../WEB-INF/include/Login.jsp" %>
 <%@include file="../WEB-INF/include/Register.jsp" %>
+<%@include file="../WEB-INF/include/forgotPassword.jsp" %>
 <%@include file="../WEB-INF/include/header.jsp" %>
 
 
