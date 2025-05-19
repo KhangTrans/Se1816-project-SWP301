@@ -23,6 +23,10 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
+                        <div class="text-end">
+                            <a href="#" onclick="openForgotPasswordModal()">Forgot password?</a>
+                        </div>
+
 
                         <div class="text-center">OR</div>
 
@@ -53,6 +57,59 @@
             </div>
         </div>
     </div>
+    <!-- Forgot Password Modal -->
+    <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <form id="forgotPasswordForm">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Forgot Password</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div id="forgotAlert" class="alert d-none" role="alert"></div>
+                        <div class="mb-3">
+                            <label>Enter your email</label>
+                            <input type="email" class="form-control" name="email" required />
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- OTP Verification Modal -->
+    <div class="modal fade" id="otpModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog">
+            <form id="otpForm">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Verify OTP</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="email" id="otpEmail">
+                        <div class="mb-3">
+                            <label>OTP Code</label>
+                            <input type="text" name="otp" class="form-control" required>
+                        </div>
+                        <div class="mb-3">
+                            <label>New Password</label>
+                            <input type="password" name="newPassword" class="form-control" required>
+                        </div>
+                        <div id="otpAlert" class="alert d-none" role="alert"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn btn-primary">Reset Password</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
 </div>
 <!-- Google SDK -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -132,4 +189,55 @@
             }
         });
     }
+
+    // M? modal forgot password
+    function openForgotPasswordModal() {
+        const modal = new bootstrap.Modal(document.getElementById("forgotPasswordModal"));
+        modal.show();
+    }
+// Khi g?i form forgot password
+    document.getElementById("forgotPasswordForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const data = new URLSearchParams(new FormData(this));
+        const email = this.email.value;
+
+        fetch("/SE1816_Oto_Group_4/ForgotPasswordServlet", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: data
+        })
+                .then(res => res.json())
+                .then(data => {
+                    const alertBox = document.getElementById("forgotAlert");
+                    alertBox.classList.remove("d-none");
+                    alertBox.className = "alert " + (data.status === "success" ? "alert-success" : "alert-danger");
+                    alertBox.textContent = data.message;
+
+                    if (data.status === "success") {
+                        document.getElementById("otpEmail").value = email;
+                        const modal = new bootstrap.Modal(document.getElementById("otpModal"));
+                        modal.show();
+                    }
+                });
+    });
+
+// Khi xác nh?n OTP + m?t kh?u m?i
+    document.getElementById("otpForm").addEventListener("submit", function (e) {
+        e.preventDefault();
+        const data = new URLSearchParams(new FormData(this));
+
+        fetch("/SE1816_Oto_Group_4/ResetPasswordServlet", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: data
+        })
+                .then(res => res.json())
+                .then(data => {
+                    const alertBox = document.getElementById("otpAlert");
+                    alertBox.classList.remove("d-none");
+                    alertBox.className = "alert " + (data.status === "success" ? "alert-success" : "alert-danger");
+                    alertBox.textContent = data.message;
+                });
+    });
+
 </script>

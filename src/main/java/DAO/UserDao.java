@@ -25,10 +25,9 @@ public class UserDao extends DBcontext {
     // Kiểm tra username đã tồn tại chưa
     public boolean isUsernameExists(String username) throws SQLException {
         String sql = "SELECT 1 FROM accounts WHERE username = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
-            try (ResultSet rs = stmt.executeQuery()) {
+            try ( ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
             }
         }
@@ -37,10 +36,9 @@ public class UserDao extends DBcontext {
     // Kiểm tra email đã tồn tại chưa
     public boolean isEmailExists(String email) throws SQLException {
         String sql = "SELECT 1 FROM customers WHERE email = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email);
-            try (ResultSet rs = stmt.executeQuery()) {
+            try ( ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
             }
         }
@@ -49,10 +47,9 @@ public class UserDao extends DBcontext {
     // Kiểm tra số điện thoại đã tồn tại chưa
     public boolean isPhoneExists(String phone) throws SQLException {
         String sql = "SELECT 1 FROM customers WHERE phone = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, phone);
-            try (ResultSet rs = stmt.executeQuery()) {
+            try ( ResultSet rs = stmt.executeQuery()) {
                 return rs.next();
             }
         }
@@ -95,26 +92,67 @@ public class UserDao extends DBcontext {
                 return false;
             }
         } catch (SQLException e) {
-            if (conn != null) conn.rollback();
+            if (conn != null) {
+                conn.rollback();
+            }
             throw e;
         } finally {
-            if (rs != null) rs.close();
-            if (stmtAcc != null) stmtAcc.close();
-            if (stmtCus != null) stmtCus.close();
-            if (conn != null) conn.close();
+            if (rs != null) {
+                rs.close();
+            }
+            if (stmtAcc != null) {
+                stmtAcc.close();
+            }
+            if (stmtCus != null) {
+                stmtCus.close();
+            }
+            if (conn != null) {
+                conn.close();
+            }
         }
     }
 
     // Đăng nhập tài khoản khách hàng
     public boolean login(String username, String password) throws SQLException {
         String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role = 'customer'";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, hashMD5(password));
-            try (ResultSet rs = stmt.executeQuery()) {
+            try ( ResultSet rs = stmt.executeQuery()) {
                 return rs.next(); // Đúng user + pass + role thì đăng nhập thành công
             }
         }
     }
+
+    public boolean quickRegisterIfNotExistsG(String username, String fullName, String email) throws SQLException {
+        if (isUsernameExists(username) || isEmailExists(email)) {
+            return false; // đã có rồi
+        }
+        String defaultPassword = "googleuser";
+        String avatar = "google.png";
+        String phone = "";
+
+        return registerCustomer(username, defaultPassword, avatar, fullName, email, phone);
+    }
+
+    public boolean quickRegisterIfNotExistsF(String username, String fullName, String email) throws SQLException {
+        if (isUsernameExists(username) || isEmailExists(email)) {
+            return false;
+        }
+        String defaultPassword = "fbuser"; // Mặc định
+        String avatar = "facebook.png"; // hoặc "" nếu không có
+        String phone = "";
+
+        return registerCustomer(username, defaultPassword, avatar, fullName, email, phone);
+    }
+
+    public boolean updatePasswordByEmail(String email, String newPassword) throws SQLException {
+        String sql = "UPDATE accounts SET password = ? WHERE account_id = (SELECT account_id FROM customers WHERE email = ?)";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, hashMD5(newPassword));
+            stmt.setString(2, email);
+            return stmt.executeUpdate() > 0;
+        }
+    }
+
 }

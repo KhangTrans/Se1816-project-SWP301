@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.io.BufferedReader;
 import java.sql.SQLException;
 import org.json.JSONObject;
 
@@ -20,7 +19,7 @@ import org.json.JSONObject;
  *
  * @author Admin
  */
-public class FacebookLoginServlet extends HttpServlet {
+public class ResetPasswordServlet extends HttpServlet {
 
     /**
      * Handles the HTTP <code>POST</code> method.
@@ -37,33 +36,35 @@ public class FacebookLoginServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         JSONObject json = new JSONObject();
 
-        try ( BufferedReader reader = request.getReader()) {
-            StringBuilder sb = new StringBuilder();
-            String line;
-            while ((line = reader.readLine()) != null) {
-                sb.append(line);
-            }
+        String email = request.getParameter("email");
+        String otp = request.getParameter("otp");
+        String newPassword = request.getParameter("newPassword");
 
-            JSONObject profile = new JSONObject(sb.toString());
-            String fbId = profile.getString("id");
-            String name = profile.optString("name", "No Name");
-            String email = profile.optString("email", "fbuser_" + fbId + "@noemail.com");
+        HttpSession session = request.getSession();
+        String storedOtp = (String) session.getAttribute("otp_" + email);
 
-            // Tự động lưu vào database nếu chưa có
-            UserDao dao = new UserDao();
-            dao.quickRegisterIfNotExistsF(email, name, email);
-
-            // Lưu session
-            HttpSession session = request.getSession();
-            session.setAttribute("username", email);
-            session.setAttribute("role", "customer");
-
-            json.put("status", "success");
-            json.put("message", "Facebook login success!");
-
-        } catch (Exception e) {
+        if (storedOtp == null) {
             json.put("status", "error");
-            json.put("message", "Facebook login failed: " + e.getMessage());
+            json.put("message", "OTP has expired or not requested.");
+        } else if (!storedOtp.equals(otp)) {
+            json.put("status", "error");
+            json.put("message", "Incorrect OTP.");
+        } else {
+            try {
+                UserDao dao = new UserDao();
+                boolean updated = dao.updatePasswordByEmail(email, newPassword);
+                if (updated) {
+                    json.put("status", "success");
+                    json.put("message", "Password reset successfully!");
+                    session.removeAttribute("otp_" + email); // xóa OTP sau khi dùng
+                } else {
+                    json.put("status", "error");
+                    json.put("message", "Failed to update password.");
+                }
+            } catch (Exception e) {
+                json.put("status", "error");
+                json.put("message", "Error: " + e.getMessage());
+            }
         }
 
         response.getWriter().write(json.toString());
