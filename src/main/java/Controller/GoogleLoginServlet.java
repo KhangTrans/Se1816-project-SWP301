@@ -55,11 +55,14 @@ public class GoogleLoginServlet extends HttpServlet {
             if (idToken != null) {
                 String email = idToken.getPayload().getEmail();
                 String name = (String) idToken.getPayload().get("name");
+                String picture = (String) idToken.getPayload().get("picture"); // avatar từ Google
+
                 // Tự động lưu vào database nếu chưa có
                 UserDao dao = new UserDao();
                 dao.quickRegisterIfNotExistsG(email, name, email); // dùng email làm usernam
                 HttpSession session = request.getSession();
                 session.setAttribute("username", email);
+                session.setAttribute("avatar", picture); // ⬅️ avatar từ Google
                 session.setAttribute("role", "customer");
                 json.put("status", "success");
                 json.put("message", "Google login success!");

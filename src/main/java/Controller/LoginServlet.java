@@ -22,12 +22,7 @@ public class LoginServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         JSONObject json = new JSONObject();
-        System.out.println("=== Received Request ===");
-        Enumeration<String> paramNames = request.getParameterNames();
-        while (paramNames.hasMoreElements()) {
-            String param = paramNames.nextElement();
-            System.out.println("🔍 Param: " + param + " = " + request.getParameter(param));
-        }
+
         // Nhận dữ liệu từ form
         String username = request.getParameter("username");
         String password = request.getParameter("password");
@@ -47,10 +42,13 @@ public class LoginServlet extends HttpServlet {
             UserDao dao = new UserDao();
 
             if (dao.login(username, password)) {
+                String avatarUrl = dao.getAvatarByUsername(username); // THÊM DAO NÀY NẾU CHƯA CÓ
+
                 // Lưu session
                 HttpSession session = request.getSession();
                 session.setAttribute("username", username);
                 session.setAttribute("role", "customer"); // hoặc lấy từ DB nếu có
+                session.setAttribute("avatar", avatarUrl); // ⬅️ Thêm dòng này
 
                 json.put("status", "success");
                 json.put("message", "Login successful!");

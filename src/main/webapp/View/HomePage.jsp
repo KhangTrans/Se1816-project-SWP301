@@ -12,5 +12,5 @@
 <%@include file="../WEB-INF/include/forgotPassword.jsp" %>
 <%@include file="../WEB-INF/include/header.jsp" %>
 
-
+<%@include file="../WEB-INF/include/Chatbot.jsp" %>
 <%@include file="../WEB-INF/include/footer.jsp" %>

@@ -155,4 +155,16 @@ public class UserDao extends DBcontext {
         }
     }
 
+    public String getAvatarByUsername(String username) throws SQLException {
+        String sql = "SELECT avatar FROM accounts WHERE username = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("avatar");
+            }
+        }
+        return "img/default-avatar.png"; // fallback nếu không có avatar
+    }
+
 }

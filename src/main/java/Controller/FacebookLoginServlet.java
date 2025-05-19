@@ -47,6 +47,7 @@ public class FacebookLoginServlet extends HttpServlet {
             JSONObject profile = new JSONObject(sb.toString());
             String fbId = profile.getString("id");
             String name = profile.optString("name", "No Name");
+            String avatar = "https://graph.facebook.com/" + profile.getString("id") + "/picture?type=large"; // ⬅️ ảnh đại diện
             String email = profile.optString("email", "fbuser_" + fbId + "@noemail.com");
 
             // Tự động lưu vào database nếu chưa có
@@ -56,6 +57,7 @@ public class FacebookLoginServlet extends HttpServlet {
             // Lưu session
             HttpSession session = request.getSession();
             session.setAttribute("username", email);
+            session.setAttribute("avatar", avatar);
             session.setAttribute("role", "customer");
 
             json.put("status", "success");
