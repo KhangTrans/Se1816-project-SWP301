@@ -68,21 +68,27 @@ public class ChatServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String userInput = request.getParameter("prompt");
-        FAQ bestMatch = findBestMatch(userInput);
-
-        String result;
-        if (bestMatch != null) {
-            String reformulatePrompt = "Viết lại câu hỏi sau sao cho tự nhiên hơn: " + bestMatch.question;
-            String rewrittenQuestion = callChatGPT(reformulatePrompt);
-            result = bestMatch.answer;
-        } else {
-            result = callChatGPT(userInput);
-        }
-
         response.setContentType("application/json; charset=UTF-8");
         JSONObject jsonResponse = new JSONObject();
-        jsonResponse.put("reply", result);
+        try {
+            String userInput = request.getParameter("prompt");
+            FAQ bestMatch = findBestMatch(userInput);
+
+            String result;
+            if (bestMatch != null) {
+                String reformulatePrompt = "Viết lại câu hỏi sau sao cho tự nhiên hơn: " + bestMatch.question;
+                String rewrittenQuestion = callChatGPT(reformulatePrompt);
+                result = bestMatch.answer;
+            } else {
+                result = callChatGPT(userInput);
+            }
+
+            jsonResponse.put("reply", result);
+        } catch (Exception e) {
+            e.printStackTrace();
+            jsonResponse.put("reply", "❌ Server lỗi: " + e.getMessage());
+        }
+
         response.getWriter().print(jsonResponse.toString());
     }
 
