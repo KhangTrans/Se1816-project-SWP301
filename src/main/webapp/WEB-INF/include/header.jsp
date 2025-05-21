@@ -27,9 +27,16 @@
                     <li class="nav-item"><a class="nav-link" href="#">Liên hệ</a></li>
 
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle d-flex align-items-center"
+                           href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <% if (username != null) {%>
-                            <img src="${pageContext.request.contextPath}<%= (avatar != null && !avatar.isEmpty()) ? avatar : "img/default-avatar.png"%>" class="rounded-circle" width="30" height="30" alt="Avatar">
+                            <%
+                                String avatarPath = (avatar != null && !avatar.isEmpty()) ? avatar : "/img/avatar/default.png";
+                                boolean isAbsoluteUrl = avatarPath.startsWith("http://") || avatarPath.startsWith("https://");
+                                String finalAvatarUrl = isAbsoluteUrl ? avatarPath : request.getContextPath() + avatarPath;
+                            %>
+                            <img src="<%= finalAvatarUrl%>" class="rounded-circle" width="30" height="30" alt="Avatar">
+
                             <span class="ms-2"><%= username%></span>
                             <% } else { %>
                             Tài khoản
@@ -42,12 +49,18 @@
                             <li><a class="dropdown-item" href="/SE1816_Oto_Group_4/logout">Đăng xuất</a></li>
                                 <% } else { %>
                             <li>
-                                <button type="button" class="btn btn-primary w-100 mb-2" data-bs-toggle="modal" data-bs-target="#signupModal">
+                                <button type="button"
+                                        class="btn btn-primary w-100 mb-2"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#signupModal">
                                     Đăng ký
                                 </button>
                             </li>
                             <li>
-                                <button type="button" class="btn btn-primary w-100" data-bs-toggle="modal" data-bs-target="#loginModal">
+                                <button type="button"
+                                        class="btn btn-primary w-100"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#loginModal">
                                     Đăng nhập
                                 </button>
                             </li>

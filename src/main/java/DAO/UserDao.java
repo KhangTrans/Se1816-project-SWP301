@@ -82,7 +82,7 @@ public class UserDao extends DBcontext {
                 stmtCus.setString(2, fullName);
                 stmtCus.setString(3, email);
                 stmtCus.setString(4, phone);
-                stmtCus.setString(5, "C" + accountId); // Tạo customer_code: VD C101
+                stmtCus.setString(5, "CH" + accountId); // Tạo customer_code: VD C101
                 stmtCus.executeUpdate();
 
                 conn.commit();
