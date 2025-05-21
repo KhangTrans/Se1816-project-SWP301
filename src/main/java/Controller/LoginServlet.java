@@ -42,14 +42,15 @@ public class LoginServlet extends HttpServlet {
             UserDao dao = new UserDao();
 
             if (dao.login(username, password)) {
-                String avatarUrl = dao.getAvatarByUsername(username); // THÊM DAO NÀY NẾU CHƯA CÓ
-
+                String avatarUrl = dao.getAvatarByUsername(username);
+                if (avatarUrl == null || avatarUrl.isEmpty()) {
+                    avatarUrl = "img/avatar/default-avatar.png";
+                }
                 // Lưu session
                 HttpSession session = request.getSession();
                 session.setAttribute("username", username);
-                session.setAttribute("role", "customer"); // hoặc lấy từ DB nếu có
-                session.setAttribute("avatar", avatarUrl); // ⬅️ Thêm dòng này
-
+                session.setAttribute("role", "customer");
+                session.setAttribute("avatar", avatarUrl);
                 json.put("status", "success");
                 json.put("message", "Login successful!");
             } else {

@@ -51,7 +51,7 @@ public class RegisterServlet extends HttpServlet {
                 return;
             }
 
-            String avatarPath = "/public/img/avatar/default.png";
+            String avatarPath = "/img/avatar/default.png";
             Part avatarPart = request.getPart("avatar");
             if (avatarPart != null && avatarPart.getSize() > 0) {
                 String fileName = avatarPart.getSubmittedFileName();
@@ -64,11 +64,11 @@ public class RegisterServlet extends HttpServlet {
                 }
 
                 String savedFileName = username + "." + ext;
-                String uploadPath = getServletContext().getRealPath("/public/img/avatar");
+                String uploadPath = getServletContext().getRealPath("/img/avatar");
                 File dir = new File(uploadPath);
                 if (!dir.exists()) dir.mkdirs();
-                avatarPart.write(uploadPath + "/" + savedFileName);
-                avatarPath = "/public/img/avatar/" + savedFileName;
+                avatarPart.write(uploadPath + File.separator + savedFileName);
+                avatarPath = "/img/avatar/" + savedFileName;
             }
 
             UserDao dao = new UserDao();
