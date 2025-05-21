@@ -7,9 +7,9 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Scanner;
 
 public class FacebookLoginServlet extends HttpServlet {
 
@@ -21,7 +21,7 @@ public class FacebookLoginServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
         JSONObject json = new JSONObject();
 
-        try (BufferedReader reader = request.getReader()) {
+        try ( BufferedReader reader = request.getReader()) {
             StringBuilder sb = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
@@ -33,7 +33,7 @@ public class FacebookLoginServlet extends HttpServlet {
             String name = profile.optString("name", "No Name");
             String email = profile.optString("email", "fbuser_" + fbId + "@noemail.com");
 
-            // Gọi Facebook API để lấy ảnh đại diện URL gốc (redirect=false)
+            // Lấy ảnh đại diện từ Facebook Graph API
             String avatar = getFacebookAvatarUrl(fbId);
 
             // Tự động lưu vào database nếu chưa tồn tại
@@ -49,6 +49,7 @@ public class FacebookLoginServlet extends HttpServlet {
             json.put("status", "success");
             json.put("message", "Facebook login success!");
         } catch (Exception e) {
+            e.printStackTrace();
             json.put("status", "error");
             json.put("message", "Facebook login failed: " + e.getMessage());
         }
@@ -56,34 +57,24 @@ public class FacebookLoginServlet extends HttpServlet {
         response.getWriter().write(json.toString());
     }
 
-    // Gọi API để lấy URL ảnh đại diện Facebook (dạng JSON)
-    private String getFacebookAvatarUrl(String fbId) {
-        String avatarUrl = "https://graph.facebook.com/" + fbId + "/picture?type=large";
-        try {
-            String apiUrl = "https://graph.facebook.com/" + fbId + "/picture?type=large&redirect=false";
-            HttpURLConnection conn = (HttpURLConnection) new URL(apiUrl).openConnection();
-            conn.setRequestMethod("GET");
+    private String getFacebookAvatarUrl(String fbId) throws IOException {
+        String url = "https://graph.facebook.com/" + fbId + "/picture?type=large&redirect=false";
+        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
+        connection.setRequestMethod("GET");
 
-            BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            StringBuilder responseStr = new StringBuilder();
-            String inputLine;
-            while ((inputLine = in.readLine()) != null) {
-                responseStr.append(inputLine);
+        StringBuilder responseBuilder = new StringBuilder();
+        try ( Scanner scanner = new Scanner(connection.getInputStream())) {
+            while (scanner.hasNextLine()) {
+                responseBuilder.append(scanner.nextLine());
             }
-            in.close();
-
-            JSONObject data = new JSONObject(responseStr.toString());
-            avatarUrl = data.getJSONObject("data").getString("url");
-
-        } catch (Exception e) {
-            // fallback: dùng link redirect nếu có lỗi
         }
 
-        return avatarUrl;
+        JSONObject jsonResponse = new JSONObject(responseBuilder.toString());
+        return jsonResponse.getJSONObject("data").getString("url");
     }
 
     @Override
     public String getServletInfo() {
-        return "Facebook login servlet";
+        return "Handles Facebook Login and auto-registers user if not exists";
     }
 }
