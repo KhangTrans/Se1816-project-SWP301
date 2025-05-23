@@ -127,7 +127,7 @@
 <body>
 
     <div class="chat-bubble" onclick="toggleChat()">
-    <img src="${pageContext.request.contextPath}/public/img/icon/chatbot.svg" alt="Chatbot" style="width: 80px; height: 80px;">
+    <img src="${pageContext.request.contextPath}/img/icon/chatbot.svg" alt="Chatbot" style="width: 80px; height: 80px;">
 </div>
 
 <div class="chat-popup"  style="display: none" id="chatWindow">
@@ -137,7 +137,7 @@
     </div>
     <div class="chat-messages" id="chatMessages">
         <div class="msg-wrapper">
-            <img src="${pageContext.request.contextPath}/public/img/icon/chatbot.svg" class="avatar">
+            <img src="${pageContext.request.contextPath}/img/icon/chatbot.svg" class="avatar">
             <div class="msg bot">Xin chào! Tôi có thể giúp gì được cho bạn?</div>
         </div>
     </div>

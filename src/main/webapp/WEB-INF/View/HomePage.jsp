@@ -4,11 +4,11 @@
     Author     : Admin
 --%>
 
-<%@include file="../include/head.jsp" %>
-<%@include file="../include/Login.jsp" %>
-<%@include file="../include/Register.jsp" %>
-<%@include file="../include/forgotPassword.jsp" %>
-<%@include file="../include/header.jsp" %>
+<%@include file="/WEB-INF/include/head.jsp" %>
+<%@include file="/WEB-INF/include/Login.jsp" %>
+<%@include file="/WEB-INF/include/Register.jsp" %>
+<%@include file="/WEB-INF/include/forgotPassword.jsp" %>
+<%@include file="/WEB-INF/include/header.jsp" %>
 
-<%@include file="../include/Chatbot.jsp" %>
-<%@include file="../include/footer.jsp" %>
+<%@include file="/WEB-INF/include/Chatbot.jsp" %>
+<%@include file="/WEB-INF/include/footer.jsp" %>

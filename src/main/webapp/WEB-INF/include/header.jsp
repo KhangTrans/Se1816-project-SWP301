@@ -46,7 +46,7 @@
                         <ul class="dropdown-menu dropdown-menu-end">
                             <% if (username != null) { %>
                             <li><a class="dropdown-item" href="#">Thông tin cá nhân</a></li>
-                            <li><a class="dropdown-item" href="/SE1816_Oto_Group_4/logout">Đăng xuất</a></li>
+                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Đăng xuất</a></li>
                                 <% } else { %>
                             <li>
                                 <button type="button"

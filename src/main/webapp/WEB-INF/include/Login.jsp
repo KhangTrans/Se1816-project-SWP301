@@ -129,7 +129,7 @@
 
         const data = new URLSearchParams(new FormData(this));
 
-        fetch("/SE1816_Oto_Group_4/LoginServlet", {
+        fetch("${pageContext.request.contextPath}/LoginServlet", {
             method: "POST",
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -152,7 +152,7 @@
 
 // GOOGLE LOGIN
     function onGoogleSignIn(response) {
-        fetch("/SE1816_Oto_Group_4/GoogleLoginServlet", {
+        fetch("${pageContext.request.contextPath}/GoogleLoginServlet", {
             method: "POST",
             headers: {"Content-Type": "application/json"},
             body: JSON.stringify({credential: response.credential})
@@ -172,7 +172,7 @@
         FB.getLoginStatus(function (response) {
             if (response.status === 'connected') {
                 FB.api('/me?fields=id,name,email', function (profile) {
-                    fetch("/SE1816_Oto_Group_4/FacebookLoginServlet", {
+                    fetch("${pageContext.request.contextPath}/FacebookLoginServlet", {
                         method: "POST",
                         headers: {"Content-Type": "application/json"},
                         body: JSON.stringify(profile)

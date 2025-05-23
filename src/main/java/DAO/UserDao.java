@@ -1,5 +1,6 @@
 package DAO;
 
+import Model.Account;
 import db.DBcontext;
 import java.sql.*;
 import java.security.MessageDigest;
@@ -165,6 +166,27 @@ public class UserDao extends DBcontext {
             }
         }
         return "img/default-avatar.png"; // fallback nếu không có avatar
+    }
+// Đăng nhập cho admin hoặc staff (trả về Account nếu đúng)
+
+    public Account loginAdminStaff(String username, String password) throws SQLException {
+        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role IN ('admin', 'staff')";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.setString(2, hashMD5(password));
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Account account = new Account();
+                account.setAccountId(rs.getInt("account_id"));
+                account.setUsername(rs.getString("username"));
+                account.setPassword(rs.getString("password"));
+                account.setAvatar(rs.getString("avatar"));
+                account.setRole(rs.getString("role"));
+                account.setCreatedAt(rs.getTimestamp("created_at"));
+                return account;
+            }
+        }
+        return null;
     }
 
 }

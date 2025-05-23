@@ -44,7 +44,7 @@ public class LoginServlet extends HttpServlet {
             if (dao.login(username, password)) {
                 String avatarUrl = dao.getAvatarByUsername(username);
                 if (avatarUrl == null || avatarUrl.isEmpty()) {
-                    avatarUrl = "img/avatar/default-avatar.png";
+                    avatarUrl = "img/avatar/default.png";
                 }
                 // Lưu session
                 HttpSession session = request.getSession();

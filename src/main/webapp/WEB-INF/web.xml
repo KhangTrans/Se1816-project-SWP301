@@ -40,14 +40,7 @@
         <servlet-name>FacebookLoginServlet</servlet-name>
         <url-pattern>/FacebookLoginServlet</url-pattern>
     </servlet-mapping>
-    <!--    <servlet>
-        <servlet-name>LoginServlet</servlet-name>
-        <servlet-class>Controller.LoginServlet</servlet-class>
-    </servlet>
-    <servlet-mapping>
-        <servlet-name>LoginServlet</servlet-name>
-        <url-pattern>/LoginServlet</url-pattern>
-    </servlet-mapping>-->
+ 
     <servlet-mapping>
         <servlet-name>ForgotPasswordServlet</servlet-name>
         <url-pattern>/ForgotPasswordServlet</url-pattern>
