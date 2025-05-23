@@ -193,7 +193,7 @@
             botWrap.className = "msg-wrapper";
             const botAvatar = document.createElement("img");
             botAvatar.className = "avatar";
-            botAvatar.src = "${pageContext.request.contextPath}/public/img/icon/chatbot.svg";
+            botAvatar.src = "${pageContext.request.contextPath}/img/icon/chatbot.svg";
             const botMsg = document.createElement("div");
             botMsg.className = "msg bot";
             botMsg.innerText = data.reply;

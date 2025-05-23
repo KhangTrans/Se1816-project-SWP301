@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,7 +32,7 @@ import org.json.JSONObject;
  */
 public class ChatServlet extends HttpServlet {
 
-    private static final String OPENAI_API_KEY = "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";
+    private static String OPENAI_API_KEY;
     private static final String MODEL = "gpt-3.5-turbo";
     private List<FAQ> faqList;
 
@@ -39,6 +40,19 @@ public class ChatServlet extends HttpServlet {
     public void init() throws ServletException {
         super.init();
         loadFAQFromFile();
+        loadApiKey();
+    }
+
+    private void loadApiKey() {
+        try ( InputStream input = getServletContext().getResourceAsStream("/WEB-INF/config.properties")) {
+            Properties prop = new Properties();
+            prop.load(input);
+            OPENAI_API_KEY = prop.getProperty("openai.api.key");
+            System.out.println("✅ API Key loaded from config.properties");
+        } catch (Exception e) {
+            System.err.println("❌ Không thể đọc API Key từ config.properties");
+            e.printStackTrace();
+        }
     }
 
     private void loadFAQFromFile() {
