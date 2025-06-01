@@ -1,3 +1,18 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<style>
+    .fb-btn-fullwidth {
+        display: flex !important;
+        justify-content: center;
+        width: 100% !important;
+    }
+
+    .fb-btn-fullwidth > span,
+    .fb-btn-fullwidth iframe {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+</style>
 <!-- Login Modal -->
 <body>
     <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
@@ -5,7 +20,7 @@
             <div class="modal-content">
                 <form id="loginForm" method="post">
                     <div class="modal-header">
-                        <h5 class="modal-title">Login</h5>
+                        <h5 class="modal-title" style="margin-left: 40%">Login</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
 
@@ -14,47 +29,58 @@
 
                         <div class="mb-3">
                             <label>Username</label>
-                            <input type="text" class="form-control" name="username" required />
+                            <input type="text"
+                                   class="form-control"
+                                   name="username" required />
                         </div>
 
                         <div class="mb-3">
                             <label>Password</label>
-                            <input type="password" class="form-control" name="password" required />
+                            <input type="password"
+                                   class="form-control"
+                                   name="password" required />
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
                         <div class="text-end">
-                            <a href="#" onclick="openForgotPasswordModal()">Forgot password?</a>
+                            <a href="#" onclick="openForgotPasswordModal()">Forgot password</a>
                         </div>
 
 
-                        <div class="text-center">OR</div>
+                        <div class="text-center">or</div>
 
-                        <!-- Google Login -->
-                        <div class="d-grid gap-2 mt-3 mb-2">
-                            <div id="g_id_onload"
-                                 data-client_id="749125474877-p8jcn9i7b48rpgq3eh4gkintoph2noo5.apps.googleusercontent.com"
-                                 data-callback="onGoogleSignIn"
-                                 data-auto_prompt="false"></div>
-                            <div class="g_id_signin" data-type="standard"></div>
-                        </div>
 
-                        <!-- Facebook Login -->
-                        <div class="d-grid gap-2">
-                            <div class="fb-login-button"
-                                 data-width=""
-                                 data-size="large"
-                                 data-button-type="login_with"
-                                 data-layout="default"
-                                 data-auto-logout-link="false"
-                                 data-use-continue-as="false"
-                                 data-scope="public_profile,email"
-                                 onlogin="checkFacebookLogin();">
+                        <div class="social-login row text-center mt-3 mb-3">
+                            <!-- Google Login -->
+                            <div class="col-6 d-flex justify-content-center align-items-center">
+                                <div>
+                                    <div id="g_id_onload"
+                                         data-client_id="749125474877-p8jcn9i7b48rpgq3eh4gkintoph2noo5.apps.googleusercontent.com"
+                                         data-callback="onGoogleSignIn"
+                                         data-auto_prompt="false"></div>
+                                    <div class="g_id_signin" data-type="standard"></div>
+                                </div>
+                            </div>
+
+                            <!-- Facebook Login -->
+                            <div class="col-6 d-flex justify-content-center align-items-center"
+                                 style="background-color: #1c78ff; border-radius: 5px;">
+                                <div class="fb-login-button fb-btn-fullwidth"
+                                     style=" margin-right: 20%"
+                                     data-width=""
+                                     data-size="large"
+                                     data-button-type="login_with"
+                                     data-layout="default"
+                                     data-auto-logout-link="false"
+                                     data-use-continue-as="false"
+                                     data-scope="public_profile,email"
+                                     onlogin="checkFacebookLogin();">
+                                </div>
                             </div>
                         </div>
                     </div>
-                </form> <!-- ? ?�ng form ?�ng ch? ? ?�y -->
             </div>
+            </form> 
         </div>
     </div>
     <!-- Forgot Password Modal -->
@@ -69,12 +95,12 @@
                     <div class="modal-body">
                         <div id="forgotAlert" class="alert d-none" role="alert"></div>
                         <div class="mb-3">
-                            <label>Enter your email</label>
+                            <label>Enter Your Email</label>
                             <input type="email" class="form-control" name="email" required />
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Send Reset Link</button>
+                        <button type="submit" class="btn btn-primary">Confirm Email</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     </div>
                 </form>
@@ -93,7 +119,7 @@
                     <div class="modal-body">
                         <input type="hidden" name="email" id="otpEmail">
                         <div class="mb-3">
-                            <label>OTP Code</label>
+                            <label>Code OTP</label>
                             <input type="text" name="otp" class="form-control" required>
                         </div>
                         <div class="mb-3">
@@ -103,7 +129,7 @@
                         <div id="otpAlert" class="alert d-none" role="alert"></div>
                     </div>
                     <div class="modal-footer">
-                        <button type="submit" class="btn btn-primary">Reset Password</button>
+                        <button type="submit" class="btn btn-primary">Change Password</button>
                     </div>
                 </div>
             </form>
@@ -192,52 +218,59 @@
 
     // M? modal forgot password
     function openForgotPasswordModal() {
+        // Đóng mọi modal đang mở
+        const modals = document.querySelectorAll('.modal.show');
+                modals.forEach(m => bootstrap.Modal.getInstance(m)?.hide());
+
+        // Mở modal forgot password
         const modal = new bootstrap.Modal(document.getElementById("forgotPasswordModal"));
         modal.show();
     }
+
 // Khi g?i form forgot password
     document.getElementById("forgotPasswordForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const data = new URLSearchParams(new FormData(this));
-        const email = this.email.value;
-
-        fetch("/SE1816_Oto_Group_4/ForgotPasswordServlet", {
+    e.preventDefault();
+            const data = new URLSearchParams(new FormData(this));
+            const email = this.email.value;
+            fetch("${pageContext.request.contextPath}/ForgotPasswordServlet", {
             method: "POST",
-            headers: {"Content-Type": "application/x-www-form-urlencoded"},
-            body: data
-        })
-                .then(res => res.json())
-                .then(data => {
-                    const alertBox = document.getElementById("forgotAlert");
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+            })
+            .then(res => res.json())
+            .then(data => {
+            const alertBox = document.getElementById("forgotAlert");
                     alertBox.classList.remove("d-none");
                     alertBox.className = "alert " + (data.status === "success" ? "alert-success" : "alert-danger");
                     alertBox.textContent = data.message;
-
                     if (data.status === "success") {
-                        document.getElementById("otpEmail").value = email;
-                        const modal = new bootstrap.Modal(document.getElementById("otpModal"));
-                        modal.show();
-                    }
-                });
+            document.getElementById("otpEmail").value = email;
+                    // Đóng mọi modal đang mở
+                    const modals = document.querySelectorAll('.modal.show');
+                    modals.forEach(m => bootstrap.Modal.getInstance(m)?.hide());
+                    // Mở OTP modal
+                    const modal = new bootstrap.Modal(document.getElementById("otpModal"));
+                    modal.show();
+            }
+            }
+            );
     });
-
-// Khi x�c nh?n OTP + m?t kh?u m?i
-    document.getElementById("otpForm").addEventListener("submit", function (e) {
-        e.preventDefault();
-        const data = new URLSearchParams(new FormData(this));
-
-        fetch("/SE1816_Oto_Group_4/ResetPasswordServlet", {
+// Khi xác nh?n OTP + m?t kh?u m?i
+            document.getElementById("otpForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+            const data = new URLSearchParams(new FormData(this));
+            fetch("${pageContext.request.contextPath}/ResetPasswordServlet", {
             method: "POST",
-            headers: {"Content-Type": "application/x-www-form-urlencoded"},
-            body: data
-        })
-                .then(res => res.json())
-                .then(data => {
-                    const alertBox = document.getElementById("otpAlert");
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: data
+            })
+            .then(res => res.json())
+            .then(data => {
+            const alertBox = document.getElementById("otpAlert");
                     alertBox.classList.remove("d-none");
                     alertBox.className = "alert " + (data.status === "success" ? "alert-success" : "alert-danger");
                     alertBox.textContent = data.message;
-                });
+            });
     });
 
 </script>

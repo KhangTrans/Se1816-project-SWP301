@@ -48,9 +48,9 @@ public class ChatServlet extends HttpServlet {
             Properties prop = new Properties();
             prop.load(input);
             OPENAI_API_KEY = prop.getProperty("openai.api.key");
-            System.out.println("✅ API Key loaded from config.properties");
+            System.out.println("API Key loaded from config.properties");
         } catch (Exception e) {
-            System.err.println("❌ Không thể đọc API Key từ config.properties");
+            System.err.println("Không thể đọc API Key từ config.properties");
             e.printStackTrace();
         }
     }

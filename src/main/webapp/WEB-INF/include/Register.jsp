@@ -1,46 +1,72 @@
-<!-- Modal ??ng Ký Customer -->
+
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+
+<!-- Modal ??ng KÃ½ Customer -->
 <div class="modal fade" id="signupModal" tabindex="-1" aria-labelledby="signupModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="signupForm" enctype="multipart/form-data">
                 <div class="modal-header">
-                    <h5 class="modal-title">Customer Sign Up</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    <h5 class="modal-title" style="margin-left: 40%">Register</h5>
+                    <button type="button"
+                            class="btn-close"
+                            data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-                    <div id="signupAlert" class="alert d-none" role="alert"></div>
+                    <div id="signupAlert"
+                         class="alert d-none"
+                         role="alert"></div>
 
-                    <input type="hidden" name="role" value="customer" />
+                    <input type="hidden"
+                           name="role"
+                           value="customer" />
 
                     <div class="mb-3">
                         <label>Email</label>
-                        <input type="email" class="form-control" name="email" required />
+                        <input type="email"
+                               class="form-control"
+                               name="email"
+                               required />
                     </div>
 
                     <div class="mb-3">
                         <label>Username</label>
-                        <input type="text" class="form-control" name="username" required />
+                        <input type="text"
+                               class="form-control"
+                               name="username"
+                               required/>
                     </div>
 
                     <div class="mb-3">
                         <label>Phone</label>
-                        <input type="text" class="form-control" name="phone" required />
+                        <input type="text"
+                               class="form-control"
+                               name="phone"
+                               required/>
                     </div>
 
                     <div class="mb-3">
                         <label>Password</label>
-                        <input type="password" class="form-control" name="password" required />
+                        <input type="password"
+                               class="form-control"
+                               name="password"
+                               required/>
                     </div>
 
                     <div class="mb-3">
                         <label>Confirm Password</label>
-                        <input type="password" class="form-control" name="confirm_password" required />
+                        <input type="password"
+                               class="form-control"
+                               name="confirm_password"/>
                     </div>
 
                     <div class="mb-3">
                         <label>Avatar</label>
-                        <input type="file" class="form-control" name="avatar" accept=".png, .jpg" />
+                        <input type="file"
+                               class="form-control"
+                               name="avatar"
+                               accept=".png, .jpg"/>
                     </div>
                 </div>
 

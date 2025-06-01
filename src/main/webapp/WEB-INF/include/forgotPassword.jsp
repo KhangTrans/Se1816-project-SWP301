@@ -5,7 +5,7 @@
 --%>
 
 <!-- Forgot Password Modal -->
-<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordLabel" aria-hidden="true">
+<!--<div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <form id="forgotPasswordForm">
@@ -29,4 +29,4 @@
         </div>
     </div>
 </div>
-
+-->
