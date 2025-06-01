@@ -31,7 +31,6 @@ import org.json.JSONObject;
  * @author Admin
  */
 public class ChatServlet extends HttpServlet {
-
     private static String OPENAI_API_KEY;
     private static final String MODEL = "gpt-3.5-turbo";
     private List<FAQ> faqList;
