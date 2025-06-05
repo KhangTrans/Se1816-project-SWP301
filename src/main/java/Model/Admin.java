@@ -1,26 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Model;
 
-/**
- *
- * @author Admin
- */
 public class Admin {
+
     private int adminId;
-    private int accountId;
-    private String fullName;
+    private Account account; // Tham chiếu tới bảng accounts
+    private String filename;
     private String email;
 
     public Admin() {
     }
 
-    public Admin(int adminId, int accountId, String fullName, String email) {
+    public Admin(int adminId, Account account, String filename, String email) {
         this.adminId = adminId;
-        this.accountId = accountId;
-        this.fullName = fullName;
+        this.account = account;
+        this.filename = filename;
         this.email = email;
     }
 
@@ -32,20 +25,20 @@ public class Admin {
         this.adminId = adminId;
     }
 
-    public int getAccountId() {
-        return accountId;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
-    public String getFullName() {
-        return fullName;
+    public String getFilename() {
+        return filename;
     }
 
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
+    public void setFilename(String filename) {
+        this.filename = filename;
     }
 
     public String getEmail() {
@@ -55,5 +48,13 @@ public class Admin {
     public void setEmail(String email) {
         this.email = email;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Admin{"
+                + "adminId=" + adminId
+                + ", filename='" + filename + '\''
+                + ", email='" + email + '\''
+                + '}';
+    }
 }

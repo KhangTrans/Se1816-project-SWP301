@@ -28,6 +28,10 @@
         <servlet-name>ChatServlet</servlet-name>
         <servlet-class>Controller.ChatServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>AvatarServlet</servlet-name>
+        <servlet-class>Controller.AvatarServlet</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>RegisterServlet</servlet-name>
         <url-pattern>/RegisterServlet</url-pattern>
@@ -40,7 +44,6 @@
         <servlet-name>FacebookLoginServlet</servlet-name>
         <url-pattern>/FacebookLoginServlet</url-pattern>
     </servlet-mapping>
- 
     <servlet-mapping>
         <servlet-name>ForgotPasswordServlet</servlet-name>
         <url-pattern>/ForgotPasswordServlet</url-pattern>
@@ -59,9 +62,12 @@
     </servlet>
     <servlet-mapping>
         <servlet-name>ChatServlet</servlet-name>
-        <url-pattern>/chat</url-pattern> 
+        <url-pattern>/chat</url-pattern>
     </servlet-mapping>
-
+    <servlet-mapping>
+        <servlet-name>AvatarServlet</servlet-name>
+        <url-pattern>/AvatarServlet</url-pattern>
+    </servlet-mapping>
     <session-config>
         <session-timeout>
             30

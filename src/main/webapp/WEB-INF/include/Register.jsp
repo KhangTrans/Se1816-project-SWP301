@@ -82,7 +82,7 @@
         e.preventDefault();
         const formData = new FormData(this);
 
-        fetch("/SE1816_Oto_Group_4/RegisterServlet", {
+        fetch("${pageContext.request.contextPath}/RegisterServlet", {
             method: "POST",
             body: formData
         })

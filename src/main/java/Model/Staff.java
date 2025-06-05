@@ -1,17 +1,10 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Model;
 
-/**
- *
- * @author Admin
- */
 public class Staff {
+
     private int staffId;
     private String status;
-    private int accountId;
+    private Account account; // Liên kết 1-1 với bảng accounts
     private String fullName;
     private String email;
     private String staffCode;
@@ -21,10 +14,10 @@ public class Staff {
     public Staff() {
     }
 
-    public Staff(int staffId, String status, int accountId, String fullName, String email, String staffCode, String phone, String position) {
+    public Staff(int staffId, String status, Account account, String fullName, String email, String staffCode, String phone, String position) {
         this.staffId = staffId;
         this.status = status;
-        this.accountId = accountId;
+        this.account = account;
         this.fullName = fullName;
         this.email = email;
         this.staffCode = staffCode;
@@ -48,12 +41,12 @@ public class Staff {
         this.status = status;
     }
 
-    public int getAccountId() {
-        return accountId;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     public String getFullName() {
@@ -95,5 +88,17 @@ public class Staff {
     public void setPosition(String position) {
         this.position = position;
     }
-    
+
+    @Override
+    public String toString() {
+        return "Staff{"
+                + "staffId=" + staffId
+                + ", status='" + status + '\''
+                + ", fullName='" + fullName + '\''
+                + ", email='" + email + '\''
+                + ", staffCode='" + staffCode + '\''
+                + ", phone='" + phone + '\''
+                + ", position='" + position + '\''
+                + '}';
+    }
 }

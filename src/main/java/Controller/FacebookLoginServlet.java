@@ -7,9 +7,10 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Scanner;
 
 public class FacebookLoginServlet extends HttpServlet {
 
@@ -32,18 +33,21 @@ public class FacebookLoginServlet extends HttpServlet {
             String fbId = profile.getString("id");
             String name = profile.optString("name", "No Name");
             String email = profile.optString("email", "fbuser_" + fbId + "@noemail.com");
+            String accessToken = profile.optString("accessToken", "");
 
-            // Lấy ảnh đại diện từ Facebook Graph API
-            String avatar = getFacebookAvatarUrl(fbId);
+            // Tải ảnh avatar Facebook dùng access token
+            InputStream avatarStream = downloadFacebookAvatarAsStream(fbId, accessToken);
 
-            // Tự động lưu vào database nếu chưa tồn tại
+            // Lưu vào database nếu chưa có
             UserDao dao = new UserDao();
-            dao.quickRegisterIfNotExistsF(email, name, email);
+            if (!dao.isUsernameExists(email) && !dao.isEmailExists(email)) {
+                dao.registerCustomerBinary(email, "fbuser", avatarStream, name, email, "");
+            }
 
             // Lưu session
             HttpSession session = request.getSession();
             session.setAttribute("username", email);
-            session.setAttribute("avatar", avatar);
+            session.setAttribute("avatar", "fb_blob");
             session.setAttribute("role", "customer");
 
             json.put("status", "success");
@@ -57,24 +61,34 @@ public class FacebookLoginServlet extends HttpServlet {
         response.getWriter().write(json.toString());
     }
 
-    private String getFacebookAvatarUrl(String fbId) throws IOException {
-        String url = "https://graph.facebook.com/" + fbId + "/picture?type=large&redirect=false";
-        HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
-        connection.setRequestMethod("GET");
+    private InputStream downloadFacebookAvatarAsStream(String fbId, String accessToken) {
+        try {
+            String apiUrl = "https://graph.facebook.com/" + fbId + "/picture?type=large&redirect=false&access_token=" + accessToken;
+            HttpURLConnection conn = (HttpURLConnection) new URL(apiUrl).openConnection();
+            conn.setRequestMethod("GET");
 
-        StringBuilder responseBuilder = new StringBuilder();
-        try ( Scanner scanner = new Scanner(connection.getInputStream())) {
-            while (scanner.hasNextLine()) {
-                responseBuilder.append(scanner.nextLine());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
             }
+            JSONObject obj = new JSONObject(sb.toString());
+            String imageUrl = obj.getJSONObject("data").getString("url");
+
+            // Tải ảnh từ URL đó
+            HttpURLConnection imageConn = (HttpURLConnection) new URL(imageUrl).openConnection();
+            imageConn.setRequestMethod("GET");
+            return imageConn.getInputStream();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
         }
 
-        JSONObject jsonResponse = new JSONObject(responseBuilder.toString());
-        return jsonResponse.getJSONObject("data").getString("url");
     }
 
     @Override
     public String getServletInfo() {
-        return "Handles Facebook Login and auto-registers user if not exists";
+        return "Handles Facebook Login and stores user info with avatar into DB";
     }
 }

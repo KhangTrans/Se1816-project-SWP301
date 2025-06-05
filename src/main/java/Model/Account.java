@@ -11,17 +11,18 @@ import java.sql.Timestamp;
  * @author Admin
  */
 public class Account {
+
     private int accountId;
     private String username;
     private String password;
-    private String avatar;
+    private byte avatar;
     private String role;
     private java.sql.Timestamp createdAt;
 
     public Account() {
     }
 
-    public Account(int accountId, String username, String password, String avatar, String role, Timestamp createdAt) {
+    public Account(int accountId, String username, String password, byte avatar, String role, Timestamp createdAt) {
         this.accountId = accountId;
         this.username = username;
         this.password = password;
@@ -54,11 +55,11 @@ public class Account {
         this.password = password;
     }
 
-    public String getAvatar() {
+    public byte getAvatar() {
         return avatar;
     }
 
-    public void setAvatar(String avatar) {
+    public void setAvatar(byte avatar) {
         this.avatar = avatar;
     }
 
@@ -77,5 +78,5 @@ public class Account {
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
-    
+
 }

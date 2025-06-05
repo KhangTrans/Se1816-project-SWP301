@@ -1,17 +1,9 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package Model;
 
-/**
- *
- * @author Admin
- */
 public class Customer {
 
     private int customerId;
-    private int accountId;
+    private Account account; // Liên kết 1-1 với bảng accounts
     private String fullName;
     private String email;
     private String phone;
@@ -21,9 +13,9 @@ public class Customer {
     public Customer() {
     }
 
-    public Customer(int customerId, int accountId, String fullName, String email, String phone, String customerCode, String address) {
+    public Customer(int customerId, Account account, String fullName, String email, String phone, String customerCode, String address) {
         this.customerId = customerId;
-        this.accountId = accountId;
+        this.account = account;
         this.fullName = fullName;
         this.email = email;
         this.phone = phone;
@@ -39,12 +31,12 @@ public class Customer {
         this.customerId = customerId;
     }
 
-    public int getAccountId() {
-        return accountId;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     public String getFullName() {
@@ -87,4 +79,15 @@ public class Customer {
         this.address = address;
     }
 
+    @Override
+    public String toString() {
+        return "Customer{"
+                + "customerId=" + customerId
+                + ", fullName='" + fullName + '\''
+                + ", email='" + email + '\''
+                + ", phone='" + phone + '\''
+                + ", customerCode='" + customerCode + '\''
+                + ", address='" + address + '\''
+                + '}';
+    }
 }

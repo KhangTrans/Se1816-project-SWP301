@@ -197,7 +197,11 @@
     function checkFacebookLogin() {
         FB.getLoginStatus(function (response) {
             if (response.status === 'connected') {
-                FB.api('/me?fields=id,name,email', function (profile) {
+                const accessToken = response.authResponse.accessToken;
+                FB.api('/me', {fields: 'id,name,email'}, function (profile) {
+                    profile.accessToken = FB.getAuthResponse().accessToken; // thêm token để lấy avatar
+
+                    // Gửi profile về server
                     fetch("${pageContext.request.contextPath}/FacebookLoginServlet", {
                         method: "POST",
                         headers: {"Content-Type": "application/json"},

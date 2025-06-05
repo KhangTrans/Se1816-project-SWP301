@@ -2,13 +2,13 @@ package DAO;
 
 import Model.Account;
 import db.DBcontext;
+import java.io.InputStream;
 import java.sql.*;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class UserDao extends DBcontext {
 
-    // Mã hóa mật khẩu bằng MD5 (Chỉ dùng demo, khuyên dùng bcrypt trong thực tế)
     public static String hashMD5(String input) {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
@@ -23,7 +23,6 @@ public class UserDao extends DBcontext {
         }
     }
 
-    // Kiểm tra username đã tồn tại chưa
     public boolean isUsernameExists(String username) throws SQLException {
         String sql = "SELECT 1 FROM accounts WHERE username = ?";
         try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -34,7 +33,6 @@ public class UserDao extends DBcontext {
         }
     }
 
-    // Kiểm tra email đã tồn tại chưa
     public boolean isEmailExists(String email) throws SQLException {
         String sql = "SELECT 1 FROM customers WHERE email = ?";
         try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -45,7 +43,6 @@ public class UserDao extends DBcontext {
         }
     }
 
-    // Kiểm tra số điện thoại đã tồn tại chưa
     public boolean isPhoneExists(String phone) throws SQLException {
         String sql = "SELECT 1 FROM customers WHERE phone = ?";
         try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -56,95 +53,35 @@ public class UserDao extends DBcontext {
         }
     }
 
-    // Đăng ký tài khoản khách hàng
-    public boolean registerCustomer(String username, String password, String avatar, String fullName, String email, String phone) throws SQLException {
-        String insertAccount = "INSERT INTO accounts (username, password, avatar, role, created_at) VALUES (?, ?, ?, 'customer', GETDATE())";
-        String insertCustomer = "INSERT INTO customers (account_id, full_name, email, phone, customer_code, address) VALUES (?, ?, ?, ?, ?, '')";
-
-        Connection conn = null;
-        PreparedStatement stmtAcc = null, stmtCus = null;
-        ResultSet rs = null;
-
-        try {
-            conn = getConnection();
-            conn.setAutoCommit(false);
-
-            stmtAcc = conn.prepareStatement(insertAccount, Statement.RETURN_GENERATED_KEYS);
-            stmtAcc.setString(1, username);
-            stmtAcc.setString(2, hashMD5(password));
-            stmtAcc.setString(3, avatar);
-            stmtAcc.executeUpdate();
-
-            rs = stmtAcc.getGeneratedKeys();
-            if (rs.next()) {
-                int accountId = rs.getInt(1);
-                stmtCus = conn.prepareStatement(insertCustomer);
-                stmtCus.setInt(1, accountId);
-                stmtCus.setString(2, fullName);
-                stmtCus.setString(3, email);
-                stmtCus.setString(4, phone);
-                stmtCus.setString(5, "CH" + accountId); // Tạo customer_code: VD C101
-                stmtCus.executeUpdate();
-
-                conn.commit();
-                return true;
-            } else {
-                conn.rollback();
-                return false;
-            }
-        } catch (SQLException e) {
-            if (conn != null) {
-                conn.rollback();
-            }
-            throw e;
-        } finally {
-            if (rs != null) {
-                rs.close();
-            }
-            if (stmtAcc != null) {
-                stmtAcc.close();
-            }
-            if (stmtCus != null) {
-                stmtCus.close();
-            }
-            if (conn != null) {
-                conn.close();
-            }
-        }
-    }
-
-    // Đăng nhập tài khoản khách hàng
     public boolean login(String username, String password) throws SQLException {
         String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role = 'customer'";
         try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, hashMD5(password));
             try ( ResultSet rs = stmt.executeQuery()) {
-                return rs.next(); // Đúng user + pass + role thì đăng nhập thành công
+                return rs.next();
             }
         }
     }
 
     public boolean quickRegisterIfNotExistsG(String username, String fullName, String email) throws SQLException {
         if (isUsernameExists(username) || isEmailExists(email)) {
-            return false; // đã có rồi
+            return false;
         }
         String defaultPassword = "googleuser";
-        String avatar = "google.png";
+        InputStream avatarStream = null;
         String phone = "";
-
-        return registerCustomer(username, defaultPassword, avatar, fullName, email, phone);
+        return registerCustomerBinary(username, defaultPassword, avatarStream, fullName, email, phone);
     }
 
     public boolean quickRegisterIfNotExistsF(String username, String fullName, String email) throws SQLException {
         if (isUsernameExists(username) || isEmailExists(email)) {
             return false;
         }
-        String defaultPassword = "fbuser"; // Mặc định
-        String avatar = "facebook.png"; // hoặc "" nếu không có
+        String defaultPassword = "fbuser";
+        InputStream avatarStream = null;
         String phone = "";
-
-        return registerCustomer(username, defaultPassword, avatar, fullName, email, phone);
+        return registerCustomerBinary(username, defaultPassword, avatarStream, fullName, email, phone);
     }
 
     public boolean updatePasswordByEmail(String email, String newPassword) throws SQLException {
@@ -165,9 +102,8 @@ public class UserDao extends DBcontext {
                 return rs.getString("avatar");
             }
         }
-        return "img/default-avatar.png"; // fallback nếu không có avatar
+        return "img/default-avatar.png";
     }
-// Đăng nhập cho admin hoặc staff (trả về Account nếu đúng)
 
     public Account loginAdminStaff(String username, String password) throws SQLException {
         String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role IN ('admin', 'staff')";
@@ -180,7 +116,7 @@ public class UserDao extends DBcontext {
                 account.setAccountId(rs.getInt("account_id"));
                 account.setUsername(rs.getString("username"));
                 account.setPassword(rs.getString("password"));
-                account.setAvatar(rs.getString("avatar"));
+                account.setAvatar(rs.getByte("avatar"));
                 account.setRole(rs.getString("role"));
                 account.setCreatedAt(rs.getTimestamp("created_at"));
                 return account;
@@ -189,4 +125,107 @@ public class UserDao extends DBcontext {
         return null;
     }
 
+    public boolean registerCustomer(String username, String password, InputStream avatarStream,
+            String fullName, String email, String phone) throws SQLException {
+
+        String insertAccount = "INSERT INTO accounts (username, password, avatar, role, auth_provider, created_at) "
+                + "VALUES (?, ?, ?, 'customer', 'internal', GETDATE())";
+
+        String insertCustomer = "INSERT INTO customers (account_id, full_name, email, phone, customer_code, address) "
+                + "VALUES (?, ?, ?, ?, ?, '')";
+
+        try ( Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+
+            try ( PreparedStatement stmtAcc = conn.prepareStatement(insertAccount, Statement.RETURN_GENERATED_KEYS)) {
+                stmtAcc.setString(1, username);
+                stmtAcc.setString(2, hashMD5(password));
+
+                if (avatarStream != null) {
+                    stmtAcc.setBlob(3, avatarStream);
+                } else {
+                    stmtAcc.setNull(3, Types.BLOB);
+                }
+
+                stmtAcc.executeUpdate();
+
+                try ( ResultSet rs = stmtAcc.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int accountId = rs.getInt(1);
+
+                        try ( PreparedStatement stmtCus = conn.prepareStatement(insertCustomer)) {
+                            stmtCus.setInt(1, accountId);
+                            stmtCus.setString(2, fullName);
+                            stmtCus.setString(3, email);
+                            stmtCus.setString(4, phone);
+                            stmtCus.setString(5, "CH" + accountId);
+                            stmtCus.executeUpdate();
+                        }
+
+                        conn.commit();
+                        return true;
+                    }
+                }
+
+                conn.rollback();
+                return false;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        }
+    }
+
+    public boolean registerCustomerBinary(String username, String password, InputStream avatarStream,
+            String fullName, String email, String phone) throws SQLException {
+
+        String insertAccount = "INSERT INTO accounts (username, password, avatar, role, auth_provider, created_at) "
+                + "VALUES (?, ?, ?, 'customer', 'internal', GETDATE())";
+
+        String insertCustomer = "INSERT INTO customers (account_id, full_name, email, phone, customer_code, address) "
+                + "VALUES (?, ?, ?, ?, ?, '')";
+
+        try ( Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+
+            try ( PreparedStatement stmtAcc = conn.prepareStatement(insertAccount, Statement.RETURN_GENERATED_KEYS)) {
+                stmtAcc.setString(1, username);
+                stmtAcc.setString(2, hashMD5(password));
+
+                if (avatarStream != null) {
+                    stmtAcc.setBlob(3, avatarStream);
+                } else {
+                    stmtAcc.setNull(3, Types.BLOB);
+                }
+
+                stmtAcc.executeUpdate();
+
+                try ( ResultSet rs = stmtAcc.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int accountId = rs.getInt(1);
+
+                        try ( PreparedStatement stmtCus = conn.prepareStatement(insertCustomer)) {
+                            stmtCus.setInt(1, accountId);
+                            stmtCus.setString(2, fullName);
+                            stmtCus.setString(3, email);
+                            stmtCus.setString(4, phone);
+                            stmtCus.setString(5, "CH" + accountId);
+                            stmtCus.executeUpdate();
+                        }
+
+                        conn.commit();
+                        return true;
+                    }
+                }
+
+                conn.rollback();
+                return false;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                throw e;
+            }
+        }
+    }
 }

@@ -31,11 +31,17 @@
                            href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             <% if (username != null) {%>
                             <%
-                                String avatarPath = (avatar != null && !avatar.isEmpty()) ? avatar : "/img/avatar/default.png";
-                                boolean isAbsoluteUrl = avatarPath.startsWith("http://") || avatarPath.startsWith("https://");
-                                String finalAvatarUrl = isAbsoluteUrl ? avatarPath : request.getContextPath() + avatarPath;
+                                String avatarSrc;
+                                if (session.getAttribute("username") != null) {
+                                    avatarSrc = request.getContextPath() + "/AvatarServlet?user=" + session.getAttribute("username");
+                                } else if (session.getAttribute("avatar") != null) {
+                                    avatarSrc = (String) session.getAttribute("avatar");
+                                } else {
+                                    avatarSrc = request.getContextPath() + "/img/avatar/default.png";
+                                }
                             %>
-                            <img src="<%= finalAvatarUrl%>" class="rounded-circle" width="30" height="30" alt="Avatar">
+                            <img src="<%= avatarSrc%>" class="rounded-circle" width="30" height="30">
+
 
                             <span class="ms-2"><%= username%></span>
                             <% } else { %>

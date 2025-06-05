@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package Controller;
 
 import DAO.UserDao;
@@ -14,18 +10,15 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.*;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
+import java.io.*;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.security.GeneralSecurityException;
 import java.sql.SQLException;
 import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Admin
- */
 public class GoogleLoginServlet extends HttpServlet {
 
     private static final String CLIENT_ID = "749125474877-p8jcn9i7b48rpgq3eh4gkintoph2noo5.apps.googleusercontent.com";
@@ -55,15 +48,35 @@ public class GoogleLoginServlet extends HttpServlet {
             if (idToken != null) {
                 String email = idToken.getPayload().getEmail();
                 String name = (String) idToken.getPayload().get("name");
-                String picture = (String) idToken.getPayload().get("picture"); // avatar từ Google
+                String pictureUrl = (String) idToken.getPayload().get("picture");
 
-                // Tự động lưu vào database nếu chưa có
+                String username = email.split("@")[0];
+
+                // Tải ảnh từ Google avatar
+                InputStream avatarStream = null;
+                try {
+                    URL url = new URL(pictureUrl);
+                    HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+                    conn.setRequestMethod("GET");
+                    conn.connect();
+                    if (conn.getResponseCode() == 200) {
+                        avatarStream = conn.getInputStream();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace(); // fallback nếu lỗi: avatarStream = null
+                }
+
+                // Lưu vào database nếu chưa tồn tại
                 UserDao dao = new UserDao();
-                dao.quickRegisterIfNotExistsG(email, name, email); // dùng email làm usernam
+                if (!dao.isUsernameExists(username) && !dao.isEmailExists(email)) {
+                    dao.registerCustomer(username, "googleuser", avatarStream, name, email, "");
+                }
+
+                // Set session
                 HttpSession session = request.getSession();
-                session.setAttribute("username", email);
-                session.setAttribute("avatar", picture); // ⬅️ avatar từ Google
+                session.setAttribute("username", username);
                 session.setAttribute("role", "customer");
+
                 json.put("status", "success");
                 json.put("message", "Google login success!");
             } else {
@@ -71,27 +84,17 @@ public class GoogleLoginServlet extends HttpServlet {
                 json.put("message", "Invalid ID token.");
             }
 
-        } catch (IOException e) {
+        } catch (IOException | GeneralSecurityException | SQLException ex) {
+            Logger.getLogger(GoogleLoginServlet.class.getName()).log(Level.SEVERE, null, ex);
             json.put("status", "error");
-            json.put("message", "Google login failed: " + e.getMessage());
-        } catch (GeneralSecurityException ex) {
-            Logger.getLogger(GoogleLoginServlet.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (SQLException ex) {
-            Logger.getLogger(GoogleLoginServlet.class.getName()).log(Level.SEVERE, null, ex);
+            json.put("message", "Google login failed: " + ex.getMessage());
         }
 
         response.getWriter().write(json.toString());
-
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Handles Google Login and stores user info with avatar into DB";
+    }
 }
