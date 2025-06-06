@@ -1,0 +1,766 @@
+/* Reset and base styles */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: "Montserrat", sans-serif;
+    background-color: #111;
+    color: #fff;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+/* Main layout */
+.fitness-page {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Header styles */
+.header {
+    background: rgba(217, 255, 104, 0.6);
+    backdrop-filter: blur(12px);
+    border-radius: 0 0 16px 16px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    padding: 8px 40px;
+    /* Tăng padding để làm thanh navbar dài hơn */
+    position: fixed;
+    /* Thay đổi từ sticky thành fixed */
+    top: 0;
+    left: 50%;
+    /* Căn giữa */
+    transform: translateX(-50%);
+    /* Căn giữa */
+    width: 90%;
+    /* Chiều rộng tối đa */
+    max-width: 1400px;
+    /* Giới hạn chiều rộng tối đa */
+    margin: 0;
+    /* Loại bỏ margin để tránh xung đột với transform */
+    z-index: 1000;
+    /* Tăng z-index để đảm bảo hiển thị trên cùng */
+}
+
+.header__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+/* Logo */
+.header__logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.header__logo-img {
+    width: 24px;
+    height: 24px;
+}
+
+.header__brand {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111;
+}
+
+/* Nav */
+.header__nav {
+    display: flex;
+    gap: 24px;
+}
+
+.header__link {
+    text-decoration: none;
+    color: #000000;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.header__link:hover {
+    color: #d8ff90;
+    font-weight: 500;
+}
+
+/* Icons */
+.header__icons {
+    display: flex;
+    align-items: center;
+    gap: 18px;
+}
+
+.header__iconlist {
+    background: #f5f5f5;
+    border: none;
+    border-radius: 50%;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+}
+
+.header__iconlist:hover {
+    background: #eee;
+}
+
+.header__iconlist--cart {
+    position: relative;
+}
+
+.header__iconlist img {
+    width: 15px;
+}
+
+.header__iconlist img {
+    width: 15px;
+}
+
+.header__avatar img {
+    width: 15px;
+}
+
+/* Show Login & Logout */
+
+.user-dropdown {
+    position: absolute;
+    right: 0;
+    top: 110%;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    list-style: none;
+    padding: 2px;
+    margin: 0;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    min-width: 140px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.user-dropdown li a {
+    display: block;
+    padding: 10px 16px;
+    text-decoration: none;
+    color: #333;
+    font-size: 14px;
+    transition: background-color 0.3s;
+}
+
+.user-dropdown li a:hover {
+    background-color: #f5f5f5;
+
+}
+
+.user-dropdown.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.header__cart-badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: red;
+    color: #fff;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 999px;
+}
+
+/* Avatar */
+.header__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+/* ===End Heading=== */
+
+
+/* Buttons */
+.button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 30px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.button--action {
+    background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+    color: #111;
+    padding: 15px 35px;
+    font-size: 18px;
+    border-radius: 40px;
+}
+
+.button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Hero section */
+.hero {
+    position: relative;
+}
+
+.hero__content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 6rem;
+}
+
+.hero__title {
+    font-size: 60px;
+    line-height: 1.1;
+    text-align: center;
+    font-weight: bold;
+    margin-bottom: 40px;
+    color: #ffffff;
+}
+
+.hero__title-line {
+    display: block;
+}
+
+.hero__title-highlight {
+    color: #555;
+    background: linear-gradient(#caffad, #9fff45, #6d9669);
+    text-align: center;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero__image-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.hero__side-text {
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-size: 20px;
+    color: #555;
+    letter-spacing: 3px;
+    padding: 20px 0;
+}
+
+.hero__side-text--left {
+    transform: rotate(180deg);
+}
+
+.hero__image-wrapper {
+    position: relative;
+    flex-grow: 1;
+    display: flex;
+    justify-content: center;
+}
+
+.hero__image {
+    max-width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Stat cards */
+.stat-card {
+    position: absolute;
+    background-color: rgba(50, 50, 40, 0.8);
+    border-radius: 15px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100px;
+}
+
+.stat-card__icon {
+    background-color: rgba(196, 255, 0, 0.2);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.stat-card__icon-img {
+    width: 24px;
+    height: 24px;
+    filter: invert(88%) sepia(42%) saturate(1000%) hue-rotate(40deg) brightness(104%) contrast(101%);
+}
+
+.stat-card__label {
+    font-size: 14px;
+    color: #888;
+    margin-bottom: 5px;
+}
+
+.stat-card__value {
+    font-size: 28px;
+    font-weight: bold;
+    color: #c4ff00;
+}
+
+.stat-card--hours {
+    top: 20%;
+    left: 25%;
+}
+
+.stat-card--poses {
+    top: 20%;
+    right: 25%;
+}
+
+.stat-card--kcal {
+    bottom: 20%;
+    left: 25%;
+}
+
+.stat-card--sets {
+    bottom: 20%;
+    right: 25%;
+}
+
+/* Community and Action sections - bottom layout */
+.bottom-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    margin-top: 20px;
+    padding: 0 20px;
+}
+
+/* Community section */
+.community {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.community__images {
+    display: flex;
+}
+
+.community__image {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid #333;
+    margin-left: -15px;
+}
+
+.community__image:first-child {
+    margin-left: 0;
+}
+
+.community__stats {
+    display: flex;
+    flex-direction: column;
+}
+
+.community__number {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.community__label {
+    font-size: 16px;
+    color: #888;
+}
+
+/* Action section */
+.action {
+    text-align: right;
+    margin-left: auto;
+}
+
+
+
+/* Brand Logos Section Styles */
+.brand-logos {
+    width: 100%;
+    padding: 40px 0;
+    background-color: #111;
+    position: relative;
+}
+
+.brand-logos__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 20px;
+}
+
+/* Stats counter styling */
+.brand-logos__stat {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+}
+
+.brand-logos__number {
+    font-size: 42px;
+    font-weight: bold;
+    color: #fff;
+    line-height: 1;
+}
+
+.brand-logos__label {
+    font-size: 18px;
+    color: #888;
+}
+
+/* Logo list styling */
+.brand-logos__list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 80px;
+    flex-grow: 1;
+    margin: 0 30px;
+}
+
+.brand-logos__item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.brand-logos__image {
+    height: 100px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    opacity: 0.8;
+    transition: opacity 0.3s ease;
+}
+
+.brand-logos__image:hover {
+    opacity: 1;
+}
+
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+    .brand-logos__container {
+        flex-direction: column;
+        gap: 30px;
+    }
+
+    .brand-logos__list {
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .brand-logos__stat {
+        align-items: center;
+    }
+
+    .brand-logos__action {
+        text-align: center;
+        margin-top: 20px;
+    }
+}
+
+
+.content__text--bottom {
+    font-size: 80px;
+    font-weight: bold;
+    padding: 60px;
+    background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+    text-align: center;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+
+/* ===Gallery=== */
+.gallery {
+    display: flex;
+    gap: 40px;
+    justify-content: center;
+    padding: 20px;
+}
+
+.gallery__item {
+    width: 346px;
+    height: 460px;
+    background-color: #d4d4d4;
+    /* màu xám nền */
+    border-radius: 20px;
+    overflow: hidden;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+}
+
+.gallery__item-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.gallery__item:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+.gallery__view-all {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 20px;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.gallery__view-all-text {
+    font-size: 30px;
+    font-weight: bold;
+    margin-bottom: 5px;
+    background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+    text-align: center;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.gallery-slider__arrow {
+    color: #c4ff00;
+    font-size: 30px;
+    font-weight: 10px;
+    transition: transform 0.3s ease;
+}
+
+
+.gallery__view-all:hover .gallery-slider__arrow {
+    transform: translateY(3px);
+}
+
+/* ===End Gallery=== */
+
+
+/* ===Carousel=== */
+
+/* Carousel block */
+.carousel {
+    position: relative;
+    width: 100%;
+    /* Thay đổi từ max-width thành width 100% */
+    margin: 70px 0;
+    /* Tăng margin top/bottom để có thêm không gian */
+    overflow: hidden;
+    cursor: grab;
+}
+
+/* When grabbing */
+.carousel--grabbing {
+    cursor: grabbing;
+}
+
+/* Carousel container element */
+.carousel__container {
+    overflow: hidden;
+    padding: 30px 0;
+    /* Tăng padding để có thêm không gian */
+    width: 100%;
+    /* Đảm bảo container chiếm toàn bộ chiều rộng */
+}
+
+/* Carousel track element - holds all slides */
+.carousel__track {
+    display: flex;
+    will-change: transform;
+    /* No default transition - controlled by JS */
+    padding: 0 30px;
+    /* Tăng padding để slides đầu tiên không bị sát mép */
+}
+
+/* Carousel item element */
+.carousel__item {
+    flex: 0 0 auto;
+    width: 350px;
+    /* Tăng từ 240px lên 350px */
+    height: 450px;
+    /* Tăng từ 320px lên 450px */
+    margin: 0 20px;
+    /* Tăng khoảng cách giữa các items */
+    border-radius: 12px;
+    /* Tăng bo góc */
+    overflow: hidden;
+    transition: transform 0.3s;
+}
+
+.carousel__item:hover {
+    transform: scale(1.05);
+    /* Tăng hiệu ứng hover lớn hơn */
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    /* Thêm bóng đổ để nổi bật */
+}
+
+/* Carousel image element */
+.carousel__image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 12px;
+    /* Tăng bo góc phù hợp với item */
+}
+
+/* Carousel fade elements */
+.carousel__fade {
+    position: absolute;
+    top: 0;
+    height: 100%;
+    width: 180px;
+    /* Tăng độ rộng của hiệu ứng fade từ 150px lên 180px */
+    pointer-events: none;
+    z-index: 2;
+}
+
+.carousel__fade--left {
+    left: 0;
+    background: linear-gradient(to right, rgba(18, 18, 18, 1) 30%, rgba(18, 18, 18, 0.8) 70%, rgba(18, 18, 18, 0));
+}
+
+.carousel__fade--right {
+    right: 0;
+    background: linear-gradient(to left, rgba(18, 18, 18, 1) 30%, rgba(18, 18, 18, 0.8) 70%, rgba(18, 18, 18, 0));
+}
+
+/* Animation for infinite scroll */
+@keyframes infiniteScroll {
+    from {
+        transform: translateX(0);
+    }
+
+    to {
+        transform: translateX(-50%);
+    }
+}
+
+/* Active infinite scrolling animation class */
+.carousel__track--scrolling {
+    animation: infiniteScroll 30s linear infinite;
+}
+
+/* Pause animation on hover */
+.carousel__track--scrolling:hover {
+    animation-play-state: paused;
+}
+
+/* Disable text selection during dragging */
+.no-select {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+/* Container cho carousel để nó chiếm 100% chiều rộng của màn hình */
+.carousel-wrapper {
+    width: 100vw;
+    margin-left: calc(-50vw + 50%);
+    position: relative;
+}
+
+/* ===End Carousel=== */
+
+
+/* ===Footer=== */
+
+.footer {
+    background-color: #1c1c1e;
+    color: #fff;
+    padding: 40px 20px 20px;
+    font-family: 'Segoe UI', sans-serif;
+    max-height: fit-content;
+}
+
+.footer__container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 40px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.footer__title {
+    font-size: 24px;
+    margin-bottom: 10px;
+    color: #4fc3f7;
+}
+
+.footer__desc {
+    max-width: 300px;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.footer__heading {
+    font-size: 18px;
+    margin-bottom: 10px;
+    color: #ffcc80;
+}
+
+.footer__list {
+    list-style: none;
+    padding: 0;
+}
+
+.footer__list li {
+    margin-bottom: 8px;
+}
+
+.footer__list a {
+    text-decoration: none;
+    color: #ddd;
+    transition: color 0.3s ease;
+}
+
+.footer__list a:hover {
+    color: #4fc3f7;
+}
+
+.footer__bottom {
+    border-top: 1px solid #333;
+    margin-top: 30px;
+    padding-top: 20px;
+    padding-bottom: 15px;
+    text-align: center;
+    font-size: 14px;
+    color: #aaa;
+}
+
+/* ===End Footer=== */

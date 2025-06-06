@@ -1,0 +1,18 @@
+[
+  {
+    "question": "Làm sao để đăng ký tài khoản?",
+    "answer": "Bạn có thể đăng ký tài khoản bằng cách nhấn vào nút 'Đăng ký' trên trang chủ và điền đầy đủ thông tin yêu cầu."
+  },
+  {
+    "question": "Tôi quên mật khẩu thì phải làm sao?",
+    "answer": "Bạn nhấn vào 'Quên mật khẩu', nhập email và làm theo hướng dẫn để đặt lại mật khẩu."
+  },
+  {
+    "question": "Hệ thống hỗ trợ những ngôn ngữ nào?",
+    "answer": "Hiện tại hệ thống hỗ trợ tiếng Việt và tiếng Anh. Các ngôn ngữ khác sẽ được bổ sung sau."
+  },
+  {
+    "question": "Tôi có thể chỉnh sửa hồ sơ cá nhân không?",
+    "answer": "Bạn có thể chỉnh sửa hồ sơ bằng cách vào mục 'Tài khoản > Thông tin cá nhân' để cập nhật thông tin."
+  }
+]
