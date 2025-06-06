@@ -6,6 +6,8 @@
 }
 
 body {
+    max-width: 1440px;
+    margin: auto;
     font-family: "Montserrat", sans-serif;
     background-color: #111;
     color: #fff;
@@ -492,12 +494,154 @@ html {
 .content__text--bottom {
     font-size: 80px;
     font-weight: bold;
-    padding: 60px;
+    padding: 30px;
     background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
     text-align: center;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
+
+
+
+/* ===MEMBER CARD=== */
+/* Original CSS (unchanged) */
+.membership-card {
+    background: linear-gradient(180deg, #4B8137, #153000);
+    color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 15px;
+    position: relative;
+    /* Đặt thẻ cha làm tham chiếu cho position: absolute */
+    min-height: 450px;
+    /* Đảm bảo chiều cao đủ để button cố định ở dưới */
+}
+
+.membership-card__duration {
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+    /* Ngăn ngắt dòng */
+}
+
+.membership-card__price {
+    color: #BFFE77;
+    font-size: 40px;
+    font-weight: bold;
+    line-height: 1;
+    white-space: nowrap;
+    /* Ngăn ngắt dòng */
+}
+
+.membership-card__price sup {
+    font-size: 16px;
+    vertical-align: super;
+}
+
+.membership-card__price-unit {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.membership-card__description {
+    font-size: 14px;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(191, 254, 119, 100);
+    /* Adds line below description */
+    padding-bottom: 10px;
+    /* Adds space below the text */
+}
+
+.membership-card__features {
+    list-style: none;
+    font-size: 14px;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(191, 254, 119, 100);
+    /* Adds line below description */
+    padding-bottom: 10px;
+    /* Adds space below the text */
+
+}
+
+.membership-card__feature-item {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 10px;
+
+}
+
+.membership-card__feature-item::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    /* color: #ffffff; */
+
+}
+
+.membership-card__button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    right: 25px;
+    position: absolute;
+    /* Đặt button cố định trong thẻ cha */
+    bottom: 25px;
+    /* Khoảng cách từ dưới lên */
+    left: 25px;
+    /* Khoảng cách từ bên trái */
+
+}
+
+.membership-card__button::after {
+    margin-left: 5px;
+    font-size: 16px;
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.membership-card__button:hover {
+    transform: translateX(3px);
+    color: #a8d468;
+}
+
+/* New CSS for container and card sizing */
+.membership-cards-container {
+    display: flex;
+    gap: 40px;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    /* Keep cards in one row */
+    padding: 20px;
+    overflow-x: auto;
+
+}
+
+.membership-cards-container .membership-card {
+    flex: 0 0 300px;
+    /* Fix width to match original max-width */
+}
+
+/* Fix button arrow color on hover */
+.membership-card__button:hover::after {
+    color: #a8d468;
+    /* Match hover color */
+}
+
+/* ===END MEMBER CARD=== */
 
 
 /* ===Gallery=== */
@@ -557,7 +701,7 @@ html {
 
 .gallery-slider__arrow {
     color: #c4ff00;
-    font-size: 30px;
+    font-size: 18px;
     font-weight: 10px;
     transition: transform 0.3s ease;
 }
@@ -576,9 +720,7 @@ html {
 .carousel {
     position: relative;
     width: 100%;
-    /* Thay đổi từ max-width thành width 100% */
     margin: 70px 0;
-    /* Tăng margin top/bottom để có thêm không gian */
     overflow: hidden;
     cursor: grab;
 }
@@ -592,40 +734,30 @@ html {
 .carousel__container {
     overflow: hidden;
     padding: 30px 0;
-    /* Tăng padding để có thêm không gian */
     width: 100%;
-    /* Đảm bảo container chiếm toàn bộ chiều rộng */
 }
 
 /* Carousel track element - holds all slides */
 .carousel__track {
     display: flex;
     will-change: transform;
-    /* No default transition - controlled by JS */
     padding: 0 30px;
-    /* Tăng padding để slides đầu tiên không bị sát mép */
 }
 
 /* Carousel item element */
 .carousel__item {
     flex: 0 0 auto;
     width: 350px;
-    /* Tăng từ 240px lên 350px */
     height: 450px;
-    /* Tăng từ 320px lên 450px */
     margin: 0 20px;
-    /* Tăng khoảng cách giữa các items */
     border-radius: 12px;
-    /* Tăng bo góc */
     overflow: hidden;
     transition: transform 0.3s;
 }
 
 .carousel__item:hover {
     transform: scale(1.05);
-    /* Tăng hiệu ứng hover lớn hơn */
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    /* Thêm bóng đổ để nổi bật */
 }
 
 /* Carousel image element */
@@ -634,7 +766,6 @@ html {
     height: 100%;
     object-fit: cover;
     border-radius: 12px;
-    /* Tăng bo góc phù hợp với item */
 }
 
 /* Carousel fade elements */
@@ -643,19 +774,18 @@ html {
     top: 0;
     height: 100%;
     width: 180px;
-    /* Tăng độ rộng của hiệu ứng fade từ 150px lên 180px */
     pointer-events: none;
     z-index: 2;
 }
 
 .carousel__fade--left {
     left: 0;
-    background: linear-gradient(to right, rgba(18, 18, 18, 1) 30%, rgba(18, 18, 18, 0.8) 70%, rgba(18, 18, 18, 0));
+    background: linear-gradient(to right, rgba(17, 17, 17, 1) 30%, rgba(17, 17, 17, 1) 70%, rgba(18, 18, 18, 0));
 }
 
 .carousel__fade--right {
     right: 0;
-    background: linear-gradient(to left, rgba(18, 18, 18, 1) 30%, rgba(18, 18, 18, 0.8) 70%, rgba(18, 18, 18, 0));
+    background: linear-gradient(to left, rgba(17, 17, 17, 1) 30%, rgba(17, 17, 17, 1) 70%, rgba(18, 18, 18, 0));
 }
 
 /* Animation for infinite scroll */
@@ -687,11 +817,14 @@ html {
     user-select: none;
 }
 
-/* Container cho carousel để nó chiếm 100% chiều rộng của màn hình */
+/* FIX: Container cho carousel để nó luôn nằm center */
 .carousel-wrapper {
-    width: 100vw;
-    margin-left: calc(-50vw + 50%);
+    width: 100%;
+    max-width: 100vw;
+    margin: 0 auto;
     position: relative;
+    display: flex;
+    justify-content: center;
 }
 
 /* ===End Carousel=== */
@@ -764,3 +897,136 @@ html {
 }
 
 /* ===End Footer=== */
+
+
+
+/* ===News=== */
+/* Block: banner */
+.banner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    align-items: start;
+    padding: 40px;
+    min-height: auto;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 20px;
+}
+
+/* Element: banner__image */
+.banner__image {
+    width: 500px;
+    height: 400px;
+    background-color: #d3d3d3;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    /* Added smooth transition */
+}
+
+/* Element: banner__image--main */
+.banner__image--main {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Element: banner__content */
+.banner__content {
+    flex: 1;
+    padding-left: 20px;
+    color: #fff;
+    max-width: calc(100% - 540px);
+}
+
+/* Element: banner__title */
+.banner__title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+/* Element: banner__description */
+.banner__description {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 600px;
+}
+
+/* Second banner - reverse layout */
+.banner--reverse {
+    flex-direction: row-reverse;
+}
+
+.banner--reverse .banner__content {
+    padding-left: 0;
+    padding-right: 20px;
+    text-align: right;
+}
+
+/* Hover effect for banner images */
+.banner__image:hover {
+    box-shadow:
+        0 0 15px rgba(191, 254, 119, 0.4),
+        0 0 25px rgba(191, 254, 119, 0.2);
+    transform: scale(1.02) rotate(0.5deg);
+    border-radius: 15px;
+}
+
+/* Separator */
+.separator {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #BFFE77, transparent);
+    margin: 40px auto;
+    max-width: 1200px;
+}
+
+/* Responsive: Khi màn hình nhỏ */
+@media (max-width: 1024px) {
+
+    .banner,
+    .banner--reverse {
+        flex-direction: column;
+        align-items: center;
+        max-width: 100%;
+        gap: 15px;
+    }
+
+    .banner__image {
+        width: 500px;
+        height: 400px;
+        margin-bottom: 10px;
+    }
+
+    .banner__content,
+    .banner--reverse .banner__content {
+        padding-left: 0;
+        padding-right: 0;
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .banner__description {
+        max-width: 100%;
+    }
+}
+
+/* Khi màn hình rất nhỏ (dưới 600px) */
+@media (max-width: 600px) {
+    .banner__image {
+        width: 100%;
+        max-width: 500px;
+        height: 300px;
+    }
+
+    .banner {
+        padding: 20px;
+    }
+}
+
+/* ===End News=== */
