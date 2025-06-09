@@ -326,20 +326,27 @@ public class UserDao extends DBcontext {
     }
 
     public void updateAccount(int accountId, String username, String password, String role, InputStream avatarStream) throws SQLException {
-        String sql = "UPDATE accounts SET username = ?, password = ?, role = ?, avatar = ? WHERE account_id = ?";
-        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql;
+        boolean hasNewAvatar = (avatarStream != null);
 
+        if (hasNewAvatar) {
+            sql = "UPDATE accounts SET username = ?, password = ?, role = ?, avatar = ? WHERE account_id = ?";
+        } else {
+            sql = "UPDATE accounts SET username = ?, password = ?, role = ? WHERE account_id = ?";
+        }
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, username);
-            ps.setString(2, hashMD5(password)); // Lưu ý: bạn có thể hashMD5 nếu cần
+            ps.setString(2, hashMD5(password)); // Nếu onee-chan dùng hashMD5
             ps.setString(3, role);
 
-            if (avatarStream != null) {
+            if (hasNewAvatar) {
                 ps.setBlob(4, avatarStream);
+                ps.setInt(5, accountId);
             } else {
-                ps.setNull(4, Types.BLOB);
+                ps.setInt(4, accountId);
             }
 
-            ps.setInt(5, accountId);
             ps.executeUpdate();
         }
     }
