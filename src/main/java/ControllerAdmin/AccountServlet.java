@@ -114,10 +114,15 @@ public class AccountServlet extends HttpServlet {
                 authProvider = "internal"; // Mặc định nếu không truyền
             }
 
-            Part avatarPart = request.getPart("avatar");
+            Part avatarPart = null;
             InputStream avatarStream = null;
-            if (avatarPart != null && avatarPart.getSize() > 0) {
-                avatarStream = avatarPart.getInputStream();
+            try {
+                avatarPart = request.getPart("avatar");
+                if (avatarPart != null && avatarPart.getSize() > 0) {
+                    avatarStream = avatarPart.getInputStream();
+                }
+            } catch (IllegalStateException | ServletException e) {
+                avatarStream = null; // Nếu không có multipart thì bỏ qua
             }
 
             switch (action) {
@@ -141,11 +146,17 @@ public class AccountServlet extends HttpServlet {
 
                 case "update":
                     int accountId = Integer.parseInt(request.getParameter("accountId"));
-                    System.out.println("UPDATE accountId = " + accountId + ", username = " + username);
-                    dao.updateAccount(accountId, username, password, role, avatarStream);
+                    // Kiểm tra nếu người dùng có upload ảnh mới
+                    if (avatarPart != null && avatarPart.getSize() > 0) {
+                        dao.updateAccount(accountId, username, password, role, avatarStream); // có ảnh mới
+                    } else {
+                        dao.updateAccount(accountId, username, password, role, null); // không có ảnh → giữ ảnh cũ
+                    }
+
                     response.setContentType("text/plain");
                     response.getWriter().write("OK");
                     break;
+
                 case "delete":
                     int deleteId = Integer.parseInt(request.getParameter("accountId"));
                     dao.deleteAccount(deleteId);
