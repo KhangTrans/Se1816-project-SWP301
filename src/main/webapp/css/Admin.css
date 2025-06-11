@@ -1,12 +1,17 @@
 /* Admin Dashboard Styles - BEM Methodology */
 .modal {
-    display: none;
+    display: none;           /* mặc định ẩn */
     position: fixed;
-    z-index: 999;
-    left: 0; top: 0;
-    width: 100%; height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.5);
+    display: flex;           /* flex centering */
+    align-items: center;
+    justify-content: center;
 }
+
 
 .modal-content {
     background-color: white;
@@ -434,17 +439,17 @@ body {
         border-radius: 0;
         margin-bottom: 20px;
     }
-    
+
     .main-content {
         margin-left: 0;
         padding: 20px;
     }
-    
+
     .table-container__content {
         padding: 20px;
         overflow-x: auto;
     }
-    
+
     .data-table {
         min-width: 800px;
     }

@@ -68,6 +68,10 @@
         <servlet-name>AvatarServlet</servlet-name>
         <url-pattern>/AvatarServlet</url-pattern>
     </servlet-mapping>
+    <servlet>
+        <servlet-name>ImagesServlet</servlet-name>
+        <servlet-class>controller.ImagesServlet</servlet-class>
+    </servlet>
     <session-config>
         <session-timeout>
             30

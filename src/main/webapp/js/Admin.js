@@ -76,8 +76,9 @@ window.AdminDashboard = {
 function openModal(id) {
     const modal = document.getElementById(id);
     if (modal)
-        modal.style.display = 'block';
+        modal.style.display = 'flex';
 }
+
 
 function closeModal(id) {
     const modal = document.getElementById(id);
@@ -353,10 +354,10 @@ function openEditProductModal(productId) {
                     select.appendChild(option);
                 });
 
-// Sau khi gắn option xong mới gán select.value
+                // Sau khi gắn option xong mới gán select.value
                 select.value = String(selectedCategoryId);
 
-// Nếu không khớp, chọn option đầu tiên và cảnh báo
+                // Nếu không khớp, chọn option đầu tiên và cảnh báo
                 if (!select.value) {
                     console.warn("⚠ Không tìm thấy category khớp, chọn giá trị mặc định đầu tiên");
                     if (select.options.length > 0) {
@@ -364,7 +365,7 @@ function openEditProductModal(productId) {
                     }
                 }
 
-// Kiểm tra cuối cùng
+                // Kiểm tra cuối cùng
                 console.log("✔️ Gán lại select.value =", select.value);
 
 

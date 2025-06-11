@@ -8,7 +8,7 @@
 
 <style>
     footer {
-        background-color: #8e9292;
+        background-color: #111";
         color: #f8f9fa;
         font-family: 'Segoe UI', sans-serif;
         margin-top: 50px
@@ -57,7 +57,7 @@
         text-align: center;
         font-size: 14px;
     }
-     html, body {
+    html, body {
         height: 100%;
         margin: 0;
     }
@@ -126,6 +126,6 @@
 
 <!-- Bootstrap JS & Popper.js -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+<script src="<%= request.getContextPath()%>/js/carousel.js"></script>
 </body>
 </html>

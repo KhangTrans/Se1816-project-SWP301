@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 
 public class DBcontext {
 
-    private final String DB_URL = "jdbc:sqlserver://127.0.0.1:1433;databaseName=gym-system;encrypt=false";
+    private final String DB_URL = "jdbc:sqlserver://127.0.0.1:1433;databaseName=GASMS;encrypt=false";
     private final String DB_USER = "sa";
     private final String DB_PWD = "123456";
 

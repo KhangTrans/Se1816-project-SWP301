@@ -13,23 +13,24 @@
 
 <!-- Header -->
 <header>
-    <nav class="navbar navbar-expand-lg fixed-top custom-header">
+    <nav class="navbar navbar-expand-lg fixed-top custom-header"
+         style="background-color: rgba(217, 255, 104, 0.6);">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#" style="color: #ff7f00">GYM VIETNAM</a>
+            <a class="navbar-brand" href="#" style="color: #111">GYM VIETNAM</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="#">Trang chủ</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Giới thiệu</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Liên hệ</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
 
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center"
                            href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                            <% if (username != null) {%>
+                            <% if (username != null) { %>
                             <%
                                 String avatarSrc;
                                 if (session.getAttribute("username") != null) {
@@ -40,37 +41,35 @@
                                     avatarSrc = request.getContextPath() + "/img/avatar/default.png";
                                 }
                             %>
-                            <img src="<%= avatarSrc%>" class="rounded-circle" width="30" height="30">
-
-
-                            <span class="ms-2"><%= username%></span>
+                            <img src="<%= avatarSrc %>" class="rounded-circle" width="30" height="30">
+                            <span class="ms-2"><%= username %></span>
                             <% } else { %>
-                            Tài khoản
+                            Account
                             <% } %>
                         </a>
 
-                        <ul class="dropdown-menu dropdown-menu-end">
+                        <ul class="dropdown-menu dropdown-menu-end bg-transparent border-0 mt-3">
                             <% if (username != null) { %>
-                            <li><a class="dropdown-item" href="#">Thông tin cá nhân</a></li>
-                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Đăng xuất</a></li>
-                                <% } else { %>
+                            <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Logout</a></li>
+                            <% } else { %>
                             <li>
                                 <button type="button"
-                                        class="btn btn-primary w-100 mb-2"
+                                        class="btn w-100 mb-2"
                                         data-bs-toggle="modal"
                                         data-bs-target="#signupModal">
-                                    Đăng ký
+                                    Sign Up
                                 </button>
                             </li>
                             <li>
                                 <button type="button"
-                                        class="btn btn-primary w-100"
+                                        class="btn w-100"
                                         data-bs-toggle="modal"
                                         data-bs-target="#loginModal">
-                                    Đăng nhập
+                                    Sign In
                                 </button>
                             </li>
-                            <% }%>
+                            <% } %>
                         </ul>
                     </li>
                 </ul>

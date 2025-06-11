@@ -6,7 +6,7 @@
 <%
     ProductDao productDao = new ProductDao();
     List<Products> products = productDao.getAllProducts(); // đảm bảo hàm này đã tồn tại trong ProductDao
-       // **MỚI**: Load categories và đưa vào request
+    // **MỚI**: Load categories và đưa vào request
     CategoryDao categoryDao = new CategoryDao();
     List<Categories> categories = categoryDao.getAllCategories();
     request.setAttribute("categories", categories);
@@ -37,8 +37,7 @@
                 </tr>
             </thead>
             <tbody>
-                <%
-                    int rowIndex = 1;
+                <%                    int rowIndex = 1;
                     for (Products p : products) {
                 %>
                 <tr>
@@ -46,13 +45,11 @@
                     <td >
                         <%
                             Model.Product_Images img = productDao.getPrimaryImage(p.getProductId());
-                            String imageSrc = (img != null)
+                            String productImage = (img != null)
                                     ? (request.getContextPath() + "/ImagesServlet?type=product&imageId=" + img.getImageId())
                                     : (request.getContextPath() + "/avatar/default.png");
                         %>
-                        <img src="<%= imageSrc%>" alt="Product Image" style="width:60px;height:60px;border-radius:10px; margin-top: 5px">
-
-
+                        <img src="<%= productImage%>" alt="Product Image" style="width:60px;height:60px;border-radius:10px; margin-top: 5px">
 
                     </td>
                     <td><%= p.getName()%></td>
@@ -63,14 +60,14 @@
                     <td>
                         <button class="action-buttons__btn action-buttons__btn--edit" 
                                 onclick="openEditProductModal(
-                    '<%= p.getProductId()%>',
-                    '<%= p.getName()%>',
-                    '<%= p.getDescription()%>',
-                    '<%= p.getPrice()%>',
-                    '<%= p.getStockQuantity()%>',
-                    '<%= p.getCategoryId()%>',
-                    '<%= request.getContextPath()%>/ImagesServlet?type=product&imageId=<%= img != null ? img.getImageId() : 0%>'
-                                    )">
+                                                '<%= p.getProductId()%>',
+                                                '<%= p.getName()%>',
+                                                '<%= p.getDescription()%>',
+                                                '<%= p.getPrice()%>',
+                                                '<%= p.getStockQuantity()%>',
+                                                '<%= p.getCategoryId()%>',
+                                                '<%= request.getContextPath()%>/ImagesServlet?type=product&imageId=<%= img != null ? img.getImageId() : 0%>'
+                                                                )">
                             Edit
                         </button>
 

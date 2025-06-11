@@ -24,171 +24,61 @@ html {
 }
 
 /* Header styles */
-.header {
-    background: rgba(217, 255, 104, 0.6);
-    backdrop-filter: blur(12px);
-    border-radius: 0 0 16px 16px;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-    padding: 8px 40px;
-    /* Tăng padding để làm thanh navbar dài hơn */
-    position: fixed;
-    /* Thay đổi từ sticky thành fixed */
-    top: 0;
-    left: 50%;
-    /* Căn giữa */
-    transform: translateX(-50%);
-    /* Căn giữa */
-    width: 90%;
-    /* Chiều rộng tối đa */
-    max-width: 1400px;
-    /* Giới hạn chiều rộng tối đa */
-    margin: 0;
-    /* Loại bỏ margin để tránh xung đột với transform */
-    z-index: 1000;
-    /* Tăng z-index để đảm bảo hiển thị trên cùng */
+.custom-header {
+    border-radius: 2rem;
+    backdrop-filter: blur(5px);
+    box-shadow: 0 2px 10px #1c2722;
+    border: 3px solid rgb(40 162 143 / 10%);
+    margin: 10px;
 }
-
-.header__container {
-    max-width: 1200px;
-    margin: 0 auto;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-
-/* Logo */
-.header__logo {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-}
-
-.header__logo-img {
-    width: 24px;
-    height: 24px;
-}
-
-.header__brand {
-    font-size: 18px;
-    font-weight: 600;
-    color: #111;
-}
-
-/* Nav */
-.header__nav {
-    display: flex;
-    gap: 24px;
-}
-
-.header__link {
-    text-decoration: none;
-    color: #000000;
-    font-weight: 500;
-    transition: all 0.3s;
-}
-
-.header__link:hover {
-    color: #d8ff90;
-    font-weight: 500;
-}
-
-/* Icons */
-.header__icons {
-    display: flex;
-    align-items: center;
-    gap: 18px;
-}
-
-.header__iconlist {
-    background: #f5f5f5;
-    border: none;
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    cursor: pointer;
-}
-
-.header__iconlist:hover {
-    background: #eee;
-}
-
-.header__iconlist--cart {
-    position: relative;
-}
-
-.header__iconlist img {
-    width: 15px;
-}
-
-.header__iconlist img {
-    width: 15px;
-}
-
-.header__avatar img {
-    width: 15px;
-}
-
-/* Show Login & Logout */
-
-.user-dropdown {
-    position: absolute;
+/* C?n ph?i dropdown */
+/* Dropdown menu aligned to the right */
+.dropdown-menu-end {
     right: 0;
-    top: 110%;
-    background-color: #fff;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    list-style: none;
-    padding: 2px;
-    margin: 0;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    z-index: 100;
-    min-width: 140px;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.2s ease, visibility 0.2s ease;
+    left: auto;
 }
 
-.user-dropdown li a {
-    display: block;
-    padding: 10px 16px;
-    text-decoration: none;
+/* Transparent dropdown with soft shadow and rounded corners */
+.dropdown-menu {
+    min-width: 180px;
+    background-color: rgba(255, 255, 255, 0.8); /* semi-transparent white */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    backdrop-filter: blur(5px); /* optional: adds blur effect */
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+/* Hover effect for dropdown items */
+.dropdown-menu .dropdown-item:hover {
+    background-color: #f0f0f0;
+    color: #007bff;
+}
+
+/* Custom style for login/register buttons inside dropdown */
+.dropdown-menu .btn {
+    background-color: rgba(217, 255, 104, 0.6);
+    border: none;
     color: #333;
-    font-size: 14px;
-    transition: background-color 0.3s;
+    font-weight: bold;
 }
 
-.user-dropdown li a:hover {
-    background-color: #f5f5f5;
-
+.dropdown-menu .btn:hover {
+    background-color: rgba(217, 255, 104, 0.9);
+    color: #000;
 }
 
-.user-dropdown.visible {
-    opacity: 1;
-    visibility: visible;
+.navbar-brand {
+    font-weight: bold;
+    font-size: 1.5rem;
+    transition: color 0.3s ease, transform 0.3s ease;
+    text-decoration: none;
 }
 
-.header__cart-badge {
-    position: absolute;
-    top: -4px;
-    right: -4px;
-    background: red;
-    color: #fff;
-    font-size: 10px;
-    padding: 2px 6px;
-    border-radius: 999px;
+.navbar-brand:hover {
+    color: #218838; /* Màu xanh lá ??m h?n khi hover */
+    transform: scale(1.1);
 }
-
-/* Avatar */
-.header__avatar {
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    object-fit: cover;
-}
-
 /* ===End Heading=== */
 
 
@@ -764,3 +654,274 @@ html {
 }
 
 /* ===End Footer=== */
+
+/* ===MEMBER CARD=== */
+/* Original CSS (unchanged) */
+.membership-card {
+    background: linear-gradient(180deg, #4B8137, #153000);
+    color: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex-direction: column;
+    gap: 15px;
+    position: relative;
+    /* Đặt thẻ cha làm tham chiếu cho position: absolute */
+    min-height: 450px;
+    /* Đảm bảo chiều cao đủ để button cố định ở dưới */
+}
+
+.membership-card__duration {
+    font-size: 18px;
+    font-weight: bold;
+    text-transform: uppercase;
+    white-space: nowrap;
+    /* Ngăn ngắt dòng */
+}
+
+.membership-card__price {
+    color: #BFFE77;
+    font-size: 40px;
+    font-weight: bold;
+    line-height: 1;
+    white-space: nowrap;
+    /* Ngăn ngắt dòng */
+}
+
+.membership-card__price sup {
+    font-size: 16px;
+    vertical-align: super;
+}
+
+.membership-card__price-unit {
+    font-size: 16px;
+    font-weight: normal;
+}
+
+.membership-card__description {
+    font-size: 14px;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(191, 254, 119, 100);
+    /* Adds line below description */
+    padding-bottom: 10px;
+    /* Adds space below the text */
+}
+
+.membership-card__features {
+    list-style: none;
+    font-size: 14px;
+    line-height: 1.5;
+    border-bottom: 1px solid rgba(191, 254, 119, 100);
+    /* Adds line below description */
+    padding-bottom: 10px;
+    /* Adds space below the text */
+
+}
+
+.membership-card__feature-item {
+    position: relative;
+    padding-left: 20px;
+    margin-bottom: 10px;
+
+}
+
+.membership-card__feature-item::before {
+    content: "•";
+    position: absolute;
+    left: 0;
+    /* color: #ffffff; */
+
+}
+
+.membership-card__button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: none;
+    border: none;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    padding: 0;
+    right: 25px;
+    position: absolute;
+    /* Đặt button cố định trong thẻ cha */
+    bottom: 25px;
+    /* Khoảng cách từ dưới lên */
+    left: 25px;
+    /* Khoảng cách từ bên trái */
+
+}
+
+.membership-card__button::after {
+    margin-left: 5px;
+    font-size: 16px;
+    color: #ffffff;
+    transition: all 0.3s ease;
+}
+
+.membership-card__button:hover {
+    transform: translateX(3px);
+    color: #a8d468;
+}
+
+/* New CSS for container and card sizing */
+.membership-cards-container {
+    display: flex;
+    gap: 40px;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    /* Keep cards in one row */
+    padding: 20px;
+    overflow-x: auto;
+
+}
+
+.membership-cards-container .membership-card {
+    flex: 0 0 300px;
+    /* Fix width to match original max-width */
+}
+
+/* Fix button arrow color on hover */
+.membership-card__button:hover::after {
+    color: #a8d468;
+    /* Match hover color */
+}
+
+/* ===END MEMBER CARD=== */
+
+/* ===News=== */
+/* Block: banner */
+.banner {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: start;
+    align-items: start;
+    padding: 40px;
+    min-height: auto;
+    max-width: 1200px;
+    margin: 0 auto;
+    gap: 20px;
+}
+
+/* Element: banner__image */
+.banner__image {
+    width: 500px;
+    height: 400px;
+    background-color: #d3d3d3;
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    /* Added smooth transition */
+}
+
+/* Element: banner__image--main */
+.banner__image--main {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Element: banner__content */
+.banner__content {
+    flex: 1;
+    padding-left: 20px;
+    color: #fff;
+    max-width: calc(100% - 540px);
+}
+
+/* Element: banner__title */
+.banner__title {
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+}
+
+/* Element: banner__description */
+.banner__description {
+    font-size: 18px;
+    line-height: 1.6;
+    max-width: 600px;
+}
+
+/* Second banner - reverse layout */
+.banner--reverse {
+    flex-direction: row-reverse;
+}
+
+.banner--reverse .banner__content {
+    padding-left: 0;
+    padding-right: 20px;
+    text-align: right;
+}
+
+/* Hover effect for banner images */
+.banner__image:hover {
+    box-shadow:
+        0 0 15px rgba(191, 254, 119, 0.4),
+        0 0 25px rgba(191, 254, 119, 0.2);
+    transform: scale(1.02) rotate(0.5deg);
+    border-radius: 15px;
+}
+
+/* Separator */
+.separator {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #BFFE77, transparent);
+    margin: 40px auto;
+    max-width: 1200px;
+}
+
+/* Responsive: Khi màn hình nhỏ */
+@media (max-width: 1024px) {
+
+    .banner,
+    .banner--reverse {
+        flex-direction: column;
+        align-items: center;
+        max-width: 100%;
+        gap: 15px;
+    }
+
+    .banner__image {
+        width: 500px;
+        height: 400px;
+        margin-bottom: 10px;
+    }
+
+    .banner__content,
+    .banner--reverse .banner__content {
+        padding-left: 0;
+        padding-right: 0;
+        max-width: 100%;
+        text-align: center;
+    }
+
+    .banner__description {
+        max-width: 100%;
+    }
+}
+
+/* Khi màn hình rất nhỏ (dưới 600px) */
+@media (max-width: 600px) {
+    .banner__image {
+        width: 100%;
+        max-width: 500px;
+        height: 300px;
+    }
+
+    .banner {
+        padding: 20px;
+    }
+}
+
+/* ===End New===*/
