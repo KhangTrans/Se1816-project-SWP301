@@ -85,7 +85,10 @@ public class ImagesServlet extends HttpServlet {
                 response.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
                 response.setHeader("Pragma", "no-cache");
                 response.setDateHeader("Expires", 0);
-                response.setContentType("image/jpeg"); // Hoặc image/png nếu cần
+                String mime = getServletContext().getMimeType("image.jpg"); // giả định JPEG nếu không có tên file
+                response.setContentType(mime != null ? mime : "image/jpeg");
+                System.out.println("Truy vấn ảnh thành công, imageId = " + imageId);
+                System.out.println("Dung lượng ảnh: " + blob.length());
 
                 byte[] imageBytes = blob.getBytes(1, (int) blob.length());
                 response.setContentLength(imageBytes.length); // rất quan trọng

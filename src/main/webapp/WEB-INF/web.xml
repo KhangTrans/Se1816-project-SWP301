@@ -68,10 +68,24 @@
         <servlet-name>AvatarServlet</servlet-name>
         <url-pattern>/AvatarServlet</url-pattern>
     </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>ImagesServlet</servlet-name>
+        <url-pattern>/ImagesServlet</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>ImagesServlet</servlet-name>
-        <servlet-class>controller.ImagesServlet</servlet-class>
+        <servlet-class>ControllerAdmin.ImagesServlet</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>CategoryServlet</servlet-name>
+        <servlet-class>ControllerAdmin.CategoryServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>CategoryServlet</servlet-name>
+        <url-pattern>/CategoryServlet</url-pattern>
+    </servlet-mapping>
+
     <session-config>
         <session-timeout>
             30

@@ -50,7 +50,6 @@
                                     : (request.getContextPath() + "/avatar/default.png");
                         %>
                         <img src="<%= productImage%>" alt="Product Image" style="width:60px;height:60px;border-radius:10px; margin-top: 5px">
-
                     </td>
                     <td><%= p.getName()%></td>
                     <td><%= p.getDescription()%></td>
