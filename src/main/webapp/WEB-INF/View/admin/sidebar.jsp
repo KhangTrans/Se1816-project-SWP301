@@ -21,7 +21,7 @@
     <%}%>
     <ul class="sidebar__nav">
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link sidebar__nav-link--active" href="#" onclick="AdminDashboard.showTable('accountTable')">Accounts</a>
+            <a class="sidebar__nav-link sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('accountTable')">Accounts</a>
         </li>
         <li class="sidebar__nav-item">
             <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffTable')">Staff</a>

@@ -256,21 +256,11 @@ function deleteAccountAjax(accountId) {
     });
 }
 
-
-
-
-
-
-
 // DUNG DE MO MODAL XOA===================================================================================
 function openDeleteAccountModal(accountId) {
     document.getElementById('deleteAccountId').value = accountId;
     document.getElementById('deleteAccountModal').style.display = 'flex';
 }
-
-
-
-
 
 //DOAN CODE DUNG CHO CHUC NANG XÓA ========================================================================
 function submitDeleteAccount(form) {
@@ -346,7 +336,7 @@ function openEditProductModal(productId) {
                 const selectedCategoryId = product.categoryId; // Giả sử server trả số nguyên
                 console.log("📌 Selected Category ID:", selectedCategoryId);
 
-// Gắn các option trước
+                // Gắn các option trước
                 categories.forEach(cat => {
                     const option = document.createElement('option');
                     option.value = String(cat.categoryId); // ép thành chuỗi chắc cú
@@ -369,7 +359,7 @@ function openEditProductModal(productId) {
                 console.log("✔️ Gán lại select.value =", select.value);
 
 
-                // ✅ Hiển thị ảnh chính
+                //  Hiển thị ảnh chính
                 const imagePreview = document.getElementById('editProductImagePreview');
                 const imageFilenameLabel = document.getElementById('mainImageFilename');
 
@@ -383,7 +373,7 @@ function openEditProductModal(productId) {
                     imageFilenameLabel.textContent = "";
                 }
 
-                // ✅ Danh sách ảnh
+                //  Danh sách ảnh
                 const imageListDiv = document.getElementById('editProductImageList');
                 imageListDiv.innerHTML = '';
 
@@ -430,7 +420,7 @@ function openEditProductModal(productId) {
                     });
                 }
 
-                // ✅ Mở modal
+                //  Mở modal
                 openModal('editProductModal');
             })
             .catch(error => {
@@ -597,4 +587,8 @@ function previewNewImages(input) {
     }
 }
 
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+///                                            NHAT  KHANG
+///
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

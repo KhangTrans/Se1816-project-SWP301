@@ -18,6 +18,7 @@
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
                 <option value="customer">Customer</option>
+                <option value="trainer">Trainer</option>
             </select><br><br>
             <input type="hidden" name="auth_provider" value="internal">
 
