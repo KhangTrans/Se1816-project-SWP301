@@ -66,6 +66,18 @@ public class UserDao extends DBcontext {
         }
     }
 
+    public String getUserRole(String username) throws SQLException {
+        String sql = "SELECT role FROM accounts WHERE username = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("role");
+            }
+        }
+        return null;
+    }
+
     public boolean quickRegisterIfNotExistsG(String username, String fullName, String email) throws SQLException {
         if (isUsernameExists(username) || isEmailExists(email)) {
             return false;
