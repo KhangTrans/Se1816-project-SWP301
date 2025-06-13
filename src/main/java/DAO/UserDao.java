@@ -1,6 +1,7 @@
 package DAO;
 
 import Model.Account;
+import Model.Staff;
 import db.DBcontext;
 import java.io.InputStream;
 import java.sql.*;
@@ -357,6 +358,40 @@ public class UserDao extends DBcontext {
             ps.setInt(1, accountId);
             ps.executeUpdate();
         }
+    }
+
+    public List<Staff> getAllStaffs() throws SQLException {
+        List<Staff> list = new ArrayList<>();
+        String sql = "SELECT s.staff_id, s.status, s.full_name, s.email, s.staff_code, s.phone, s.position, a.account_id, a.username, a.role, a.created_at, a.avatar FROM staff s JOIN accounts a ON s.account_id = a.account_id WHERE a.role = 'staff'";
+
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql);  ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Staff staff = new Staff();
+                staff.setStaffId(rs.getInt("staff_id"));
+                staff.setStatus(rs.getString("status"));
+                staff.setFullName(rs.getString("full_name"));
+                staff.setEmail(rs.getString("email"));
+                staff.setStaffCode(rs.getString("staff_code"));
+                staff.setPhone(rs.getString("phone"));
+                staff.setPosition(rs.getString("position"));
+
+                Account acc = new Account();
+                acc.setAccountId(rs.getInt("account_id"));
+                acc.setUsername(rs.getString("username"));
+                acc.setRole(rs.getString("role"));
+                acc.setCreatedAt(rs.getTimestamp("created_at"));
+                acc.setAvatar(rs.getBytes("avatar"));
+
+                staff.setAccount(acc);
+                list.add(staff);
+                System.out.println("Loaded username: " + acc.getUsername());
+            }
+            
+        }
+        
+
+        return list;
     }
 
 }

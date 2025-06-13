@@ -24,7 +24,7 @@
             <a class="sidebar__nav-link sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('accountTable')">Accounts</a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffTable')">Staff</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffsTable')">Staff</a>
         </li>
         <li class="sidebar__nav-item">
             <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('productsTable')">Products</a>

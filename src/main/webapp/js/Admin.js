@@ -1,6 +1,7 @@
 // Admin Dashboard JavaScript - BEM Methodology
 document.addEventListener('DOMContentLoaded', function () {
     loadAccounts();
+    loadStaffData();
 });
 
 // Show specific table
@@ -586,6 +587,58 @@ function previewNewImages(input) {
         });
     }
 }
+
+//////////////////////Hoang Khang/////////////////////////////
+
+function loadStaffData() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/staffs?action=ajaxList`;
+
+    fetch(url)
+        .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+        })
+        .then(data => {
+            const tbody = document.querySelector('#staffTable tbody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Chưa có nhân viên nào</td></tr>`;
+                return;
+            }
+
+            data.forEach((staff, index) => {
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${staff.username}</td>
+                        <td>${staff.fullName}</td>
+                        <td>${staff.email}</td>
+                        <td>${staff.phone}</td>
+                        <td>${staff.position}</td>
+                        <td>${staff.status}</td>
+                        <td>
+                            <button class="action-buttons__btn action-buttons__btn--edit"
+                                onclick="openEditStaffModal('${staff.staffId}', '${staff.username}', '${staff.fullName}', '${staff.email}', '${staff.phone}', '${staff.position}', '${staff.status}')">
+                                Edit
+                            </button>
+                            <button class="action-buttons__btn action-buttons__btn--delete"
+                                onclick="openDeleteStaffModal('${staff.staffId}')">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        })
+        .catch(error => {
+            console.error("Lỗi khi tải danh sách staff:", error);
+        });
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 ///
