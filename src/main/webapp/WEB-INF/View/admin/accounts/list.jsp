@@ -3,14 +3,17 @@
 <%@page import="java.util.List"%>
 <%@page import="Model.Account"%>
 <%@page import="DAO.UserDao"%>
+
 <%
-    UserDao dao = new UserDao();
-    List<Account> accounts = dao.getAllAccounts();
+    List<Account> accounts = (List<Account>) request.getAttribute("accounts");
+    if (accounts == null) {
+        accounts = new java.util.ArrayList<>();
+    }
 %>
 <%@include file="/WEB-INF/View/admin/accounts/create.jsp" %>
 <%@include file="/WEB-INF/View/admin/accounts/edit.jsp" %>
 <%@include file="/WEB-INF/View/admin/accounts/delete.jsp" %>
-<div class="table-container"  id="accountTable"">
+<div class="table-container"  id="accountTable">
     <div class="table-container__header">
         <h2 class="table-container__title">Account List</h2>
         <p class="table-container__description">Manage user accounts</p>
@@ -36,7 +39,7 @@
                 <tr>
                     <td><%= index++%></td>
                     <td>
-                        <img src="${pageContext.request.contextPath}/AvatarServlet?user=<%= acc.getUsername() %>" alt="Avatar" style="width:40px;height:40px;border-radius:50%; margin-top: 5px">
+                        <img src="${pageContext.request.contextPath}/AvatarServlet?user=<%= acc.getUsername()%>" alt="Avatar" style="width:40px;height:40px;border-radius:50%; margin-top: 5px">
                     </td>
                     <td><%= acc.getUsername()%></td>
                     <td><%= acc.getRole()%></td>
