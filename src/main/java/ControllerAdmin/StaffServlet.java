@@ -1,69 +1,27 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package ControllerAdmin;
 
 import DAO.UserDao;
+import Model.Account;
 import Model.Staff;
 import com.google.gson.Gson;
-import jakarta.servlet.RequestDispatcher;
-import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- *
- * @author Le Nguyen Hoang Khang - CE191583
- */
+@MultipartConfig
 @WebServlet(name = "StaffServlet", urlPatterns = {"/admin/staffs"})
 public class StaffServlet extends HttpServlet {
 
     private final UserDao userDao = new UserDao();
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try ( PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet StaffServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet StaffServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -73,66 +31,126 @@ public class StaffServlet extends HttpServlet {
         }
 
         try {
-            UserDao dao = new UserDao();
             switch (action) {
+                case "loadAccounts": {
+                    List<Account> availableStaffAccounts = userDao.getStaffsThatNotStaffYet();
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(new Gson().toJson(availableStaffAccounts));
+                    return;
+                }
+
                 case "ajaxList": {
-                    List<Staff> staffList = dao.getAllStaffs();
+                    List<Staff> staffList = userDao.getAllStaffs();
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
                     String json = new Gson().toJson(staffList);
                     response.getWriter().write(json);
-                    return;
+                    break;
                 }
-//                case "edit": {
-//                    int id = Integer.parseInt(request.getParameter("id"));
-//                    Staff staff = dao.getStaffById(id);
-//                    request.setAttribute("staff", staff);
-//                    request.getRequestDispatcher("/WEB-INF/View/admin/staffs/edit.jsp").forward(request, response);
-//                    break;
-//                }
-//                case "delete": {
-//                    int id = Integer.parseInt(request.getParameter("id"));
-//                    dao.deleteStaff(id);
-//                    response.setContentType("text/plain");
-//                    response.getWriter().write("OK");
-//                    break;
-//                }
                 default: {
-                    List<Staff> staffList = dao.getAllStaffs();
+                    List<Staff> staffList = userDao.getAllStaffs();
                     request.setAttribute("staffList", staffList);
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/admin/staffs/list.jsp");
-                    dispatcher.forward(request, response);
+                    request.getRequestDispatcher("/WEB-INF/View/admin/adminHome.jsp").forward(request, response);
                     break;
                 }
             }
-        } catch (SQLException | NumberFormatException e) {
-            e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi xử lý dữ liệu nhân viên.");
+        } catch (SQLException e) {
+            Logger.getLogger(StaffServlet.class.getName()).log(Level.SEVERE, null, e);
+            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Staff data processing error");
         }
     }
 
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        String action = request.getParameter("action");
+        System.out.println("📥 [StaffServlet] POST called.");
+        System.out.println("📥 action = " + request.getParameter("action"));
+        if (action == null) {
+            action = "";
+        }
+        try {
+            switch (action) {
+                case "create": {
+                    int accountId = Integer.parseInt(request.getParameter("accountId"));
+                    String fullName = request.getParameter("fullName");
+                    String email = request.getParameter("email");
+                    String phone = request.getParameter("phone");
+                    String position = request.getParameter("position");
+
+                    Account account = userDao.getStaffAccountById(accountId);
+                    if (account != null) {
+                        Staff staff = new Staff();
+                        staff.setAccount(account);
+                        staff.setFullName(fullName);
+                        staff.setEmail(email);
+                        staff.setPhone(phone);
+                        staff.setPosition(position);
+                        staff.setStatus("active");
+
+                        userDao.addStaff(staff);
+                    }
+
+                    response.sendRedirect("staffs");
+                    break;
+                }
+
+                case "edit": {
+                    int accountId = Integer.parseInt(request.getParameter("accountId"));
+                    String fullName = request.getParameter("fullName");
+                    String phone = request.getParameter("phone");
+                    String position = request.getParameter("position");
+                    String status = request.getParameter("status");
+                    System.out.println("AccountID" + accountId);
+
+                    Account account = userDao.getAccountById(accountId);
+                    if (account == null) {
+                        response.sendRedirect("staffs?error=account_not_found");
+                        return;
+                    }
+
+                    Part avatarPart = request.getPart("avatar");
+                    InputStream avatarStream = null;
+                    if (avatarPart != null && avatarPart.getSize() > 0) {
+                        avatarStream = avatarPart.getInputStream();
+                    }
+
+                    userDao.updateStaff(accountId, fullName, phone, position, status, avatarStream);
+
+                    response.sendRedirect("staffs");
+                    break;
+                }
+                case "delete": {
+                    int staffId = Integer.parseInt(request.getParameter("staffId"));
+                    int accountId = userDao.getAccountIdByStaffId(staffId);
+
+                    if (accountId == -1) {
+                        response.getWriter().write("STAFF_NOT_FOUND");
+                        return;
+                    }
+
+                    userDao.demoteStaff(staffId);
+                    response.setContentType("text/plain;charset=UTF-8");
+                    response.getWriter().write("OK");
+                    return;
+                
+                }
+
+                default: {
+                    response.sendRedirect("staffs?error=action_not_found");
+                    break;
+                }
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            response.sendRedirect("staffs?error=1");
+        }
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
     @Override
     public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
+        return "Staff management servlet for admin.";
+    }
 }

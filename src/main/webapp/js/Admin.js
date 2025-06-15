@@ -113,13 +113,15 @@ function openDeleteAccountModal(id) {
     document.getElementById('deleteAccountId').value = id;
     openModal('deleteAccountModal');
 }
-
 //chức năng xử lý gửi form bằng AJAX mà không reload lại trang==============================================================================================================
 function submitFormAjax(form, resultContainerId, event) {
     if (event)
         event.preventDefault();
+    console.log("Form action:", form.action);
+
     const selectedCategory = document.getElementById("editProductCategory").value;
     console.log("📤 Sending categoryId:", selectedCategory);
+
 
     const formData = new FormData(form);
     console.log("✅ Dữ liệu gửi đi:");
@@ -162,6 +164,8 @@ function submitFormAjax(form, resultContainerId, event) {
                         loadAccounts();
                     if (typeof reloadProductList === 'function')
                         reloadProductList();
+                    if (typeof loadStaffData === 'function')
+                        loadStaffData();
                 }, 500);
             })
             .catch(error => {
@@ -595,32 +599,41 @@ function loadStaffData() {
     const url = `${window.location.origin}${contextPath}/admin/staffs?action=ajaxList`;
 
     fetch(url)
-        .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-        })
-        .then(data => {
-            const tbody = document.querySelector('#staffTable tbody');
-            tbody.innerHTML = '';
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                const tbody = document.querySelector('#staffsTable tbody');
+                tbody.innerHTML = '';
 
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Chưa có nhân viên nào</td></tr>`;
-                return;
-            }
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">Chưa có nhân viên nào</td></tr>`;
+                    return;
+                }
 
-            data.forEach((staff, index) => {
-                const row = `
+                data.forEach((staff, index) => {
+                    console.log("🧪 Staff Object:", staff);
+                    console.log("➡ Username:", staff.account.username);
+                    console.log("➡ Full Name:", staff.fullName);
+                    console.log("➡ Account:", staff.account); // <== nếu xài object có account bên trong
+                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${staff.account.username}&t=${Date.now()}`;
+                    const row = `
                     <tr>
                         <td>${index + 1}</td>
-                        <td>${staff.username}</td>
+                        <td>${staff.account.accountId}</td>
+                        <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
+                        <td>${staff.account.username}</td>
                         <td>${staff.fullName}</td>
                         <td>${staff.email}</td>
                         <td>${staff.phone}</td>
                         <td>${staff.position}</td>
                         <td>${staff.status}</td>
+                        <td>${staff.staffCode}</td>
                         <td>
                             <button class="action-buttons__btn action-buttons__btn--edit"
-                                onclick="openEditStaffModal('${staff.staffId}', '${staff.username}', '${staff.fullName}', '${staff.email}', '${staff.phone}', '${staff.position}', '${staff.status}')">
+                                onclick="openEditStaffModal('${staff.staffId}', '${staff.account.accountId}', '${staff.account.username}', '${staff.fullName}', '${staff.email}', '${staff.phone}', '${staff.position}', '${staff.status}')"
                                 Edit
                             </button>
                             <button class="action-buttons__btn action-buttons__btn--delete"
@@ -630,14 +643,203 @@ function loadStaffData() {
                         </td>
                     </tr>
                 `;
-                tbody.innerHTML += row;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi load staff:', error);
+                fetch(url)
+                        .then(r => r.text())
+                        .then(text => console.warn("Nội dung server trả về không phải JSON:", text));
             });
-        })
-        .catch(error => {
-            console.error("Lỗi khi tải danh sách staff:", error);
-        });
 }
 
+document.addEventListener("DOMContentLoaded", function () {
+    // Khi modal được mở
+    window.openModal = function (id) {
+        document.getElementById(id).style.display = 'block';
+        if (id === 'addStaffModal') {
+            loadStaffAccountOptions();
+        }
+    }
+
+    // Gọi API để lấy account chưa là staff
+    function loadStaffAccountOptions() {
+        const contextPath = window.location.pathname.split('/')[1];
+        const url = `/${contextPath}/admin/staffs?action=loadAccounts`;
+
+        fetch(url)
+                .then(res => {
+                    if (!res.ok)
+                        throw new Error(`HTTP error ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    const select = document.querySelector('select[name="accountId"]');
+                    select.innerHTML = '<option value="">-- Select Staff Account --</option>';
+
+                    if (data.length === 0) {
+                        const opt = document.createElement('option');
+                        opt.textContent = '-- No Available Staff Accounts --';
+                        opt.disabled = true;
+                        select.appendChild(opt);
+                        return;
+                    }
+
+                    data.forEach(acc => {
+                        const opt = document.createElement('option');
+                        opt.value = acc.accountId;
+                        opt.textContent = acc.username;
+                        select.appendChild(opt);
+                    });
+                })
+                .catch(err => {
+                    console.error("❌ Lỗi khi load account staff:", err);
+                });
+    }
+});
+
+function openEditStaffModal(staffId, accountId, username, fullName, email, phone, position, status) {
+
+
+    document.getElementById('editStaffId').value = staffId;
+    document.getElementById('editStaffAccountId').value = accountId;
+    document.getElementById('editFullName').value = fullName;
+    document.getElementById('editPhone').value = phone;
+    document.getElementById('editPosition').value = position;
+    document.getElementById('editStatus').value = status;
+
+    document.querySelector('input[name="action"]').value = 'edit';
+
+    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${username}&t=${Date.now()}`;
+    if (avatarUrl && avatarUrl.trim() !== "") {
+        document.getElementById('currentAvatar').src = avatarUrl;
+        document.getElementById('currentAvatarContainer').style.display = 'block';
+    } else {
+        document.getElementById('currentAvatarContainer').style.display = 'none';
+    }
+
+    document.getElementById('editStaffModal').style.display = 'flex';
+}
+
+
+function submitFormForStaff(form, resultContainerId, event) {
+    // Ngừng hành động mặc định của form (ngăn gửi form theo cách thông thường)
+    if (event) {
+        event.preventDefault();
+    }
+
+    // Lấy giá trị action từ thuộc tính của form
+    const action = form.getAttribute('action');
+    console.log("Form action:", action);
+
+    if (!action) {
+        console.error("❌ Form không có thuộc tính 'action'");
+        const resultDiv = document.getElementById(resultContainerId);
+        if (resultDiv) {
+            resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: Form không có action!</p>`;
+        }
+        return false;
+    }
+
+    // Lấy dữ liệu từ form (bao gồm cả file avatar nếu có)
+    const formData = new FormData(form);
+    console.log("✅ Dữ liệu gửi đi:");
+    for (let [key, val] of formData.entries()) {
+        console.log(`${key}: ${val}`);
+    }
+
+    // Vô hiệu hóa các input trong form khi đang gửi
+    form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
+
+    // Gửi dữ liệu form qua fetch
+    fetch(action, {
+        method: 'POST', // Phương thức gửi form
+        body: formData, // Dữ liệu form
+    })
+            .then(response => {
+                // Kích hoạt lại các input sau khi gửi xong
+                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
+
+                // Kiểm tra xem response có thành công không
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.text();
+            })
+            .then(data => {
+                // Hiển thị kết quả thành công
+                const resultDiv = document.getElementById(resultContainerId);
+                if (resultDiv) {
+                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Thành công!</p>`;
+                }
+
+                // Đóng modal sau khi thành công
+                const modal = form.closest('.modal');
+                if (modal) {
+                    setTimeout(() => closeModal(modal.id), 800);
+                }
+
+                // Sau khi gửi thành công, làm mới danh sách nhân viên
+                setTimeout(() => {
+                    if (typeof loadStaffData === 'function') {
+                        loadStaffData();  // Hàm này tải lại dữ liệu nhân viên
+                    }
+                }, 500);
+            })
+            .catch(error => {
+                // Kích hoạt lại các input nếu có lỗi
+                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
+
+                // Hiển thị thông báo lỗi nếu có
+                console.error('Lỗi khi gửi form:', error);
+                const resultDiv = document.getElementById(resultContainerId);
+                if (resultDiv) {
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
+                }
+            });
+
+    return false;
+}
+
+function openDeleteStaffModal(staffId) {
+    document.getElementById('deleteStaffId').value = staffId;
+    openModal('deleteStaffModal');
+}
+
+function submitDeleteStaff(form, event) {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const resultDiv = document.getElementById("resultDeleteStaff");
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+
+    fetch(`${window.location.origin}${contextPath}/admin/staffs`, {
+        method: 'POST',
+        body: formData
+    })
+            .then(res => res.text())
+            .then(result => {
+                    console.log("📥 Server returned:", JSON.stringify(result));
+
+                if (result.trim() === "OK") {
+                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Xóa thành công!</p>`;
+                    setTimeout(() => {
+                        closeModal('deleteStaffModal');
+                        loadStaffData();
+                        setTimeout(() => location.reload(), 1000);
+                    }, 800);
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Xóa thất bại.</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Error delete staff:", error);
+                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
+            });
+
+    return false;
+}
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

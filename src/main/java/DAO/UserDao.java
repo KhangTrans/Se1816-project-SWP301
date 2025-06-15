@@ -9,6 +9,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class UserDao extends DBcontext {
 
@@ -359,6 +360,7 @@ public class UserDao extends DBcontext {
             ps.executeUpdate();
         }
     }
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     public List<Staff> getAllStaffs() throws SQLException {
         List<Staff> list = new ArrayList<>();
@@ -368,6 +370,7 @@ public class UserDao extends DBcontext {
 
             while (rs.next()) {
                 Staff staff = new Staff();
+                Account acc = new Account();
                 staff.setStaffId(rs.getInt("staff_id"));
                 staff.setStatus(rs.getString("status"));
                 staff.setFullName(rs.getString("full_name"));
@@ -376,7 +379,6 @@ public class UserDao extends DBcontext {
                 staff.setPhone(rs.getString("phone"));
                 staff.setPosition(rs.getString("position"));
 
-                Account acc = new Account();
                 acc.setAccountId(rs.getInt("account_id"));
                 acc.setUsername(rs.getString("username"));
                 acc.setRole(rs.getString("role"));
@@ -385,13 +387,201 @@ public class UserDao extends DBcontext {
 
                 staff.setAccount(acc);
                 list.add(staff);
-                System.out.println("Loaded username: " + acc.getUsername());
+                // In ra hết thông tin sau khi set xong
+//                System.out.println("Loaded Staff:");
+                System.out.println("  staff_id: " + staff.getStaffId());
+//                System.out.println("  status: " + staff.getStatus());
+//                System.out.println("  full_name: " + staff.getFullName());
+//                System.out.println("  email: " + staff.getEmail());
+//                System.out.println("  staff_code: " + staff.getStaffCode());
+//                System.out.println("  phone: " + staff.getPhone());
+//                System.out.println("  position: " + staff.getPosition());
+//
+//                System.out.println("  account_id: " + acc.getAccountId());
+//                System.out.println("  username: " + acc.getUsername());
+//                System.out.println("  role: " + acc.getRole());
+//                System.out.println("  created_at: " + acc.getCreatedAt());
+
             }
-            
+
         }
-        
 
         return list;
+    }
+
+    public List<Account> getStaffsThatNotStaffYet() {
+        List<Account> staffList = new ArrayList<>();
+        String sql = "SELECT * FROM accounts "
+                + "WHERE role = 'staff' AND account_id NOT IN (SELECT account_id FROM staff)";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Account acc = new Account();
+                acc.setAccountId(rs.getInt("account_id"));
+                acc.setUsername(rs.getString("username"));
+                acc.setRole(rs.getString("role"));
+                acc.setCreatedAt(rs.getTimestamp("created_at"));
+    
+                staffList.add(acc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return staffList;
+    }
+
+    public void insertStaff(Staff staff) {
+        String sql = "INSERT INTO Staff (staff_id, staff_code, full_name, email, phone, position, status, account_id) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, staff.getStaffId());
+            ps.setString(2, staff.getStaffCode());
+            ps.setString(3, staff.getFullName());
+            ps.setString(4, staff.getEmail());
+            ps.setString(5, staff.getPhone());
+            ps.setString(6, staff.getPosition());
+            ps.setString(7, staff.getStatus());
+            ps.setInt(8, staff.getAccount().getAccountId());
+
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public List<Account> getAvailableStaffAccounts() throws SQLException {
+        List<Account> accounts = new ArrayList<>();
+        String sql
+                = "SELECT * FROM accounts "
+                + "WHERE role = 'staff' "
+                + "AND account_id NOT IN (SELECT account_id FROM staff)";
+
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql);  ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                Account acc = new Account();
+                acc.setAccountId(rs.getInt("account_id"));
+                acc.setUsername(rs.getString("username"));
+                accounts.add(acc);
+            }
+        }
+        return accounts;
+    }
+
+    public Account getStaffAccountById(int id) throws SQLException {
+        String sql = "SELECT * FROM accounts WHERE account_id = ? AND role = 'staff'";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                Account acc = new Account();
+                acc.setAccountId(rs.getInt("account_id"));
+                acc.setUsername(rs.getString("username"));
+                acc.setPassword(rs.getString("password"));
+                acc.setAvatar(rs.getBytes("avatar"));
+                acc.setRole(rs.getString("role"));
+                return acc;
+            }
+        }
+        return null;
+    }
+
+    public int getAccountIdByStaffId(int staffId) throws SQLException {
+        String sql = "SELECT account_id FROM staff WHERE staff_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, staffId);
+            try ( ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("account_id");
+                }
+            }
+        }
+        return -1;
+    }
+
+    public void addStaff(Staff staff) throws SQLException {
+        String sql = "INSERT INTO staff (account_id, staff_code, full_name, email, phone, position, status) VALUES (?, ?, ?, ?, ?, ?, ?)";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            String staffCode = "STF" + String.format("%04d", new Random().nextInt(10000));
+
+            stmt.setInt(1, staff.getAccount().getAccountId());
+            stmt.setString(2, staffCode); // staff_code
+            stmt.setString(3, staff.getFullName());
+            stmt.setString(4, staff.getEmail());
+            stmt.setString(5, staff.getPhone());
+            stmt.setString(6, staff.getPosition());
+            stmt.setString(7, staff.getStatus());
+            stmt.executeUpdate();
+        }
+    }
+
+    public void updateStaff(int accountId, String fullName, String phone, String position, String status, InputStream avatarStream) throws SQLException {
+        String updateStaffSql = "UPDATE staff SET full_name = ?, phone = ?, position = ?, status = ? WHERE account_id = ?";
+        String updateAvatarSql = "UPDATE accounts SET avatar = ? WHERE account_id = ?";
+
+        try ( Connection conn = getConnection()) {
+            conn.setAutoCommit(false); 
+
+            try (
+                     PreparedStatement stmt1 = conn.prepareStatement(updateStaffSql);
+                      PreparedStatement stmt2 = (avatarStream != null) ? conn.prepareStatement(updateAvatarSql) : null) {
+                // Cập nhật bảng staff
+                stmt1.setString(1, fullName);
+                stmt1.setString(2, phone);
+                stmt1.setString(3, position);
+                stmt1.setString(4, status);
+                stmt1.setInt(5, accountId);
+                int updatedStaff = stmt1.executeUpdate();
+                System.out.println("✅ Rows updated in staff = " + updatedStaff);
+
+                if (avatarStream != null) {
+                    stmt2.setBlob(1, avatarStream);
+                    stmt2.setInt(2, accountId);
+                    int updatedAvatar = stmt2.executeUpdate();
+                    System.out.println("✅ Rows updated in account avatar = " + updatedAvatar);
+                }
+
+                conn.commit();
+            } catch (SQLException e) {
+                conn.rollback();
+                System.err.println("❌ Error during updating staff or avatar: " + e.getMessage());
+                throw e;  
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        }
+    }
+
+    public void demoteStaff(int staffId) {
+        String deleteStaffSql = "DELETE FROM staff WHERE staff_id = ?";
+        String updateRoleSql = "UPDATE accounts SET role = 'customer' WHERE account_id = ?";
+
+        try ( Connection conn = getConnection()) {
+            conn.setAutoCommit(false);
+
+            int accountId = getAccountIdByStaffId(staffId);
+            if (accountId == -1) {
+                System.out.println("❌ Couldn't find account_id for this staff_id = " + staffId);
+                return;
+            }
+
+            try (
+                     PreparedStatement psDeleteStaff = conn.prepareStatement(deleteStaffSql);  PreparedStatement psUpdateRole = conn.prepareStatement(updateRoleSql)) {
+                psDeleteStaff.setInt(1, staffId);
+                psDeleteStaff.executeUpdate();
+
+                psUpdateRole.setInt(1, accountId);
+                psUpdateRole.executeUpdate();
+            }
+
+            conn.commit();
+            System.out.println("OK");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }
