@@ -21,17 +21,22 @@
     <%}%>
     <ul class="sidebar__nav">
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link sidebar__nav-link--active" href="#" onclick="AdminDashboard.showTable('accountTable')">Accounts</a>
+            <a class="sidebar__nav-link sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('accountTable')">Accounts</a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffTable')">Staff</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffsTable')">Staff</a>
         </li>
         <li class="sidebar__nav-item">
             <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('productsTable')">Products</a>
         </li>
-        
         <li class="sidebar__nav-item">
             <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('vouchersTable')">Vouchers</a>
+        </li>
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('trainersTable')">Trainers</a>
+        </li>
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('customersTable')">Members</a>
         </li>
     </ul>
     <form method="post" action="LogoutServlet">

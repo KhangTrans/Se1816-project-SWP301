@@ -2,7 +2,7 @@
     <div class="modal-content">
         <h2>Create New Voucher</h2>
         <form method="post" action="${pageContext.request.contextPath}/admin/vouchers" 
-              onsubmit="submitFormAjax(event, this, 'resultAddVoucher')">
+              onsubmit="submitFormAjaxx(event, this, 'resultAddVoucher')">
 
             <input type="hidden" name="formAction" value="create">
 

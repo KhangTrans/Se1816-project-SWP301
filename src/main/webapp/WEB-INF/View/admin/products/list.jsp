@@ -37,49 +37,7 @@
                 </tr>
             </thead>
             <tbody>
-                <%                    int rowIndex = 1;
-                    for (Products p : products) {
-                %>
-                <tr>
-                    <td><%= rowIndex++%></td>
-                    <td >
-                        <%
-                            Model.Product_Images img = productDao.getPrimaryImage(p.getProductId());
-                            String productImage = (img != null)
-                                    ? (request.getContextPath() + "/ImagesServlet?type=product&imageId=" + img.getImageId())
-                                    : (request.getContextPath() + "/avatar/default.png");
-                        %>
-                        <img src="<%= productImage%>" alt="Product Image" style="width:60px;height:60px;border-radius:10px; margin-top: 5px">
-                    </td>
-                    <td><%= p.getName()%></td>
-                    <td><%= p.getDescription()%></td>
-                    <td>$<%= p.getPrice()%></td>
-                    <td><%= p.getStockQuantity()%></td>
-                    <td><%= p.isActive() ? "Active" : "Inactive"%></td>
-                    <td>
-                        <button class="action-buttons__btn action-buttons__btn--edit" 
-                                onclick="openEditProductModal(
-                                                '<%= p.getProductId()%>',
-                                                '<%= p.getName()%>',
-                                                '<%= p.getDescription()%>',
-                                                '<%= p.getPrice()%>',
-                                                '<%= p.getStockQuantity()%>',
-                                                '<%= p.getCategoryId()%>',
-                                                '<%= request.getContextPath()%>/ImagesServlet?type=product&imageId=<%= img != null ? img.getImageId() : 0%>'
-                                                                )">
-                            Edit
-                        </button>
-
-
-                        <button class="action-buttons__btn action-buttons__btn--delete"
-                                onclick="openDeleteProductModal('<%= p.getProductId()%>')">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-                <%
-                    }
-                %>
+                <%-- dữ liệu sẽ được fill bằng JS/AJAX qua reloadProductList() --%>
             </tbody>
         </table>
     </div>

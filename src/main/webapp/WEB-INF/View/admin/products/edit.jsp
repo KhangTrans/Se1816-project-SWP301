@@ -1,3 +1,5 @@
+
+
 <div class="modal" id="editProductModal">
     <div class="modal__content">
         <form method="post"

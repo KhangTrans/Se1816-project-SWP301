@@ -39,49 +39,7 @@
                 </tr>
             </thead>
             <tbody>
-                <%
-                    int indexv = 1;
-                    for (Voucher voucher : vouchers) {
-                %>
-                <tr>
-                    <td><%= indexv++%></td>
-                    <td><%= voucher.getCode()%></td>
-                    <td><%= voucher.getDescription()%></td>
-                    <td><%= voucher.getDiscountPercent()%></td>
-                    <td><%= voucher.getMaxDiscount()%></td>
-                    <td><%= voucher.getUsageLimit()%></td>
-                    <td><%= voucher.getUsedCount()%></td>
-                    <td><%= voucher.getMinOrderAmount()%></td>
-                    <td><%= voucher.getStartDate()%></td>
-                    <td><%= voucher.getEndDate()%></td>
-                    <td><%= voucher.isActive() ? "Active" : "Inactive"%></td>
-                    <td>
-                        <button class="action-buttons__btn action-buttons__btn--edit" 
-                                onclick="openEditVoucherModal(
-                                                '<%= voucher.getVoucherId()%>',
-                                                '<%= voucher.getCode().replace("'", "\\'")%>',
-                                                '<%= voucher.getDescription().replace("'", "\\'")%>',
-                                                '<%= voucher.getDiscountPercent()%>',
-                                                '<%= voucher.getMaxDiscount()%>',
-                                                '<%= voucher.getUsageLimit()%>',
-                                                '<%= voucher.getUsedCount()%>',
-                                                '<%= voucher.getMinOrderAmount()%>',
-                                                '<%= voucher.getStartDate()%>',
-                                                '<%= voucher.getEndDate()%>',
-                                                '<%= voucher.isActive() ? "true" : "false"%>'
-                                                )">
-                            Edit
-                        </button>
-
-
-                        <button class="action-buttons__btn action-buttons__btn--delete"
-                                onclick="openDeleteVoucherModal(<%= voucher.getVoucherId()%>)">Delete
-                        </button>
-                    </td>
-                </tr>
-                <%
-                    }
-                %>
+             
             </tbody>
         </table>
     </div>
