@@ -13,22 +13,26 @@ public class Trainers {
     private int trainerId;
     private Account accountId;
     private String fullName;
-    private String specialization;
+    private String email;
     private String bio;
-    private int experienceYears;
+    private int experienceYears;  
     private float rating;
+    private String trainer_code;
+    private String phone;
 
     public Trainers() {
     }
 
-    public Trainers(int trainerId, Account accountId, String fullName, String specialization, String bio, int experienceYears, float rating) {
+    public Trainers(int trainerId, Account accountId, String fullName, String email, String bio, int experienceYears, float rating, String trainer_code, String phone) {
         this.trainerId = trainerId;
         this.accountId = accountId;
         this.fullName = fullName;
-        this.specialization = specialization;
+        this.email = email;
         this.bio = bio;
         this.experienceYears = experienceYears;
         this.rating = rating;
+        this.trainer_code = trainer_code;
+        this.phone = phone;
     }
 
     public int getTrainerId() {
@@ -55,12 +59,12 @@ public class Trainers {
         this.fullName = fullName;
     }
 
-    public String getSpecialization() {
-        return specialization;
+    public String getEmail() {
+        return email;
     }
 
-    public void setSpecialization(String specialization) {
-        this.specialization = specialization;
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getBio() {
@@ -85,6 +89,22 @@ public class Trainers {
 
     public void setRating(float rating) {
         this.rating = rating;
+    }
+
+    public String getTrainer_code() {
+        return trainer_code;
+    }
+
+    public void setTrainer_code(String trainer_code) {
+        this.trainer_code = trainer_code;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
 }

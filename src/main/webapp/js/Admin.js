@@ -1,6 +1,7 @@
 // Admin Dashboard JavaScript - BEM Methodology
 document.addEventListener('DOMContentLoaded', function () {
     loadAccounts();
+    reloadTrainerList();
 });
 
 // Show specific table
@@ -24,6 +25,8 @@ function showTable(tableId) {
         }
     }, 200);
 }
+
+
 
 
 
@@ -63,6 +66,7 @@ function validateForm(formId) {
     return isValid;
 }
 
+
 // Export functions for external use
 window.AdminDashboard = {
     showTable,
@@ -85,9 +89,6 @@ function closeModal(id) {
     if (modal)
         modal.style.display = 'none';
 }
-
-
-
 
 
 
@@ -161,6 +162,8 @@ function submitFormAjax(form, resultContainerId, event) {
                         loadAccounts();
                     if (typeof reloadProductList === 'function')
                         reloadProductList();
+                    if (typeof reloadTrainerList === 'function')
+                        reloadTrainerList();
                 }, 500);
             })
             .catch(error => {
@@ -592,3 +595,128 @@ function previewNewImages(input) {
 ///                                            NHAT  KHANG
 ///
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                              HA PHUONG                                                                                   /////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                                              
+
+function reloadTrainerList() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/TrainerServlet?action=json`;
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                const tbody = document.querySelector('#trainerTable tbody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">Chưa có huấn luyện viên nào</td></tr>`;
+                    return;
+                }
+
+                data.forEach((trainer, index) => {
+                    const account = trainer.accountId; // vì bạn dùng accountId là object Account
+                    const avatarUrl = account && account.accountId
+                            ? `${window.location.origin}${contextPath}/AvatarServlet?id=${account.accountId}&t=${Date.now()}`
+                            : `${contextPath}/avatar/default.png`;
+
+                    const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%"></td>
+                        <td>${account.username}</td>
+                        <td>${trainer.fullName}</td>
+                        <td>${trainer.email || ''}</td>
+                        <td>${trainer.phone || ''}</td>
+                        <td>${trainer.bio || ''}</td>
+                        <td>${trainer.experienceYears} năm</td>
+                        <td>${trainer.rating.toFixed(1)} ★</td>
+                        <td>
+                            <button class="action-buttons__btn action-buttons__btn--edit"
+                                onclick="openEditTrainerModal(${trainer.trainerId})">Edit</button>
+                            <button class="action-buttons__btn action-buttons__btn--delete"
+                                onclick="openDeleteTrainerModal(${trainer.trainerId})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh sách trainer:', error);
+                fetch(url)
+                        .then(r => r.text())
+                        .then(text => console.warn("Nội dung không phải JSON:", text));
+            });
+}
+
+
+
+////////////////////////////////////////////////////////////////////////
+
+
+// Hàm để mở modal và hiển thị thông tin huấn luyện viên cần chỉnh sửa
+function openEditTrainerModal(trainerId) {
+    // Giả sử bạn có một API hoặc dữ liệu để lấy thông tin huấn luyện viên theo ID
+    var trainerData = getTrainerById(trainerId);
+
+    // Kiểm tra nếu dữ liệu huấn luyện viên không rỗng
+    if (trainerData) {
+        document.getElementById('trainerName').value = trainerData.fullName;
+        document.getElementById('trainerEmail').value = trainerData.email;
+        document.getElementById('trainerExperience').value = trainerData.experienceYears;
+        document.getElementById('trainerRating').value = trainerData.rating;
+        document.getElementById('trainerId').value = trainerData.trainerId;
+
+        // Mở modal chỉnh sửa
+        document.getElementById('editTrainerModal').style.display = 'flex';
+    }
+}
+
+// Hàm để mở modal và hiển thị thông tin huấn luyện viên cần xóa
+function openDeleteTrainerModal(trainerId) {
+    // Giả sử bạn có một API hoặc dữ liệu để lấy thông tin huấn luyện viên theo ID
+    var trainerData = getTrainerById(trainerId);
+
+    // Hiển thị tên huấn luyện viên trong modal
+    if (trainerData) {
+        document.getElementById('trainerName').innerText = trainerData.fullName;
+
+        // Lưu lại ID của huấn luyện viên cần xóa trong thuộc tính của nút Xóa
+        document.getElementById('confirmDeleteBtn').setAttribute("data-trainer-id", trainerId);
+
+        // Mở modal xóa
+        document.getElementById('deleteTrainerModal').style.display = 'flex';
+    }
+}
+
+
+// Mở modal và lấy danh sách username chưa tạo trainer
+function openAddTrainerModal() {
+    fetch('/admin/trainers?action=getAccountsWithoutTrainer') // Lấy danh sách tài khoản chưa có huấn luyện viên
+        .then(response => response.json())
+        .then(usernames => {
+            const selectElement = document.getElementById('trainerUsername');
+            selectElement.innerHTML = '<option value="">Choose a username for the Trainer</option>'; // Reset dropdown
+
+            // Điền các username vào dropdown
+            usernames.forEach(username => {
+                const option = document.createElement('option');
+                option.value = username;
+                option.textContent = username;
+                selectElement.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('Error loading accounts without trainer:', error);
+        });
+
+    // Mở modal
+    document.getElementById('addTrainer').style.display = 'flex';
+}
+

@@ -29,6 +29,10 @@
         <li class="sidebar__nav-item">
             <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('productsTable')">Products</a>
         </li>
+        
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('trainersTable')">Trainers</a>
+        </li>
     </ul>
     <form method="post" action="LogoutServlet">
         <button type="submit" class="sidebar__logout">LOGOUT</button>

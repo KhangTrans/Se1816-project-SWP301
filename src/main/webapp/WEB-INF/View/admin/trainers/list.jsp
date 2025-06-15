@@ -1,17 +1,36 @@
-<%-- 
-    Document   : list
-    Created on : Jun 5, 2025, 5:00:27 PM
-    Author     : Admin
---%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
-        <h1>Hello World!</h1>
-    </body>
-</html>
+
+
+<%@include file="/WEB-INF/View/admin/trainers/create.jsp" %>
+<%@include file="/WEB-INF/View/admin/trainers/edit.jsp" %>
+<%@include file="/WEB-INF/View/admin/trainers/delete.jsp" %>
+<div class="table-container" id="trainersTable">
+    <div class="table-container__header">
+        <h2 class="table-container__title">Trainer List</h2>
+        <p class="table-container__description">Manage Trainer information</p>
+    </div>
+    <div class="table-container__content" style="overflow-x: auto;">
+        <button class="add-button" onclick="openModal('addTrainer')">+ Add Trainer</button>
+        <table class="data-table" id="trainerTable">
+            <thead>
+                <tr>
+                <tr>
+                    <th>No</th>
+                    <th>Avatar</th>
+                    <th>Username</th>
+                    <th>Full Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Position</th>
+                    <th>Status</th>
+                    <th>Staff Code</th>
+                    <th>Action</th>
+                </tr>
+                </tr>
+            </thead>
+            <tbody>
+
+            </tbody>
+        </table>
+    </div>
+</div>
