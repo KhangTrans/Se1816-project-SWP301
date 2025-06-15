@@ -46,7 +46,7 @@ public class ProductServlet extends HttpServlet {
                 List<Categories> categories = categoryDao.getAllCategories();
                 request.setAttribute("products", products);
                 request.setAttribute("categories", categories);
-                request.getRequestDispatcher("/WEB-INF/View/admin/products/create.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/View/admin/products/list.jsp").forward(request, response);
             }
         } catch (Exception e) {
             e.printStackTrace();

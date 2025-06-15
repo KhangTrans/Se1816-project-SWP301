@@ -29,7 +29,7 @@ import java.util.logging.Logger;
 @MultipartConfig
 @WebServlet(name = "AccountServlet", urlPatterns = {"/admin/accounts"})
 public class AccountServlet extends HttpServlet {
-
+    private UserDao dao;
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -45,6 +45,13 @@ public class AccountServlet extends HttpServlet {
         String action = request.getParameter("action");
         if (action == null) {
             action = "list";
+            try {
+                List<Account> accounts = dao.getAllAccounts();
+                request.setAttribute("accounts", accounts);
+                request.getRequestDispatcher("/WEB-INF/View/admin/accounts/list.jsp").forward(request, response);
+            } catch (SQLException ex) {
+                Logger.getLogger(AccountServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
         try {
