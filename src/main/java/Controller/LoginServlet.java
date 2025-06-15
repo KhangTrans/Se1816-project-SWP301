@@ -42,14 +42,21 @@ public class LoginServlet extends HttpServlet {
             UserDao dao = new UserDao();
 
             if (dao.login(username, password)) {
-                String avatarUrl = request.getContextPath() + "/AvatarServlet?username=" + username;
-                // Lưu session
-                HttpSession session = request.getSession();
-                session.setAttribute("username", username);
-                session.setAttribute("role", "customer");
-                session.setAttribute("avatar", avatarUrl);
-                json.put("status", "success");
-                json.put("message", "Login successful!");
+                // Lấy role từ database
+                String role = dao.getUserRole(username);  // ← Bạn cần tạo hàm này trong UserDao
+                if (role == null) {
+                    json.put("status", "error");
+                    json.put("message", "User role not found.");
+                } else {
+                    HttpSession session = request.getSession();
+                    session.setAttribute("username", username);
+                    session.setAttribute("role", role); // "customer", "trainer", "staff", v.v.
+                    session.setAttribute("avatar", request.getContextPath() + "/AvatarServlet?username=" + username);
+
+                    json.put("status", "success");
+                    json.put("message", "Login successful!");
+                    json.put("role", role); // Gửi role về client nếu cần xử lý phía frontend
+                }
             } else {
                 json.put("status", "error");
                 json.put("message", "Invalid credentials!");
