@@ -12,7 +12,9 @@
         <h2>Confirm to demote this staff ?</h2>
         <p>do you want to demote this staff to customer ?</p>
 
-        <form id="deleteStaffForm" onsubmit="return submitDeleteStaff(this, event)" method="post" action="<%= request.getContextPath()%>/admin/staffs">
+        <form id="deleteStaffForm" 
+              onsubmit="return submitFormAjax(this, 'resultDeleteProduct')"
+              method="post" action="<%= request.getContextPath()%>/admin/staffs">
             <input type="hidden" name="action" value="delete">
             <input type="hidden" id="deleteStaffId" name="staffId">
 

@@ -1,7 +1,11 @@
 // Admin Dashboard JavaScript - BEM Methodology
 document.addEventListener('DOMContentLoaded', function () {
     loadAccounts();
+    reloadProductList();
+    loadVouchers();
     loadStaffData();
+    reloadTrainerList();
+    ;
 });
 
 // Show specific table
@@ -164,8 +168,13 @@ function submitFormAjax(form, resultContainerId, event) {
                         loadAccounts();
                     if (typeof reloadProductList === 'function')
                         reloadProductList();
+                    if (typeof loadVouchers === 'function')
+                        loadVouchers();
                     if (typeof loadStaffData === 'function')
                         loadStaffData();
+                    if (typeof reloadTrainerList === 'function')
+                        reloadTrainerList();
+                    ;
                 }, 500);
             })
             .catch(error => {
@@ -175,7 +184,6 @@ function submitFormAjax(form, resultContainerId, event) {
                 if (resultDiv)
                     resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
             });
-
     return false;
 }
 
@@ -516,7 +524,7 @@ function reloadProductList() {
                     const row = `
                     <tr>
                         <td>${index + 1}</td>
-                        <td><img src="${imageUrl}" alt="Image" style="width:40px;height:40px;border-radius:6px; margin-top: 5px;"></td>
+                        <td><img src="${imageUrl}" alt="Image" style="width:60px; height:60px; border-radius:10px; margin-top: 5px"></td>
                         <td>${product.name}</td>
                         <td>${product.categoryName}</td>
                         <td>${product.price.toLocaleString('vi-VN')} đ</td>
@@ -592,7 +600,357 @@ function previewNewImages(input) {
     }
 }
 
-//////////////////////Hoang Khang/////////////////////////////
+function previewNewImages(input) {
+    const container = document.getElementById('editNewImagePreviewList');
+    container.innerHTML = '';
+
+    if (input.files && input.files.length > 0) {
+        Array.from(input.files).forEach(file => {
+            const img = document.createElement('img');
+            img.src = URL.createObjectURL(file);
+            img.style.width = "60px";
+            img.style.borderRadius = "6px";
+            img.style.border = "1px solid #ccc";
+            container.appendChild(img);
+        });
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///
+///                                            NHAT  KHANG
+///
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+// Function to load the list of vouchers from the server
+function loadVouchers() {
+    console.log('Đang tải danh sách voucher...');
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/vouchers?action=ajaxList`;
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json(); // Đảm bảo trả về dữ liệu JSON
+            })
+            .then(data => {
+                console.log('Dữ liệu voucher nhận được:', data);
+                const tbody = document.querySelector('#voucherTable tbody');
+                if (!tbody) {
+                    console.error('Không tìm thấy tbody trong ##voucherTable tbody');
+                    return;
+                }
+                tbody.innerHTML = ''; // Xóa nội dung hiện tại
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">No vouchers available</td></tr>`;
+                    return;
+                }
+
+                data.forEach((voucher, index) => {
+                    const startDate = voucher.startDate
+                            ? new Date(voucher.startDate + 'T00:00:00').toLocaleDateString('vi-VN', {
+                        day: '2-digit', month: '2-digit', year: 'numeric'
+                    })
+                            : 'N/A';
+
+                    const endDate = voucher.endDate
+                            ? new Date(voucher.endDate + 'T00:00:00').toLocaleDateString('vi-VN', {
+                        day: '2-digit', month: '2-digit', year: 'numeric'
+                    })
+                            : 'N/A';
+
+                    const row = `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${voucher.code}</td>
+                    <td>${voucher.description}</td>
+                    <td>${voucher.discountPercent}</td>
+                    <td>${voucher.maxDiscount}</td>
+                    <td>${voucher.usageLimit}</td>
+                    <td>${voucher.usedCount}</td>
+                    <td>${voucher.minOrderAmount}</td>
+                    <td>${startDate}</td>
+                    <td>${endDate}</td>
+                    <td>${voucher.isActive ? 'Active' : 'Inactive'}</td>
+                    <td>
+                        <button class="action-buttons__btn action-buttons__btn--edit" style=" margin-top: 5px;"
+                            onclick="openEditVoucherModal('${voucher.voucherId}', '${voucher.code}', '${voucher.description}', '${voucher.discountPercent}', '${voucher.maxDiscount}', '${voucher.usageLimit}', '${voucher.usedCount}', '${voucher.minOrderAmount}', '${voucher.startDate}', '${voucher.endDate}', '${voucher.isActive}')">
+                            Edit
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--delete" style=" margin-top: 5px;"
+                            onclick="openDeleteVoucherModal('${voucher.voucherId}')">
+                            Delete
+                        </button>
+                    </td>
+                </tr>`;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh sách voucher:', error);
+                fetch(url)
+                        .then(r => r.text())
+                        .then(text => console.warn("Phản hồi server không phải JSON:", text));
+            });
+}
+
+
+
+
+
+
+
+function submitDeleteVouchers(form) {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+        params.append(key, value);
+    }
+
+    const resultDiv = document.getElementById("resultDeleteVoucher");
+
+    fetch(form.action, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded", // Đảm bảo sử dụng đúng Content-Type
+        },
+        body: params,
+    })
+            .then(res => res.text())
+            .then(text => {
+                console.log("🔍 Raw response:", text);
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    throw new Error("Phản hồi không hợp lệ từ server: " + text);
+                }
+
+                if (data.status === "deleted") {
+                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">${data.message}</p>`;
+                    setTimeout(() => {
+                        closeModal("deleteVoucherModal");
+                        loadVouchers();
+                    }, 800);
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Xóa thất bại: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi khi xóa: ${error.message}</p>`;
+            });
+
+    return false;
+}
+
+// Mở và đổ dữ liệu vào Delete Voucher Modal
+function openDeleteVoucherModal(voucherId) {
+    console.log("voucherId = ", voucherId); // ✅ Log để kiểm tra
+    document.getElementById("deleteVoucherId").value = voucherId;
+    openModal('deleteVoucherModal');
+}
+//
+function submitFormAjaxx(event, form, resultDiv) {
+    event.preventDefault();  // Ngừng hành động gửi form mặc định
+
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+
+    // Chuyển FormData thành URLSearchParams
+    for (let [key, value] of formData.entries()) {
+        params.append(key, value);
+    }
+
+    const resultDivElement = document.getElementById(resultDiv);
+
+    // Clear any previous messages before submitting the form
+    resultDivElement.innerHTML = '';  // Xóa thông báo cũ trước khi gửi
+
+    fetch(form.action, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params,
+    })
+            .then(res => res.text())
+            .then(text => {
+                let data;
+                try {
+                    data = JSON.parse(text);  // Parse phản hồi thành JSON
+                } catch (err) {
+                    throw new Error("Phản hồi không hợp lệ từ server: " + text);
+                }
+
+                if (data.status === "created") {
+                    // Hiển thị thông báo thành công
+                    resultDivElement.innerHTML = `<p style="color:green; font-weight:bold;">Voucher created successfully!</p>`;
+
+                    // Sau một thời gian ngắn, đóng modal và tải lại danh sách voucher
+                    setTimeout(() => {
+                        // Đóng modal
+                        closeModal(form.closest('.modal').id);  // Đóng modal hiện tại
+
+                        // Cập nhật lại danh sách voucher
+                        loadVouchers();  // Tải lại danh sách voucher
+
+                        // Reset form sau khi gửi thành công
+                        form.reset(); // Đặt lại giá trị của các trường trong form về mặc định
+                    }, 1000);  // Đợi 1 giây trước khi đóng modal và cập nhật lại dữ liệu
+                } else {
+                    resultDivElement.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                resultDivElement.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi khi tạo voucher: ${error.message}</p>`;
+            });
+
+    return false;
+}
+
+
+
+
+
+
+
+
+// Add the new voucher to the table without reloading the entire data
+function addVoucherToTable(voucher) {
+    const tbody = document.querySelector('#vouchersTable .data-table tbody');
+    if (tbody) {
+        // Chuyển đổi ngày thành chuỗi
+        const startDate = new Date(voucher.startDate).toLocaleDateString();  // Chuyển startDate thành chuỗi
+        const endDate = new Date(voucher.endDate).toLocaleDateString();  // Chuyển endDate thành chuỗi
+
+        const row = `
+            <tr>
+                <td>${voucher.voucherId}</td> <!-- Đảm bảo bạn sử dụng đúng tên thuộc tính -->
+                <td>${voucher.code}</td>
+                <td>${voucher.description}</td>
+                <td>${voucher.discountPercent}</td>
+                <td>${voucher.maxDiscount}</td>
+                <td>${voucher.usageLimit}</td>
+                <td>${voucher.usedCount}</td>
+                <td>${voucher.minOrderAmount}</td>
+                <td>${startDate}</td> <!-- Hiển thị startDate đã chuyển thành chuỗi -->
+                <td>${endDate}</td>   <!-- Hiển thị endDate đã chuyển thành chuỗi -->
+                <td>${voucher.isActive ? 'Active' : 'Inactive'}</td> <!-- Hiển thị trạng thái đúng -->
+                <td>
+                    <button class="action-buttons__btn action-buttons__btn--edit">Edit</button>
+                    <button class="action-buttons__btn action-buttons__btn--delete">Delete</button>
+                </td>
+            </tr>
+        `;
+        tbody.insertAdjacentHTML('beforeend', row); // Chèn dòng mới vào bảng
+    }
+}
+
+
+
+function openModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+        modal.style.display = 'flex';
+    }
+
+    // Clear any previous success message when opening the modal
+    const resultDivElement = document.getElementById("resultAddVoucher");  // Đảm bảo đúng ID của phần hiển thị thông báo
+    if (resultDivElement) {
+        resultDivElement.innerHTML = '';  // Xóa thông báo cũ khi mở modal
+    }
+}
+//const formData = new FormData(form);
+//const params = new URLSearchParams();
+//for (let [key, value] of formData.entries()) {
+//    console.log(`${key}: ${value}`);
+//    params.append(key, value);
+//}
+
+
+
+
+function openEditVoucherModal(voucherId, code, description, discountPercent, maxDiscount, usageLimit, usedCount, minOrderAmount, startDate, endDate, isActive) {
+    // Điền dữ liệu vào các trường trong modal
+    document.getElementById('editVoucherCode').value = code;
+    document.getElementById('editVoucherId').value = voucherId;
+    document.getElementById('editVoucherDescription').value = description;
+    document.getElementById('editVoucherDiscount').value = discountPercent;
+    document.getElementById('editVoucherMaxDiscount').value = maxDiscount;
+    document.getElementById('editVoucherUsageLimit').value = usageLimit;
+    document.getElementById('editVoucherUsedCount').value = usedCount;
+    document.getElementById('editVoucherMinOrderAmount').value = minOrderAmount;
+    document.getElementById('editVoucherStartDate').value = startDate;
+    document.getElementById('editVoucherEndDate').value = endDate;
+    document.getElementById('editVoucherActive').value = isActive === "true" ? "true" : "false";
+
+    // Mở modal
+    openModal('editVoucherModal');
+}
+
+
+function submitEditVoucher(form) {
+    event.preventDefault();
+
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+
+    // Duyệt qua các cặp key-value trong FormData và thêm vào params
+    for (let [key, value] of formData.entries()) {
+        console.log(`${key}: ${value}`);
+        params.append(key, value);
+    }
+
+    const resultDiv = document.getElementById("resultEditVoucher");
+
+    fetch(form.action, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded", // Đảm bảo sử dụng đúng Content-Type
+        },
+        body: params,
+    })
+            .then(res => res.text())
+            .then(text => {
+                console.log("🔍 Raw response:", text);
+                let data;
+                try {
+                    data = JSON.parse(text);
+                } catch (err) {
+                    throw new Error("Phản hồi không hợp lệ từ server: " + text);
+                }
+
+                if (data.status === "updated") {
+                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">${data.message}</p>`;
+                    setTimeout(() => {
+                        closeModal("editVoucherModal");
+                        loadVouchers();  // Tải lại danh sách voucher sau khi cập nhật thành công
+                    }, 800);
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Cập nhật thất bại: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi khi cập nhật: ${error.message}</p>`;
+            });
+
+    return false;
+}
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                    HOANG KHANG       
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
 function loadStaffData() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
@@ -722,128 +1080,325 @@ function openEditStaffModal(staffId, accountId, username, fullName, email, phone
     document.getElementById('editStaffModal').style.display = 'flex';
 }
 
-
-function submitFormForStaff(form, resultContainerId, event) {
-    // Ngừng hành động mặc định của form (ngăn gửi form theo cách thông thường)
-    if (event) {
-        event.preventDefault();
-    }
-
-    // Lấy giá trị action từ thuộc tính của form
-    const action = form.getAttribute('action');
-    console.log("Form action:", action);
-
-    if (!action) {
-        console.error("❌ Form không có thuộc tính 'action'");
-        const resultDiv = document.getElementById(resultContainerId);
-        if (resultDiv) {
-            resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: Form không có action!</p>`;
-        }
-        return false;
-    }
-
-    // Lấy dữ liệu từ form (bao gồm cả file avatar nếu có)
-    const formData = new FormData(form);
-    console.log("✅ Dữ liệu gửi đi:");
-    for (let [key, val] of formData.entries()) {
-        console.log(`${key}: ${val}`);
-    }
-
-    // Vô hiệu hóa các input trong form khi đang gửi
-    form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
-
-    // Gửi dữ liệu form qua fetch
-    fetch(action, {
-        method: 'POST', // Phương thức gửi form
-        body: formData, // Dữ liệu form
-    })
-            .then(response => {
-                // Kích hoạt lại các input sau khi gửi xong
-                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
-
-                // Kiểm tra xem response có thành công không
-                if (!response.ok) {
-                    throw new Error(`HTTP error! Status: ${response.status}`);
-                }
-                return response.text();
-            })
-            .then(data => {
-                // Hiển thị kết quả thành công
-                const resultDiv = document.getElementById(resultContainerId);
-                if (resultDiv) {
-                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Thành công!</p>`;
-                }
-
-                // Đóng modal sau khi thành công
-                const modal = form.closest('.modal');
-                if (modal) {
-                    setTimeout(() => closeModal(modal.id), 800);
-                }
-
-                // Sau khi gửi thành công, làm mới danh sách nhân viên
-                setTimeout(() => {
-                    if (typeof loadStaffData === 'function') {
-                        loadStaffData();  // Hàm này tải lại dữ liệu nhân viên
-                    }
-                }, 500);
-            })
-            .catch(error => {
-                // Kích hoạt lại các input nếu có lỗi
-                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
-
-                // Hiển thị thông báo lỗi nếu có
-                console.error('Lỗi khi gửi form:', error);
-                const resultDiv = document.getElementById(resultContainerId);
-                if (resultDiv) {
-                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
-                }
-            });
-
-    return false;
-}
+//
+//function submitFormForStaff(form, resultContainerId, event) {
+//    // Ngừng hành động mặc định của form (ngăn gửi form theo cách thông thường)
+//    if (event) {
+//        event.preventDefault();
+//    }
+//
+//    // Lấy giá trị action từ thuộc tính của form
+//    const action = form.getAttribute('action');
+//    console.log("Form action:", action);
+//
+//    if (!action) {
+//        console.error("❌ Form không có thuộc tính 'action'");
+//        const resultDiv = document.getElementById(resultContainerId);
+//        if (resultDiv) {
+//            resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: Form không có action!</p>`;
+//        }
+//        return false;
+//    }
+//
+//    // Lấy dữ liệu từ form (bao gồm cả file avatar nếu có)
+//    const formData = new FormData(form);
+//    console.log("✅ Dữ liệu gửi đi:");
+//    for (let [key, val] of formData.entries()) {
+//        console.log(`${key}: ${val}`);
+//    }
+//
+//    // Vô hiệu hóa các input trong form khi đang gửi
+//    form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
+//
+//    // Gửi dữ liệu form qua fetch
+//    fetch(action, {
+//        method: 'POST', // Phương thức gửi form
+//        body: formData, // Dữ liệu form
+//    })
+//            .then(response => {
+//                // Kích hoạt lại các input sau khi gửi xong
+//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
+//
+//                // Kiểm tra xem response có thành công không
+//                if (!response.ok) {
+//                    throw new Error(`HTTP error! Status: ${response.status}`);
+//                }
+//                return response.text();
+//            })
+//            .then(data => {
+//                // Hiển thị kết quả thành công
+//                const resultDiv = document.getElementById(resultContainerId);
+//                if (resultDiv) {
+//                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Thành công!</p>`;
+//                }
+//
+//                // Đóng modal sau khi thành công
+//                const modal = form.closest('.modal');
+//                if (modal) {
+//                    setTimeout(() => closeModal(modal.id), 800);
+//                }
+//
+//                // Sau khi gửi thành công, làm mới danh sách nhân viên
+//                setTimeout(() => {
+//                    if (typeof loadStaffData === 'function') {
+//                        loadStaffData();  // Hàm này tải lại dữ liệu nhân viên
+//                    }
+//                }, 500);
+//            })
+//            .catch(error => {
+//                // Kích hoạt lại các input nếu có lỗi
+//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
+//
+//                // Hiển thị thông báo lỗi nếu có
+//                console.error('Lỗi khi gửi form:', error);
+//                const resultDiv = document.getElementById(resultContainerId);
+//                if (resultDiv) {
+//                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
+//                }
+//            });
+//
+//    return false;
+//}
 
 function openDeleteStaffModal(staffId) {
     document.getElementById('deleteStaffId').value = staffId;
     openModal('deleteStaffModal');
 }
 
-function submitDeleteStaff(form, event) {
-    event.preventDefault();
+//function submitDeleteStaff(form, event) {
+//    event.preventDefault();
+//
+//    const formData = new FormData(form);
+//    const resultDiv = document.getElementById("resultDeleteStaff");
+//    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+//
+//    fetch(`${window.location.origin}${contextPath}/admin/staffs`, {
+//        method: 'POST',
+//        body: formData
+//    })
+//            .then(res => res.text())
+//            .then(result => {
+//                console.log("📥 Server returned:", JSON.stringify(result));
+//
+//                if (result.trim() === "OK") {
+//                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Xóa thành công!</p>`;
+//                    setTimeout(() => {
+//                        closeModal('deleteStaffModal');
+//                        loadStaffData();
+//                        setTimeout(() => location.reload(), 1000);
+//                    }, 800);
+//                } else {
+//                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Xóa thất bại.</p>`;
+//                }
+//            })
+//            .catch(error => {
+//                console.error("Error delete staff:", error);
+//                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
+//            });
+//
+//    return false;
+//}
 
-    const formData = new FormData(form);
-    const resultDiv = document.getElementById("resultDeleteStaff");
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                              HA PHUONG                                                                                   /////
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                                              
+
+function reloadTrainerList() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/TrainerServlet?action=json`;
 
-    fetch(`${window.location.origin}${contextPath}/admin/staffs`, {
-        method: 'POST',
-        body: formData
-    })
-            .then(res => res.text())
-            .then(result => {
-                    console.log("📥 Server returned:", JSON.stringify(result));
+    fetch(url)
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                const tbody = document.querySelector('#trainerTable tbody');
+                tbody.innerHTML = '';
 
-                if (result.trim() === "OK") {
-                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Xóa thành công!</p>`;
-                    setTimeout(() => {
-                        closeModal('deleteStaffModal');
-                        loadStaffData();
-                        setTimeout(() => location.reload(), 1000);
-                    }, 800);
-                } else {
-                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Xóa thất bại.</p>`;
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">Chưa có huấn luyện viên nào</td></tr>`;
+                    return;
                 }
+
+                data.forEach((trainer, index) => {
+                    const account = trainer.accountId; // vì bạn dùng accountId là object Account
+                    const avatarUrl = account && account.accountId
+                            ? `${window.location.origin}${contextPath}/AvatarServlet?id=${account.accountId}&t=${Date.now()}`
+                            : `${contextPath}/avatar/default.png`;
+
+                    const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%"></td>
+                        <td>${account.username}</td>
+                        <td>${trainer.fullName}</td>
+                        <td>${trainer.email || ''}</td>
+                        <td>${trainer.phone || ''}</td>
+                        <td>${trainer.bio || ''}</td>
+                        <td>${trainer.experienceYears} năm</td>
+                        <td>${trainer.rating.toFixed(1)} ★</td>
+                        <td>
+                            <button class="action-buttons__btn action-buttons__btn--edit"
+                                onclick="openEditTrainerModal(${trainer.trainerId})">Edit</button>
+                            <button class="action-buttons__btn action-buttons__btn--delete"
+                                onclick="openDeleteTrainerModal(${trainer.trainerId})">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                    tbody.innerHTML += row;
+                });
             })
             .catch(error => {
-                console.error("Error delete staff:", error);
-                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
+                console.error('Lỗi khi tải danh sách trainer:', error);
+                fetch(url)
+                        .then(r => r.text())
+                        .then(text => console.warn("Nội dung không phải JSON:", text));
             });
-
-    return false;
 }
 
 
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-///
-///                                            NHAT  KHANG
-///
-///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////
+
+
+// Hàm để mở modal và hiển thị thông tin huấn luyện viên cần chỉnh sửa
+function openEditTrainerModal(trainerId) {
+    // Giả sử bạn có một API hoặc dữ liệu để lấy thông tin huấn luyện viên theo ID
+    var trainerData = getTrainerById(trainerId);
+
+    // Kiểm tra nếu dữ liệu huấn luyện viên không rỗng
+    if (trainerData) {
+        document.getElementById('trainerName').value = trainerData.fullName;
+        document.getElementById('trainerEmail').value = trainerData.email;
+        document.getElementById('trainerExperience').value = trainerData.experienceYears;
+        document.getElementById('trainerRating').value = trainerData.rating;
+        document.getElementById('trainerId').value = trainerData.trainerId;
+
+        // Mở modal chỉnh sửa
+        document.getElementById('editTrainerModal').style.display = 'flex';
+    }
+}
+
+// Hàm để mở modal và hiển thị thông tin huấn luyện viên cần xóa
+function openDeleteTrainerModal(trainerId) {
+    // Giả sử bạn có một API hoặc dữ liệu để lấy thông tin huấn luyện viên theo ID
+    var trainerData = getTrainerById(trainerId);
+
+    // Hiển thị tên huấn luyện viên trong modal
+    if (trainerData) {
+        document.getElementById('trainerName').innerText = trainerData.fullName;
+
+        // Lưu lại ID của huấn luyện viên cần xóa trong thuộc tính của nút Xóa
+        document.getElementById('confirmDeleteBtn').setAttribute("data-trainer-id", trainerId);
+
+        // Mở modal xóa
+        document.getElementById('deleteTrainerModal').style.display = 'flex';
+    }
+}
+
+
+// Mở modal và lấy danh sách username chưa tạo trainer
+function openAddTrainerModal() {
+    fetch('/admin/trainers?action=getAccountsWithoutTrainer') // Lấy danh sách tài khoản chưa có huấn luyện viên
+            .then(response => response.json())
+            .then(usernames => {
+                const selectElement = document.getElementById('trainerUsername');
+                selectElement.innerHTML = '<option value="">Choose a username for the Trainer</option>'; // Reset dropdown
+
+                // Điền các username vào dropdown
+                usernames.forEach(username => {
+                    const option = document.createElement('option');
+                    option.value = username;
+                    option.textContent = username;
+                    selectElement.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Error loading accounts without trainer:', error);
+            });
+
+    // Mở modal
+    document.getElementById('addTrainer').style.display = 'flex';
+}
+
+//=============================================================================================================================
+//||                                                                                                                         ||
+//||                                           BaoMinh                                                                       ||
+//||                                                                                                                         ||
+//=============================================================================================================================
+
+function openEditCustomerModal(customerId, fullName, email, phone, customerCode, address, accountId, username, avatarUrl) {
+    document.getElementById("editCustomerId").value = customerId;
+    document.getElementById("editFullName").value = fullName;
+    document.getElementById("editEmail").value = email;
+    document.getElementById("editPhone").value = phone;
+    document.getElementById("editCustomerCode").value = customerCode;
+    document.getElementById("editAddress").value = address;
+
+    document.getElementById("editAccountId").value = accountId;
+    document.getElementById("editUsername").value = username;
+    document.getElementById("editAvatarPreview").src = avatarUrl;
+
+    openModal("editCustomerModal");
+}
+
+function openDeleteCustomerModal(customerId) {
+    document.getElementById('deleteCustomerId').value = customerId;
+    openModal('deleteCustomerModal');
+}
+
+
+function loadCustomers() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/customer?action=ajaxList`;
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                const tbody = document.querySelector('#customerTable tbody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Chưa có khách hàng nào</td></tr>`;
+                    return;
+                }
+
+                data.forEach((cus, index) => {
+                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${cus.account.username}&t=${Date.now()}`;
+                    const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
+                        <td>${cus.account.username}</td>
+                        <td>${cus.fullName}</td>
+                        <td>${cus.email}</td>
+                        <td>${cus.phone}</td>
+                        <td>${cus.customerCode || ''}</td>
+<td>${cus.address || ''}</td>
+                        <td>
+                            <button class="action-buttons__btn action-buttons__btn--edit"
+                                onclick="openEditCustomerModal(
+                                    '${cus.customerId}', '${cus.fullName}', '${cus.email}', '${cus.phone}', '${cus.customerCode}', '${cus.address}',
+                                    '${cus.account.accountId}', '${cus.account.username}', '${avatarUrl}'
+                                )">Edit</button>
+                            <button class="action-buttons__btn action-buttons__btn--delete"
+                                onclick="openDeleteCustomerModal('${cus.customerId}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh sách khách hàng:', error);
+                fetch(url)
+                        .then(r => r.text())
+                        .then(text => console.warn("Phản hồi không phải JSON:", text));
+            });
+}

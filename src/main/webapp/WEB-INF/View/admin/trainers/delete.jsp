@@ -1,17 +1,15 @@
-<%-- 
-    Document   : delete
-    Created on : Jun 5, 2025, 5:00:47â€¯PM
-    Author     : Admin
---%>
 
-<%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html>
-<html>
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-        <title>JSP Page</title>
-    </head>
-    <body>
-        <h1>Hello World!</h1>
-    </body>
-</html>
+
+
+<div class="modal" id="deleteAccountModal" style="display:none;">
+    <div class="modal-content">
+        <h2>Confirm account deletion</h2>
+        <form method="post" action="${pageContext.request.contextPath}/admin/trainers"
+              onsubmit="return submitDeleteAccount(this)">
+            <input type="hidden" name="accountId" id="deleteAccountId">
+            <p>B?n có ch?c ch?n mu?n xóa Trainer này không</p>
+            <button type="submit">Xóa</button>
+            <button type="button" onclick="closeModal('deleteTrainerModal')">H?y</button>
+        </form><div id="resultDelete" style="margin-top:10px;"></div>      
+    </div>
+</div>

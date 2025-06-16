@@ -10,8 +10,10 @@
 
         <%@include file="/WEB-INF/View/admin/accounts/list.jsp" %>
         <%@include file="/WEB-INF/View/admin/products/list.jsp" %>
+        <%@include file="/WEB-INF/View/admin/vouchers/list.jsp" %>
         <%@include file="/WEB-INF/View/admin/staffs/list.jsp" %>
-
+        <%@include file="/WEB-INF/View/admin/trainers/list.jsp" %>
+        <%@include file="/WEB-INF/View/admin/members/list.jsp" %>
     </main>
 </div>
 
