@@ -1,5 +1,5 @@
 <div class="modal" id="deleteVoucherModal">
-    <div class="modal__content">
+    <div class="modal-content">
         <form method="post" action="<%= request.getContextPath()%>/admin/vouchers"
               onsubmit="return submitDeleteVouchers(this)">
             <input type="hidden" name="formAction" value="delete">
@@ -7,7 +7,6 @@
 
             <div class="modal__header">
                 <h2 class="modal__title">Delete Voucher</h2>
-                <button type="button" class="modal__close" onclick="closeModal('deleteVoucherModal')">&times;</button>
             </div>
 
             <div class="modal__body">

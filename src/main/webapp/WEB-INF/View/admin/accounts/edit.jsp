@@ -101,7 +101,6 @@
               onsubmit="return submitFormAjax(this, 'resultEdit')">
             <input type="hidden" name="action" value="update">
             <input type="hidden" name="accountId" id="editAccountId">
-
             <label>Username:</label>
             <input type="text" name="username" id="editUsername" required><br><br>
 
@@ -112,6 +111,7 @@
             <select name="role" id="editRole">
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
+                <option value="trainer">Trainer</option>
                 <option value="customer">Customer</option>
             </select><br><br>
             <!-- Avatar hi?n t?i -->

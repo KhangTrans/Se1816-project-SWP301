@@ -12,7 +12,8 @@ public class Products {
     private int stockQuantity;
     private boolean active;
     private Categories categoryId;
-
+    private String imageUrl;
+    private String categoryName;
     private List<Product_Images> images = new ArrayList<>();
 
     public Products() {
@@ -28,7 +29,14 @@ public class Products {
         this.active = active;
         this.categoryId = categoryId;
     }
-    private String categoryName;
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
+    }
 
     public String getCategoryName() {
         return categoryName;

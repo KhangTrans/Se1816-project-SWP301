@@ -1,7 +1,7 @@
 <%@page import="java.util.List"%>
 <%@ page import="Model.Categories" %>
-<div class="modal" id="addProductModal">
-    <div class="modal__content">
+<div class="modal" id="addProductModal" style="display:none;">
+    <div class="modal-content">
         <form method="post" action="${pageContext.request.contextPath}/admin/products" 
               enctype="multipart/form-data" 
               onsubmit="return submitFormAjax(this, 'resultAddProduct')">
@@ -21,11 +21,11 @@
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Price</label>
-                    <input type="number" name="price" class="modal__input" step="0.01" required>
+                    <input type="number" name="price" class="modal__input" step="0.01" min ="50000" max="9999999" required>
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Stock Quantity</label>
-                    <input type="number" name="stockQuantity" class="modal__input" required>
+                    <input type="number" name="stockQuantity" class="modal__input" min ="1" max="9999" required>
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Category</label>
@@ -46,7 +46,7 @@
 
                 <div class="modal__form-group">
                     <label class="modal__label">Images</label>
-                    <input type="file" name="images" class="modal__input" multiple required>
+                    <input type="file" name="images" accept=".jpg, .png" class="modal__input" multiple required>
                 </div>
                 <div id="resultAddProduct"></div>
             </div>

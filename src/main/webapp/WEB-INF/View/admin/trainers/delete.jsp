@@ -1,15 +1,15 @@
 
 
 
-<div class="modal" id="deleteAccountModal" style="display:none;">
+
+
+<div class="modal" id="deleteTrainerModal" style="display:none;">
     <div class="modal-content">
-        <h2>Confirm account deletion</h2>
-        <form method="post" action="${pageContext.request.contextPath}/admin/trainers"
-              onsubmit="return submitDeleteAccount(this)">
-            <input type="hidden" name="accountId" id="deleteAccountId">
-            <p>B?n có ch?c ch?n mu?n xóa Trainer này không</p>
-            <button type="submit">Xóa</button>
-            <button type="button" onclick="closeModal('deleteTrainerModal')">H?y</button>
-        </form><div id="resultDelete" style="margin-top:10px;"></div>      
+        <h2>Xác nh?n xóa Hu?n luy?n viên</h2>
+        <p>B?n ch?c ch?n mu?n xóa hu?n luy?n viên <strong id="trainerName"></strong>?</p>
+        <input type="hidden" id="deleteTrainerId">
+        <button id="confirmDeleteBtn" class="btn btn-danger" onclick="submitDeleteTrainer()">Xóa</button>
+        <button class="btn btn-secondary" onclick="closeModal('deleteTrainerModal')">H?y</button>
+        <div id="deleteTrainerResult" style="margin-top:10px;"></div>
     </div>
 </div>

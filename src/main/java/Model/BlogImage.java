@@ -3,21 +3,32 @@ package Model;
 import java.time.LocalDateTime;
 
 public class BlogImage {
+
     private int imageId;
     private Blog blog; // Liên kết đến đối tượng Blog
     private byte[] imageUrl; // Lưu dữ liệu ảnh dạng byte[]
-    private String caption;
     private LocalDateTime uploadedAt;
+    private boolean is_primary;
 
-    public BlogImage() {}
+    public BlogImage() {
+    }
 
-    public BlogImage(int imageId, Blog blog, byte[] imageUrl, String caption, LocalDateTime uploadedAt) {
+    public BlogImage(int imageId, Blog blog, byte[] imageUrl, LocalDateTime uploadedAt, boolean is_primary) {
         this.imageId = imageId;
         this.blog = blog;
         this.imageUrl = imageUrl;
-        this.caption = caption;
         this.uploadedAt = uploadedAt;
+        this.is_primary = is_primary;
     }
+
+    public boolean isIs_primary() {
+        return is_primary;
+    }
+
+    public void setIs_primary(boolean is_primary) {
+        this.is_primary = is_primary;
+    }
+
 
     public int getImageId() {
         return imageId;
@@ -41,14 +52,6 @@ public class BlogImage {
 
     public void setImageUrl(byte[] imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public String getCaption() {
-        return caption;
-    }
-
-    public void setCaption(String caption) {
-        this.caption = caption;
     }
 
     public LocalDateTime getUploadedAt() {

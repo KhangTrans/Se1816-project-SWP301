@@ -1,3 +1,7 @@
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
+<%@include file="/WEB-INF/View/admin/members/create.jsp" %>
+<%@include file="/WEB-INF/View/admin/members/edit.jsp" %>
+<%@include file="/WEB-INF/View/admin/members/delete.jsp" %>
 <div class="table-container" id="customersTable">
     <div class="table-container__header">
         <h2 class="table-container__title">Member List</h2>
@@ -16,12 +20,11 @@
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Customer Code</th>
-                    <th>Address</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <!-- D? li?u s? ???c JS fill ? ?ây -->
+                <!-- D? li?u s? ???c JS fill ? ?Ã¢y -->
             </tbody>
         </table>
     </div>

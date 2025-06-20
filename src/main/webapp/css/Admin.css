@@ -21,7 +21,10 @@
     width: 40%;
     position: relative;
 }
-
+td{
+    padding: 3px;
+    text-align: center;
+}
 * {
     margin: 0;
     padding: 0;

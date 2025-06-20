@@ -58,7 +58,7 @@ public class UserDao extends DBcontext {
     }
 
     public boolean login(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role = 'customer'";
+        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role IN ('customer','trainer')";
         try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, hashMD5(password));
@@ -66,6 +66,18 @@ public class UserDao extends DBcontext {
                 return rs.next();
             }
         }
+    }
+
+    public String getUserRole(String username) throws SQLException {
+        String sql = "SELECT role FROM accounts WHERE username = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getString("role");
+            }
+        }
+        return null;
     }
 
     public boolean quickRegisterIfNotExistsG(String username, String fullName, String email) throws SQLException {
@@ -360,8 +372,10 @@ public class UserDao extends DBcontext {
             ps.executeUpdate();
         }
     }
-////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////
+///        HOANG KHANG
+/////////////////////////////////////////////////////
     public List<Staff> getAllStaffs() throws SQLException {
         List<Staff> list = new ArrayList<>();
         String sql = "SELECT s.staff_id, s.status, s.full_name, s.email, s.staff_code, s.phone, s.position, a.account_id, a.username, a.role, a.created_at, a.avatar FROM staff s JOIN accounts a ON s.account_id = a.account_id WHERE a.role = 'staff'";
@@ -421,7 +435,7 @@ public class UserDao extends DBcontext {
                 acc.setUsername(rs.getString("username"));
                 acc.setRole(rs.getString("role"));
                 acc.setCreatedAt(rs.getTimestamp("created_at"));
-    
+
                 staffList.add(acc);
             }
         } catch (SQLException e) {
@@ -522,11 +536,10 @@ public class UserDao extends DBcontext {
         String updateAvatarSql = "UPDATE accounts SET avatar = ? WHERE account_id = ?";
 
         try ( Connection conn = getConnection()) {
-            conn.setAutoCommit(false); 
+            conn.setAutoCommit(false);
 
             try (
-                     PreparedStatement stmt1 = conn.prepareStatement(updateStaffSql);
-                      PreparedStatement stmt2 = (avatarStream != null) ? conn.prepareStatement(updateAvatarSql) : null) {
+                     PreparedStatement stmt1 = conn.prepareStatement(updateStaffSql);  PreparedStatement stmt2 = (avatarStream != null) ? conn.prepareStatement(updateAvatarSql) : null) {
                 // Cập nhật bảng staff
                 stmt1.setString(1, fullName);
                 stmt1.setString(2, phone);
@@ -547,7 +560,7 @@ public class UserDao extends DBcontext {
             } catch (SQLException e) {
                 conn.rollback();
                 System.err.println("❌ Error during updating staff or avatar: " + e.getMessage());
-                throw e;  
+                throw e;
             } finally {
                 conn.setAutoCommit(true);
             }
@@ -583,5 +596,4 @@ public class UserDao extends DBcontext {
             e.printStackTrace();
         }
     }
-
 }

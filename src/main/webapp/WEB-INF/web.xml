@@ -68,10 +68,6 @@
         <servlet-name>AvatarServlet</servlet-name>
         <url-pattern>/AvatarServlet</url-pattern>
     </servlet-mapping>
-    <servlet>
-        <servlet-name>AvatarServlet</servlet-name>
-        <servlet-class>Controller.AvatarServlet</servlet-class>
-    </servlet>
     <servlet-mapping>
         <servlet-name>ImagesServlet</servlet-name>
         <url-pattern>/ImagesServlet</url-pattern>

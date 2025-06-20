@@ -2,11 +2,14 @@ package ControllerAdmin;
 
 import DAO.AccountDao;
 import DAO.CustomerDao;
+import DAO.UserDao;
 import Model.Customer;
 import Model.Account;
 import com.google.gson.Gson;
+
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
@@ -18,8 +21,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 @WebServlet(name = "CustomerServlet", urlPatterns = {"/admin/customer"})
+@MultipartConfig
 public class CustomerServlet extends HttpServlet {
 
+    private final UserDao userDao = new UserDao();
     private CustomerDao customerDao;
     private AccountDao accountDao;
 
@@ -46,22 +51,18 @@ public class CustomerServlet extends HttpServlet {
                     new Gson().toJson(customers, response.getWriter());
                     break;
                 }
+                case "loadAccounts": {
+                    List<Account> list = customerDao.getCustomerThatNotStaffYet();
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(new Gson().toJson(list));
+                    return;
+                }
                 case "edit": {
                     int id = Integer.parseInt(request.getParameter("id"));
                     Customer customer = customerDao.getCustomerById(id);
                     request.setAttribute("customer", customer);
                     RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/admin/customers/edit.jsp");
-                    dispatcher.forward(request, response);
-                    break;
-                }
-                case "createForm": {
-                    // Lấy danh sách tài khoản chưa là customer
-                    AccountDao accountDao = new AccountDao();
-                    List<Account> availableAccounts = accountDao.getAllCustomerAccountsNotInCustomerTable();
-                    request.setAttribute("availableAccounts", availableAccounts);
-
-                    // Mở form create
-                    RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/admin/members/create.jsp");
                     dispatcher.forward(request, response);
                     break;
                 }
@@ -79,42 +80,55 @@ public class CustomerServlet extends HttpServlet {
         }
     }
 
+    private String generateMemberCode() throws SQLException {
+        String code;
+        do {
+            int number = (int) (Math.random() * 1_000_000);
+            code = String.format("CUS%06d", number);
+        } while (customerDao.isMemberCodeExists(code)); // DAO check trùng
+        return code;
+    }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
         String action = request.getParameter("action");
+        System.out.println("Received action: " + action);
         if (action == null) {
             action = "";
         }
-
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
         try {
             switch (action) {
                 case "create": {
                     // Lấy dữ liệu từ form
-                    int accountId = Integer.parseInt(request.getParameter("accountId"));
+                    int accountId = Integer.parseInt(request.getParameter("accountCusId"));
                     String fullName = request.getParameter("fullName");
                     String email = request.getParameter("email");
                     String phone = request.getParameter("phone");
-                    String customerCode = request.getParameter("customerCode");
+                    // String customerCode = request.getParameter("customerCode");
                     String address = request.getParameter("address");
+                    System.out.println(accountId);
+                    System.out.println(fullName);
+                    System.out.println(email);
+                    System.out.println(phone);
+                    // System.out.println(customerCode);
+                    System.out.println(address);
+                    Account acc = customerDao.getCustomerAccountById(accountId);
 
-                    Customer customer = new Customer();
-                    customer.setFullName(fullName);
-                    customer.setEmail(email);
-                    customer.setPhone(phone);
-                    customer.setCustomerCode(customerCode);
-                    customer.setAddress(address);
-
-                    Account account = new Account();
-                    account.setAccountId(accountId);
-                    customer.setAccount(account);
-
-                    try {
+                    if (acc != null) {
+                        Customer customer = new Customer();
+                        customer.setAccount(acc);
+                        customer.setFullName(fullName);
+                        customer.setEmail(email);
+                        customer.setPhone(phone);
+                        customer.setCustomerCode(generateMemberCode());
+                        customer.setAddress(address);
                         customerDao.createCustomer(customer);
-                    } catch (SQLException ex) {
-                        Logger.getLogger(CustomerServlet.class.getName()).log(Level.SEVERE, null, ex);
                     }
+
                     response.setContentType("text/plain");
                     response.getWriter().write("OK");
                     break;
@@ -152,7 +166,7 @@ public class CustomerServlet extends HttpServlet {
                 default:
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Action không hợp lệ");
             }
-        } catch (NumberFormatException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi xử lý dữ liệu khách hàng");
         }

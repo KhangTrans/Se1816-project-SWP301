@@ -51,6 +51,8 @@
                         <input type="password"
                                class="form-control"
                                name="password"
+                               pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                               title="Password must be at least 8 characters, including uppercase, lowercase, numbers and special characters"
                                required/>
                     </div>
 

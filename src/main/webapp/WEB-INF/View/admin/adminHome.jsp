@@ -14,6 +14,7 @@
         <%@include file="/WEB-INF/View/admin/staffs/list.jsp" %>
         <%@include file="/WEB-INF/View/admin/trainers/list.jsp" %>
         <%@include file="/WEB-INF/View/admin/members/list.jsp" %>
+        <%@include file="/WEB-INF/View/admin/blogs/list.jsp" %>
     </main>
 </div>
 

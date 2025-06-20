@@ -1,7 +1,7 @@
 
 
 <div class="modal" id="editProductModal">
-    <div class="modal__content">
+    <div class="modal-content">
         <form method="post"
               action="${pageContext.request.contextPath}/admin/products"
               enctype="multipart/form-data"
