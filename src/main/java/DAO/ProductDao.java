@@ -110,7 +110,7 @@ public class ProductDao extends DBcontext {
 
             ps.executeUpdate();
         }
-        
+
     }
 
     public int createProduct(Products p) throws SQLException {
@@ -241,6 +241,64 @@ public class ProductDao extends DBcontext {
         }
 
         return images;
+    }
+
+    public List<Products> getProductsByPage(int page, int productsPerPage) throws SQLException {
+        List<Products> list = new ArrayList<>();
+        int start = (page - 1) * productsPerPage;
+
+        // Câu lệnh SQL sử dụng OFFSET và FETCH NEXT cho SQL Server
+        String sql = "SELECT p.*, c.name AS category_name, img.image_id AS primary_image_id "
+                + "FROM products p "
+                + "JOIN categories c ON p.category_id = c.category_id "
+                + "LEFT JOIN product_images img ON p.product_id = img.product_id AND img.is_primary = 1 "
+                + "ORDER BY p.product_id " // Cần phải có ORDER BY trong SQL Server khi sử dụng OFFSET
+                + "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";  // Sử dụng OFFSET và FETCH NEXT thay vì LIMIT
+
+        try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, start); // Điểm bắt đầu (OFFSET)
+            ps.setInt(2, productsPerPage); // Số sản phẩm mỗi trang (FETCH NEXT)
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Products p = new Products();
+                    p.setProductId(rs.getInt("product_id"));
+                    p.setName(rs.getString("name"));
+                    p.setDescription(rs.getString("description"));
+                    p.setPrice(rs.getDouble("price"));
+                    p.setStockQuantity(rs.getInt("stock_quantity"));
+                    p.setActive(rs.getBoolean("is_active"));
+
+                    Categories cat = new Categories();
+                    cat.setCategory_id(rs.getInt("category_id"));
+                    cat.setName(rs.getString("category_name"));
+                    p.setCategoryId(cat);
+                    p.setCategoryName(rs.getString("category_name"));
+
+                    int primaryImageId = rs.getInt("primary_image_id");
+                    if (!rs.wasNull()) {
+                        p.setPrimaryImageId(primaryImageId);
+                    }
+
+                    list.add(p);
+                }
+            }
+        }
+        return list;
+    }
+
+    public int getTotalProducts() throws SQLException {
+        String sql = "SELECT COUNT(*) FROM products";  // Đếm tổng số sản phẩm trong bảng products
+        try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1);  // Trả về tổng số sản phẩm
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw e;  // Ném lại exception nếu có lỗi
+        }
+        return 0;  // Nếu không có sản phẩm nào
     }
 
 }
