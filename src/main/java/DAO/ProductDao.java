@@ -313,4 +313,195 @@ public class ProductDao extends DBcontext {
         }
         return 0;  // Nếu không có sản phẩm nào
     }
+
+//////////////////////////////////////////////////////////////////////
+//
+//HoangKhang
+//
+//////////////////////////////////////////////////////////////////////
+    /**
+     * Returns a paginated list of products, optionally filtered by category and
+     * sorted by price or ID.
+     *
+     * @param categoryId
+     * @param sortOrder
+     * @param page
+     * @param pageSize
+     * @return
+     * @throws SQLException
+     */
+    public List<Products> getProductsByPageAndFilter(
+            Integer categoryId, String sortOrder, int page, int pageSize) throws SQLException {
+        List<Products> list = new ArrayList<>();
+        String sql = "SELECT p.*, c.name AS category_name, img.image_id AS primary_image_id "
+                + "FROM products p "
+                + "JOIN categories c ON p.category_id = c.category_id "
+                + "LEFT JOIN product_images img ON p.product_id = img.product_id AND img.is_primary = 1 ";
+
+        //Add WHERE if there's cate id
+        if (categoryId != null) {
+            sql += "WHERE p.category_id = ? ";
+        }
+
+        //Sort
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            sql += "ORDER BY p.price ASC ";
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            sql += "ORDER BY p.price DESC ";
+        } else {
+            sql += "ORDER BY p.product_id ";
+        }
+        sql += "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            int paramIndex = 1;
+            if (categoryId != null) {
+                ps.setInt(paramIndex++, categoryId);
+            }
+            int offset = (page - 1) * pageSize;
+            ps.setInt(paramIndex++, offset);
+            ps.setInt(paramIndex, pageSize);
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Products p = new Products();
+                    p.setProductId(rs.getInt("product_id"));
+                    p.setName(rs.getString("name"));
+                    p.setDescription(rs.getString("description"));
+                    p.setPrice(rs.getDouble("price"));
+                    p.setStockQuantity(rs.getInt("stock_quantity"));
+                    p.setActive(rs.getObject("is_active") != null ? rs.getBoolean("is_active") : null);
+                    Categories cat = new Categories();
+                    cat.setCategory_id(rs.getInt("category_id"));
+                    cat.setName(rs.getString("category_name"));
+                    p.setCategoryId(cat);
+                    p.setCategoryName(rs.getString("category_name"));
+                    int primaryImageId = rs.getInt("primary_image_id");
+                    if (!rs.wasNull()) {
+                        p.setPrimaryImageId(primaryImageId);
+                    }
+                    list.add(p);
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Counts the total number of products in a given category to calculate the
+     * total number of pages when paginating by category.
+     *
+     * @param categoryId
+     * @return
+     * @throws SQLException
+     */
+    public int getTotalProductsByCategory(int categoryId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM products WHERE category_id = ?";
+        try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, categoryId);
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
+    /**
+     * Returns list of products matched keyword (name or description), category
+     * optional. Can also be sorted by price or ID.
+     *
+     * @param keyword
+     * @param categoryId
+     * @param sortOrder
+     * @param page
+     * @param pageSize
+     * @return
+     * @throws SQLException
+     */
+    public List<Products> getProductsBySearch(String keyword, Integer categoryId, String sortOrder, int page, int pageSize) throws SQLException {
+        List<Products> list = new ArrayList<>();
+        String sql = "SELECT p.*, c.name AS category_name, img.image_id AS primary_image_id "
+                + "FROM products p "
+                + "JOIN categories c ON p.category_id = c.category_id "
+                + "LEFT JOIN product_images img ON p.product_id = img.product_id AND img.is_primary = 1 "
+                + "WHERE (p.name LIKE ? OR p.description LIKE ?)";
+        if (categoryId != null) {
+            sql += " AND p.category_id = ? ";
+        }
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            sql += "ORDER BY p.price ASC ";
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            sql += "ORDER BY p.price DESC ";
+        } else {
+            sql += "ORDER BY p.product_id ";
+        }
+        sql += "OFFSET ? ROWS FETCH NEXT ? ROWS ONLY";
+
+        try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            int idx = 1;
+            ps.setString(idx++, "%" + keyword + "%");
+            ps.setString(idx++, "%" + keyword + "%");
+            if (categoryId != null) {
+                ps.setInt(idx++, categoryId);
+            }
+            int offset = (page - 1) * pageSize;
+            ps.setInt(idx++, offset);
+            ps.setInt(idx, pageSize);
+            try ( ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Products p = new Products();
+                    p.setProductId(rs.getInt("product_id"));
+                    p.setName(rs.getString("name"));
+                    p.setDescription(rs.getString("description"));
+                    p.setPrice(rs.getDouble("price"));
+                    p.setStockQuantity(rs.getInt("stock_quantity"));
+                    p.setActive(rs.getObject("is_active") != null ? rs.getBoolean("is_active") : null);
+                    Categories cat = new Categories();
+                    cat.setCategory_id(rs.getInt("category_id"));
+                    cat.setName(rs.getString("category_name"));
+                    p.setCategoryId(cat);
+                    p.setCategoryName(rs.getString("category_name"));
+                    int primaryImageId = rs.getInt("primary_image_id");
+                    if (!rs.wasNull()) {
+                        p.setPrimaryImageId(primaryImageId);
+                    }
+                    list.add(p);
+                }
+            }
+        }
+        return list;
+    }
+
+    /**
+     * Counts the total number of products that match a keyword (name or
+     * description) and specific category (optional).
+     *
+     * @param keyword
+     * @param categoryId
+     * @return
+     * @throws SQLException
+     */
+    public int getTotalProductsBySearch(String keyword, Integer categoryId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM products WHERE (name LIKE ? OR description LIKE ?)";
+        if (categoryId != null) {
+            sql += " AND category_id = ?";
+        }
+        try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            int idx = 1;
+            ps.setString(idx++, "%" + keyword + "%");
+            ps.setString(idx++, "%" + keyword + "%");
+            if (categoryId != null) {
+                ps.setInt(idx, categoryId);
+            }
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        }
+        return 0;
+    }
+
 }

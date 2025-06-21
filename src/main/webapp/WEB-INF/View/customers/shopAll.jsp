@@ -1,3 +1,4 @@
+<%@page import="Model.Categories"%>
 <%@page import="DAO.ProductDao"%>
 <%@page import="Model.Product_Images"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -49,15 +50,54 @@
         <h1 class="header-content">SHOP</h1>
         <div class="filter-bar">
             <span class="filter-title">Sắp Xếp Theo</span>
-            <button class="filter-btn">⇅ Giá Cao - Thấp</button>
-            <button class="filter-btn">⇅ Giá Thấp - Cao</button>
-            <button class="filter-btn">▼ Mục Tiêu & Nhu Cầu</button>
+            <form method="get" style="display:inline;">
+                <input type="hidden" name="sort" value="desc">
+                <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
+                <%-- Nếu có filter category thì thêm input hidden ở đây --%>
+                <button type="submit" class="filter-btn <%= "desc".equals(request.getParameter("sort")) ? "active" : ""%>">
+                    ⇅ Giá Cao - Thấp
+                </button>
+            </form>
+            <form method="get" style="display:inline;">
+                <input type="hidden" name="sort" value="asc">
+                <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
+                <button type="submit" class="filter-btn <%= "asc".equals(request.getParameter("sort")) ? "active" : ""%>">
+                    ⇅ Giá Thấp - Cao
+                </button>
+            </form>
+            <form method="get" id="categoryForm" style="display:inline;">
+                <select name="category" onchange="document.getElementById('categoryForm').submit()" class="filter-btn">
+                    <option value="">Tất cả danh mục</option>
+                    <%
+                        List<Categories> categories = (List<Categories>) request.getAttribute("categories");
+                        String selectedCat = request.getParameter("category");
+                        if (categories != null) {
+                            for (Categories c : categories) {
+                    %>
+                    <option value="<%=c.getCategory_id()%>" <%= (selectedCat != null && selectedCat.equals(String.valueOf(c.getCategory_id()))) ? "selected" : ""%>>
+                        <%=c.getName()%>
+                    </option>
+                    <%
+                            }
+                        }
+                    %>
+                </select>
+                <input type="hidden" name="sort" value="<%=request.getParameter("sort") != null ? request.getParameter("sort") : ""%>">
+                <input type="hidden" name="page" value="1">
+            </form>
+
 
             <div class="search-box">
-                <input type="text" placeholder="...Search" />
-                <span class="search-icon">
-                    <img src="./img/search.svg" alt="Search Icon" width="16" height="16">
-                </span>
+                <form method="get" action="shopAll" style="display: flex; align-items: center;">
+                    <input type="text" name="q" placeholder="...Search"
+                           value="<%= request.getParameter("q") != null ? request.getParameter("q") : ""%>" />
+                    <button type="submit" class="search-icon" style="background: none; border: none; padding: 0;">
+                        <img src="./img/Search.svg" alt="Search Icon" width="16" height="16">
+                    </button>
+                    <input type="hidden" name="sort" value="<%=request.getParameter("sort") != null ? request.getParameter("sort") : ""%>">
+                    <input type="hidden" name="category" value="<%=request.getParameter("category") != null ? request.getParameter("category") : ""%>">
+                    <input type="hidden" name="page" value="1">
+                </form>
             </div>
         </div>
 
