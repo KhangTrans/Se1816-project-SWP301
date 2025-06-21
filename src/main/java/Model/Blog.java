@@ -3,6 +3,7 @@ package Model;
 import java.time.LocalDateTime;
 
 public class Blog {
+
     private int blogId;
     private String title;
     private String content;
@@ -10,11 +11,13 @@ public class Blog {
     private LocalDateTime updatedAt;
     private Staff author; // Nếu bạn dùng Admin thay vì Staff, đổi sang Admin
     private boolean isPublished;
+    private int primaryImageId; // thêm dòng này
 
-    public Blog() {}
+    public Blog() {
+    }
 
     public Blog(int blogId, String title, String content, LocalDateTime createdAt,
-                LocalDateTime updatedAt, Staff author, boolean isPublished) {
+            LocalDateTime updatedAt, Staff author, boolean isPublished) {
         this.blogId = blogId;
         this.title = title;
         this.content = content;
@@ -22,6 +25,23 @@ public class Blog {
         this.updatedAt = updatedAt;
         this.author = author;
         this.isPublished = isPublished;
+    }
+
+    public Blog(int blogId, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Staff author) {
+        this.blogId = blogId;
+        this.title = title;
+        this.content = content;
+        this.createdAt = createdAt;
+        this.updatedAt = updatedAt;
+        this.author = author;
+    }
+
+    public int getPrimaryImageId() {
+        return primaryImageId;
+    }
+
+    public void setPrimaryImageId(int primaryImageId) {
+        this.primaryImageId = primaryImageId;
     }
 
     public int getBlogId() {

@@ -1,3 +1,4 @@
+
 <style>
     .modal {
         display: none;
@@ -92,23 +93,37 @@
     }
 
 </style>
-
-<div class="modal" id="editAccountModal" style="display:none;">
+<div class="modal" id="editTrainerModal">
     <div class="modal-content">
         <h2>Edit Trainer</h2>
-        <form method="post" action="${pageContext.request.contextPath}/admin/trainers"
+        <form method="post"
+              action="/SE1816_Gym_Group_4/TrainerServlet"
               enctype="multipart/form-data"
-              onsubmit="return submitFormAjax(this, 'resultEdit')">
-            <input type="hidden" name="action" value="update">
-            <input type="hidden" name="accountId" id="editAccountId">
+              onsubmit="return submitEditTrainerForm(this, 'editTrainerResult');">
+            <input type="hidden" name="formAction" value="edit">
+            <input type="hidden" name="trainerId" id="editTrainerId">
 
-            <label>Username:</label>
-            <input type="text" name="username" id="editUsername" required><br><br>
+            <label for="editTrainerFullName">Full Name:</label>
+            <input type="text" name="fullname" id="editTrainerFullName" required>
 
+            <label for="editTrainerEmail">Email:</label>
+            <input type="text" name="email" id="editTrainerEmail" required>
+
+            <label for="editTrainerPhone">Phone:</label>
+            <input type="text" name="phone_number" id="editTrainerPhone">
+
+            <label for="editTrainerBio">Bio:</label>
+            <input type="text" name="bio" id="editTrainerBio">
+
+            <label for="editTrainerExperience">Experience (years):</label>
+            <input type="text" name="experience_years" id="editTrainerExperience">
+
+            <label for="editTrainerRating">Rating:</label>
+            <input type="text" name="rating" id="editTrainerRating">
 
             <button type="submit">Save</button>
             <button type="button" onclick="closeModal('editTrainerModal')">Cancel</button>
-             <div id="resultEdit" style="margin-top: 10px;"></div>
         </form>
+        <div id="editTrainerResult" style="margin-top: 10px;"></div>
     </div>
 </div>

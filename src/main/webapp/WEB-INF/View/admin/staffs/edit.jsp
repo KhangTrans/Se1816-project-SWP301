@@ -11,7 +11,7 @@
         <h2>Edit Staff</h2>
         <form method="post" action="<%= request.getContextPath()%>/admin/staffs"
               enctype="multipart/form-data"
-              onsubmit="return submitFormForStaff(this, 'resultEditStaff', event)">
+             onsubmit="return submitFormAjax(this, 'resultEdit')">
 
             <input type="hidden" name="action" value="edit">
             <input type="hidden" name="staffId" id="editStaffId" readonly>

@@ -62,6 +62,8 @@ public class ImagesServlet extends HttpServlet {
         String sql;
         if ("product".equalsIgnoreCase(type)) {
             sql = "SELECT image_url FROM product_images WHERE image_id = ?";
+        } else if ("blog".equalsIgnoreCase(type)) {
+            sql = "SELECT image_url FROM blog_images WHERE image_id = ?";
         } else {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
             return;
@@ -139,7 +141,7 @@ public class ImagesServlet extends HttpServlet {
         if ("product".equalsIgnoreCase(type)) {
             insertSQL = "INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?, ?, ?)";
         } else if ("blog".equalsIgnoreCase(type)) {
-            insertSQL = "INSERT INTO blog_images (blog_id, image_url, caption) VALUES (?, ?, ?)";
+            insertSQL = "INSERT INTO blog_images (blog_id, image_url, is_primary) VALUES (?, ?, ?)";
         } else {
             response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid type");
             return;
@@ -153,9 +155,8 @@ public class ImagesServlet extends HttpServlet {
 
             if ("product".equalsIgnoreCase(type)) {
                 stmt.setBoolean(3, isPrimary);
-            } else {
-                String caption = request.getParameter("caption");
-                stmt.setString(3, caption != null ? caption : "");
+            } else if ("blog".equalsIgnoreCase(type)) {
+                stmt.setBoolean(3, isPrimary);
             }
 
             stmt.executeUpdate();

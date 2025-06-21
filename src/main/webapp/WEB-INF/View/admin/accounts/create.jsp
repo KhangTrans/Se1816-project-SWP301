@@ -11,7 +11,10 @@
             <input type="text" name="username" required><br><br>
 
             <label>Password:</label>
-            <input type="password" name="password" required><br><br>
+            <input type="password" name="password"
+                   pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
+                   title="Password must be at least 8 characters, including uppercase, lowercase, numbers and special characters"
+                   required><br><br>
 
             <label>Role:</label>
             <select name="role">

@@ -82,6 +82,7 @@ html {
 /* ===End Heading=== */
 
 
+
 /* Buttons */
 .button {
     padding: 12px 24px;
@@ -667,7 +668,7 @@ html {
     flex-direction: column;
     justify-content: space-between;
     flex-direction: column;
-    gap: 15px;
+    gap: 5px;
     position: relative;
     /* Đặt thẻ cha làm tham chiếu cho position: absolute */
     min-height: 450px;
@@ -678,7 +679,7 @@ html {
     font-size: 18px;
     font-weight: bold;
     text-transform: uppercase;
-    white-space: nowrap;
+    /*    white-space: nowrap;*/
     /* Ngăn ngắt dòng */
 }
 
@@ -773,11 +774,11 @@ html {
 /* New CSS for container and card sizing */
 .membership-cards-container {
     display: flex;
-    gap: 40px;
+    gap: 20px;
     justify-content: space-between;
     flex-wrap: nowrap;
     /* Keep cards in one row */
-    padding: 20px;
+    padding: 10px;
     overflow-x: auto;
 
 }

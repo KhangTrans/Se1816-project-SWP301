@@ -29,10 +29,10 @@
                     <th>No</th>
                     <th>Image</th>
                     <th>Name</th>
-                    <th>Description</th>
+                    <th>Category</th>
                     <th>Price</th>
                     <th>Stock</th>
-                    <th>Status</th>
+                    <th>Description</th>
                     <th>Action</th>
                 </tr>
             </thead>

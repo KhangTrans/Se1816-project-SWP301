@@ -23,7 +23,8 @@
             </button>
             <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                 <ul class="navbar-nav">
-                    <li class="nav-item"><a class="nav-link" href="#">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath()%>/homepage">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath()%>/shopAll">Product</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">About</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
 
@@ -41,8 +42,8 @@
                                     avatarSrc = request.getContextPath() + "/img/avatar/default.png";
                                 }
                             %>
-                            <img src="<%= avatarSrc %>" class="rounded-circle" width="30" height="30">
-                            <span class="ms-2"><%= username %></span>
+                            <img src="<%= avatarSrc%>" class="rounded-circle" width="30" height="30">
+                            <span class="ms-2"><%= username%></span>
                             <% } else { %>
                             Account
                             <% } %>
@@ -52,7 +53,7 @@
                             <% if (username != null) { %>
                             <li><a class="dropdown-item" href="#">Profile</a></li>
                             <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Logout</a></li>
-                            <% } else { %>
+                                <% } else { %>
                             <li>
                                 <button type="button"
                                         class="btn w-100 mb-2"
@@ -69,7 +70,7 @@
                                     Sign In
                                 </button>
                             </li>
-                            <% } %>
+                            <% }%>
                         </ul>
                     </li>
                 </ul>

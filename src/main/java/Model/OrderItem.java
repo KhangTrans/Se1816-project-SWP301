@@ -9,7 +9,6 @@ public class OrderItem {
     private Products product;    // Liên kết đến sản phẩm (N-1)
     private int quantity;
     private BigDecimal unitPrice;
-
     public OrderItem() {
     }
 

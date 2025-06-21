@@ -10,10 +10,9 @@ import java.util.logging.Logger;
 
 public class DBcontext {
 
-    private final String DB_URL = "jdbc:sqlserver://localhost:1433;databaseName=GASMS;encrypt=true;trustServerCertificate=true;";
+    private final String DB_URL = "jdbc:sqlserver://127.0.0.1:1433;databaseName=GASMS;encrypt=false";
     private final String DB_USER = "sa";
     private final String DB_PWD = "123456";
-
 
     public Connection getConnection() throws SQLException {
         try {

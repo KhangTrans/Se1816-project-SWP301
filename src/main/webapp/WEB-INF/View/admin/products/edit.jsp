@@ -1,7 +1,7 @@
 
 
 <div class="modal" id="editProductModal">
-    <div class="modal__content">
+    <div class="modal-content">
         <form method="post"
               action="${pageContext.request.contextPath}/admin/products"
               enctype="multipart/form-data"
@@ -12,7 +12,6 @@
 
             <div class="modal__header">
                 <h2 class="modal__title">Edit Product</h2>
-                <button type="button" class="modal__close" onclick="closeModal('editProductModal')">&times;</button>
             </div>
 
             <div class="modal__body">

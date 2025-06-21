@@ -22,8 +22,8 @@
                     <th>Email</th>
                     <th>Phone</th>
                     <th>Position</th>
-                    <th>Status</th>
-                    <th>Staff Code</th>
+                    <th>Experience</th>
+                    <th>Rating</th>
                     <th>Action</th>
                 </tr>
 

@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', function () {
     loadVouchers();
     loadStaffData();
     reloadTrainerList();
+    reloadBlogList();
+    loadCustomers();
     ;
 });
 
@@ -151,7 +153,9 @@ function submitFormAjax(form, resultContainerId, event) {
             .then(response => {
                 form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
                 if (!response.ok)
-                    throw new Error(`HTTP error! Status: ${response.status}`);
+                    return response.text().then(errorMessage => {
+                        throw new Error(errorMessage || `HTTP error! Status: ${response.status}`);
+                    });
                 return response.text();
             })
             .then(data => {
@@ -172,6 +176,10 @@ function submitFormAjax(form, resultContainerId, event) {
                         loadStaffData();
                     if (typeof reloadTrainerList === 'function')
                         reloadTrainerList();
+                    if (typeof reloadBlogList === 'function') //cminh
+                        reloadBlogList();
+                    if (typeof loadCustomers() === 'function') //cminh
+                        loadCustomers();
                     ;
                 }, 500);
             })
@@ -859,12 +867,9 @@ function openModal(id) {
     const modal = document.getElementById(id);
     if (modal) {
         modal.style.display = 'flex';
-    }
-
-    // Clear any previous success message when opening the modal
-    const resultDivElement = document.getElementById("resultAddVoucher");  // Đảm bảo đúng ID của phần hiển thị thông báo
-    if (resultDivElement) {
-        resultDivElement.innerHTML = '';  // Xóa thông báo cũ khi mở modal
+        if (id === 'addTrainer') {
+            loadTrainerAccountOptions();
+        }
     }
 }
 //const formData = new FormData(form);
@@ -977,8 +982,7 @@ function loadStaffData() {
                     const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${staff.account.username}&t=${Date.now()}`;
                     const row = `
                     <tr>
-                        <td>${index + 1}</td>
-                        <td>${staff.account.accountId}</td>
+                        <td>${index + 1}</td>                  
                         <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
                         <td>${staff.account.username}</td>
                         <td>${staff.fullName}</td>
@@ -988,9 +992,12 @@ function loadStaffData() {
                         <td>${staff.status}</td>
                         <td>${staff.staffCode}</td>
                         <td>
+            
                             <button class="action-buttons__btn action-buttons__btn--edit"
-                                onclick="openEditStaffModal('${staff.staffId}', '${staff.account.accountId}', '${staff.account.username}', '${staff.fullName}', '${staff.email}', '${staff.phone}', '${staff.position}', '${staff.status}')"
-                                Edit
+                                onclick="openEditStaffModal('${staff.staffId}', '${staff.account.accountId}',
+                                 '${staff.account.username}', '${staff.fullName}',
+                                 '${staff.email}', '${staff.phone}', '${staff.position}', '${staff.status}')">
+                                  Edit
                             </button>
                             <button class="action-buttons__btn action-buttons__btn--delete"
                                 onclick="openDeleteStaffModal('${staff.staffId}')">
@@ -1017,8 +1024,48 @@ document.addEventListener("DOMContentLoaded", function () {
         if (id === 'addStaffModal') {
             loadStaffAccountOptions();
         }
+        if (id === 'addTrainer') {
+            loadTrainerAccountOptions();
+        }
+        if (id === 'addCustomerModal') {
+            loadCustomerAccountOptions();
+        }
     }
+    function loadCustomerAccountOptions() {
+        const contextPath = window.location.pathname.split('/')[1];
+        const url = `/${contextPath}/admin/customer?action=loadAccounts`;
 
+        fetch(url)
+                .then(res => {
+                    if (!res.ok)
+                        throw new Error(`HTTP error ${res.status}`);
+                    return res.json();
+                })
+                .then(data => {
+                    console.log("Dữ liệu nhận được:", data);  // Kiểm tra xem dữ liệu có chính xác không
+                    const select = document.querySelector('select[name="accountCusId"]');
+                    select.innerHTML = '<option value="">-- Select Customer Account --</option>'; // Reset lại giá trị
+                    console.log("Dữ liệu nhận được:", select);
+                    if (data.length === 0) {
+                        const opt = document.createElement('option');
+                        opt.textContent = '-- No Available Customer Accounts --';
+                        opt.disabled = true;
+                        select.appendChild(opt);
+                        return;
+                    }
+
+                    // Cập nhật danh sách các option vào select
+                    data.forEach(acc => {
+                        const opt = document.createElement('option');
+                        opt.value = acc.accountId;
+                        opt.textContent = acc.username;  // Hiển thị tên tài khoản
+                        select.appendChild(opt);
+                    });
+                })
+                .catch(err => {
+                    console.error("❌ Lỗi khi load account staff:", err);
+                });
+    }
     // Gọi API để lấy account chưa là staff
     function loadStaffAccountOptions() {
         const contextPath = window.location.pathname.split('/')[1];
@@ -1221,10 +1268,11 @@ function reloadTrainerList() {
                 }
 
                 data.forEach((trainer, index) => {
-                    const account = trainer.accountId; // vì bạn dùng accountId là object Account
-                    const avatarUrl = account && account.accountId
-                            ? `${window.location.origin}${contextPath}/AvatarServlet?id=${account.accountId}&t=${Date.now()}`
+                    const account = trainer.accountId; // Đây là object Account
+                    const avatarUrl = account && account.username
+                            ? `${window.location.origin}${contextPath}/AvatarServlet?user=${account.username}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
+
 
                     const row = `
                     <tr>
@@ -1235,13 +1283,14 @@ function reloadTrainerList() {
                         <td>${trainer.email || ''}</td>
                         <td>${trainer.phone || ''}</td>
                         <td>${trainer.bio || ''}</td>
-                        <td>${trainer.experienceYears} năm</td>
+                        <td>${trainer.experienceYears} year</td>
                         <td>${trainer.rating.toFixed(1)} ★</td>
                         <td>
                             <button class="action-buttons__btn action-buttons__btn--edit"
-                                onclick="openEditTrainerModal(${trainer.trainerId})">Edit</button>
+                               onclick="openEditTrainerModal(${trainer.trainerId})">Edit</button>
                             <button class="action-buttons__btn action-buttons__btn--delete"
                                 onclick="openDeleteTrainerModal(${trainer.trainerId})">Delete</button>
+
                         </td>
                     </tr>
                 `;
@@ -1257,97 +1306,230 @@ function reloadTrainerList() {
 }
 
 
+function submitEditTrainerForm(form, resultContainerId) {
+    const formData = new FormData(form);
+    formData.append('formAction', 'edit');
 
-////////////////////////////////////////////////////////////////////////
-
-
-// Hàm để mở modal và hiển thị thông tin huấn luyện viên cần chỉnh sửa
-function openEditTrainerModal(trainerId) {
-    // Giả sử bạn có một API hoặc dữ liệu để lấy thông tin huấn luyện viên theo ID
-    var trainerData = getTrainerById(trainerId);
-
-    // Kiểm tra nếu dữ liệu huấn luyện viên không rỗng
-    if (trainerData) {
-        document.getElementById('trainerName').value = trainerData.fullName;
-        document.getElementById('trainerEmail').value = trainerData.email;
-        document.getElementById('trainerExperience').value = trainerData.experienceYears;
-        document.getElementById('trainerRating').value = trainerData.rating;
-        document.getElementById('trainerId').value = trainerData.trainerId;
-
-        // Mở modal chỉnh sửa
-        document.getElementById('editTrainerModal').style.display = 'flex';
+    // Debug
+    for (let [key, val] of formData.entries()) {
+        console.log(`✏️ Edit: ${key} = ${val}`);
     }
-}
 
-// Hàm để mở modal và hiển thị thông tin huấn luyện viên cần xóa
-function openDeleteTrainerModal(trainerId) {
-    // Giả sử bạn có một API hoặc dữ liệu để lấy thông tin huấn luyện viên theo ID
-    var trainerData = getTrainerById(trainerId);
+    const actionUrl = form.getAttribute("action");
+    const resultContainer = document.getElementById(resultContainerId);
 
-    // Hiển thị tên huấn luyện viên trong modal
-    if (trainerData) {
-        document.getElementById('trainerName').innerText = trainerData.fullName;
+    fetch(actionUrl, {
+        method: 'POST',
+        body: formData
+    })
+            .then(async response => {
+                const rawText = await response.text();
+                console.log("📥 Raw response (edit):", rawText);
 
-        // Lưu lại ID của huấn luyện viên cần xóa trong thuộc tính của nút Xóa
-        document.getElementById('confirmDeleteBtn').setAttribute("data-trainer-id", trainerId);
+                if (!rawText)
+                    throw new Error("Empty response");
 
-        // Mở modal xóa
-        document.getElementById('deleteTrainerModal').style.display = 'flex';
-    }
-}
-
-
-// Mở modal và lấy danh sách username chưa tạo trainer
-function openAddTrainerModal() {
-    fetch('/admin/trainers?action=getAccountsWithoutTrainer') // Lấy danh sách tài khoản chưa có huấn luyện viên
-            .then(response => response.json())
-            .then(usernames => {
-                const selectElement = document.getElementById('trainerUsername');
-                selectElement.innerHTML = '<option value="">Choose a username for the Trainer</option>'; // Reset dropdown
-
-                // Điền các username vào dropdown
-                usernames.forEach(username => {
-                    const option = document.createElement('option');
-                    option.value = username;
-                    option.textContent = username;
-                    selectElement.appendChild(option);
-                });
+                let result = JSON.parse(rawText);
+                if (result.status === 'success') {
+                    resultContainer.innerHTML = `<p style="color:green;">${result.message}</p>`;
+                    form.reset();
+                    closeModal('editTrainerModal');
+                    reloadTrainerList();
+                } else {
+                    resultContainer.innerHTML = `<p style="color:red;">${result.message}</p>`;
+                }
             })
             .catch(error => {
-                console.error('Error loading accounts without trainer:', error);
+                console.error("❌ Edit Trainer error:", error);
+                resultContainer.innerHTML = `<p style="color:red;">Lỗi server: ${error.message}</p>`;
             });
 
-    // Mở modal
+    return false;
+}
+
+
+function openEditTrainerModal(trainerId) {
+    // Gọi AJAX lấy trainer từ server
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    fetch(`${window.location.origin}${contextPath}/TrainerServlet?action=getById&trainerId=${trainerId}`)
+            .then(res => {
+                if (!res.ok)
+                    throw new Error("Network error");
+                return res.json();
+            })
+            .then(trainer => {
+                if (trainer) {
+                    document.getElementById('editTrainerId').value = trainer.trainerId || '';
+                    document.getElementById('editTrainerFullName').value = trainer.fullName || '';
+                    document.getElementById('editTrainerEmail').value = trainer.email || '';
+                    document.getElementById('editTrainerPhone').value = trainer.phone || '';
+                    document.getElementById('editTrainerBio').value = trainer.bio || '';
+                    document.getElementById('editTrainerExperience').value = trainer.experienceYears || '';
+                    document.getElementById('editTrainerRating').value = trainer.rating || '';
+                    document.getElementById('editTrainerModal').style.display = 'flex';
+                } else {
+                    alert("Không tìm thấy trainer.");
+                }
+            })
+            .catch(err => {
+                alert("Lỗi khi lấy trainer: " + err);
+            });
+}
+
+
+
+function openDeleteTrainerModal(trainerId) {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    fetch(`${window.location.origin}${contextPath}/TrainerServlet?action=getById&trainerId=${trainerId}`)
+            .then(res => {
+                if (!res.ok)
+                    throw new Error("Network error");
+                return res.json();
+            })
+            .then(trainerData => {
+                if (trainerData) {
+                    document.getElementById('trainerName').innerText = trainerData.fullName;
+                    document.getElementById('deleteTrainerId').value = trainerId;
+                    document.getElementById('deleteTrainerModal').style.display = 'flex';
+                } else {
+                    alert("Không tìm thấy trainer.");
+                }
+            })
+            .catch(err => {
+                alert("Lỗi khi lấy trainer: " + err);
+            });
+}
+
+function submitDeleteTrainer() {
+    const trainerId = document.getElementById('deleteTrainerId').value;
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/TrainerServlet`;
+    const formData = new FormData();
+    formData.append('formAction', 'delete');
+    formData.append('trainerId', trainerId);
+
+    const resultDiv = document.getElementById('deleteTrainerResult');
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+            .then(async response => {
+                const rawText = await response.text();
+                let result;
+                try {
+                    result = JSON.parse(rawText);
+                } catch (err) {
+                    resultDiv.innerHTML = `<p style="color:red;">Lỗi server: ${rawText}</p>`;
+                    return;
+                }
+                if (result.status === 'success') {
+                    resultDiv.innerHTML = `<p style="color:green;">${result.message}</p>`;
+                    setTimeout(() => {
+                        closeModal('deleteTrainerModal');
+                        reloadTrainerList();
+                    }, 700);
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red;">${result.message}</p>`;
+                }
+            })
+            .catch(error => {
+                resultDiv.innerHTML = `<p style="color:red;">Lỗi server: ${error.message}</p>`;
+            });
+}
+
+
+function loadTrainerAccountOptions() {
+    const contextPath = window.location.pathname.split('/')[1];
+    const url = `/${contextPath}/TrainerServlet?action=getAccountsWithoutTrainer`;
+
+    fetch(url)
+            .then(res => {
+                if (!res.ok)
+                    throw new Error(`HTTP error ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                console.log("✅ Trainer Accounts loaded:", data);
+                const modal = document.getElementById("addTrainer");
+                const select = modal.querySelector('select[name="accountId"]');
+                select.innerHTML = '<option value="">-- Choose Username --</option>';
+
+                if (data.length === 0) {
+                    const opt = document.createElement('option');
+                    opt.textContent = '-- No Available Trainer Accounts --';
+                    opt.disabled = true;
+                    select.appendChild(opt);
+                    return;
+                }
+
+                data.forEach(acc => {
+                    console.log("➕ Adding option:", acc.username);
+                    const opt = document.createElement('option');
+                    opt.value = acc.accountId;               // <-- Đây là giá trị gửi đi
+                    opt.textContent = acc.username;          // <-- Đây là nội dung hiển thị
+                    select.appendChild(opt);
+                });
+            })
+            .catch(err => {
+                console.error("❌ Error loading trainer accounts:", err);
+            });
+}
+
+function openAddTrainerModal() {
+    loadTrainerAccountOptions(); // Gọi API để nạp dropdown
     document.getElementById('addTrainer').style.display = 'flex';
 }
+
+
+function submitFormAjaxTrainers(form, resultContainerId) {
+    console.log("🚀 Submitting form via AJAX...");
+
+    const formData = new FormData(form);
+    for (let [key, val] of formData.entries()) {
+        console.log(`🔍 ${key} = ${val}`);
+    }
+
+    const actionUrl = form.getAttribute("action");
+    const resultContainer = document.getElementById(resultContainerId);
+
+    fetch(actionUrl, {
+        method: 'POST',
+        body: formData
+    })
+            .then(async response => {
+                const rawText = await response.text();
+                console.log("📥 Raw response from server:", rawText);
+
+                if (!rawText)
+                    throw new Error("Empty response");
+
+                let result = JSON.parse(rawText);
+                console.log("✅ Parsed JSON:", result);
+
+                if (result.status === 'success') {
+                    resultContainer.innerHTML = `<p style="color:green;">${result.message}</p>`;
+                    form.reset();
+                    closeModal('addTrainer');
+                    reloadTrainerList();
+                } else {
+                    resultContainer.innerHTML = `<p style="color:red;">${result.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("❌ Lỗi xử lý response:", error);
+                resultContainer.innerHTML = `<p style="color:red;">Lỗi server: ${error.message}</p>`;
+            });
+
+    return false;
+}
+
 
 //=============================================================================================================================
 //||                                                                                                                         ||
 //||                                           BaoMinh                                                                       ||
 //||                                                                                                                         ||
 //=============================================================================================================================
-
-function openEditCustomerModal(customerId, fullName, email, phone, customerCode, address, accountId, username, avatarUrl) {
-    document.getElementById("editCustomerId").value = customerId;
-    document.getElementById("editFullName").value = fullName;
-    document.getElementById("editEmail").value = email;
-    document.getElementById("editPhone").value = phone;
-    document.getElementById("editCustomerCode").value = customerCode;
-    document.getElementById("editAddress").value = address;
-
-    document.getElementById("editAccountId").value = accountId;
-    document.getElementById("editUsername").value = username;
-    document.getElementById("editAvatarPreview").src = avatarUrl;
-
-    openModal("editCustomerModal");
-}
-
-function openDeleteCustomerModal(customerId) {
-    document.getElementById('deleteCustomerId').value = customerId;
-    openModal('deleteCustomerModal');
-}
-
-
+let customerDataMap = {};
 function loadCustomers() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const url = `${window.location.origin}${contextPath}/admin/customer?action=ajaxList`;
@@ -1359,6 +1541,7 @@ function loadCustomers() {
                 return response.json();
             })
             .then(data => {
+                customerDataMap = {};
                 const tbody = document.querySelector('#customerTable tbody');
                 tbody.innerHTML = '';
 
@@ -1368,6 +1551,7 @@ function loadCustomers() {
                 }
 
                 data.forEach((cus, index) => {
+                    customerDataMap[cus.customerId] = cus;
                     const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${cus.account.username}&t=${Date.now()}`;
                     const row = `
                     <tr>
@@ -1378,13 +1562,12 @@ function loadCustomers() {
                         <td>${cus.email}</td>
                         <td>${cus.phone}</td>
                         <td>${cus.customerCode || ''}</td>
-<td>${cus.address || ''}</td>
                         <td>
-                            <button class="action-buttons__btn action-buttons__btn--edit"
-                                onclick="openEditCustomerModal(
-                                    '${cus.customerId}', '${cus.fullName}', '${cus.email}', '${cus.phone}', '${cus.customerCode}', '${cus.address}',
-                                    '${cus.account.accountId}', '${cus.account.username}', '${avatarUrl}'
-                                )">Edit</button>
+                         <button class="action-buttons__btn action-buttons__btn--edit"
+                            onclick="openEditCustomerModal('${cus.customerId}')">
+                            Edit</button>
+
+
                             <button class="action-buttons__btn action-buttons__btn--delete"
                                 onclick="openDeleteCustomerModal('${cus.customerId}')">Delete</button>
                         </td>
@@ -1392,6 +1575,12 @@ function loadCustomers() {
                 `;
                     tbody.innerHTML += row;
                 });
+                console.log("DEBUG: customerDataMap", customerDataMap);
+                // --- In thử 1 object (nếu có) ---
+                for (let key in customerDataMap) {
+                    console.log("Customer:", key, customerDataMap[key]);
+                    break; // chỉ in 1 để xem mẫu
+                }
             })
             .catch(error => {
                 console.error('Lỗi khi tải danh sách khách hàng:', error);
@@ -1399,4 +1588,316 @@ function loadCustomers() {
                         .then(r => r.text())
                         .then(text => console.warn("Phản hồi không phải JSON:", text));
             });
+}
+
+
+function openEditCustomerModal(customerId) {
+    const cus = customerDataMap[customerId];
+    if (!cus) {
+        alert("Không tìm thấy dữ liệu khách hàng!");
+        return;
+    }
+    document.getElementById("editCustomerId").value = cus.customerId || '';
+    document.getElementById("editCustomerFullName").value = cus.fullName || '';
+    document.getElementById("editCustomerEmail").value = cus.email || '';
+    document.getElementById("editCustomerPhone").value = cus.phone || '';
+    document.getElementById("editCustomerCode").value = cus.customerCode || '';
+    document.getElementById("editCustomerAddress").value = cus.address || '';
+    document.getElementById("editCustomerAccountId").value = cus.account.accountId || '';
+    document.getElementById("editCustomerAvatarPreview").src =
+            `${window.location.origin}${window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : ''}/AvatarServlet?user=${cus.account.username}&t=${Date.now()}`;
+    openModal("editCustomerModal");
+}
+
+
+
+
+function openDeleteCustomerModal(customerId) {
+    document.getElementById('deleteCustomerId').value = customerId;
+    openModal('deleteCustomerModal');
+}
+
+function submitDeleteCustomer(event) {
+    event.preventDefault();
+
+    const form = document.getElementById('deleteCustomerForm');
+    const formData = new FormData(form);
+
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/customer`;
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+            .then(res => {
+                if (!res.ok)
+                    throw new Error(`HTTP ${res.status}`);
+                return res.text();
+            })
+            .then(result => {
+                if (result.trim() === "OK") {
+                    document.getElementById("resultDeleteCustomer").innerHTML = `<p style="color:green;font-weight:bold;">Xóa thành công!</p>`;
+                    setTimeout(() => {
+                        closeModal("deleteCustomerModal");
+                        loadCustomers(); // Tải lại danh sách
+                    }, 800);
+                } else {
+                    document.getElementById("resultDeleteCustomer").innerText = "Xóa thất bại: " + result;
+                }
+            })
+            .catch(error => {
+                console.error("❌ Lỗi khi xóa:", error);
+                document.getElementById("resultDeleteCustomer").innerText = `Lỗi khi gửi yêu cầu xóa: ${error.message}`;
+            });
+
+    return false;
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////
+//                                  Cong Minh
+////////////////////////////////////////////////////////////////////////////////
+
+
+function openDeleteBlogModal(blogId) {
+    const deleteBlogIdInput = document.getElementById('deleteBlogId');
+    console.log(deleteBlogIdInput);
+    if (deleteBlogIdInput) {
+        deleteBlogIdInput.value = blogId; // Gán ID blog vào input
+        openModal('deleteBlogModal'); // Mở modal
+    } else {
+        console.error('Không tìm thấy phần tử input với id "deleteBlogId"');
+    }
+}
+function reloadBlogList() {
+    const contextPath = '/' + window.location.pathname.split('/')[1];
+    const url = `${window.location.origin}${contextPath}/admin/blogs?action=ajaxList`;
+    console.log(" URL được gọi:", url);
+    fetch(url)
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                console.log("✅ JSON Blog Data:", data); // ← debug
+                const tbody = document.querySelector('#blogsTable tbody');
+                tbody.innerHTML = '';
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Chưa có blog nào</td></tr>`;
+                    return;
+                }
+
+                data.forEach((blog, index) => {
+                    const imageUrl = blog.primaryImageId
+                            ? `${window.location.origin}${contextPath}/ImagesServlet?type=blog&imageId=${blog.primaryImageId}&t=${Date.now()}`
+                            : `${contextPath}/avatar/default.png`;
+
+                    const escapedTitle = escapeHtml(blog.title);
+                    const escapedContent = escapeHtml(blog.content);
+
+                    const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><img src="${imageUrl}" alt="Blog Image" style="width:60px;height:60px;border-radius:10px;"></td>
+                        <td>${escapedTitle}</td>
+                        <td>${escapedContent}</td>
+                        <td>${new Date(blog.createdAt).toLocaleString('vi-VN')}</td>
+                        <td>${new Date(blog.updatedAt).toLocaleString('vi-VN')}</td>
+                        <td>
+                            <button class="action-buttons__btn action-buttons__btn--edit"
+                                onclick="openEditBlogModal(${blog.blogId}, \`${escapedTitle}\`, \`${escapedContent}\`, '${imageUrl}')">
+                                Edit
+                            </button>
+                            <button class="action-buttons__btn action-buttons__btn--delete"
+                                onclick="openDeleteBlogModal(${blog.blogId})">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi load blogs:', error);
+                // Debug: in ra nội dung HTML nếu không phải JSON
+                fetch(url)
+                        .then(r => r.text())
+                        .then(text => console.warn("Nội dung không phải JSON:", text));
+            });
+}
+
+// Hàm thoát ký tự đặc biệt để tránh lỗi injection hoặc hỏng layout
+function escapeHtml(text) {
+    if (typeof text !== 'string')
+        return '';
+    return text
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+}
+
+function setPrimaryImageForBlog(blogId, imageId) {
+    const formData = new FormData();
+    formData.append("action", "setPrimaryImage");
+    formData.append("blogId", blogId);
+    formData.append("imageId", imageId);
+
+    fetch(`${window.location.origin}/SE1816_Gym_Group_4/admin/blogs`, {
+        method: "POST",
+        body: formData
+    })
+            .then(res => res.text())
+            .then(result => {
+                if (result === "primary_set") {
+                    alert("Đã cập nhật ảnh chính cho blog.");
+                    reloadBlogList(); // Tải lại danh sách blog
+                } else {
+                    alert("Không cập nhật được ảnh chính.");
+                }
+            })
+            .catch(err => alert("Lỗi khi đặt ảnh chính: " + err));
+}
+
+
+function previewEditBlogImage(input) {
+    const preview = document.getElementById('editBlogImagePreview');
+    const fileLabel = document.getElementById('mainImageFilename');
+
+    if (input.files && input.files[0]) {
+        const file = input.files[0];
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+        fileLabel.textContent = file.name;
+    } else {
+        preview.style.display = "none";
+        fileLabel.textContent = "";
+    }
+}
+
+function openEditBlogModal(blogId) {
+    console.log(`/SE1816_Gym_Group_4/admin/blogs?action=edit&id=${blogId}`);
+    fetch(`/SE1816_Gym_Group_4/admin/blogs?action=edit&id=${blogId}`)
+            .then(res => {
+                if (!res.ok)
+                    throw new Error("Không thể tải dữ liệu blog");
+                return res.json();
+            })
+            .then(data => {
+                const blog = data.blog;
+                const images = data.images;
+
+                // ✅ Gán dữ liệu vào form
+                document.getElementById('editBlogId').value = blog.blogId;
+                document.getElementById('editBlogTitle').value = blog.title;
+                document.getElementById('editBlogContent').value = blog.content;
+//                // Gán caption từ bảng blog_images (có thể lấy từ ảnh đầu tiên, vì tất cả ảnh có caption chung)
+//                const captionInput = document.getElementById('editBlogCaption');
+//                const captionValue = images.length > 0 && images[0].caption ? images[0].caption : '';  // Lấy caption từ ảnh đầu tiên
+//                captionInput.value = captionValue;  // Gán caption vào input
+                // ✅ Gán ảnh chính của blog
+                const imagePreview = document.getElementById('editBlogImagePreview');
+                const imageFilenameLabel = document.getElementById('mainImageFilename');
+                if (blog.primaryImageId) {
+                    imagePreview.src = `/SE1816_Gym_Group_4/ImagesServlet?type=blog&imageId=${blog.primaryImageId}`;
+                    imagePreview.style.display = "block";
+                    imageFilenameLabel.textContent = "(Ảnh hiện tại)";
+                } else {
+                    imagePreview.src = "";
+                    imagePreview.style.display = "none";
+                    imageFilenameLabel.textContent = "";
+                }
+
+                // ✅ Hiển thị các ảnh phụ
+                const imageListDiv = document.getElementById('editBlogImageList');
+                imageListDiv.innerHTML = '';  // Xóa danh sách ảnh cũ
+                images.forEach(img => {
+                    const imgWrapper = document.createElement('div');
+                    imgWrapper.style.position = "relative";
+                    imgWrapper.style.display = "inline-block";
+
+                    const imgEl = document.createElement('img');
+                    imgEl.src = `/SE1816_Gym_Group_4/ImagesServlet?type=blog&imageId=${img.imageId}`;
+                    imgEl.style.width = "60px";
+                    imgEl.style.margin = "5px";
+                    imgEl.style.borderRadius = "6px";
+                    imgEl.style.border = img.isPrimary ? "2px solid red" : "1px solid #ccc";
+                    imgEl.title = img.isPrimary ? "Ảnh chính (double click để đổi)" : "Click đúp để chọn ảnh chính";
+
+                    imgEl.ondblclick = () => {
+                        if (confirm("Chọn ảnh này làm ảnh đại diện chính?")) {
+                            setPrimaryImageForBlog(blog.blogId, img.imageId);
+                        }
+                        // Cập nhật viền đỏ cho ảnh chính
+                        document.querySelectorAll('#editBlogImageList img').forEach(image => {
+                            image.style.border = '1px solid #ccc';  // Reset viền mặc định
+                        });
+                        imgEl.style.border = '2px solid red';
+                    };
+
+                    const deleteBtn = document.createElement('button');
+                    deleteBtn.textContent = "✖";
+                    deleteBtn.style.position = "absolute";
+                    deleteBtn.style.top = "0";
+                    deleteBtn.style.right = "0";
+                    deleteBtn.style.background = "red";
+                    deleteBtn.style.color = "white";
+                    deleteBtn.style.border = "none";
+                    deleteBtn.style.cursor = "pointer";
+                    deleteBtn.style.fontSize = "12px";
+                    deleteBtn.title = "Xóa ảnh";
+                    deleteBtn.onclick = () => {
+                        if (confirm("Bạn có chắc chắn muốn xóa ảnh này không?")) {
+                            deleteBlogImage(img.imageId);
+                        }
+                    };
+
+                    imgWrapper.appendChild(imgEl);
+                    imgWrapper.appendChild(deleteBtn);
+                    imageListDiv.appendChild(imgWrapper);
+                });
+
+                // ✅ Mở modal chỉnh sửa blog
+                openModal('editBlogModal');
+            })
+            .catch(error => {
+                console.error("❌ Lỗi khi load blog:", error);
+            });
+}
+
+function deleteBlogImage(imageId) {
+    const formData = new FormData();
+    formData.append("action", "deleteImage");
+    formData.append("imageId", imageId);
+
+    fetch(`${window.location.origin}/SE1816_Gym_Group_4/admin/blogs`, {
+        method: "POST",
+        body: formData
+    })
+            .then(res => res.text())
+            .then(result => {
+                if (result === "image_deleted") {
+                    alert("Đã xóa ảnh.");
+                    const pid = document.getElementById('editBlogId').value;
+                    openEditProductModal(pid); // Tải lại modal
+                } else {
+                    alert("Không xóa được ảnh.");
+                }
+            })
+            .catch(err => alert("Lỗi khi xóa ảnh: " + err));
+}
+
+
+function openAddBlogModal() {
+    const form = document.querySelector('#addBlogModal form');
+    if (form)
+        form.reset(); // reset dữ liệu cũ nếu có
+
+    document.getElementById('resultAddBlog').innerHTML = ''; // clear thông báo cũ
+    openModal('addBlogModal');
 }
