@@ -1,12 +1,11 @@
 <div class="modal" id="deleteAccountModal">
-    <div class="modal__content">
+    <div class="modal-content">
         <form method="post" action="${pageContext.request.contextPath}/admin/accounts"
               onsubmit="return submitDeleteAccount(this)">
             <input type="hidden" name="accountId" id="deleteAccountId">
 
             <div class="modal__header">
                 <h2 class="modal__title">Delete Account</h2>
-                <button type="button" class="modal__close" onclick="closeModal('deleteAccountModal')">&times;</button>
             </div>
 
             <div class="modal__body">

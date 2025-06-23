@@ -113,6 +113,8 @@
     height: 280px;
     object-fit: container;
     background-color: #ccc;
+    margin-left: 13px;
+    margin-top: 10px;
 }
 
 /* Tên sản phẩm */

@@ -1,6 +1,8 @@
 package Controller;
 
 import DAO.UserDao;
+import Model.Account;
+import Model.Customer;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -40,23 +42,24 @@ public class LoginServlet extends HttpServlet {
 
         try {
             UserDao dao = new UserDao();
-
             if (dao.login(username, password)) {
-                // Lấy role từ database
-                String role = dao.getUserRole(username);  // ← Bạn cần tạo hàm này trong UserDao
-                if (role == null) {
-                    json.put("status", "error");
-                    json.put("message", "User role not found.");
-                } else {
-                    HttpSession session = request.getSession();
-                    session.setAttribute("username", username);
-                    session.setAttribute("role", role); // "customer", "trainer", "staff", v.v.
-                    session.setAttribute("avatar", request.getContextPath() + "/AvatarServlet?username=" + username);
-
-                    json.put("status", "success");
-                    json.put("message", "Login successful!");
-                    json.put("role", role); // Gửi role về client nếu cần xử lý phía frontend
+                String avatarUrl = request.getContextPath() + "/AvatarServlet?username=" + username;
+                // Lưu session
+                HttpSession session = request.getSession();
+                session.setAttribute("username", username);
+                session.setAttribute("role", "customer");
+                int id = dao.getAccountIdByUserName(username);
+                if (id > 0) {
+                    session.setAttribute("accountId", id);
+                    // Bổ sung: Lấy customerId từ DAO và lưu vào session
+                    Customer customer = dao.getCustomerByAccountId(id); // Phương thức này bạn phải tạo trong UserDao hoặc dùng CustomerDao
+                    if (customer != null) {
+                        session.setAttribute("customerId", customer.getCustomerId());
+                    }
                 }
+                session.setAttribute("avatar", avatarUrl);
+                json.put("status", "success");
+                json.put("message", "Login successful!");
             } else {
                 json.put("status", "error");
                 json.put("message", "Invalid credentials!");

@@ -16,7 +16,7 @@
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Description</label>
-                    <textarea name="description" class="modal__textarea"></textarea>
+                    <textarea name="description" class="modal__textarea" maxlength="250"></textarea>
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Price</label>

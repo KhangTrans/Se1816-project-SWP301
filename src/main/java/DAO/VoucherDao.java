@@ -93,41 +93,39 @@ public class VoucherDao extends DBcontext {
      * @throws SQLException If a database error occurs.
      */
     public int createVoucher(Voucher v) throws SQLException {
-    System.out.println("Code: " + v.getCode()); // Log để kiểm tra giá trị
-    String sql = "INSERT INTO vouchers (code, description, discount_percent, max_discount, usage_limit, used_count, min_order_amount, start_date, end_date, is_active) "
-        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        System.out.println("Code: " + v.getCode()); // Log để kiểm tra giá trị
+        String sql = "INSERT INTO vouchers (code, description, discount_percent, max_discount, usage_limit, used_count, min_order_amount, start_date, end_date, is_active) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-    try (Connection conn = getConnection();
-         PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-        ps.setString(1, v.getCode());
-        ps.setString(2, v.getDescription());
-        ps.setInt(3, v.getDiscountPercent());
-        ps.setBigDecimal(4, v.getMaxDiscount());
-        ps.setInt(5, v.getUsageLimit());
-        ps.setInt(6, v.getUsedCount());
-        ps.setBigDecimal(7, v.getMinOrderAmount());
-        ps.setDate(8, java.sql.Date.valueOf(v.getStartDate()));
-        ps.setDate(9, java.sql.Date.valueOf(v.getEndDate()));
-        ps.setInt(10, v.isActive() ? 1 : 0);
+            ps.setString(1, v.getCode());
+            ps.setString(2, v.getDescription());
+            ps.setInt(3, v.getDiscountPercent());
+            ps.setBigDecimal(4, v.getMaxDiscount());
+            ps.setInt(5, v.getUsageLimit());
+            ps.setInt(6, v.getUsedCount());
+            ps.setBigDecimal(7, v.getMinOrderAmount());
+            ps.setDate(8, java.sql.Date.valueOf(v.getStartDate()));
+            ps.setDate(9, java.sql.Date.valueOf(v.getEndDate()));
+            ps.setInt(10, v.isActive() ? 1 : 0);
 
-        int rowsAffected = ps.executeUpdate();
-        if (rowsAffected > 0) {
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    int newId = rs.getInt(1); // Lấy ID mới được tạo
-                    System.out.println("Voucher mới đã được tạo với ID: " + newId); // Log ID mới
-                    return newId;
+            int rowsAffected = ps.executeUpdate();
+            if (rowsAffected > 0) {
+                try ( ResultSet rs = ps.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        int newId = rs.getInt(1); // Lấy ID mới được tạo
+                        System.out.println("Voucher mới đã được tạo với ID: " + newId); // Log ID mới
+                        return newId;
+                    }
                 }
             }
+        } catch (SQLException e) {
+            System.err.println("Lỗi khi tạo voucher: " + e.getMessage());
+            throw e; // Rethrow exception để xử lý tại tầng trên
         }
-    } catch (SQLException e) {
-        System.err.println("Lỗi khi tạo voucher: " + e.getMessage());
-        throw e; // Rethrow exception để xử lý tại tầng trên
+        return -1; // Trả về -1 nếu không thể tạo voucher
     }
-    return -1; // Trả về -1 nếu không thể tạo voucher
-}
-
 
     /**
      * Retrieves a voucher by its ID.
@@ -160,5 +158,56 @@ public class VoucherDao extends DBcontext {
             }
         }
         return null;
+    }
+
+    //=============DUY KHANG==================================//
+    
+    public List<Voucher> getActiveVouchers() throws SQLException {
+        List<Voucher> list = new ArrayList<>();
+        String sql = "SELECT * FROM vouchers WHERE is_active = 1 AND GETDATE() BETWEEN start_date AND end_date";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Voucher v = new Voucher();
+                v.setVoucherId(rs.getInt("voucher_id"));
+                v.setCode(rs.getString("code"));
+                v.setDescription(rs.getString("description"));
+                v.setDiscountPercent(rs.getInt("discount_percent"));
+                v.setMaxDiscount(rs.getBigDecimal("max_discount"));
+                v.setMinOrderAmount(rs.getBigDecimal("min_order_amount"));
+                v.setUsageLimit(rs.getInt("usage_limit"));
+                v.setUsedCount(rs.getInt("used_count"));
+                v.setStartDate(rs.getDate("start_date").toLocalDate());
+                v.setEndDate(rs.getDate("end_date").toLocalDate());
+                v.setActive(rs.getBoolean("is_active"));
+                list.add(v);
+            }
+        }
+
+        return list;
+    }
+
+    public boolean hasUserClaimed(int voucherId, int customerId) throws SQLException {
+        String sql = "SELECT 1 FROM voucher_usages WHERE voucher_id = ? AND customer_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, voucherId);
+            ps.setInt(2, customerId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        }
+    }
+
+    public boolean claimVoucher(int voucherId, int customerId) throws SQLException {
+        if (hasUserClaimed(voucherId, customerId)) {
+            return false;
+        }
+
+        String sql = "INSERT INTO voucher_usages (voucher_id, customer_id) VALUES (?, ?)";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, voucherId);
+            ps.setInt(2, customerId);
+            return ps.executeUpdate() > 0;
+        }
     }
 }

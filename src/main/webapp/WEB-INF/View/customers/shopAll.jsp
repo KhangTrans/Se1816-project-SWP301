@@ -1,3 +1,4 @@
+<%@page import="Model.Categories"%>
 <%@page import="DAO.ProductDao"%>
 <%@page import="Model.Product_Images"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
@@ -16,6 +17,57 @@
 <%@include file="/WEB-INF/include/Register.jsp" %>
 <%@include file="/WEB-INF/include/forgotPassword.jsp" %>
 <%@include file="/WEB-INF/include/header.jsp" %>
+<style>
+    .voucher-section {
+        padding: 20px;
+        background: #fffbe6;
+        border-bottom: 1px solid #ddd;
+        margin: 20px 0;
+    }
+
+    .voucher-title {
+        font-size: 22px;
+        margin-bottom: 10px;
+        color: #ff6600;
+    }
+
+    .voucher-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .voucher-card {
+        border: 1px dashed #ff9900;
+        padding: 15px;
+        border-radius: 8px;
+        background: #fff;
+        width: 280px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .voucher-info p {
+        margin: 4px 0;
+        font-size: 14px;
+    }
+
+    .claim-btn {
+        background-color: #ff6600;
+        color: #fff;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-success {
+        background-color: green !important;
+        color: #fff !important;
+    }
+
+</style>
 <main>
     <div class="body-product">
         <!-- Banner -->
@@ -45,19 +97,85 @@
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
+        <%-- Voucher--%>
+        <%
+            List<Model.Voucher> voucherList = (List<Model.Voucher>) request.getAttribute("voucherList");
+        %>
+
+        <div class="voucher-section">
+            <h2 class="voucher-title">🎁 VOUCHER ƯU ĐÃI</h2>
+            <div class="voucher-container">
+                <% if (voucherList != null && !voucherList.isEmpty()) {
+                        for (Model.Voucher v : voucherList) {
+                %>
+                <div class="voucher-card">
+                    <div class="voucher-info">
+                        <p><strong><%= v.getDiscountPercent()%>% GIẢM</strong></p>
+                        <p>Tối đa: <%= v.getMaxDiscount()%>đ - Đơn tối thiểu: <%= v.getMinOrderAmount()%>đ</p>
+                    </div>
+                    <div class="voucher-action">
+                        <button class="claim-btn" onclick="claimVoucher(<%= v.getVoucherId()%>, this)">Claim</button>
+                    </div>
+                </div>
+                <% }
+                } else { %>
+                <p>Không có voucher khả dụng.</p>
+                <% }%>
+            </div>
+        </div>
+        <%--End Voucher--%>
 
         <h1 class="header-content">SHOP</h1>
         <div class="filter-bar">
             <span class="filter-title">Sắp Xếp Theo</span>
-            <button class="filter-btn">⇅ Giá Cao - Thấp</button>
-            <button class="filter-btn">⇅ Giá Thấp - Cao</button>
-            <button class="filter-btn">▼ Mục Tiêu & Nhu Cầu</button>
+            <form method="get" style="display:inline;">
+                <input type="hidden" name="sort" value="desc">
+                <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
+                <%-- Nếu có filter category thì thêm input hidden ở đây --%>
+                <button type="submit" class="filter-btn <%= "desc".equals(request.getParameter("sort")) ? "active" : ""%>">
+                    ⇅ Giá Cao - Thấp
+                </button>
+            </form>
+            <form method="get" style="display:inline;">
+                <input type="hidden" name="sort" value="asc">
+                <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
+                <button type="submit" class="filter-btn <%= "asc".equals(request.getParameter("sort")) ? "active" : ""%>">
+                    ⇅ Giá Thấp - Cao
+                </button>
+            </form>
+            <form method="get" id="categoryForm" style="display:inline;">
+                <select name="category" onchange="document.getElementById('categoryForm').submit()" class="filter-btn">
+                    <option value="">Tất cả danh mục</option>
+                    <%
+                        List<Categories> categories = (List<Categories>) request.getAttribute("categories");
+                        String selectedCat = request.getParameter("category");
+                        if (categories != null) {
+                            for (Categories c : categories) {
+                    %>
+                    <option value="<%=c.getCategory_id()%>" <%= (selectedCat != null && selectedCat.equals(String.valueOf(c.getCategory_id()))) ? "selected" : ""%>>
+                        <%=c.getName()%>
+                    </option>
+                    <%
+                            }
+                        }
+                    %>
+                </select>
+                <input type="hidden" name="sort" value="<%=request.getParameter("sort") != null ? request.getParameter("sort") : ""%>">
+                <input type="hidden" name="page" value="1">
+            </form>
+
 
             <div class="search-box">
-                <input type="text" placeholder="...Search" />
-                <span class="search-icon">
-                    <img src="./img/search.svg" alt="Search Icon" width="16" height="16">
-                </span>
+                <form method="get" action="shopAll" style="display: flex; align-items: center;">
+                    <input type="text" name="q" placeholder="...Search"
+                           value="<%= request.getParameter("q") != null ? request.getParameter("q") : ""%>" />
+                    <button type="submit" class="search-icon" style="background: none; border: none; padding: 0;">
+                        <img src="./img/Search.svg" alt="Search Icon" width="16" height="16">
+                    </button>
+                    <input type="hidden" name="sort" value="<%=request.getParameter("sort") != null ? request.getParameter("sort") : ""%>">
+                    <input type="hidden" name="category" value="<%=request.getParameter("category") != null ? request.getParameter("category") : ""%>">
+                    <input type="hidden" name="page" value="1">
+                </form>
             </div>
         </div>
         <!-- Grid of Products -->
@@ -140,5 +258,30 @@
         // fetch('/cart/add?productId=' + productId, {method: 'POST'}).then...
     }
 </script>
+
+<script>
+    function claimVoucher(voucherId, button) {
+        fetch('<%= request.getContextPath()%>/customerVochers', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'voucherId=' + encodeURIComponent(voucherId)
+        })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === 'success') {
+                        button.disabled = true;
+                        button.innerText = 'Đã thu thập';
+                        button.classList.remove('claim-btn');
+                        button.classList.add('btn-success');
+                    }
+                })
+                .catch(err => {
+                    alert("Đã xảy ra lỗi.");
+                    console.error(err);
+                });
+    }
+</script>
+
 
 <%@include file="/WEB-INF/include/footer.jsp" %>

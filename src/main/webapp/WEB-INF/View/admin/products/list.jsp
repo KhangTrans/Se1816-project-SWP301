@@ -23,7 +23,7 @@
     </div>
     <div class="table-container__content" style="overflow-x: auto;">
         <button class="add-button" onclick="openModal('addProductModal')">+ Add Product</button>
-        <table class="data-table"  id="productTable">
+        <table class="data-table "  id="productTable">
             <thead>
                 <tr>
                     <th>No</th>

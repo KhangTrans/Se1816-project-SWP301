@@ -1,5 +1,5 @@
 <div class="modal" id="deleteProductModal">
-    <div class="modal__content">
+    <div class="modal-content">
         <form method="post" action="${pageContext.request.contextPath}/admin/products" 
               onsubmit="return submitFormAjax(this, 'resultDeleteProduct')">
             <input type="hidden" name="formAction" value="delete">

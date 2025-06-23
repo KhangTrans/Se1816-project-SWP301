@@ -201,7 +201,14 @@ function submitFormAjax(form, resultContainerId, event) {
 //có nhiệm vụ gửi yêu cầu lấy danh sách tài khoản từ server bằng AJAX và sau đó hiển thị danh sách đó vào bảng HTML (không cần reload trang).=======================================
 function loadAccounts() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/admin/accounts?action=ajaxList`;
+    const baseUrl = `${window.location.origin}${contextPath}/admin/accounts?action=ajaxList`;
+
+    const search = document.getElementById("searchInput").value;
+    const role = document.getElementById("roleFilter").value;
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+
+    const url = `${baseUrl}&search=${encodeURIComponent(search)}&role=${encodeURIComponent(role)}&fromDate=${fromDate}&toDate=${toDate}`;
 
     fetch(url)
             .then(response => {
@@ -244,11 +251,58 @@ function loadAccounts() {
             })
             .catch(error => {
                 console.error('Lỗi khi load account:', error);
-                // Nếu lỗi xảy ra, debug nội dung thực tế server trả về
-                fetch(url)
-                        .then(r => r.text())
-                        .then(text => console.warn("Nội dung server trả về không phải JSON:", text));
             });
+}
+
+function filterAccounts() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = new URL(`${window.location.origin}${contextPath}/admin/accounts`);
+
+    url.searchParams.append("action", "ajaxList");
+
+    // Lấy dữ liệu từ input
+    const search = document.getElementById("searchInput").value;
+    const role = document.getElementById("roleFilter").value;
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+
+    if (search) url.searchParams.append("search", search);
+    if (role) url.searchParams.append("role", role);
+    if (fromDate) url.searchParams.append("fromDate", fromDate);
+    if (toDate) url.searchParams.append("toDate", toDate);
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector('#accountTable tbody');
+            tbody.innerHTML = '';
+
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Không tìm thấy tài khoản nào</td></tr>`;
+                return;
+            }
+
+            data.forEach((acc, index) => {
+                const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${acc.username}&t=${Date.now()}`;
+                const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><img src="${avatarUrl}" style="width:40px;height:40px;border-radius:50%;"></td>
+                        <td>${acc.username}</td>
+                        <td>${acc.role}</td>
+                        <td>${acc.createdAt}</td>
+                        <td>
+                            <button onclick="openEditAccountModal('${acc.accountId}', '${acc.username}', '${acc.role}', '${avatarUrl}')">Edit</button>
+                            <button onclick="openDeleteAccountModal('${acc.accountId}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        })
+        .catch(error => {
+            console.error("Lỗi khi lọc tài khoản:", error);
+        });
 }
 
 
@@ -526,10 +580,10 @@ function reloadProductList() {
                     const imageUrl = product.primaryImageId
                             ? `${window.location.origin}${contextPath}/ImagesServlet?type=product&imageId=${product.primaryImageId}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
-
+                            
                     const row = `
                     <tr>
-                        <td>${index + 1}</td>
+                        <td style="width:60px;">${index + 1}</td>
                         <td><img src="${imageUrl}" alt="Image" style="width:60px; height:60px; border-radius:10px; margin-top: 5px"></td>
                         <td>${product.name}</td>
                         <td>${product.categoryName}</td>

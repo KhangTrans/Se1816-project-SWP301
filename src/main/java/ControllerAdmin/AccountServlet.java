@@ -29,7 +29,9 @@ import java.util.logging.Logger;
 @MultipartConfig
 @WebServlet(name = "AccountServlet", urlPatterns = {"/admin/accounts"})
 public class AccountServlet extends HttpServlet {
+
     private UserDao dao;
+
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
@@ -58,7 +60,12 @@ public class AccountServlet extends HttpServlet {
             UserDao dao = new UserDao();
             switch (action) {
                 case "ajaxList": {
-                    List<Account> accountList = dao.getAllAccounts();
+                    String search = request.getParameter("search");
+                    String role = request.getParameter("role");
+                    String fromDate = request.getParameter("fromDate");
+                    String toDate = request.getParameter("toDate");
+
+                    List<Account> accountList = dao.getFilteredAccounts(search, role, fromDate, toDate);
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
                     String json = new com.google.gson.Gson().toJson(accountList);

@@ -58,6 +58,7 @@ public class HomePageServlet extends HttpServlet {
         if (trainersList != null && !trainersList.isEmpty()) {
             request.setAttribute("trainersList", trainersList);
         }
+        
         request.getRequestDispatcher("/WEB-INF/View/customers/HomePage.jsp").forward(request, response);
     }
 
