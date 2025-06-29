@@ -7,48 +7,55 @@ package Controller;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  *
  * @author Le Nguyen Hoang Khang - CE191583
  */
+@MultipartConfig
 @WebServlet(name = "MembershipServlet", urlPatterns = {"/MembershipServlet"})
 public class MembershipServlet extends HttpServlet {
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try ( PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet MembershipServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet MembershipServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        // Chuẩn bị data...
+        jakarta.servlet.http.HttpSession session = request.getSession(false);
+        Integer accountId = null;
+        if (session != null) {
+            Object accObj = session.getAttribute("accountId");
+            if (accObj instanceof Integer) {
+                accountId = (Integer) accObj;
+            } else if (accObj instanceof String) {
+                accountId = Integer.parseInt((String) accObj);
+            }
+        }
+
+        Model.CustomerMembership activeMembership = null;
+        Long daysLeft = null;
+        if (accountId != null) {
+            DAO.CustomerDao customerDao = new DAO.CustomerDao();
+            activeMembership = customerDao.getActiveMembershipByAccountId(accountId);
+            // Tính daysLeft nếu muốn
+            if (activeMembership != null && activeMembership.getEndDate() != null) {
+                daysLeft = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), activeMembership.getEndDate());
+            }
+            request.setAttribute("activeMembership", activeMembership);
+            request.setAttribute("daysLeft", daysLeft);
+        }
+        DAO.PackageDao packageDao = new DAO.PackageDao();
+        List<Model.Package> packages = packageDao.getAllPackages();
+        request.setAttribute("membership_packages", packages);
+
+        // Forward về block JSP
+        request.getRequestDispatcher("/WEB-INF/include/membershipCard.jsp")
+                .forward(request, response);
     }
 
     protected void doPost(HttpServletRequest request, HttpServletResponse response)

@@ -91,6 +91,7 @@
             </div>
         </main>
 
+
         <%@include file="Home/MembershipCard/membershipCard.jsp" %>
         <%@include file="Home/Trainers/Trainers.jsp" %>
         <%@include file="Home/News/News.jsp" %>
