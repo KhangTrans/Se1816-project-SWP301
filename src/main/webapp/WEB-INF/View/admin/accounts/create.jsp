@@ -1,3 +1,5 @@
+
+
 <div class="modal" id="addAccountModal" style="display:none;">
     <div class="modal-content">
         <h2>Create New Account</h2>

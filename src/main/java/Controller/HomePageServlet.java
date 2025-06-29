@@ -3,6 +3,7 @@
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
 package Controller;
+
 import Model.Package;
 import DAO.PackageDao;
 import DAO.TrainerDao;
@@ -40,24 +41,56 @@ public class HomePageServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Lấy các gói tập
         PackageDao dao = new PackageDao();
         List<Package> packages = dao.getAllPackages();
         request.setAttribute("membership_packages", packages);
-        
-        trainerDao = new TrainerDao(); // 💥 thêm dòng này để khởi tạo đối tượng
 
-        // Lấy danh sách 3 huấn luyện viên có rating cao nhất
-        List<Trainers> trainersList = null;
-        try {
-            trainersList = trainerDao.getTopTrainers();  // Lấy danh sách huấn luyện viên
-        } catch (SQLException ex) {
-            Logger.getLogger(HomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
+        // --- BẮT ĐẦU: Lấy membership hiện tại ---
+        jakarta.servlet.http.HttpSession session = request.getSession(false);
+        Integer accountId = null;
+        if (session != null) {
+            Object accObj = session.getAttribute("accountId");
+            if (accObj instanceof Integer) {
+                accountId = (Integer) accObj;
+            } else if (accObj instanceof String) {
+                try {
+                    accountId = Integer.parseInt((String) accObj);
+                } catch (NumberFormatException e) {
+                    accountId = null;
+                }
+            }
         }
 
-        // Kiểm tra và truyền dữ liệu vào request
+        if (accountId != null) {
+            DAO.CustomerDao customerDao = new DAO.CustomerDao();
+            Model.CustomerMembership activeMembership = customerDao.getActiveMembershipByAccountId(accountId);
+            request.setAttribute("activeMembership", activeMembership);
+
+            if (activeMembership != null) {
+                java.time.LocalDate now = java.time.LocalDate.now();
+                java.time.LocalDate end = activeMembership.getEndDate();
+                long daysLeft = java.time.temporal.ChronoUnit.DAYS.between(now, end);
+                if (daysLeft < 0) {
+                    daysLeft = 0;
+                }
+                request.setAttribute("daysLeft", daysLeft);
+            }
+        }
+        // --- KẾT THÚC: Lấy membership hiện tại ---
+
+        // Lấy danh sách 3 huấn luyện viên có rating cao nhất
+        trainerDao = new TrainerDao();
+        List<Model.Trainers> trainersList = null;
+        try {
+            trainersList = trainerDao.getTopTrainers();
+        } catch (java.sql.SQLException ex) {
+            Logger.getLogger(HomePageServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
         if (trainersList != null && !trainersList.isEmpty()) {
             request.setAttribute("trainersList", trainersList);
         }
+
         request.getRequestDispatcher("/WEB-INF/View/customers/HomePage.jsp").forward(request, response);
     }
 

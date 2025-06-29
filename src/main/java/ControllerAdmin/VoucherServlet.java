@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.ArrayList;
+import java.sql.SQLException;
 
 @WebServlet(name = "VoucherServlet", urlPatterns = {"/admin/vouchers"})
 public class VoucherServlet extends HttpServlet {
@@ -30,7 +32,31 @@ public class VoucherServlet extends HttpServlet {
         String action = request.getParameter("action");
         try {
             if ("ajaxList".equals(action)) {
-                List<Voucher> vouchers = voucherDao.getAllVouchers();
+                String searchTerm = request.getParameter("search") != null ? request.getParameter("search") : "";
+                String status = request.getParameter("status") != null ? request.getParameter("status") : "";
+                String fromDateStr = request.getParameter("startDate");
+                String toDateStr = request.getParameter("endDate");
+
+                LocalDate fromDate = null;
+                LocalDate toDate = null;
+
+                if (fromDateStr != null && !fromDateStr.isEmpty()) {
+                    fromDate = LocalDate.parse(fromDateStr);
+                }
+
+                if (toDateStr != null && !toDateStr.isEmpty()) {
+                    toDate = LocalDate.parse(toDateStr);
+                }
+
+                // Convert status to Boolean
+                Boolean activeOnly = null;
+                if (!status.isEmpty()) {
+                    activeOnly = "active".equalsIgnoreCase(status);
+                }
+
+                // Use the searchVoucher method with the new filters
+                List<Voucher> vouchers = voucherDao.searchVoucher(searchTerm, activeOnly, fromDate, toDate);
+
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 Gson gson = new GsonBuilder()
@@ -44,6 +70,25 @@ public class VoucherServlet extends HttpServlet {
 
                 String json = gson.toJson(vouchers);
                 response.getWriter().write(json);
+            } else if ("search".equals(action)) {
+                String searchTerm = request.getParameter("term") != null ? request.getParameter("term") : "";
+
+                // Use the simple searchVoucher with null for status to get all matching vouchers
+                List<Voucher> allResults = voucherDao.searchVoucher(searchTerm, null, null, null);
+
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                Gson gson = new GsonBuilder()
+                        .registerTypeAdapter(LocalDate.class, new JsonSerializer<LocalDate>() {
+                            @Override
+                            public JsonElement serialize(LocalDate src, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
+                                return new JsonPrimitive(src.toString()); // ISO: "yyyy-MM-dd"
+                            }
+                        })
+                        .create();
+
+                String json = gson.toJson(allResults);
+                response.getWriter().write(json);
             } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Voucher voucher = voucherDao.getVoucherById(id);
@@ -55,7 +100,8 @@ public class VoucherServlet extends HttpServlet {
                 request.getRequestDispatcher("/WEB-INF/View/admin/vouchers/edit.jsp").forward(request, response);
 
             } else {
-                List<Voucher> vouchers = voucherDao.getAllVouchers();
+                // Use searchVoucher with null parameters to get all vouchers
+                List<Voucher> vouchers = voucherDao.searchVoucher(null, null, null, null);
                 request.setAttribute("vouchers", vouchers);
                 request.getRequestDispatcher("/WEB-INF/View/admin/vouchers/list.jsp").forward(request, response);
             }

@@ -15,7 +15,7 @@
             <thead>
 
                 <tr>
-                    <th>No</th>
+                    <th style="width: 50px">No</th>
                     <th>Avatar</th>
                     <th>Username</th>
                     <th>Full Name</th>
@@ -24,7 +24,8 @@
                     <th>Position</th>
                     <th>Experience</th>
                     <th>Rating</th>
-                    <th>Action</th>
+                    <th>Session Price (VND)</th>
+                    <th style="width: 150px">Action</th>
                 </tr>
 
             </thead>

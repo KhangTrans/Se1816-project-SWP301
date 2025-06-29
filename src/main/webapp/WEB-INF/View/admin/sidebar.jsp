@@ -21,25 +21,48 @@
     <%}%>
     <ul class="sidebar__nav">
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('accountTable')">Accounts</a>
+            <a class="sidebar__nav-link sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('accountTable')"> 
+                <i class="fas fa-user-circle"></i>
+                Accounts
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffsTable')">Staff</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffsTable')">
+                <i class="fas fa-briefcase"></i> 
+                Staff
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('productsTable')">Products</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('trainersTable')">
+                <i class="fas fa-user-tie"></i>
+                Trainers
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('vouchersTable')">Vouchers</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('customersTable')"> 
+                <i class="fas fa-users"></i>
+                Members
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('trainersTable')">Trainers</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('productsTable')">
+                <i class="fas fa-dumbbell"></i>
+                Products
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('customersTable')">Members</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('vouchersTable')">
+                <i class="fas fa-ticket-alt"></i>
+                Vouchers
+            </a>
         </li>
+
+
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('blogTable')">Blogs</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('blogTable')">
+                <i class="fas fa-blog"></i>
+                Blogs
+            </a>
         </li>
     </ul>
     <form method="post" action="LogoutServlet">

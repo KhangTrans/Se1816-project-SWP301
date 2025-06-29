@@ -14,7 +14,7 @@
         <table class="data-table" id="blogsTable">
             <thead>
                 <tr>
-                    <th>No</th>
+                    <th style="width: 50px">No</th>
                     <th>Image</th>
                     <th>Title</th>
                     <th>Content</th>

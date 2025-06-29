@@ -91,4 +91,16 @@ public class AccountDao extends DBcontext {
         return accounts;
     }
 
+    public int countAccounts() {
+        String sql = "SELECT COUNT(*) FROM accounts";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 }

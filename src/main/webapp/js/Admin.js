@@ -201,7 +201,14 @@ function submitFormAjax(form, resultContainerId, event) {
 //có nhiệm vụ gửi yêu cầu lấy danh sách tài khoản từ server bằng AJAX và sau đó hiển thị danh sách đó vào bảng HTML (không cần reload trang).=======================================
 function loadAccounts() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/admin/accounts?action=ajaxList`;
+    const baseUrl = `${window.location.origin}${contextPath}/admin/accounts?action=ajaxList`;
+
+    const search = document.getElementById("searchInput").value;
+    const role = document.getElementById("roleFilter").value;
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+
+    const url = `${baseUrl}&search=${encodeURIComponent(search)}&role=${encodeURIComponent(role)}&fromDate=${fromDate}&toDate=${toDate}`;
 
     fetch(url)
             .then(response => {
@@ -244,10 +251,61 @@ function loadAccounts() {
             })
             .catch(error => {
                 console.error('Lỗi khi load account:', error);
-                // Nếu lỗi xảy ra, debug nội dung thực tế server trả về
-                fetch(url)
-                        .then(r => r.text())
-                        .then(text => console.warn("Nội dung server trả về không phải JSON:", text));
+            });
+}
+
+function filterAccounts() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = new URL(`${window.location.origin}${contextPath}/admin/accounts`);
+
+    url.searchParams.append("action", "ajaxList");
+
+    // Lấy dữ liệu từ input
+    const search = document.getElementById("searchInput").value;
+    const role = document.getElementById("roleFilter").value;
+    const fromDate = document.getElementById("fromDate").value;
+    const toDate = document.getElementById("toDate").value;
+
+    if (search)
+        url.searchParams.append("search", search);
+    if (role)
+        url.searchParams.append("role", role);
+    if (fromDate)
+        url.searchParams.append("fromDate", fromDate);
+    if (toDate)
+        url.searchParams.append("toDate", toDate);
+
+    fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#accountTable tbody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Không tìm thấy tài khoản nào</td></tr>`;
+                    return;
+                }
+
+                data.forEach((acc, index) => {
+                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${acc.username}&t=${Date.now()}`;
+                    const row = `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td><img src="${avatarUrl}" style="width:40px;height:40px;border-radius:50%;"></td>
+                        <td>${acc.username}</td>
+                        <td>${acc.role}</td>
+                        <td>${acc.createdAt}</td>
+                        <td>
+                            <button onclick="openEditAccountModal('${acc.accountId}', '${acc.username}', '${acc.role}', '${avatarUrl}')">Edit</button>
+                            <button onclick="openDeleteAccountModal('${acc.accountId}')">Delete</button>
+                        </td>
+                    </tr>
+                `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error("Lỗi khi lọc tài khoản:", error);
             });
 }
 
@@ -529,7 +587,7 @@ function reloadProductList() {
 
                     const row = `
                     <tr>
-                        <td>${index + 1}</td>
+                        <td style="width:60px;">${index + 1}</td>
                         <td><img src="${imageUrl}" alt="Image" style="width:60px; height:60px; border-radius:10px; margin-top: 5px"></td>
                         <td>${product.name}</td>
                         <td>${product.categoryName}</td>
@@ -629,26 +687,42 @@ function previewNewImages(input) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Function to load the list of vouchers from the server
+// Function to load the list of vouchers from the server
 function loadVouchers() {
-    console.log('Đang tải danh sách voucher...');
+    console.log('Loading voucher list with filters...');
+    ///NHATKHANG - Modified to handle search, date filters and status correctly
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/admin/vouchers?action=ajaxList`;
+
+    // Get filter values
+    const searchTerm = document.getElementById('searchVoucher') ? document.getElementById('searchVoucher').value : '';
+    const status = document.getElementById('statusFilter') ? document.getElementById('statusFilter').value : '';
+    const startDate = document.getElementById('startDate') ? document.getElementById('startDate').value : '';
+    const endDate = document.getElementById('endDate') ? document.getElementById('endDate').value : '';
+
+    // Build URL with query parameters
+    let url = `${window.location.origin}${contextPath}/admin/vouchers?action=ajaxList`;
+    url += `&search=${encodeURIComponent(searchTerm)}`;
+    url += `&status=${encodeURIComponent(status)}`;
+    url += `&startDate=${encodeURIComponent(startDate)}`;
+    url += `&endDate=${encodeURIComponent(endDate)}`;
+
+    console.log('Fetching vouchers from URL:', url);
 
     fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                return response.json(); // Đảm bảo trả về dữ liệu JSON
+                return response.json();
             })
             .then(data => {
-                console.log('Dữ liệu voucher nhận được:', data);
+                console.log('Voucher data received:', data);
                 const tbody = document.querySelector('#voucherTable tbody');
                 if (!tbody) {
-                    console.error('Không tìm thấy tbody trong ##voucherTable tbody');
+                    console.error('Cannot find tbody in #voucherTable');
                     return;
                 }
-                tbody.innerHTML = ''; // Xóa nội dung hiện tại
+                tbody.innerHTML = ''; // Clear current content
 
                 if (data.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">No vouchers available</td></tr>`;
@@ -668,6 +742,10 @@ function loadVouchers() {
                     })
                             : 'N/A';
 
+                    // Escape strings for JavaScript
+                    const safeDescription = voucher.description ? voucher.description.replace(/'/g, "\\'") : '';
+                    const safeCode = voucher.code ? voucher.code.replace(/'/g, "\\'") : '';
+
                     const row = `
                 <tr>
                     <td>${index + 1}</td>
@@ -682,11 +760,11 @@ function loadVouchers() {
                     <td>${endDate}</td>
                     <td>${voucher.isActive ? 'Active' : 'Inactive'}</td>
                     <td>
-                        <button class="action-buttons__btn action-buttons__btn--edit" style=" margin-top: 5px;"
-                            onclick="openEditVoucherModal('${voucher.voucherId}', '${voucher.code}', '${voucher.description}', '${voucher.discountPercent}', '${voucher.maxDiscount}', '${voucher.usageLimit}', '${voucher.usedCount}', '${voucher.minOrderAmount}', '${voucher.startDate}', '${voucher.endDate}', '${voucher.isActive}')">
+                        <button class="action-buttons__btn action-buttons__btn--edit" style="margin-top: 5px;"
+                            onclick="openEditVoucherModal('${voucher.voucherId}', '${safeCode}', '${safeDescription}', '${voucher.discountPercent}', '${voucher.maxDiscount}', '${voucher.usageLimit}', '${voucher.usedCount}', '${voucher.minOrderAmount}', '${voucher.startDate}', '${voucher.endDate}', '${voucher.isActive}')">
                             Edit
                         </button>
-                        <button class="action-buttons__btn action-buttons__btn--delete" style=" margin-top: 5px;"
+                        <button class="action-buttons__btn action-buttons__btn--delete" style="margin-top: 5px;"
                             onclick="openDeleteVoucherModal('${voucher.voucherId}')">
                             Delete
                         </button>
@@ -696,15 +774,14 @@ function loadVouchers() {
                 });
             })
             .catch(error => {
-                console.error('Lỗi khi tải danh sách voucher:', error);
+                console.error('Error loading voucher list:', error);
+                // Try to get text response for troubleshooting
                 fetch(url)
                         .then(r => r.text())
-                        .then(text => console.warn("Phản hồi server không phải JSON:", text));
+                        .then(text => console.warn("Server response is not JSON:", text))
+                        .catch(err => console.error("Failed to get error details:", err));
             });
 }
-
-
-
 
 
 
@@ -883,7 +960,7 @@ function openModal(id) {
 
 
 function openEditVoucherModal(voucherId, code, description, discountPercent, maxDiscount, usageLimit, usedCount, minOrderAmount, startDate, endDate, isActive) {
-    // Điền dữ liệu vào các trường trong modal
+// Điền dữ liệu vào các trường trong modal
     document.getElementById('editVoucherCode').value = code;
     document.getElementById('editVoucherId').value = voucherId;
     document.getElementById('editVoucherDescription').value = description;
@@ -949,6 +1026,29 @@ function submitEditVoucher(form) {
 
     return false;
 }
+
+// Get context path for AJAX URL
+function getContextPath() {
+    return window.location.pathname.substring(0, window.location.pathname.indexOf("/admin"));
+}
+
+// Function to handle real-time search as the user types
+var searchTimeout;
+function initVoucherSearch() {
+    ///NHATKHANG - Modified to prevent page reload when searching
+    // Add event listeners when DOM is loaded
+    document.getElementById('searchVoucher').addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(loadVouchers, 300); // Use loadVouchers instead of searchVouchers
+    });
+}
+
+// Initialize search when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', function () {
+    if (document.getElementById('searchVoucher')) {
+        initVoucherSearch();
+    }
+});
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                    HOANG KHANG       
 //
@@ -1272,6 +1372,9 @@ function reloadTrainerList() {
                     const avatarUrl = account && account.username
                             ? `${window.location.origin}${contextPath}/AvatarServlet?user=${account.username}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
+                    const formattedPrice = (trainer.price != null && !isNaN(trainer.price))
+                            ? trainer.price.toLocaleString('vi-VN') + ' VND'
+                            : '0 VND';
 
 
                     const row = `
@@ -1285,6 +1388,7 @@ function reloadTrainerList() {
                         <td>${trainer.bio || ''}</td>
                         <td>${trainer.experienceYears} year</td>
                         <td>${trainer.rating.toFixed(1)} ★</td>
+                        <td>${formattedPrice}</td>
                         <td>
                             <button class="action-buttons__btn action-buttons__btn--edit"
                                onclick="openEditTrainerModal(${trainer.trainerId})">Edit</button>
@@ -1366,6 +1470,7 @@ function openEditTrainerModal(trainerId) {
                     document.getElementById('editTrainerBio').value = trainer.bio || '';
                     document.getElementById('editTrainerExperience').value = trainer.experienceYears || '';
                     document.getElementById('editTrainerRating').value = trainer.rating || '';
+                    document.getElementById("editTrainerPrice").value = trainer.price || 0;
                     document.getElementById('editTrainerModal').style.display = 'flex';
                 } else {
                     alert("Không tìm thấy trainer.");

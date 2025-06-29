@@ -1,7 +1,7 @@
 <div class="modal" id="deleteVoucherModal">
     <div class="modal-content">
         <form method="post" action="<%= request.getContextPath()%>/admin/vouchers"
-              onsubmit="return submitDeleteVouchers(this)">
+              onsubmit="return submitDeleteVouchers(event, this)">
             <input type="hidden" name="formAction" value="delete">
             <input type="hidden" name="voucherId" id="deleteVoucherId">
 

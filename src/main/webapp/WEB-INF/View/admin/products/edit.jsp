@@ -12,7 +12,6 @@
 
             <div class="modal__header">
                 <h2 class="modal__title">Edit Product</h2>
-                <button type="button" class="modal__close" onclick="closeModal('editProductModal')">&times;</button>
             </div>
 
             <div class="modal__body">
@@ -49,7 +48,7 @@
                 </div>
 
 <!--                 Main Image Upload -->
-                <div class="modal__form-group">
+                <div class="modal__form-group" hidden>
                     <label class="modal__label">Change Main Image</label>
                     <input type="file" name="mainImage" class="modal__input" accept="image/*" onchange="previewEditProductImage(this)">
                     <span id="mainImageFilename" style="font-size: 12px; color: gray;"></span>

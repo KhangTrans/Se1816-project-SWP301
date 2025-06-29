@@ -1,6 +1,7 @@
 package DAO;
 
 import Model.Account;
+import Model.Customer;
 import Model.Staff;
 import db.DBcontext;
 import java.io.InputStream;
@@ -58,7 +59,7 @@ public class UserDao extends DBcontext {
     }
 
     public boolean login(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role IN ('customer','trainer')";
+        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role IN ('customer')";
         try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, hashMD5(password));
@@ -596,4 +597,89 @@ public class UserDao extends DBcontext {
             e.printStackTrace();
         }
     }
+    /////////////////////////////////////////////////////
+    //
+    //     Xu Ly Phan Loc
+    ////////////////////////////////////////////////////
+
+    public List<Account> getFilteredAccounts(String search, String role, String fromDate, String toDate) throws SQLException {
+        List<Account> list = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("SELECT * FROM accounts WHERE 1=1");
+        List<Object> params = new ArrayList<>();
+
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append(" AND username LIKE ?");
+            params.add("%" + search.trim() + "%");
+        }
+
+        if (role != null && !role.trim().isEmpty()) {
+            sql.append(" AND role = ?");
+            params.add(role);
+        }
+
+        if (fromDate != null && !fromDate.isEmpty()) {
+            sql.append(" AND created_at >= ?");
+            params.add(Date.valueOf(fromDate));
+        }
+
+        if (toDate != null && !toDate.isEmpty()) {
+            sql.append(" AND created_at <= ?");
+            params.add(Date.valueOf(toDate));
+        }
+
+        try ( Connection conn = new DBcontext().getConnection();  PreparedStatement stmt = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                stmt.setObject(i + 1, params.get(i));
+            }
+
+            try ( ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Account a = new Account();
+                    a.setAccountId(rs.getInt("account_id"));
+                    a.setUsername(rs.getString("username"));
+                    a.setRole(rs.getString("role"));
+                    a.setCreatedAt(rs.getTimestamp("created_at"));
+                    list.add(a);
+                }
+            }
+        }
+
+        return list;
+    }
+
+    public int getAccountIdByUserName(String user) throws SQLException {
+        String sql = "select account_id from accounts where username = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, user);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("account_id");
+            }
+        }
+        return -1;
+    }
+//============================DUY KHANG======================================================
+
+    public Customer getCustomerByAccountId(int accountId) throws SQLException {
+        String sql = "SELECT * FROM customers WHERE account_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("customer_id"));
+                    customer.setFullName(rs.getString("full_name"));
+                    customer.setEmail(rs.getString("email"));
+                    customer.setPhone(rs.getString("phone"));
+                    customer.setCustomerCode(rs.getString("customer_code"));
+                    customer.setAddress(rs.getString("address"));
+                    return customer;
+                }
+            }
+        }
+        return null;
+    }
+
 }

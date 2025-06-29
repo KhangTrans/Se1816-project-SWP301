@@ -15,15 +15,16 @@ public class Trainers {
     private String fullName;
     private String email;
     private String bio;
-    private int experienceYears;  
+    private int experienceYears;
     private float rating;
     private String trainer_code;
     private String phone;
+    private double price;
 
     public Trainers() {
     }
 
-    public Trainers(int trainerId, Account accountId, String fullName, String email, String bio, int experienceYears, float rating, String trainer_code, String phone) {
+    public Trainers(int trainerId, Account accountId, String fullName, String email, String bio, int experienceYears, float rating, String trainer_code, String phone, double price) {
         this.trainerId = trainerId;
         this.accountId = accountId;
         this.fullName = fullName;
@@ -33,6 +34,15 @@ public class Trainers {
         this.rating = rating;
         this.trainer_code = trainer_code;
         this.phone = phone;
+        this.price = price;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public int getTrainerId() {

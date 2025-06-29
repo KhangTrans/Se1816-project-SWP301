@@ -1,4 +1,3 @@
-
 <style>
     .modal {
         display: none;

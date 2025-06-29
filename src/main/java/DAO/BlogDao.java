@@ -29,6 +29,18 @@ import org.checkerframework.checker.units.qual.A;
  */
 public class BlogDao extends DBcontext {
 
+    public int countBlogs() {
+        String sql = "SELECT COUNT(*) FROM blogs";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public List<Blog> getAllBlogs() throws SQLException {
         List<Blog> list = new ArrayList<>();
         String sql = "SELECT b.*, i.image_id AS imageId "
@@ -204,6 +216,7 @@ public class BlogDao extends DBcontext {
             ps.executeUpdate();
         }
     }
+
     public void deleteBlog(int blogId) throws SQLException {
         String sql = "delete from blogs where blog_id = ?";
         try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -211,7 +224,7 @@ public class BlogDao extends DBcontext {
             ps.executeUpdate();
         }
     }
-    
+
     public void deleteImageById(int imageId) throws SQLException {
         String sql = "DELETE FROM blog_images WHERE image_id = ?";
         try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -219,10 +232,10 @@ public class BlogDao extends DBcontext {
             ps.executeUpdate();
         }
     }
-    
+
     public static void main(String[] args) throws SQLException {
         BlogDao dao = new BlogDao();
-        
+
         System.out.println(dao.getBlogByID(6));
     }
 

@@ -113,6 +113,8 @@
     height: 280px;
     object-fit: container;
     background-color: #ccc;
+    margin-left: 13px;
+    margin-top: 10px;
 }
 
 /* Tên sản phẩm */
@@ -130,7 +132,21 @@
     color: #88ff88;
     margin: 10px 0 15px;
 }
-
+/*=====Mua Ngay==========*/
+.btn-buy {
+    background: #fffde7;
+    color: #ff9100;
+    border: 1px solid #ff9100;
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-size: 14px;
+    transition: background 0.2s;
+}
+.btn-buy:hover {
+    background: #ff9100;
+    color: #fff;
+}
+/*===== End Mua Ngay=======*/
 /* Cũng dùng các style như trước */
 .pagination-container {
     display: flex;

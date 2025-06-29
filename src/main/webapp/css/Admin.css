@@ -21,9 +21,50 @@
     width: 40%;
     position: relative;
 }
+.data-table th {
+    text-align: center !important;
+}
+
+table.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+table.data-table th,
+table.data-table td {
+    border: 1px solid #ccc;
+    padding: 8px;
+    text-align: center;
+    vertical-align: middle;
+}
+
+table.data-table thead {
+    background-color: #f2f2f2;
+}
+
+td.description-cell {
+    max-width: 200px;
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+}
+
+.data-table img {
+    border: 1px solid #ddd;
+    padding: 2px;
+    background: #fff;
+}
+
+
 td{
     padding: 3px;
     text-align: center;
+    max-width: 200px; /* hoặc 15ch, 20em,... */
+    white-space: normal;       /* Cho phép xuống dòng */
+    word-break: break-word;    /* Ngắt từ nếu dài quá */
+    overflow-wrap: break-word; /* Ngắt hợp lệ theo từ */
+    width: 150px;
 }
 * {
     margin: 0;
@@ -382,7 +423,7 @@ body {
 }
 
 .modal__btn--primary {
-    background-color: #007bff;
+    background-color: #4CAF50;
     color: white;
 }
 

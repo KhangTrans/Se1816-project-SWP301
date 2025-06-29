@@ -87,23 +87,27 @@
     </head>
     <body>
         <div class="membership-card">
-    <div class="membership-card__title"><%= pkg.getName()%></div>
-    <div class="membership-card__price">
-        <%= pkg.getPrice()%><span class="membership-card__unit">₫ / Month</span>
-    </div>
-    <div class="membership-card__description">
-    <%= pkg.getDescription().replaceAll("\\. ", ".<br>") %>
-</div>
+            <div class="membership-card__title"><%= pkg.getName()%></div>
+            <div class="membership-card__price">
+                <%= pkg.getPrice()%><span class="membership-card__unit">₫ / Month</span>
+            </div>
+            <div class="membership-card__description">
+                <%= pkg.getDescription().replaceAll("\\. ", ".<br>")%>
+            </div>
 
-    <div class="membership-card__info-row">
-    <span class="label">Thời hạn:</span>
-    <span class="value"><%= pkg.getDurationDays() %> ngày</span>
-    <span class="label" style="margin-left: 32px;">Trạng thái:</span>
-    <span class="value"><%= pkg.isIsActive() ? "Đang áp dụng" : "Ngừng áp dụng" %></span>
-</div>
+            <div class="membership-card__info-row">
+                <span class="label">Thời hạn:</span>
+                <span class="value"><%= pkg.getDurationDays()%> ngày</span>
+                <span class="label" style="margin-left: 32px;">Trạng thái:</span>
+                <span class="value"><%= pkg.isIsActive() ? "Đang áp dụng" : "Ngừng áp dụng"%></span>
+            </div>
+            <form action="payment" method="get" style="width: 100%; text-align: center;">
+                <input type="hidden" name="cardId" value="<%= pkg.getId()%>">
+                <button type="submit" class="btn btn-success" style="padding: 10px 25px; font-size: 1rem;">Book ngay</button>
+            </form>
 
-    <a class="back-link" href="<%= request.getContextPath()%>/homepage">&lt; Back to homepage</a>
-</div>
+            <a class="back-link" href="<%= request.getContextPath()%>/homepage">&lt; Back to homepage</a>
+        </div>
 
     </body>
 </html>

@@ -25,7 +25,7 @@
         <table class="data-table" id="staffsTable">
             <thead>
                 <tr>
-                    <th>No</th>
+                    <th style="width: 50px">No</th>
 <!--                    <th>Account ID</th>-->
                     <th>Avatar</th>
                     <th>Username</th>
@@ -35,7 +35,7 @@
                     <th>Position</th>
                     <th>Status</th>
                     <th>Staff Code</th>
-                    <th>Action</th>
+                    <th style="width: 150px">Action</th>
                 </tr>
             </thead>
             <tbody>

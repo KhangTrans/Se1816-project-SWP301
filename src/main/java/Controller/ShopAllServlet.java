@@ -6,7 +6,9 @@ package Controller;
 
 import DAO.CategoryDao;
 import DAO.ProductDao;
+import DAO.VoucherDao;
 import Model.Products;
+import Model.Voucher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -25,32 +27,6 @@ import java.util.logging.Logger;
  */
 @WebServlet(name = "ShopAllServlet", urlPatterns = {"/shopAll"})
 public class ShopAllServlet extends HttpServlet {
-
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try ( PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet ShopAllServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet ShopAllServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
 
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -136,7 +112,9 @@ public class ShopAllServlet extends HttpServlet {
             //Category dropdown filter
             CategoryDao cdao = new CategoryDao();
             request.setAttribute("categories", cdao.getAllCategories());
-
+            VoucherDao voucherDao = new VoucherDao();
+            List<Voucher> voucherList = voucherDao.getActiveVouchers();
+            request.setAttribute("voucherList", voucherList);
             // Forward tới JSP
             request.getRequestDispatcher("/WEB-INF/View/customers/shopAll.jsp").forward(request, response);
 
@@ -144,6 +122,7 @@ public class ShopAllServlet extends HttpServlet {
             ex.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
         }
+
     }
 
     /**
@@ -157,7 +136,6 @@ public class ShopAllServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
     }
 
     /**

@@ -108,7 +108,7 @@ public class TrainerServlet extends HttpServlet {
                 String phone = request.getParameter("phone_number");
                 String bio = request.getParameter("bio");
                 int experience = Integer.parseInt(request.getParameter("experience_years"));
-
+                double price = Double.parseDouble(request.getParameter("price"));
                 System.out.println("📌 Creating Trainer for account ID = " + accountId);
 
                 // Lấy account từ DB để đảm bảo tồn tại và đúng role
@@ -129,6 +129,7 @@ public class TrainerServlet extends HttpServlet {
                 trainer.setExperienceYears(experience);
                 trainer.setRating((float) 5.0); // Nếu bạn muốn khởi tạo rating mặc định
                 trainer.setTrainer_code(generateTrainerCode());
+                trainer.setPrice(price);
                 System.out.println("Generated Trainer Code: " + trainer.getTrainer_code());
 
                 boolean success = trainerDao.insertTrainer(trainer);
@@ -161,6 +162,7 @@ public class TrainerServlet extends HttpServlet {
                 String phone = request.getParameter("phone_number");
                 String bio = request.getParameter("bio");
                 int experience = Integer.parseInt(request.getParameter("experience_years"));
+                double price = Double.parseDouble(request.getParameter("price"));
                 float rating = Float.parseFloat(request.getParameter("rating"));
 
                 Trainers trainer = trainerDao.getTrainerById(trainerId);
@@ -175,6 +177,7 @@ public class TrainerServlet extends HttpServlet {
                 trainer.setBio(bio);
                 trainer.setExperienceYears(experience);
                 trainer.setRating(rating);
+                trainer.setPrice(price);
 
                 boolean success = trainerDao.updateTrainer(trainer);
                 if (success) {

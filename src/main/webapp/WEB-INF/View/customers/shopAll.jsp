@@ -17,6 +17,57 @@
 <%@include file="/WEB-INF/include/Register.jsp" %>
 <%@include file="/WEB-INF/include/forgotPassword.jsp" %>
 <%@include file="/WEB-INF/include/header.jsp" %>
+<style>
+    .voucher-section {
+        padding: 20px;
+        background: #fffbe6;
+        border-bottom: 1px solid #ddd;
+        margin: 20px 0;
+    }
+
+    .voucher-title {
+        font-size: 22px;
+        margin-bottom: 10px;
+        color: #ff6600;
+    }
+
+    .voucher-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+
+    .voucher-card {
+        border: 1px dashed #ff9900;
+        padding: 15px;
+        border-radius: 8px;
+        background: #fff;
+        width: 280px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .voucher-info p {
+        margin: 4px 0;
+        font-size: 14px;
+    }
+
+    .claim-btn {
+        background-color: #ff6600;
+        color: #fff;
+        border: none;
+        padding: 6px 12px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .btn-success {
+        background-color: green !important;
+        color: #fff !important;
+    }
+
+</style>
 <main>
     <div class="body-product">
         <!-- Banner -->
@@ -46,6 +97,33 @@
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
+        <%-- Voucher--%>
+        <%
+            List<Model.Voucher> voucherList = (List<Model.Voucher>) request.getAttribute("voucherList");
+        %>
+
+        <div class="voucher-section">
+            <h2 class="voucher-title">🎁 VOUCHER ƯU ĐÃI</h2>
+            <div class="voucher-container">
+                <% if (voucherList != null && !voucherList.isEmpty()) {
+                        for (Model.Voucher v : voucherList) {
+                %>
+                <div class="voucher-card">
+                    <div class="voucher-info">
+                        <p><strong><%= v.getDiscountPercent()%>% GIẢM</strong></p>
+                        <p>Tối đa: <%= v.getMaxDiscount()%>đ - Đơn tối thiểu: <%= v.getMinOrderAmount()%>đ</p>
+                    </div>
+                    <div class="voucher-action">
+                        <button class="claim-btn" onclick="claimVoucher(<%= v.getVoucherId()%>, this)">Claim</button>
+                    </div>
+                </div>
+                <% }
+                } else { %>
+                <p>Không có voucher khả dụng.</p>
+                <% }%>
+            </div>
+        </div>
+        <%--End Voucher--%>
 
         <h1 class="header-content">SHOP</h1>
         <div class="filter-bar">
@@ -100,14 +178,43 @@
                 </form>
             </div>
         </div>
-
         <!-- Grid of Products -->
         <div class="product-grid" id="product-list">
             <% for (Products p : list) {%>
             <div class="product-card">
-                <img src="<%= request.getContextPath() + "/ImagesServlet?type=product&imageId=" + dao.getPrimaryImage(p.getProductId()).getImageId()%>" alt="Product Image" class="product-image" />
+                <img src="<%= request.getContextPath() + "/ImagesServlet?type=product&imageId=" + dao.getPrimaryImage(p.getProductId()).getImageId()%>" 
+                     alt="Product Image" class="product-image" />
                 <p><strong><%= p.getName()%></strong></p>
                 <p><%= String.format("%,.0f", p.getPrice())%>đ</p>
+                <div class="product-actions" style="margin-top:10px; display: flex; margin-left: 13px">
+                    <!-- Thêm vào Yêu thích -->
+                    <button 
+                        class="btn btn-fav"
+                        type="button"
+                        onclick="addToFavorite('<%= p.getProductId()%>')">
+                        <i class="fa fa-heart"></i> Yêu thích
+                    </button>
+                    <!-- Thêm vào Giỏ hàng -->
+                    <button 
+                        class="btn btn-cart"
+                        type="button"
+                        onclick="addToCart('<%= p.getProductId()%>')">
+                        <i class="fa fa-shopping-cart"></i> Giỏ hàng
+                    </button>
+                    <!-- Nút Mua Ngay -->
+                    <button 
+                        class="btn btn-buy"
+                        type="button"
+                        onclick="buyNow('<%= p.getProductId()%>')">
+                        <i class="fa fa-bolt"></i> Mua ngay
+                    </button>
+                    <!-- Nút Xem chi tiết -->
+                    <a 
+                        class="btn btn-detail"
+                        href="<%= request.getContextPath()%>/ProductDetail?productId=<%= p.getProductId()%>">
+                        <i class="fa fa-info-circle"></i> Xem chi tiết
+                    </a>
+                </div>
             </div>
             <% } %>
         </div>
@@ -133,4 +240,52 @@
 
     </div>
 </main>
+<script>
+    // Thêm vào danh sách yêu thích (favorite)
+    function addToFavorite(productId) {
+        // Ví dụ: gọi AJAX, hoặc chỉ thông báo
+        // Nếu muốn dùng AJAX, thay thế alert bên dưới thành fetch hoặc $.ajax
+        alert('Đã thêm sản phẩm ' + productId + ' vào danh sách yêu thích!');
+        // TODO: Gọi AJAX tới /favorite/add nếu có
+        // fetch('/favorite/add?productId=' + productId, {method: 'POST'}).then...
+    }
+
+    // Thêm vào giỏ hàng (cart)
+    function addToCart(productId) {
+        // Ví dụ: gọi AJAX, hoặc chỉ thông báo
+        alert('Đã thêm sản phẩm ' + productId + ' vào giỏ hàng!');
+        // TODO: Gọi AJAX tới /cart/add nếu có
+        // fetch('/cart/add?productId=' + productId, {method: 'POST'}).then...
+    }
+</script>
+
+<script>
+    function claimVoucher(voucherId, button) {
+        fetch('<%= request.getContextPath()%>/customerVochers', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'voucherId=' + encodeURIComponent(voucherId),
+            credentials: 'include' // ✅ cực kỳ quan trọng
+        })
+                .then(res => res.json())
+                .then(data => {
+                    alert(data.message);
+                    if (data.status === 'success') {
+                        button.disabled = true;
+                        button.innerText = 'Đã thu thập';
+                        button.classList.remove('claim-btn');
+                        button.classList.add('btn-success');
+                    }
+                })
+                .catch(err => {
+                    alert("Đã xảy ra lỗi.");
+                    console.error(err);
+                });
+    }
+
+</script>
+
+
 <%@include file="/WEB-INF/include/footer.jsp" %>

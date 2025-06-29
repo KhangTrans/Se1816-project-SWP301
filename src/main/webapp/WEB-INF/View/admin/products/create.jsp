@@ -8,7 +8,6 @@
             <input type="hidden" name="formAction" value="create">
             <div class="modal__header">
                 <h2 class="modal__title">Add Product</h2>
-                <button type="button" class="modal__close" onclick="closeModal('addProductModal')">&times;</button>
             </div>
             <div class="modal__body">
                 <div class="modal__form-group">
@@ -17,7 +16,7 @@
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Description</label>
-                    <textarea name="description" class="modal__textarea"></textarea>
+                    <textarea name="description" class="modal__textarea" maxlength="250"></textarea>
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Price</label>

@@ -313,12 +313,119 @@ public class ProductDao extends DBcontext {
         }
         return 0;  // Nếu không có sản phẩm nào
     }
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//||                        DUY KHANG ( Product Detail )                                                                                   ||
+//||/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
 
+    public Products getProductByIdDetail(int productId) {
+        Products p = null;
+        String sql = "SELECT p.*, c.name AS category_name, "
+                + "(SELECT TOP 1 image_id FROM product_images WHERE product_id = p.product_id AND is_primary = 1) AS primary_image_id "
+                + "FROM products p "
+                + "JOIN categories c ON p.category_id = c.category_id "
+                + "WHERE p.product_id = ?";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                p = new Products();
+                p.setProductId(rs.getInt("product_id"));
+                p.setName(rs.getString("name"));
+                p.setDescription(rs.getString("description"));
+                p.setPrice(rs.getDouble("price"));
+                p.setStockQuantity(rs.getInt("stock_quantity"));
+                p.setActive(rs.getBoolean("is_active"));
+
+                // Set Category object hoặc chỉ tên, tùy bạn dùng
+                Categories cat = new Categories();
+                cat.setCategory_id(rs.getInt("category_id"));
+                cat.setName(rs.getString("category_name"));
+                p.setCategoryId(cat);
+
+                p.setCategoryName(rs.getString("category_name"));
+
+                int primaryImageId = rs.getInt("primary_image_id");
+                if (!rs.wasNull()) {
+                    p.setPrimaryImageId(primaryImageId);
+                }
+
+                // Lấy list images
+                p.setImages(getImagesByProductId(conn, productId));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return p;
+    }
+
+    private List<Product_Images> getImagesByProductId(Connection conn, int productId) {
+        List<Product_Images> images = new ArrayList<>();
+        String sql = "SELECT * FROM product_images WHERE product_id = ?";
+        try ( PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, productId);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Product_Images img = new Product_Images();
+                img.setImageId(rs.getInt("image_id"));
+                img.setProductId(rs.getInt("product_id"));
+                img.setImageUrl(rs.getBytes("image_url")); // hoặc field ảnh trong DB của bạn
+                img.setIsPrimary(rs.getBoolean("is_primary"));
+                images.add(img);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return images;
+    }
+
+    public List<Products> getRelatedProducts(int categoryId, int excludeProductId, int limit) {
+        List<Products> related = new ArrayList<>();
+        String sql = "SELECT TOP (?) p.*, c.name AS category_name, "
+                + "(SELECT TOP 1 image_id FROM product_images WHERE product_id = p.product_id AND is_primary = 1) AS primary_image_id "
+                + "FROM products p "
+                + "JOIN categories c ON p.category_id = c.category_id "
+                + "WHERE p.category_id = ? AND p.product_id <> ?";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, limit);
+            ps.setInt(2, categoryId);
+            ps.setInt(3, excludeProductId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Products p = new Products();
+                p.setProductId(rs.getInt("product_id"));
+                p.setName(rs.getString("name"));
+                p.setDescription(rs.getString("description"));
+                p.setPrice(rs.getDouble("price"));
+                p.setStockQuantity(rs.getInt("stock_quantity"));
+                p.setActive(rs.getBoolean("is_active"));
+
+                Categories cat = new Categories();
+                cat.setCategory_id(rs.getInt("category_id"));
+                cat.setName(rs.getString("category_name"));
+                p.setCategoryId(cat);
+                p.setCategoryName(rs.getString("category_name"));
+
+                int primaryImageId = rs.getInt("primary_image_id");
+                if (!rs.wasNull()) {
+                    p.setPrimaryImageId(primaryImageId);
+                }
+
+                related.add(p);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return related;
+    }
 //////////////////////////////////////////////////////////////////////
 //
 //HoangKhang
 //
 //////////////////////////////////////////////////////////////////////
+
     /**
      * Returns a paginated list of products, optionally filtered by category and
      * sorted by price or ID.
@@ -500,6 +607,19 @@ public class ProductDao extends DBcontext {
                     return rs.getInt(1);
                 }
             }
+        }
+        return 0;
+    }
+
+    public int countProductsInStock() {
+        String sql = "SELECT SUM(stock_quantity) FROM products WHERE stock_quantity > 0 AND is_active = 1";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) {
+                return rs.getInt(1); // Trả về tổng số lượng hàng còn trong kho
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return 0;
     }

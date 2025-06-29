@@ -5,26 +5,33 @@ import java.time.LocalDateTime;
 
 public class Order {
 
-    private int orderId;
-    private Customer customer;  // Quan hệ N-1
+     private int orderId;
+    private Account account; // Đại diện cho account_id
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
     private String shippingAddress;
     private String status;
-    private String referralCode;
+    private String recipientName;
+    private String recipientPhone;
+    private String note;
+    private Voucher voucher;
+    private String orderCode;
 
     public Order() {
     }
 
-    public Order(int orderId, Customer customer, LocalDateTime orderDate, BigDecimal totalAmount,
-                 String shippingAddress, String status, String referralCode) {
+    public Order(int orderId, Account account, LocalDateTime orderDate, BigDecimal totalAmount, String shippingAddress, String status, String recipientName, String recipientPhone, String note, Voucher voucher, String orderCode) {
         this.orderId = orderId;
-        this.customer = customer;
+        this.account = account;
         this.orderDate = orderDate;
         this.totalAmount = totalAmount;
         this.shippingAddress = shippingAddress;
         this.status = status;
-        this.referralCode = referralCode;
+        this.recipientName = recipientName;
+        this.recipientPhone = recipientPhone;
+        this.note = note;
+        this.voucher = voucher;
+        this.orderCode = orderCode;
     }
 
     public int getOrderId() {
@@ -35,12 +42,12 @@ public class Order {
         this.orderId = orderId;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public Account getAccount() {
+        return account;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setAccount(Account account) {
+        this.account = account;
     }
 
     public LocalDateTime getOrderDate() {
@@ -75,24 +82,45 @@ public class Order {
         this.status = status;
     }
 
-    public String getReferralCode() {
-        return referralCode;
+    public String getRecipientName() {
+        return recipientName;
     }
 
-    public void setReferralCode(String referralCode) {
-        this.referralCode = referralCode;
+    public void setRecipientName(String recipientName) {
+        this.recipientName = recipientName;
     }
 
-    @Override
-    public String toString() {
-        return "Order{" +
-                "orderId=" + orderId +
-                ", customerId=" + (customer != null ? customer.getCustomerId() : "null") +
-                ", orderDate=" + orderDate +
-                ", totalAmount=" + totalAmount +
-                ", shippingAddress='" + shippingAddress + '\'' +
-                ", status='" + status + '\'' +
-                ", referralCode='" + referralCode + '\'' +
-                '}';
+    public String getRecipientPhone() {
+        return recipientPhone;
     }
+
+    public void setRecipientPhone(String recipientPhone) {
+        this.recipientPhone = recipientPhone;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public Voucher getVoucher() {
+        return voucher;
+    }
+
+    public void setVoucher(Voucher voucher) {
+        this.voucher = voucher;
+    }
+
+    public String getOrderCode() {
+        return orderCode;
+    }
+
+    public void setOrderCode(String orderCode) {
+        this.orderCode = orderCode;
+    }
+    
+  
 }

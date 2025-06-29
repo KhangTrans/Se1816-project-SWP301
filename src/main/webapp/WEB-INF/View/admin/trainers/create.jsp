@@ -31,6 +31,10 @@
 
                 <label for="experience_years">Experience (Years):</label>
                 <input type="number" name="experience_years" id="experience_years" min="0" required><br><br>
+
+                <!-- ? THÊM GIÁ TI?N M?I BU?I T?P -->
+                <label for="session_price">Session Price (VND):</label>
+                <input type="number" name="price" id="session_price" min="0" step="10000" required><br><br>
             </div>
 
             <div class="modal__footer">

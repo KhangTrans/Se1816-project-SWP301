@@ -11,10 +11,9 @@
             <input type="hidden" id="deleteCustomerId" name="customerId">
 
             <div style="margin-top: 20px; text-align: right;">
-                <button type="button" onclick="closeModal('deleteCustomerModal')">Cancel</button>
                 <button type="submit">Delete</button>
+                <button type="button" onclick="closeModal('deleteCustomerModal')">Cancel</button>
             </div>
-
             <div id="resultDeleteCustomer" style="margin-top: 10px; color: red;"></div>
         </form>
 

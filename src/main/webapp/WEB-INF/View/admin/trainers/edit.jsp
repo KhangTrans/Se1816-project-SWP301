@@ -117,6 +117,8 @@
 
             <label for="editTrainerExperience">Experience (years):</label>
             <input type="text" name="experience_years" id="editTrainerExperience">
+            <label for="editTrainerPrice">Session Price (VND):</label>
+            <input type="text" name="price" id="editTrainerPrice" required>
 
             <label for="editTrainerRating">Rating:</label>
             <input type="text" name="rating" id="editTrainerRating">

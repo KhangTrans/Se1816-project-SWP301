@@ -1,5 +1,6 @@
 package DAO;
 
+import Model.MembershipPackage;
 import java.sql.*;
 import java.util.*;
 import Model.Package;
@@ -62,5 +63,18 @@ public class PackageDao extends DBcontext {
         }
         return packages;
     }
-}
 
+    public MembershipPackage convertToMembershipPackage(Package pkg) {
+        if (pkg == null) {
+            return null;
+        }
+        return new MembershipPackage(
+                pkg.getId(),
+                pkg.getName(),
+                pkg.getDescription(),
+                pkg.getDurationDays(),
+                pkg.getPrice(),
+                pkg.isIsActive()
+        );
+    }
+}
