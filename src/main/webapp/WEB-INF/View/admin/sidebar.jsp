@@ -64,8 +64,38 @@
                 Blogs
             </a>
         </li>
-    </ul>
-    <form method="post" action="LogoutServlet">
-        <button type="submit" class="sidebar__logout">LOGOUT</button>
-    </form>
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('loginLogsTable')">
+                <i class="fas fa-history"></i>
+                Login Logs
+            </a>
+        </li>
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('ordersTable')">
+                <i class="fas fa-ticket-alt"></i>
+                Orders
+            </a>
+        </li>
+
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('packagesTable')">
+                <i class="fas fa-eye"></i>
+                View Packages
+            </a>
+        </li>
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('memberPackagesTable')">
+                <i class="fas fa-user-check"></i>
+                Member Packages
+            </a>
+        </li>
+        <li class="sidebar__nav-item">
+            <form method="post" action="LogoutServlet">
+                <button type="submit" class="sidebar__nav-link">
+                    <i class="fas fa-sign-out-alt"></i> LOGOUT
+                </button>
+            </form>
+        </li>
+
+
 </nav>

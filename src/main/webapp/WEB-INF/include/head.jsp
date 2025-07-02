@@ -28,6 +28,7 @@
         <link rel="stylesheet" href="<%= request.getContextPath()%>/css/shopAll.css" />
         <link rel="stylesheet" href="<%= request.getContextPath()%>/css/styles.css">
         <link rel="stylesheet" href="<%= request.getContextPath()%>/css/productDetail.css">
+        <link rel="stylesheet" href="<%= request.getContextPath()%>/css/profile.css">
     </head>
     <body style="background-color: #111">
 

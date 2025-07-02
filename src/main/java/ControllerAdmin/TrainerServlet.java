@@ -5,6 +5,7 @@ import Model.Account;
 import Model.Trainers;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
@@ -35,14 +36,30 @@ public class TrainerServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         try {
-            List<Trainers> trainersList = trainerDao.getAllTrainers();
-
             if ("json".equalsIgnoreCase(action)) {
-                // Trả JSON cho client (AJAX)
+                String searchTerm = request.getParameter("searchTerm"); // Tìm kiếm theo tên hoặc username
+                String experience = request.getParameter("experience");  // Lọc theo kinh nghiệm
+                String rating = request.getParameter("rating");         // Lọc theo rating
+
+                List<Trainers> trainersList;
+
+                // Nếu có tham số tìm kiếm hoặc lọc, gọi hàm searchTrainers
+                if (searchTerm != null || experience != null || rating != null) {
+                    trainersList = trainerDao.searchTrainers(searchTerm, experience, rating);
+                } else {
+                    // Nếu không có tham số tìm kiếm, trả về tất cả huấn luyện viên
+                    trainersList = trainerDao.getAllTrainers();
+                }
+                // Debug: In ra danh sách huấn luyện viên và giá tiền
+                for (Trainers trainer : trainersList) {
+                    System.out.println("Trainer ID: " + trainer.getTrainerId() + ", Price: " + trainer.getPrice());
+                }
+
+                // Trả kết quả dưới dạng JSON
                 Gson gson = new GsonBuilder()
                         .registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
                             @Override
-                            public com.google.gson.JsonElement serialize(LocalDateTime src, java.lang.reflect.Type typeOfSrc, com.google.gson.JsonSerializationContext context) {
+                            public com.google.gson.JsonElement serialize(LocalDateTime src, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
                                 return src == null ? null : new com.google.gson.JsonPrimitive(src.toString());
                             }
                         })
@@ -58,6 +75,7 @@ public class TrainerServlet extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
                 Gson gson = new Gson();
                 response.getWriter().write(gson.toJson(availableAccounts));
+
             } else if ("getById".equalsIgnoreCase(action)) {
                 int trainerId = Integer.parseInt(request.getParameter("trainerId"));
                 Trainers trainer = trainerDao.getTrainerById(trainerId);
@@ -66,8 +84,10 @@ public class TrainerServlet extends HttpServlet {
                 Gson gson = new Gson();
                 response.getWriter().write(gson.toJson(trainer));
                 return;
+
             } else {
-                // Trả ra JSP thông thường
+                // Trả về trang JSP bình thường
+                List<Trainers> trainersList = trainerDao.getAllTrainers();
                 request.setAttribute("trainersList", trainersList);
                 request.getRequestDispatcher("/WEB-INF/View/admin/trainers/list.jsp").forward(request, response);
             }

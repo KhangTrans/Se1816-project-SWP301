@@ -18,6 +18,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 /**
  *
@@ -39,27 +40,44 @@ public class HomePageAdminServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            // Tạo DAO
-            AccountDao accountDao = new AccountDao();
+            // Lấy tài khoản từ session
+            HttpSession session = request.getSession(false);
+            Model.Account account = (Model.Account) session.getAttribute("account");
+
+            if (account == null) {
+                // Chưa đăng nhập → chuyển hướng
+                response.sendRedirect(request.getContextPath() + "/loginAdmin");
+                return;
+            }
+
+            String role = account.getRole(); // "admin" hoặc "staff"
+            request.setAttribute("role", role);
+
             TrainerDao trainerDao = new TrainerDao();
-            StaffDao staffDao = new StaffDao();
             ProductDao productDao = new ProductDao();
             MemberDao memberDao = new MemberDao();
             BlogDao blogDao = new BlogDao();
             VoucherDao voucherDao = new VoucherDao();
 
-            // Gán số lượng cho request
-            request.setAttribute("accountCount", accountDao.countAccounts());
+            // Luôn có
             request.setAttribute("trainerCount", trainerDao.countTrainers());
-            request.setAttribute("staffCount", staffDao.countStaff());
             request.setAttribute("productCount", productDao.countProductsInStock());
             request.setAttribute("memberCount", memberDao.countMembers());
             request.setAttribute("blogCount", blogDao.countBlogs());
             request.setAttribute("voucherCount", voucherDao.countVouchers());
 
+            // Nếu là admin thì gán thêm
+            if ("admin".equalsIgnoreCase(role)) {
+                AccountDao accountDao = new AccountDao();
+                StaffDao staffDao = new StaffDao();
+                request.setAttribute("accountCount", accountDao.countAccounts());
+                request.setAttribute("staffCount", staffDao.countStaff());
+            }
+
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         request.getRequestDispatcher("/WEB-INF/View/admin/adminHome.jsp").forward(request, response);
     }
 

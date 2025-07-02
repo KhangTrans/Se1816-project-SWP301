@@ -682,4 +682,26 @@ public class UserDao extends DBcontext {
         return null;
     }
 
+    public Account loginAndReturnAccount(String username, String password) throws SQLException {
+        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role = 'customer'";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            stmt.setString(2, hashMD5(password));
+
+            try ( ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Account acc = new Account();
+                    acc.setAccountId(rs.getInt("account_id"));
+                    acc.setUsername(rs.getString("username"));
+                    acc.setPassword(rs.getString("password"));
+                    acc.setRole(rs.getString("role"));
+                    acc.setCreatedAt(rs.getTimestamp("created_at"));
+                    return acc;
+                }
+            }
+        }
+        return null;
+    }
+
 }

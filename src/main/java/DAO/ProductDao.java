@@ -161,6 +161,8 @@ public class ProductDao extends DBcontext {
         }
         return null;
     }
+    
+    
 
     public void addProductImage(int productId, byte[] imageData, boolean isPrimary) throws SQLException {
         String sql = "INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?, ?, ?)";
@@ -624,4 +626,36 @@ public class ProductDao extends DBcontext {
         return 0;
     }
 
+     // Phương thức lấy sản phẩm theo productId
+    public Products getProductByIdPage(int productId) {
+        Products product = null;
+        String sql = "SELECT * FROM products WHERE product_id = ?"; // Câu truy vấn lấy thông tin sản phẩm
+
+        try (Connection con = getConnection();  // Giả sử bạn có một lớp để kết nối CSDL
+             PreparedStatement pst = con.prepareStatement(sql)) {
+
+            // Gán tham số vào câu truy vấn
+            pst.setInt(1, productId);
+
+            // Thực hiện câu truy vấn và lấy kết quả
+            ResultSet rs = pst.executeQuery();
+
+            // Kiểm tra nếu có sản phẩm
+            if (rs.next()) {
+                // Tạo đối tượng sản phẩm và gán thông tin từ CSDL
+                product = new Products();
+                product.setProductId(rs.getInt("product_id"));
+                product.setName(rs.getString("name"));
+                product.setDescription(rs.getString("description"));
+                product.setPrice(rs.getDouble("price"));
+                product.setStockQuantity(rs.getInt("stock_quantity"));
+                // Gán các thuộc tính khác nếu cần
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return product;
+    }
 }

@@ -4,7 +4,6 @@
 
 <!-- Thêm CSS trực tiếp vào trang JSP -->
 <style>
-    /* Cấu hình cho phần gallery */
     .gallery {
         display: flex;
         flex-wrap: wrap;
@@ -14,7 +13,6 @@
         padding: 20px;
     }
 
-    /* Mỗi item trong gallery */
     .gallery__item {
         width: 300px;
         text-align: center;
@@ -22,115 +20,147 @@
         padding: 10px;
         border: 1px solid #00CC00;
         border-radius: 10px;
-        position: relative; /* Thêm để định vị tuyệt đối cho nội dung */
+        position: relative;
+        cursor: pointer;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
 
-    /* Hình ảnh huấn luyện viên */
+    .gallery__item:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(0, 204, 0, 0.3);
+    }
+
     .gallery__item-img {
         width: 100%;
         height: 100%;
         border-radius: 5px;
+        object-fit: cover; /* Ensure images fit nicely */
     }
 
-    /* Phần thông tin tên và rating */
     .trainer-info {
         position: absolute;
-        bottom: 10px; /* Đặt dưới cùng, cách lề 10px */
-        left: 50%; /* Căn giữa theo chiều ngang */
-        transform: translateX(-50%); /* Điều chỉnh để chính giữa */
-        width: 80%; /* Giới hạn chiều rộng */
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
         display: flex;
         flex-direction: column;
         align-items: center;
     }
 
-    /* Tên huấn luyện viên */
     .trainer-info h4 {
         margin: 0;
-        font-size: 18px;
-        font-weight: bold;
+        font-size: 20px; /* Slightly larger for prominence */
+        font-weight: 700; /* Bolder for emphasis */
         color: #fff;
+        text-transform: uppercase; /* Uppercase for a modern look */
+        letter-spacing: 1px; /* Subtle spacing for readability */
+        text-shadow: 0 0 5px rgba(0, 204, 0, 0.5); /* Green glow effect */
+        transition: color 0.3s ease;
     }
 
-    /* Rating */
-    .trainer-info p {
-        font-size: 14px;
-        color: #fff;
-        background-color: #00cc00;
-        padding: 5px 10px;
-        border-radius: 5px;
-        margin-top: 5px;
+    .trainer-info h4:hover {
+        color: #00CC00; /* Green on hover for interactivity */
+    }
+
+    .view-details-btn {
         display: inline-block;
-    }
-
-    /* Tiêu đề "ALL TRAINERS" */
-    .content__text--bottom {
-        text-align: center;
-        font-size: 20px;
-        font-weight: bold;
+        background: linear-gradient(135deg, #00CC00, #4CAF50); /* Gradient for depth */
         color: #fff;
-        margin-bottom: 20px;
+        padding: 10px 20px; /* Slightly larger padding */
+        border-radius: 25px; /* Rounded for modern look */
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600; /* Medium-bold for emphasis */
+        margin-top: 12px;
+        text-align: center;
+        text-transform: uppercase; /* Consistent with trainer name */
+        letter-spacing: 0.5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Subtle shadow */
+        transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+        margin-bottom: 10px;
     }
 
-    /* Nút "XEM TẤT CẢ" */
+    .view-details-btn:hover {
+        background: linear-gradient(135deg, #4CAF50, #00CC00); /* Reverse gradient on hover */
+        transform: translateY(-2px); /* Slight lift effect */
+        box-shadow: 0 4px 10px rgba(0, 204, 0, 0.4); /* Enhanced shadow */
+    }
+
+    .gallery__view-all-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        margin-top: 20px;
+    }
+
     .gallery__view-all {
         display: flex;
+justify-content: center;
         align-items: center;
-        justify-content: center;
         text-decoration: none;
         color: #00cc00;
         font-size: 16px;
         font-weight: bold;
         margin-top: 20px;
+        width: 100%;
+        transition: color 0.3s ease;
+    }
+
+    .gallery__view-all:hover {
+        color: #4CAF50; /* Matching hover color */
     }
 
     .gallery__view-all-text {
-        margin-right: 10px;
+        text-align: center;
     }
 
-    .gallery-slider__arrow img {
-        width: 28px;
-        height: 16px;
+    .gallery_slider__arrow {
+        margin-left: 10px;
+        vertical-align: middle;
     }
 </style>
+
 <!-- === Gallery === -->
 <div class="content">
-    <p class="content__text--bottom">ALL TRAINERS</p> <!-- Đổi từ "TOP 3 TRAINERS" thành "ALL TRAINERS" -->
+    <p class="content__text--bottom">TOP TRAINERS</p>
 </div>
 
-<!-- === Gallery: Hiển thị tất cả huấn luyện viên === -->
+<!-- === Gallery: Hiển thị các huấn luyện viên === -->
 <div class="gallery" id="top-trainers-gallery">
     <%
-        // Lấy danh sách huấn luyện viên từ request
-        List<Trainers> trainersList = (List<Trainers>) request.getAttribute("trainersList");
+        List<Trainers> topTrainers = (List<Trainers>) request.getAttribute("trainersList");
 
-        // Kiểm tra nếu trainersList không rỗng
-        if (trainersList != null && !trainersList.isEmpty()) {
-            for (Trainers trainer : trainersList) {
+        if (topTrainers != null && !topTrainers.isEmpty()) {
+            for (Trainers trainer : topTrainers) {
     %>
     <div class="gallery__item">
-        <!-- Gọi AvatarServlet để lấy hình ảnh -->
-        <img src="<%= request.getContextPath() + "/AvatarServlet?user=" + trainer.getAccountId().getUsername() %>" 
-             alt="Trainer <%= trainer.getTrainerId() %>" class="gallery__item-img" />
+        <img src="<%= request.getContextPath() + "/AvatarServlet?user=" + trainer.getAccountId().getUsername()%>" 
+             alt="Trainer <%= trainer.getTrainerId()%>" class="gallery__item-img" />
         <div class="trainer-info">
-            <h4><%= trainer.getFullName() %></h4>
-            <p>Rating: <%= trainer.getRating() %></p>
+            <h4><%= trainer.getFullName()%></h4>
+            <a href="<%= request.getContextPath() + "/TrainerDetail?trainerId=" + trainer.getTrainerId()%>" class="view-details-btn">
+                Xem chi tiết
+            </a>
         </div>
     </div>
     <%
-            }
-        } else {
+        }
+    } else {
     %>
-    <p>không có huấn luyện viên nào</p> <!-- Thông báo nếu không có dữ liệu huấn luyện viên -->
+    <p>Không có huấn luyện viên nào</p>
     <%
         }
     %>
 </div>
 
-<!-- === View All Button === -->
-<a href="#!" id="view-all-btn" class="gallery__view-all">
-    <span class="gallery__view-all-text">XEM TẤT CẢ</span>
-    <span class="gallery-slider__arrow">
-        <img src="./logo/🦆 icon _nav arrow down_.svg" alt="arrow" width="28" height="16" />
-    </span>
-</a>
+<!-- === Nút "XEM TẤT CẢ" sẽ chuyển sang servlet allTrainerServlet === -->
+<div class="gallery__view-all-container">
+    <a href="<%= request.getContextPath() + "/allTrainerServlet"%>" class="gallery__view-all">
+        <span class="gallery__view-all-text">XEM TẤT CẢ</span>
+        <span class="gallery-slider__arrow">
+            <img src="./logo/🦆 icon _nav arrow down_.svg" alt="arrow" width="28" height="16" />
+        </span>
+    </a>
+</div>

@@ -1,5 +1,8 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@include file="/WEB-INF/View/admin/headAdmin.jsp" %>
+<%    Model.Account acc = (Model.Account) session.getAttribute("account");
+    String role = acc != null ? acc.getRole() : "";
+%>
 <style>
     .dashboard__stats {
         display: grid;
@@ -45,6 +48,8 @@
             <div class="stat-card" onclick="AdminDashboard.showTable('productsTable')">🛒<br>Products<br><strong><%= request.getAttribute("productCount")%></strong></div>
             <div class="stat-card" onclick="AdminDashboard.showTable('vouchersTable')">🎟️<br>Vouchers<br><strong><%= request.getAttribute("voucherCount")%></strong></div>
             <div class="stat-card" onclick="AdminDashboard.showTable('blogTable')">📝<br>Blogs<br><strong><%= request.getAttribute("blogCount")%></strong></div>
+            <div class="stat-card" onclick="AdminDashboard.showTable('blogTable')">📝<br>Blogs<br><strong><%= request.getAttribute("blogCount")%></strong></div>
+
         </div>
         <button onclick="toggleChart()" id="toggleChartBtn" style="padding: 6px 12px; background-color:#007bff; color:white; border:none; border-radius:5px; margin-bottom: 10px">
             📈 Biểu đồ
@@ -69,6 +74,9 @@
         <%@include file="/WEB-INF/View/admin/trainers/list.jsp" %>
         <%@include file="/WEB-INF/View/admin/members/list.jsp" %>
         <%@include file="/WEB-INF/View/admin/blogs/list.jsp" %>
+        <%@include file="/WEB-INF/View/admin/loginLog/loginLog.jsp" %>
+        <%@include file="/WEB-INF/View/admin/packages/list.jsp" %>
+        <%@include file="/WEB-INF/View/admin/orders/list.jsp" %>
     </main>
 </div>
 

@@ -1,7 +1,9 @@
 package Controller;
 
+import DAO.CartDao;
 import DAO.UserDao;
 import Model.Account;
+import Model.CartItem;
 import Model.Customer;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -11,6 +13,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Enumeration;
+import java.util.List;
 
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
@@ -49,17 +52,30 @@ public class LoginServlet extends HttpServlet {
                 session.setAttribute("username", username);
                 session.setAttribute("role", "customer");
                 int id = dao.getAccountIdByUserName(username);
+
                 if (id > 0) {
                     session.setAttribute("accountId", id);
+
+                    // Ghi log đăng nhập vào bảng login_logs
+                    String ip = request.getRemoteAddr();
+                    String userAgent = request.getHeader("User-Agent");
+                    new DAO.LoginLogDao().insertLog(id, ip, userAgent);  // ✅ gọi ghi log
+                    System.out.println("DEBUG >> Login log inserted for accountId: " + id);
+
                     // Bổ sung: Lấy customerId từ DAO và lưu vào session
                     // ✅ Lấy customerId và lưu vào session
                     Customer customer = dao.getCustomerByAccountId(id);
                     if (customer != null) {
                         session.setAttribute("customerId", customer.getCustomerId());
                         System.out.println("DEBUG >> Set session customerId = " + customer.getCustomerId());
-                    } else {
-                        System.out.println("DEBUG >> Customer not found for accountId: " + id);
                     }
+                    CartDao cartDao = new CartDao();
+                    List<CartItem> cartItems = cartDao.getCartItems(id);
+                    int totalItems = 0;
+                    for (CartItem item : cartItems) {
+                        totalItems += item.getQuantity();
+                    }
+                    session.setAttribute("cartCount", totalItems); // Cập nhật số lượng giỏ hàng
                 }
                 session.setAttribute("avatar", avatarUrl);
                 json.put("status", "success");

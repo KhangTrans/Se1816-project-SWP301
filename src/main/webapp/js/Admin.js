@@ -7,6 +7,8 @@ document.addEventListener('DOMContentLoaded', function () {
     reloadTrainerList();
     reloadBlogList();
     loadCustomers();
+    loadLoginLogs();
+    loadPackages();
     ;
 });
 
@@ -178,8 +180,10 @@ function submitFormAjax(form, resultContainerId, event) {
                         reloadTrainerList();
                     if (typeof reloadBlogList === 'function') //cminh
                         reloadBlogList();
-                    if (typeof loadCustomers() === 'function') //cminh
+                    if (typeof loadCustomers === 'function') //cminh
                         loadCustomers();
+                    if (typeof loadPackages === 'function')
+                        loadPackages();
                     ;
                 }, 500);
             })
@@ -1049,6 +1053,469 @@ document.addEventListener('DOMContentLoaded', function () {
         initVoucherSearch();
     }
 });
+
+// Order Management Functions
+
+// Function to load orders data
+function loadOrders() {
+    console.log('Loading order list with filters...');
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+
+    // Get filter values
+    const searchTerm = document.getElementById('searchOrder') ? document.getElementById('searchOrder').value : '';
+    const status = document.getElementById('orderStatusFilter') ? document.getElementById('orderStatusFilter').value : '';
+
+    // Build URL with query parameters
+    let url = `${window.location.origin}${contextPath}/admin/orders?action=ajaxList`;
+    url += `&search=${encodeURIComponent(searchTerm)}`;
+    url += `&status=${encodeURIComponent(status)}`;
+
+    console.log('Fetching orders from URL:', url);
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const tbody = document.querySelector('#orderTableBody');
+                if (!tbody) {
+                    console.error('Cannot find tbody in #orderTable');
+                    return;
+                }
+                tbody.innerHTML = ''; // Clear current content
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No orders available</td></tr>`;
+                    return;
+                }
+
+                data.forEach(order => {
+                    const orderItems = order.orderItems || [];
+
+                    if (orderItems.length > 0) {
+                        // If order has items, create a row for each item
+                        orderItems.forEach(item => {
+                            // Create status dropdown with appropriate class
+                            const statusDropdown = `
+                            <select class="status-dropdown" name="status_${order.orderId}" onchange="updateOrderStatus('${order.orderId}', this.value)">
+                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''} class="status-pending">Pending</option>
+                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''} class="status-processing">Processing</option>
+                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''} class="status-shipped">Shipped</option>
+                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''} class="status-cancelled">Cancelled</option>
+                            </select>
+                        `;
+
+                            const row = `
+                        <tr>
+                            <td>${order.referralCode || ''}</td>
+                            <td>${item.productName || 'Unknown Product'}</td>
+                            <td>${item.quantity || 0}</td>
+                            <td>${item.unitPrice ? (Number(item.unitPrice) * item.quantity).toLocaleString() + ' VND' : '0 VND'}</td>
+                            <td>${statusDropdown}</td>
+                            <td>${order.shippingAddress || ''}</td>
+                            <td>${order.customerName || ''}</td>
+                            <td>${order.customerPhoneNumber || ''}</td>
+                            <td>
+                                <button class="action-buttons__btn action-buttons__btn--edit" 
+                                    onclick="openEditOrderModal('${order.orderId}')">
+                                    Edit
+                                </button>
+                                <button class="action-buttons__btn action-buttons__btn--delete" 
+                                    onclick="openDeleteOrderModal('${order.orderId}')">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>`;
+
+                            tbody.innerHTML += row;
+                        });
+                    } else {
+                        // If order has no items, create a single row
+                        // Create status dropdown with appropriate class
+                        const statusDropdown = `
+                        <select class="status-dropdown" name="status_${order.orderId}" onchange="updateOrderStatus('${order.orderId}', this.value)">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''} class="status-pending">Pending</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''} class="status-processing">Processing</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''} class="status-shipped">Shipped</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''} class="status-cancelled">Cancelled</option>
+                        </select>
+                    `;
+
+                        const row = `
+                    <tr>
+                        <td>${order.referralCode || ''}</td>
+                        <td>No products</td>
+                        <td>-</td>
+                        <td>${order.totalAmount ? Number(order.totalAmount).toLocaleString() + ' VND' : '0 VND'}</td>
+                        <td>${statusDropdown}</td>
+                        <td>${order.shippingAddress || ''}</td>
+                        <td>${order.customerName || ''}</td>
+                        <td>${order.customerPhoneNumber || ''}</td>
+                        <td>
+                            <button class="action-buttons__btn action-buttons__btn--edit" 
+                                onclick="openEditOrderModal('${order.orderId}')">
+                                Edit
+                            </button>
+                            <button class="action-buttons__btn action-buttons__btn--delete" 
+                                onclick="openDeleteOrderModal('${order.orderId}')">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>`;
+
+                        tbody.innerHTML += row;
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading order list:', error);
+                const tbody = document.querySelector('#orderTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">Error loading orders: ${error.message}</td></tr>`;
+                }
+            });
+}
+
+// Function to update order status
+function updateOrderStatus(orderId, newStatus) {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/orders`;
+
+    const params = new URLSearchParams();
+    params.append('orderId', orderId);
+    params.append('status', newStatus);
+    params.append('formAction', 'updateStatus');
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params
+    })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "updated") {
+                    // Update the UI for this specific row
+                    const statusCell = document.querySelector(`select[name="status_${orderId}"]`);
+                    if (statusCell) {
+                        statusCell.value = newStatus;
+                    }
+
+                    // Create simple text notification in the corner
+                    const notification = document.createElement('div');
+                    notification.textContent = 'Order updated successfully';
+                    notification.style.position = 'fixed';
+                    notification.style.top = '20px';
+                    notification.style.right = '20px';
+                    notification.style.color = 'green';
+                    notification.style.fontWeight = 'bold';
+                    notification.style.zIndex = '1000';
+
+                    document.body.appendChild(notification);
+
+                    // Remove notification after 3 seconds
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        notification.style.transition = 'opacity 0.5s';
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 500);
+                    }, 3000);
+                } else {
+                    console.error('Failed to update order status:', data.message);
+                    alert('Failed to update order status: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating order status:', error);
+                alert('Error updating order status: ' + error.message);
+            });
+}
+
+// Function to open the edit order modal
+function openEditOrderModal(orderId) {
+    // Xây dựng URL đúng format
+    const baseUrl = window.location.origin;
+    const pathArray = window.location.pathname.split('/');
+    const contextPath = pathArray[1] ? '/' + pathArray[1] : '';
+
+    // Ghi log giá trị orderId
+    console.log("Opening edit modal for orderId:", orderId);
+
+    // Đảm bảo đường dẫn URL đầy đủ và chính xác
+    const url = `${baseUrl}${contextPath}/admin/orders?action=getOrder&orderId=${orderId}`;
+    console.log("Requesting order data from URL:", url);
+
+    fetch(url)
+            .then(response => {
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(order => {
+                console.log("Order data received:", order);
+
+                // Fill in the form fields with order data
+                document.getElementById('editOrderId').value = order.orderId || '';
+                document.getElementById('editStatus').value = order.status || 'pending';
+                document.getElementById('editShippingAddress').value = order.shippingAddress || '';
+                document.getElementById('editCustomerName').value = order.customerName || '';
+                document.getElementById('editCustomerPhone').value = order.customerPhoneNumber || '';
+                console.log("Customer phone number set to:", order.customerPhoneNumber);
+                document.getElementById('editReferralCode').value = order.referralCode || '';
+
+                // Hiển thị thông tin sản phẩm
+                if (order.orderItems && order.orderItems.length > 0) {
+                    const firstItem = order.orderItems[0];
+
+                    // Hiển thị tên sản phẩm
+                    document.getElementById('productNameDisplay').value = firstItem.productName || 'Unknown Product';
+
+                    // Set quantity và item ID
+                    document.getElementById('editOrderQuantity').value = firstItem.quantity || 1;
+                    document.getElementById('editOrderQuantity').disabled = false;
+                    document.getElementById('hiddenOrderItemId').value = firstItem.orderItemId || '';
+
+                    // Set unit price for calculations
+                    if (firstItem.unitPrice) {
+                        const unitPriceHidden = document.createElement('input');
+                        unitPriceHidden.type = 'hidden';
+                        unitPriceHidden.id = 'unitPriceHidden';
+                        unitPriceHidden.value = Number(firstItem.unitPrice);
+                        document.getElementById('editOrderForm').appendChild(unitPriceHidden);
+                    }
+                } else {
+                    // If no items, disable the quantity field
+                    document.getElementById('productNameDisplay').value = 'No product available';
+                    document.getElementById('editOrderQuantity').value = '';
+                    document.getElementById('editOrderQuantity').disabled = true;
+                    document.getElementById('hiddenOrderItemId').value = '';
+
+                    // Add hidden unit price field with 0 value
+                    const unitPriceHidden = document.createElement('input');
+                    unitPriceHidden.type = 'hidden';
+                    unitPriceHidden.id = 'unitPriceHidden';
+                    unitPriceHidden.value = '0';
+                    document.getElementById('editOrderForm').appendChild(unitPriceHidden);
+                }
+
+                // Open the modal
+                openModal('editOrderModal');
+            })
+            .catch(error => {
+                console.error('Error fetching order details:', error);
+                alert('Error fetching order details: ' + error.message);
+            });
+}
+
+// Function to submit order edit form
+function submitEditOrder(form) {
+    event.preventDefault();
+    console.log("Submitting edit order form");
+
+    // Validate quantity if present
+    const quantityInput = document.getElementById('editOrderQuantity');
+    if (quantityInput && !quantityInput.disabled) {
+        const quantity = parseInt(quantityInput.value);
+        if (isNaN(quantity) || quantity <= 0) {
+            alert('Please enter a valid quantity (must be greater than 0)');
+            quantityInput.focus();
+            return false;
+        }
+    }
+
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+
+    for (let [key, value] of formData.entries()) {
+        console.log(`Form field: ${key}=${value}`);
+        params.append(key, value);
+    }
+
+    const resultDiv = document.getElementById("resultEditOrder");
+    resultDiv.innerHTML = `<p style="color:blue; font-weight:bold;">Đang xử lý yêu cầu cập nhật...</p>`;
+
+    console.log("Form action URL:", form.action);
+    console.log("Request body:", params.toString());
+
+    fetch(form.action, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params,
+    })
+            .then(res => {
+                console.log("Response status:", res.status);
+                if (!res.ok) {
+                    throw new Error(`Server responded with status: ${res.status}`);
+                }
+                return res.text();
+            })
+            .then(text => {
+                console.log("🔍 Raw response:", text);
+                let data;
+                try {
+                    data = JSON.parse(text);
+                    console.log("Parsed JSON response:", data);
+                } catch (err) {
+                    console.error("Error parsing JSON:", err);
+                    throw new Error("Phản hồi không hợp lệ từ server: " + text);
+                }
+
+                // Kiểm tra cả hai trạng thái có thể có từ server
+                if (data.status === "success" || data.message === "Order updated successfully") {
+                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">${data.message}</p>`;
+
+                    setTimeout(() => {
+                        closeModal("editOrderModal");
+                        loadOrders(); // Reload bảng để đảm bảo hiển thị dữ liệu mới nhất
+                    }, 800);
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Cập nhật thất bại: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi khi cập nhật đơn hàng: ${error.message}</p>`;
+            });
+
+    return false;
+}
+
+// Function to open delete order modal
+function openDeleteOrderModal(orderId) {
+    console.log("orderId = ", orderId); // Log để kiểm tra
+    document.getElementById("deleteOrderId").value = orderId;
+    openModal('deleteOrderModal');
+}
+
+// Function to submit order deletion
+function submitDeleteOrder(form) {
+    event.preventDefault();
+    console.log("Submitting delete order form");
+
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+
+    for (let [key, value] of formData.entries()) {
+        console.log(`Form parameter: ${key}=${value}`);
+        params.append(key, value);
+    }
+
+    const resultDiv = document.getElementById("resultDeleteOrder");
+    resultDiv.innerHTML = `<p style="color:blue; font-weight:bold;">Đang xử lý yêu cầu xóa...</p>`;
+
+    console.log("Form action URL:", form.action);
+    console.log("Request body:", params.toString());
+
+    fetch(form.action, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params,
+    })
+            .then(res => {
+                console.log("Response status:", res.status);
+                if (!res.ok) {
+                    throw new Error(`Server responded with status: ${res.status}`);
+                }
+                return res.text();
+            })
+            .then(text => {
+                console.log("🔍 Raw response:", text);
+                let data;
+                try {
+                    data = JSON.parse(text);
+                    console.log("Parsed JSON response:", data);
+                } catch (err) {
+                    console.error("Error parsing JSON:", err);
+                    throw new Error("Phản hồi không hợp lệ từ server: " + text);
+                }
+
+                if (data.status === "deleted") {
+                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">${data.message}</p>`;
+
+                    // Lấy orderId đã xóa
+                    const deletedOrderId = document.getElementById("deleteOrderId").value;
+
+                    // Tìm và xóa các dòng trong bảng có orderId tương ứng
+                    const tbody = document.querySelector('#orderTableBody');
+                    if (tbody) {
+                        const rows = tbody.querySelectorAll('tr');
+                        rows.forEach(row => {
+                            const editButton = row.querySelector('button.action-buttons__btn--edit');
+                            if (editButton && editButton.getAttribute('onclick').includes(deletedOrderId)) {
+                                row.remove();
+                            }
+                        });
+
+                        // Nếu không còn dòng nào, hiển thị thông báo
+                        if (tbody.querySelectorAll('tr').length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No orders available</td></tr>`;
+                        }
+                    }
+
+                    setTimeout(() => {
+                        closeModal("deleteOrderModal");
+                    }, 800);
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Xóa thất bại: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi khi xóa đơn hàng: ${error.message}</p>`;
+            });
+
+    return false;
+}
+
+// Add loadOrders to the DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function () {
+    // Existing code already includes these
+    // loadAccounts();
+    // reloadProductList();
+    // loadVouchers();
+    // loadStaffData();
+    // reloadTrainerList();
+    // reloadBlogList();
+    // loadCustomers();
+
+    // Add loadOrders
+    loadOrders();
+});
+
+// Xóa hàm trùng lặp
+
+// Đã xóa hàm initOrderSearch vì không cần thiết nữa
+
+// Function to update the total price in the edit form (internal calculations only)
+function updateTotalPrice() {
+    // This function is kept for compatibility with the onchange event
+    // but doesn't need to display anything now
+    const quantity = parseInt(document.getElementById('editOrderQuantity').value) || 0;
+    const unitPriceElement = document.getElementById('unitPriceHidden');
+
+    if (unitPriceElement) {
+        const unitPrice = parseFloat(unitPriceElement.value) || 0;
+        // We can still calculate the total price for internal use if needed
+        const totalPrice = quantity * unitPrice;
+        console.log(`Total price updated: ${totalPrice.toLocaleString()} VND`);
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                    HOANG KHANG       
 //
@@ -1348,9 +1815,17 @@ function openDeleteStaffModal(staffId) {
 //                                              HA PHUONG                                                                                   /////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                                              
 
+
+// Hàm tải danh sách Trainer với các bộ lọc và tìm kiếm
 function reloadTrainerList() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/TrainerServlet?action=json`;
+    const baseUrl = `${window.location.origin}${contextPath}/TrainerServlet?action=json`;
+
+    const searchTerm = document.getElementById("searchTerm").value; // Tìm kiếm theo tên hoặc username
+    const experience = document.getElementById("experienceFilter").value; // Lọc theo kinh nghiệm
+    const rating = document.getElementById("ratingFilter").value; // Lọc theo rating
+
+    const url = `${baseUrl}&searchTerm=${encodeURIComponent(searchTerm)}&experience=${encodeURIComponent(experience)}&rating=${encodeURIComponent(rating)}`;
 
     fetch(url)
             .then(response => {
@@ -1359,19 +1834,27 @@ function reloadTrainerList() {
                 return response.json();
             })
             .then(data => {
+                console.log(data);  // Kiểm tra dữ liệu trả về từ servlet
                 const tbody = document.querySelector('#trainerTable tbody');
-                tbody.innerHTML = '';
+                tbody.innerHTML = ''; // Clear existing data
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">Chưa có huấn luyện viên nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;">Không có huấn luyện viên nào</td></tr>`;
                     return;
                 }
 
+                // Debug: Kiểm tra dữ liệu trainer và price
+                console.log("Received Trainer Data:", data);
+
                 data.forEach((trainer, index) => {
-                    const account = trainer.accountId; // Đây là object Account
+
+                    console.log("Trainer ID: ", trainer.trainerId, "Price: ", trainer.price);
+
+                    const account = trainer.accountId; // Object Account
                     const avatarUrl = account && account.username
                             ? `${window.location.origin}${contextPath}/AvatarServlet?user=${account.username}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
+
                     const formattedPrice = (trainer.price != null && !isNaN(trainer.price))
                             ? trainer.price.toLocaleString('vi-VN') + ' VND'
                             : '0 VND';
@@ -1394,7 +1877,6 @@ function reloadTrainerList() {
                                onclick="openEditTrainerModal(${trainer.trainerId})">Edit</button>
                             <button class="action-buttons__btn action-buttons__btn--delete"
                                 onclick="openDeleteTrainerModal(${trainer.trainerId})">Delete</button>
-
                         </td>
                     </tr>
                 `;
@@ -1403,11 +1885,17 @@ function reloadTrainerList() {
             })
             .catch(error => {
                 console.error('Lỗi khi tải danh sách trainer:', error);
-                fetch(url)
-                        .then(r => r.text())
-                        .then(text => console.warn("Nội dung không phải JSON:", text));
             });
 }
+
+// Gọi hàm loadTrainers khi thay đổi các trường tìm kiếm và lọc
+document.getElementById('searchTerm').addEventListener('input', reloadTrainerList);
+document.getElementById('experienceFilter').addEventListener('change', reloadTrainerList);
+document.getElementById('ratingFilter').addEventListener('change', reloadTrainerList);
+
+// Gọi hàm để load danh sách Trainer khi trang được tải lần đầu
+document.addEventListener('DOMContentLoaded', reloadTrainerList);
+
 
 
 function submitEditTrainerForm(form, resultContainerId) {
@@ -1470,7 +1958,7 @@ function openEditTrainerModal(trainerId) {
                     document.getElementById('editTrainerBio').value = trainer.bio || '';
                     document.getElementById('editTrainerExperience').value = trainer.experienceYears || '';
                     document.getElementById('editTrainerRating').value = trainer.rating || '';
-                    document.getElementById("editTrainerPrice").value = trainer.price || 0;
+                    document.getElementById("editTrainerPrice").value = trainer.price || '0';
                     document.getElementById('editTrainerModal').style.display = 'flex';
                 } else {
                     alert("Không tìm thấy trainer.");
@@ -1626,7 +2114,9 @@ function submitFormAjaxTrainers(form, resultContainerId) {
             });
 
     return false;
+
 }
+
 
 
 //=============================================================================================================================
@@ -1801,24 +2291,32 @@ function reloadBlogList() {
                             : `${contextPath}/avatar/default.png`;
 
                     const escapedTitle = escapeHtml(blog.title);
-                    const escapedContent = escapeHtml(blog.content);
+                    let escapedContent = escapeHtml(blog.content);
+
+                    // Kiểm tra nếu nội dung là null hoặc trống
+                    if (!escapedContent || escapedContent === 'null' || escapedContent === '') {
+                        escapedContent = 'Chưa có nội dung'; // Thông báo khi không có nội dung
+                    }
+
+                    // Giới hạn nội dung chỉ còn 150 ký tự và thêm dấu "..."
+                    const truncatedContent = escapedContent.length > 150 ? escapedContent.substring(0, 150) + "..." : escapedContent;
 
                     const row = `
                     <tr>
                         <td>${index + 1}</td>
-                        <td><img src="${imageUrl}" alt="Blog Image" style="width:60px;height:60px;border-radius:10px;"></td>
+                        <td><img src="${imageUrl}" alt="Blog Image" style="width:90px;height:100px;border-radius:10px;"></td>
                         <td>${escapedTitle}</td>
-                        <td>${escapedContent}</td>
+                        <td>${truncatedContent}</td>
                         <td>${new Date(blog.createdAt).toLocaleString('vi-VN')}</td>
                         <td>${new Date(blog.updatedAt).toLocaleString('vi-VN')}</td>
                         <td>
                             <button class="action-buttons__btn action-buttons__btn--edit"
                                 onclick="openEditBlogModal(${blog.blogId}, \`${escapedTitle}\`, \`${escapedContent}\`, '${imageUrl}')">
-                                Edit
+                                Sửa
                             </button>
                             <button class="action-buttons__btn action-buttons__btn--delete"
                                 onclick="openDeleteBlogModal(${blog.blogId})">
-                                Delete
+                                Xóa
                             </button>
                         </td>
                     </tr>
@@ -1834,6 +2332,8 @@ function reloadBlogList() {
                         .then(text => console.warn("Nội dung không phải JSON:", text));
             });
 }
+
+
 
 // Hàm thoát ký tự đặc biệt để tránh lỗi injection hoặc hỏng layout
 function escapeHtml(text) {
@@ -2006,3 +2506,125 @@ function openAddBlogModal() {
     document.getElementById('resultAddBlog').innerHTML = ''; // clear thông báo cũ
     openModal('addBlogModal');
 }
+
+function loadLoginLogs() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/loginLog`;
+
+    fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.querySelector('#loginLogsTable tbody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Không có log nào</td></tr>`;
+                    return;
+                }
+
+                data.forEach(log => {
+                    const row = `
+                    <tr>
+                        <td>${log.index}</td>
+                        <td>${log.username}</td>
+                        <td>${log.loginTime}</td>
+                        <td>${log.ip}</td>
+                        <td>${log.userAgent}</td>
+                    </tr>
+                `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(err => {
+                console.error("Lỗi khi tải login logs:", err);
+            });
+}
+// Override showTable để ẩn biểu đồ và hiện đúng bảng cần thiết
+
+// Tự động reload login logs mỗi 10 giây nếu bảng đang mở
+setInterval(() => {
+    const table = document.getElementById('loginLogsTable');
+    if (table && table.style.display === 'block') {
+        loadLoginLogs();
+    }
+}, 10000); // 10000ms = 10 giây
+
+
+function loadPackages() {
+    // Lấy context path từ URL hiện tại
+    const pathParts = window.location.pathname.split('/');
+    const contextPath = pathParts.length > 1 ? `/${pathParts[1]}` : '';
+
+    fetch(`${contextPath}/admin/packages`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("HTTP status " + res.status);
+                }
+                return res.json();
+            })
+            .then(data => {
+                const tbody = document.querySelector("#packagesTableData tbody");
+                tbody.innerHTML = "";
+
+                data.forEach((pkg, index) => {
+                    const tr = document.createElement("tr");
+
+                    tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${pkg.name}</td>
+                    <td>${pkg.price.toLocaleString()}₫</td>
+                    <td>${pkg.durationDays}</td>
+                    <td>${pkg.description || ""}</td>
+                    <td>
+                        <button class="table-action-btn" onclick="openEditPackageModal(${pkg.id})">✏️ Edit</button>
+                        <button class="table-action-btn table-action-delete" onclick="openDeletePackageModal(${pkg.id})">🗑️ Delete</button>
+                    </td>
+                `;
+
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(error => {
+                console.error("❌ Failed to load packages:", error);
+                alert("Không thể tải danh sách gói tập!");
+            });
+}
+
+
+function openEditPackageModal(id) {
+    const pathParts = window.location.pathname.split('/');
+    const contextPath = pathParts.length > 1 ? `/${pathParts[1]}` : '';
+
+    fetch(`${contextPath}/admin/packages?id=${id}`)
+            .then(res => {
+                if (!res.ok)
+                    throw new Error("Không tìm thấy package");
+                return res.json();
+            })
+            .then(pkg => {
+                document.getElementById("editPackageId").value = pkg.id;
+                document.getElementById("editPackageName").value = pkg.name;
+                document.getElementById("editPackageDescription").value = pkg.description;
+                document.getElementById("editPackageDuration").value = pkg.durationDays;
+                document.getElementById("editPackagePrice").value = pkg.price;
+                document.getElementById("editPackageStatus").value = pkg.isActive ? "1" : "0";
+
+                // Hiển thị modal
+                document.getElementById("editPackageModal").style.display = "block";
+            })
+            .catch(err => {
+                alert("❌ Không thể tải dữ liệu gói tập.");
+                console.error(err);
+            });
+}
+
+
+function openDeletePackageModal(id) {
+    document.getElementById("deletePackageId").value = id;
+    document.getElementById("resultDeletePackage").innerHTML = "";
+    document.getElementById("deletePackageModal").style.display = "block";
+}
+//function openAddPackageModal() {
+//    document.getElementById("resultAddPackage").innerHTML = "";
+//    document.getElementById("addPackageModal").style.display = "block";
+//}

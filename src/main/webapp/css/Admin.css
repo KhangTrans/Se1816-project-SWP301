@@ -86,6 +86,7 @@ body {
 /* Sidebar Styles - BEM */
 .sidebar {
     width: 280px;
+    height: calc(100vh - 40px); /* Chiều cao sẽ tự động điều chỉnh để phù hợp với màn hình */
     position: fixed;
     left: -16px;
     top: 20px;
@@ -93,9 +94,10 @@ body {
     background-color: #d3d3d3;
     border-radius: 20px;
     padding: 0;
-    overflow: hidden;
+    overflow-y: auto; /* Thêm thuộc tính cuộn dọc */
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
+
 
 .sidebar__header {
     background-color: #d3d3d3;
@@ -140,6 +142,7 @@ body {
     list-style: none;
     padding: 0;
     margin: 0;
+    height: 100%;
 }
 
 .sidebar__nav-item {
@@ -174,7 +177,7 @@ body {
 }
 
 .sidebar__logout {
-    position: absolute;
+/*    position: absolute;*/
     bottom: 0;
     left: 0;
     right: 0;
@@ -188,6 +191,7 @@ body {
     font-weight: 600;
     border-bottom-left-radius: 20px;
     border-bottom-right-radius: 20px;
+    margin-bottom: 0px;
 }
 
 .sidebar__logout:hover {

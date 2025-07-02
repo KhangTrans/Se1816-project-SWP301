@@ -161,10 +161,10 @@ public class BlogsServlet extends HttpServlet {
                 }
 
             } else if ("setPrimaryImage".equals(action)) {
-                    int blogId = Integer.parseInt(request.getParameter("blogId"));
-                    int imageId = Integer.parseInt(request.getParameter("imageId"));
-                    blogDao.setPrimaryImage(blogId, imageId);
-                    response.getWriter().print("primary_set");
+                int blogId = Integer.parseInt(request.getParameter("blogId"));
+                int imageId = Integer.parseInt(request.getParameter("imageId"));
+                blogDao.setPrimaryImage(blogId, imageId);
+                response.getWriter().print("primary_set");
             } else {
                 response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                 response.getWriter().write("Invalid or missing action.");

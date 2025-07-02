@@ -66,6 +66,19 @@
         background-color: green !important;
         color: #fff !important;
     }
+    .favorite-icon {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        color: #ccc;
+        font-size: 20px;
+        cursor: pointer;
+        transition: color 0.3s;
+    }
+
+    .favorite-icon:hover {
+        color: red;
+    }
 
 </style>
 <main>
@@ -97,6 +110,15 @@
                 <span class="visually-hidden">Next</span>
             </button>
         </div>
+        <form action="CartServlet" method="post" style="text-align: center;">
+            <input type="hidden" name="action" value="add">
+            <input type="hidden" name="productId" value="${product.productId}">
+            <input type="hidden" name="quantity" value="1">
+
+            <button type="submit" style="background: none; border: none;">
+                <i class="fas fa-cart-plus" style="font-size: 24px; color: white;"></i>
+            </button>
+        </form>
         <%-- Voucher--%>
         <%
             List<Model.Voucher> voucherList = (List<Model.Voucher>) request.getAttribute("voucherList");
@@ -187,33 +209,18 @@
                 <p><strong><%= p.getName()%></strong></p>
                 <p><%= String.format("%,.0f", p.getPrice())%>đ</p>
                 <div class="product-actions" style="margin-top:10px; display: flex; margin-left: 13px">
-                    <!-- Thêm vào Yêu thích -->
-                    <button 
-                        class="btn btn-fav"
-                        type="button"
-                        onclick="addToFavorite('<%= p.getProductId()%>')">
-                        <i class="fa fa-heart"></i> Yêu thích
-                    </button>
                     <!-- Thêm vào Giỏ hàng -->
-                    <button 
-                        class="btn btn-cart"
-                        type="button"
-                        onclick="addToCart('<%= p.getProductId()%>')">
-                        <i class="fa fa-shopping-cart"></i> Giỏ hàng
+                    <button onclick="addToCart(<%= p.getProductId()%>)" class="btn btn-cart-icon">
+                        <i class="fa fa-shopping-cart" style="font-size: 24px; color: white;"></i>
                     </button>
                     <!-- Nút Mua Ngay -->
                     <button 
-                        class="btn btn-buy"
-                        type="button"
-                        onclick="buyNow('<%= p.getProductId()%>')">
-                        <i class="fa fa-bolt"></i> Mua ngay
+                        class="cart-icon-btn"
+                        onclick="window.location.href = '<%= request.getContextPath()%>/ProductDetail?productId=<%= p.getProductId()%>'"
+                        title="Mua ngay">
+                        <i class="fa fa-bolt"> Buy Now</i>
                     </button>
-                    <!-- Nút Xem chi tiết -->
-                    <a 
-                        class="btn btn-detail"
-                        href="<%= request.getContextPath()%>/ProductDetail?productId=<%= p.getProductId()%>">
-                        <i class="fa fa-info-circle"></i> Xem chi tiết
-                    </a>
+
                 </div>
             </div>
             <% } %>
@@ -240,7 +247,7 @@
 
     </div>
 </main>
-<script>
+<!--<script>
     // Thêm vào danh sách yêu thích (favorite)
     function addToFavorite(productId) {
         // Ví dụ: gọi AJAX, hoặc chỉ thông báo
@@ -257,7 +264,7 @@
         // TODO: Gọi AJAX tới /cart/add nếu có
         // fetch('/cart/add?productId=' + productId, {method: 'POST'}).then...
     }
-</script>
+</script>-->
 
 <script>
     function claimVoucher(voucherId, button) {
@@ -287,5 +294,5 @@
 
 </script>
 
-
+<script src="<%= request.getContextPath()%>/js/cart.js"></script>
 <%@include file="/WEB-INF/include/footer.jsp" %>

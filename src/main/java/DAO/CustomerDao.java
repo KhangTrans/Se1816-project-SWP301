@@ -2,9 +2,9 @@ package DAO;
 
 import Model.Account;
 import Model.Customer;
+import Model.Package;
 import Model.CustomerMembership;
 import Model.MembershipPackage;
-import Model.Package;
 import db.DBcontext;
 import java.sql.*;
 import java.util.ArrayList;
@@ -258,8 +258,7 @@ public class CustomerDao extends DBcontext {
         }
         return null;
     }
-
-    public boolean addMembership(CustomerMembership membership) {
+public boolean addMembership(CustomerMembership membership) {
         String sql = "INSERT INTO customer_memberships (account_id, package_id, start_date, end_date, payment_status) VALUES (?, ?, ?, ?, ?)";
         try (
                  Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -389,5 +388,4 @@ public class CustomerDao extends DBcontext {
         }
         return false;
     }
-
 }
