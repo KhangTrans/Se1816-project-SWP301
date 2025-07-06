@@ -3,8 +3,15 @@
 <%
     Model.Package pkg = (Model.Package) request.getAttribute("pkg");
 %>
+<%
+    String err = (String) request.getAttribute("error");
+    out.println("DEBUG error: " + err + "<br>");
+    out.println("DEBUG pkg: " + (pkg != null ? pkg.getName() : "NULL") + "<br>");
+%>
+
 <!DOCTYPE html>
 <html>
+
     <head>
         <meta charset="UTF-8">
         <title>Chi tiết gói tập</title>
@@ -86,7 +93,7 @@
         </style>
     </head>
     <body>
-        <div class="membership-card">
+        <div class="membership-card">   
             <div class="membership-card__title"><%= pkg.getName()%></div>
             <div class="membership-card__price">
                 <%= pkg.getPrice()%><span class="membership-card__unit">₫ / Month</span>
@@ -101,10 +108,16 @@
                 <span class="label" style="margin-left: 32px;">Trạng thái:</span>
                 <span class="value"><%= pkg.isIsActive() ? "Đang áp dụng" : "Ngừng áp dụng"%></span>
             </div>
-            <form action="payment" method="get" style="width: 100%; text-align: center;">
+
+            <form action="payment" method="get">
                 <input type="hidden" name="cardId" value="<%= pkg.getId()%>">
-                <button type="submit" class="btn btn-success" style="padding: 10px 25px; font-size: 1rem;">Book ngay</button>
+                <button type="submit">Book ngay</button>
             </form>
+            <% if (request.getAttribute("membershipError") != null) {%>
+            <div style="color:red"><%= request.getAttribute("membershipError")%></div>
+            <% }%>
+            <div id="membership-error-msg" style="color:red; margin-top:10px"></div>
+            <script src="js/membership.js"></script>
 
             <a class="back-link" href="<%= request.getContextPath()%>/homepage">&lt; Back to homepage</a>
         </div>

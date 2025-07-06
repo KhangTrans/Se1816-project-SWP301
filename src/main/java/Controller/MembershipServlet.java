@@ -53,10 +53,11 @@ public class MembershipServlet extends HttpServlet {
         request.setAttribute("membership_packages", packages);
 
         // Forward về block JSP
-        request.getRequestDispatcher("/WEB-INF/include/membershipCard.jsp")
+        request.getRequestDispatcher("/WEB-INF/include/membershipInfo.jsp")
                 .forward(request, response);
     }
 
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("application/json");

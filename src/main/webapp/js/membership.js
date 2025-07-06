@@ -38,7 +38,7 @@ function showMembershipMessage(success, message) {
     }
 }
 
-function showCancelConfirm(id) {
+function showCancelConfirm() {
     // Ẩn nút hủy, hiện confirm
     document.querySelector('.membership-btn-cancel').style.display = "none";
     document.getElementById('cancel-confirm-box').style.display = "inline-block";

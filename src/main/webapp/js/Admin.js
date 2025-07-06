@@ -1524,7 +1524,14 @@ function updateTotalPrice() {
 
 function loadStaffData() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/admin/staffs?action=ajaxList`;
+    const staffSearchUrl = `${window.location.origin}${contextPath}/admin/staffs?action=ajaxList`;
+
+    const searchStaff = document.getElementById("searchStaff").value; // Tìm kiếm theo tên hoặc username
+    const searchPhone = document.getElementById("searchPhone").value; // Lọc theo sdt
+    const staffFilter = document.getElementById("staffFilter").value;
+
+
+    const url = `${staffSearchUrl}&searchStaff=${encodeURIComponent(searchStaff)}&searchPhone=${encodeURIComponent(searchPhone)}&staffFilter=${encodeURIComponent(staffFilter)}`;
 
     fetch(url)
             .then(response => {
@@ -1583,6 +1590,13 @@ function loadStaffData() {
                         .then(text => console.warn("Nội dung server trả về không phải JSON:", text));
             });
 }
+
+// Gọi hàm loadStaffData khi thay đổi các trường tìm kiếm và lọc
+document.getElementById('searchStaff').addEventListener('input', loadStaffData);
+document.getElementById('searchPhone').addEventListener('input', loadStaffData);
+document.getElementById('staffFilter').addEventListener('change', loadStaffData);
+
+
 
 document.addEventListener("DOMContentLoaded", function () {
     // Khi modal được mở
@@ -1670,15 +1684,13 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function openEditStaffModal(staffId, accountId, username, fullName, email, phone, position, status) {
-
-
     document.getElementById('editStaffId').value = staffId;
     document.getElementById('editStaffAccountId').value = accountId;
     document.getElementById('editFullName').value = fullName;
+    document.getElementById('editEmail').value = email; 
     document.getElementById('editPhone').value = phone;
     document.getElementById('editPosition').value = position;
-    document.getElementById('editStatus').value = status;
-
+    document.getElementById('editStaffStatus').value = status;
     document.querySelector('input[name="action"]').value = 'edit';
 
     const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${username}&t=${Date.now()}`;
@@ -1692,85 +1704,6 @@ function openEditStaffModal(staffId, accountId, username, fullName, email, phone
     document.getElementById('editStaffModal').style.display = 'flex';
 }
 
-//
-//function submitFormForStaff(form, resultContainerId, event) {
-//    // Ngừng hành động mặc định của form (ngăn gửi form theo cách thông thường)
-//    if (event) {
-//        event.preventDefault();
-//    }
-//
-//    // Lấy giá trị action từ thuộc tính của form
-//    const action = form.getAttribute('action');
-//    console.log("Form action:", action);
-//
-//    if (!action) {
-//        console.error("❌ Form không có thuộc tính 'action'");
-//        const resultDiv = document.getElementById(resultContainerId);
-//        if (resultDiv) {
-//            resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: Form không có action!</p>`;
-//        }
-//        return false;
-//    }
-//
-//    // Lấy dữ liệu từ form (bao gồm cả file avatar nếu có)
-//    const formData = new FormData(form);
-//    console.log("✅ Dữ liệu gửi đi:");
-//    for (let [key, val] of formData.entries()) {
-//        console.log(`${key}: ${val}`);
-//    }
-//
-//    // Vô hiệu hóa các input trong form khi đang gửi
-//    form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
-//
-//    // Gửi dữ liệu form qua fetch
-//    fetch(action, {
-//        method: 'POST', // Phương thức gửi form
-//        body: formData, // Dữ liệu form
-//    })
-//            .then(response => {
-//                // Kích hoạt lại các input sau khi gửi xong
-//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
-//
-//                // Kiểm tra xem response có thành công không
-//                if (!response.ok) {
-//                    throw new Error(`HTTP error! Status: ${response.status}`);
-//                }
-//                return response.text();
-//            })
-//            .then(data => {
-//                // Hiển thị kết quả thành công
-//                const resultDiv = document.getElementById(resultContainerId);
-//                if (resultDiv) {
-//                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Thành công!</p>`;
-//                }
-//
-//                // Đóng modal sau khi thành công
-//                const modal = form.closest('.modal');
-//                if (modal) {
-//                    setTimeout(() => closeModal(modal.id), 800);
-//                }
-//
-//                // Sau khi gửi thành công, làm mới danh sách nhân viên
-//                setTimeout(() => {
-//                    if (typeof loadStaffData === 'function') {
-//                        loadStaffData();  // Hàm này tải lại dữ liệu nhân viên
-//                    }
-//                }, 500);
-//            })
-//            .catch(error => {
-//                // Kích hoạt lại các input nếu có lỗi
-//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
-//
-//                // Hiển thị thông báo lỗi nếu có
-//                console.error('Lỗi khi gửi form:', error);
-//                const resultDiv = document.getElementById(resultContainerId);
-//                if (resultDiv) {
-//                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
-//                }
-//            });
-//
-//    return false;
-//}
 
 function openDeleteStaffModal(staffId) {
     document.getElementById('deleteStaffId').value = staffId;

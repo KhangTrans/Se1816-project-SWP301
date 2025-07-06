@@ -7,7 +7,7 @@
         <h2>Create New Staff</h2>
 
         <form id="createStaffForm" action="staffs?action=create" method="post"
-               onsubmit="return submitFormAjax(this, 'resultAddProduct')">
+               onsubmit="return submitFormAjax(this)">
             <label for="accountId">Choose Account (with role 'staff'):</label>
             <select name="accountId" required>
                 <option value="">-- Select Staff Account --</option>

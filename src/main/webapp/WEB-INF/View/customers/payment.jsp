@@ -8,6 +8,9 @@
 <%@ page import="Model.Package" %>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
 <%
+    Boolean renewMode = (Boolean) request.getAttribute("renewMode");
+%>
+<%
     Package pkg = (Package) request.getAttribute("pkg");
     // Lấy username từ session
     String username = null;
@@ -19,20 +22,6 @@
     String success = (String) request.getAttribute("success");
 %>
 
-<%
-    // DEBUG: In toàn bộ session attribute ra console và ra trang web (cho dễ nhìn)
-    java.util.Enumeration names = session.getAttributeNames();
-    System.out.println("--- SESSION ATTRIBUTES ---");
-    while (names.hasMoreElements()) {
-        String name = (String) names.nextElement();
-        Object value = session.getAttribute(name);
-        System.out.println("SESSION " + name + ": " + value);
-        out.println("<div style='color:darkred;font-size:14px'>SESSION " + name + ": " + value + "</div>");
-    }
-    Object act = request.getAttribute("activeMembership");
-    out.println("<div style='color:blue'>activeMembership: " + act + "</div>");
-    System.out.println("-------------------------");
-%>
 <!DOCTYPE html>
 <html>
     <head>
@@ -144,6 +133,10 @@
                 <% if (success == null && pkg != null) {%>
                 <form action="payment" method="post">
                     <input type="hidden" name="cardId" value="<%= pkg.getId()%>">
+                    <% if (Boolean.TRUE.equals(renewMode)) { %>
+                    <input type="hidden" name="renewMode" value="1">
+                    <% }%>
+                    <input type="hidden" name="cardId" value="<%= pkg.getId()%>">
                     <div class="method">
                         <input type="radio" name="paymentMethod" id="offline" value="offline" checked>
                         <label for="offline">Đóng tiền tại cơ sở (thanh toán trực tiếp)</label>
@@ -174,9 +167,16 @@
                         <input type="radio" name="applyOption" id="applyLater" value="applyLater">
                         <label for="applyLater">Áp dụng khi hết hạn gói cũ (gói mới bắt đầu sau ngày hết hạn)</label>
                     </div>
-                    <% } %>
+                    <% }%>
 
-                    <button class="pay-btn" type="submit">Xác nhận thanh toán</button>
+                    <!-- Gửi POST tới /payment -->
+                    <form action="payment" method="post">
+                        <input type="hidden" name="cardId" value="<%= pkg.getId()%>">
+                        <button type="submit">Xác nhận thanh toán</button>
+                    </form>
+                    <% if (request.getAttribute("error") != null) {%>
+                    <div style="color:red"><%= request.getAttribute("error")%></div>
+                    <% } %>
                 </form>
                 <% } %>
             </div>
@@ -187,4 +187,10 @@
         </div>
         <% }%>
     </body>
+    <% if (request.getAttribute("success") != null) {%>
+    <div class="success-box"><%= request.getAttribute("success")%></div>
+    <meta http-equiv="refresh" content="2;url=homepage">
+    <% } else if (request.getAttribute("error") != null) {%>
+    <div class="warning"><%= request.getAttribute("error")%></div>
+    <% }%>
 </html>
