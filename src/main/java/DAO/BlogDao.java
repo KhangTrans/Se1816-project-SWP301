@@ -29,6 +29,18 @@ import org.checkerframework.checker.units.qual.A;
  */
 public class BlogDao extends DBcontext {
 
+    public int countBlogs() {
+        String sql = "SELECT COUNT(*) FROM blogs";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public List<Blog> getAllBlogs() throws SQLException {
         List<Blog> list = new ArrayList<>();
         String sql = "SELECT b.*, i.image_id AS imageId "
@@ -204,6 +216,7 @@ public class BlogDao extends DBcontext {
             ps.executeUpdate();
         }
     }
+
     public void deleteBlog(int blogId) throws SQLException {
         String sql = "delete from blogs where blog_id = ?";
         try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -211,7 +224,7 @@ public class BlogDao extends DBcontext {
             ps.executeUpdate();
         }
     }
-    
+
     public void deleteImageById(int imageId) throws SQLException {
         String sql = "DELETE FROM blog_images WHERE image_id = ?";
         try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -219,11 +232,82 @@ public class BlogDao extends DBcontext {
             ps.executeUpdate();
         }
     }
-    
-    public static void main(String[] args) throws SQLException {
-        BlogDao dao = new BlogDao();
-        
-        System.out.println(dao.getBlogByID(6));
+
+    public List<Blog> getAllBlogsPage() throws SQLException {
+        List<Blog> list = new ArrayList<>();
+        String sql = "SELECT b.*, i.image_id, i.image_url, i.is_primary "
+                + "FROM blogs b "
+                + "LEFT JOIN blog_images i ON b.blog_id = i.blog_id "
+                + "ORDER BY b.created_at DESC";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ResultSet rs = ps.executeQuery();
+            Blog currentBlog = null;
+
+            while (rs.next()) {
+                int blogId = rs.getInt("blog_id");
+
+                // Kiểm tra nếu blog mới, tạo mới đối tượng Blog
+                if (currentBlog == null || currentBlog.getBlogId() != blogId) {
+                    // Nếu có blog trước đó, thêm vào danh sách
+                    if (currentBlog != null) {
+                        list.add(currentBlog);
+                    }
+
+                    // Tạo mới blog
+                    currentBlog = new Blog();
+                    currentBlog.setBlogId(blogId);
+                    currentBlog.setTitle(rs.getString("title"));
+                    currentBlog.setContent(rs.getString("content"));
+                    currentBlog.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                    currentBlog.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+                    currentBlog.setAuthor(new Staff()); // Giả sử bạn có Staff đã được thiết lập
+                    currentBlog.setPublished(rs.getBoolean("is_published"));
+
+                    // Khởi tạo danh sách hình ảnh cho blog
+                    currentBlog.setImages(new ArrayList<BlogImage>());
+                }
+
+                // Nếu blog đã được khởi tạo, tiếp tục xử lý hình ảnh
+                if (currentBlog != null) {
+                    BlogImage image = new BlogImage();
+                    image.setImageId(rs.getInt("image_id"));
+                    image.setImageUrl(rs.getBytes("image_url")); // Dữ liệu ảnh dạng byte[]
+                    image.setIs_primary(rs.getBoolean("is_primary"));
+                    currentBlog.getImages().add(image);  // Thêm hình ảnh vào danh sách hình ảnh của blog
+                }
+            }
+
+            // Thêm blog cuối cùng vào danh sách sau khi kết thúc vòng lặp
+            if (currentBlog != null) {
+                currentBlog.setImages(getBlogImages(currentBlog.getBlogId()));
+                list.add(currentBlog);
+            }
+        }
+        return list;
     }
 
+    // Lấy tất cả các hình ảnh của bài blog
+    private List<BlogImage> getBlogImages(int blogId) {
+        List<BlogImage> images = new ArrayList<>();
+
+        String query = "SELECT * FROM blog_images WHERE blog_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, blogId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int imageId = rs.getInt("image_id");
+                byte[] imageUrl = rs.getBytes("image_url");
+                boolean isPrimary = rs.getBoolean("is_primary");
+
+                BlogImage image = new BlogImage(imageId, null, imageUrl, rs.getTimestamp("uploaded_at").toLocalDateTime(), isPrimary);
+                images.add(image);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return images;
+    }
 }

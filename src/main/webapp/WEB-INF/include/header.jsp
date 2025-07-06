@@ -9,14 +9,24 @@
         avatar = (String) session.getAttribute("avatar");
     }
 %>
-<!DOCTYPE html>
-
 <!-- Header -->
+<style>
+    .cart-count-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        background-color: red;
+        color: white;
+        font-size: 12px;
+        padding: 0px 2px;
+        border-radius: 50%;
+    }
+</style>
 <header>
     <nav class="navbar navbar-expand-lg fixed-top custom-header"
          style="background-color: rgba(217, 255, 104, 0.6);">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#" style="color: #111">GYM VIETNAM</a>
+            <a class="navbar-brand" href="<%= request.getContextPath()%>/homepage" style="color: #111">GYM VIETNAM</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                     aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
@@ -27,7 +37,23 @@
                     <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath()%>/shopAll">Product</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">About</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath()%>/blogPage">Blogs</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="<%= request.getContextPath()%>/CartServlet?action=view">
+                            <i class="fa-solid fa-cart-shopping"></i>     
+                            <%
 
+                                Object cartCountObj = session.getAttribute("cartCount");
+                                int cartCount = cartCountObj != null ? (int) cartCountObj : 0;
+                            %>
+
+                            <% if (cartCount > 0) {%>
+                            <span class="cart-count-badge">
+                                <%= cartCount > 99 ? "99+" : cartCount%>
+                            </span>
+                            <% } %>                            
+                        </a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center"
                            href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -50,9 +76,14 @@
                         </a>
 
                         <ul class="dropdown-menu dropdown-menu-end bg-transparent border-0 mt-3">
-                            <% if (username != null) { %>
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
-                            <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Logout</a></li>
+                            <% if (username != null) {%>
+                            <li><a class="btn w-100 mb-2" href="${pageContext.request.contextPath}/profile">Profile</a></li>
+                            <li class="btn w-100 mb-2"><a style="text-decoration: none; color: #333" href="<%= request.getContextPath()%>/FavoriteListServlet?page=1">
+                                    <i class="fa fa-heart"></i>
+                                    <span>Favorite List</span></a>
+                            </li>
+                            <li><a class="btn w-100 mb-2" href="${pageContext.request.contextPath}/historyorder">History Order</a></li>
+                            <li><a class="btn w-100" href="${pageContext.request.contextPath}/logout">Logout</a></li>
                                 <% } else { %>
                             <li>
                                 <button type="button"

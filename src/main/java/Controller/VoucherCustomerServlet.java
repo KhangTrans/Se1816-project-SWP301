@@ -32,7 +32,8 @@ public class VoucherCustomerServlet extends HttpServlet {
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {}
+            throws ServletException, IOException {
+    }
 
     /**
      * Handles the HTTP <code>POST</code> method.
@@ -52,16 +53,23 @@ public class VoucherCustomerServlet extends HttpServlet {
             int voucherId = Integer.parseInt(request.getParameter("voucherId"));
 
             // Lấy ID khách hàng từ session (đảm bảo bạn đã lưu khi đăng nhập)
-            HttpSession session = request.getSession();
-            Integer customerId = (Integer) session.getAttribute("customerId");
+            //HttpSession session = request.getSession();
+            HttpSession session = request.getSession(false);
+            if (session == null) {
+                out.print("{\"status\":\"fail\", \"message\":\"Session null!\"}");
+                return;
+            }
+            Integer accountId = (Integer) session.getAttribute("accountId"); // ✅ đúng với DB
 
-            if (customerId == null) {
+            System.out.println("VoucherCustomerServlet >> accountId from session: " + accountId);
+
+            if (accountId == null) {
                 out.print("{\"status\":\"fail\", \"message\":\"Bạn cần đăng nhập để thu thập voucher.\"}");
                 return;
             }
 
             VoucherDao dao = new VoucherDao();
-            boolean claimed = dao.claimVoucher(voucherId, customerId);
+            boolean claimed = dao.claimVoucher(voucherId, accountId);
 
             if (claimed) {
                 out.print("{\"status\":\"success\", \"message\":\"Thu thập thành công!\"}");

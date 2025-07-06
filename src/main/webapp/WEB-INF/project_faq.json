@@ -216,13 +216,34 @@
         "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
     },
     {
-        "question": "Tôi muốn nhận hóa đơn VAT?",
-        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
-    },
-    {
         "question": "Làm sao để đặt lịch với huấn luyện viên?",
         "answer": "Bạn có thể đặt lịch qua ứng dụng hoặc tại quầy."
     },
+    {
+        "question": "Làm sao để lấy lại mật khẩu nếu quên?",
+        "answer": "Đầu tiên, bấm vào icon 'Sign In'. Sau đó, chọn 'Forgot Password'. Tiếp theo, điền đúng email mà bạn đã đăng ký và bấm vào 'Confirm Email'."
+    },
+    {
+        "question": "Quên mật khẩu thì làm sao để reset lại mật khẩu?",
+        "answer": "Bước đầu tiên là bấm vào icon 'Sign In', sau đó chọn 'Forgot Password'. Sau khi điền đúng email đã đăng ký, bấm vào 'Confirm Email'. Bạn sẽ nhận được mã OTP qua email, nhập mã OTP vào và xác nhận."
+    },
+    {
+        "question": "Làm sao để nhận mã OTP qua email khi quên mật khẩu?",
+        "answer": "Sau khi nhập email của bạn trong phần 'Forgot Password' và bấm 'Confirm Email', bạn sẽ nhận được mã OTP gửi về email. Nhập mã OTP vào ô yêu cầu để tiếp tục."
+    },
+    {
+        "question": "Tôi không nhận được mã OTP qua email, phải làm sao?",
+        "answer": "Nếu không nhận được mã OTP, hãy kiểm tra lại email đã đăng ký và thử lại. Nếu vẫn không nhận được mã, bạn có thể thử gửi lại mã hoặc kiểm tra trong mục thư rác của email."
+    },
+    {
+        "question": "Sau khi nhận mã OTP, tôi phải làm gì để thay đổi mật khẩu?",
+        "answer": "Sau khi nhận được mã OTP qua email, hãy nhập mã vào ô yêu cầu. Tiếp theo, bạn sẽ được yêu cầu nhập mật khẩu mới. Sau khi nhập mật khẩu mới, bấm 'Submit' để hoàn tất."
+    },
+    {
+        "question": "Làm sao để thay đổi mật khẩu khi quên mật khẩu?",
+        "answer": "Để thay đổi mật khẩu, bạn cần thực hiện các bước sau: 1. Bấm vào icon 'Sign In' và chọn 'Forgot Password'. 2. Nhập đúng email của bạn và bấm 'Confirm Email'. 3. Kiểm tra email nhận mã OTP, nhập mã vào ô yêu cầu. 4. Nhập mật khẩu mới và xác nhận."
+    },
+
     {
         "question": "Nên tập bao nhiêu buổi mỗi tuần?",
         "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
@@ -354,10 +375,6 @@
     {
         "question": "Phòng tập mở cửa lúc mấy giờ?",
         "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
-    },
-    {
-        "question": "Làm sao để gửi phản hồi?",
-        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
     },
     {
         "question": "Có gói tập riêng với HLV không?",

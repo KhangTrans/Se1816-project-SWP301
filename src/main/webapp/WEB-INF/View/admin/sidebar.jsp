@@ -21,28 +21,81 @@
     <%}%>
     <ul class="sidebar__nav">
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('accountTable')">Accounts</a>
+            <a class="sidebar__nav-link sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('accountTable')"> 
+                <i class="fas fa-user-circle"></i>
+                Accounts
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffsTable')">Staff</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffsTable')">
+                <i class="fas fa-briefcase"></i> 
+                Staff
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('productsTable')">Products</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('trainersTable')">
+                <i class="fas fa-user-tie"></i>
+                Trainers
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('vouchersTable')">Vouchers</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('customersTable')"> 
+                <i class="fas fa-users"></i>
+                Members
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('trainersTable')">Trainers</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('productsTable')">
+                <i class="fas fa-dumbbell"></i>
+                Products
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('customersTable')">Members</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('vouchersTable')">
+                <i class="fas fa-ticket-alt"></i>
+                Vouchers
+            </a>
+        </li>
+
+
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('blogTable')">
+                <i class="fas fa-blog"></i>
+                Blogs
+            </a>
         </li>
         <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('blogTable')">Blogs</a>
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('loginLogsTable')">
+                <i class="fas fa-history"></i>
+                Login Logs
+            </a>
         </li>
-    </ul>
-    <form method="post" action="LogoutServlet">
-        <button type="submit" class="sidebar__logout">LOGOUT</button>
-    </form>
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('ordersTable')">
+                <i class="fas fa-ticket-alt"></i>
+                Orders
+            </a>
+        </li>
+
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('packagesTable')">
+                <i class="fas fa-eye"></i>
+                View Packages
+            </a>
+        </li>
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('memberPackagesTable')">
+                <i class="fas fa-user-check"></i>
+                Member Packages
+            </a>
+        </li>
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="${pageContext.request.contextPath}/adminlogout">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
+            </form>
+        </li>
+
+
 </nav>

@@ -91,4 +91,47 @@ public class AccountDao extends DBcontext {
         return accounts;
     }
 
+    public int countAccounts() {
+        String sql = "SELECT COUNT(*) FROM accounts";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+    // Phương thức lấy tài khoản theo accountId
+
+    public Account getAccountById(int accountId) {
+        Account account = null;
+        String sql = "SELECT * FROM accounts WHERE account_id = ?"; // Câu truy vấn lấy thông tin tài khoản
+
+        try ( Connection con = getConnection(); // Giả sử bạn có một lớp để kết nối CSDL
+                  PreparedStatement pst = con.prepareStatement(sql)) {
+
+            // Gán tham số vào câu truy vấn
+            pst.setInt(1, accountId);
+
+            // Thực hiện câu truy vấn và lấy kết quả
+            ResultSet rs = pst.executeQuery();
+
+            // Kiểm tra nếu có tài khoản
+            if (rs.next()) {
+                // Tạo đối tượng tài khoản và gán thông tin từ CSDL
+                account = new Account();
+                account.setAccountId(rs.getInt("account_id"));
+                account.setUsername(rs.getString("username"));
+                account.setPassword(rs.getString("password"));
+                account.setRole(rs.getString("role"));
+                // Gán các thuộc tính khác nếu cần
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return account;
+    }
 }

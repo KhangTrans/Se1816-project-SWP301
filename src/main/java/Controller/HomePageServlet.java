@@ -41,7 +41,7 @@ public class HomePageServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         PackageDao dao = new PackageDao();
-        List<Package> packages = dao.getAllPackages();
+        List<Package> packages = dao.getTopThreePackages();
         request.setAttribute("membership_packages", packages);
         
         trainerDao = new TrainerDao(); // 💥 thêm dòng này để khởi tạo đối tượng

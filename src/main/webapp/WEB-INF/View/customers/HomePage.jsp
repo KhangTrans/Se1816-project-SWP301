@@ -61,8 +61,10 @@
 
             <div class="bottom-section">
                 <div class="action">
-                    <button class="button button--action">Let's
-                        Start ? ? ?</button>
+                    <button class="button button--action" onclick="window.location.href = '${pageContext.request.contextPath}/AllPackages'">
+                        Let's Start ?
+                    </button>
+
                 </div>
             </div>
             <section class="brand-logos">

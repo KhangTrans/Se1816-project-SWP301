@@ -19,8 +19,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import org.json.JSONArray;
@@ -31,6 +33,7 @@ import org.json.JSONObject;
  * @author Admin
  */
 public class ChatServlet extends HttpServlet {
+
     private static String OPENAI_API_KEY;
     private static final String MODEL = "gpt-3.5-turbo";
     private List<FAQ> faqList;
@@ -48,6 +51,7 @@ public class ChatServlet extends HttpServlet {
             prop.load(input);
             OPENAI_API_KEY = prop.getProperty("openai.api.key");
             System.out.println("API Key loaded from config.properties");
+            System.out.println("API Key: " + OPENAI_API_KEY);
         } catch (Exception e) {
             System.err.println("Không thể đọc API Key từ config.properties");
             e.printStackTrace();
@@ -85,15 +89,21 @@ public class ChatServlet extends HttpServlet {
         JSONObject jsonResponse = new JSONObject();
         try {
             String userInput = request.getParameter("prompt");
+
+            // Tìm kiếm câu trả lời trong FAQ trước
             FAQ bestMatch = findBestMatch(userInput);
 
             String result;
             if (bestMatch != null) {
-                String reformulatePrompt = "Viết lại câu hỏi sau sao cho tự nhiên hơn: " + bestMatch.question;
-                String rewrittenQuestion = callChatGPT(reformulatePrompt);
+                // Nếu tìm thấy câu hỏi trong FAQ, trả lời từ FAQ
                 result = bestMatch.answer;
             } else {
-                result = callChatGPT(userInput);
+                // Nếu không tìm thấy, kiểm tra câu hỏi liên quan đến gym/fitness
+                if (isFitnessQuestion(userInput)) {
+                    result = callChatGPT(userInput);  // Gọi OpenAI để trả lời câu hỏi liên quan đến gym/fitness
+                } else {
+                    result = "❌ Câu hỏi không liên quan đến gym hoặc fitness."; // Nếu không liên quan đến gym/fitness
+                }
             }
 
             jsonResponse.put("reply", result);
@@ -105,13 +115,38 @@ public class ChatServlet extends HttpServlet {
         response.getWriter().print(jsonResponse.toString());
     }
 
+    private boolean isFitnessQuestion(String input) {
+        // Danh sách từ khóa liên quan đến gym, fitness, và huấn luyện viên
+        String[] fitnessKeywords = {
+            "gym", "fitness", "exercise", "workout", "strength", "training", "muscle", "cardio",
+            "weight loss", "health", "bodybuilding", "fitness routine", "diet", "nutrition", "stretching",
+            "huấn luyện viên", "trainer", "lịch tập", "đặt lịch", "gói tập", "phòng gym",
+            "tập thể dục", "thể hình", "tập luyện", "tập cardio", "tập sức bền", "tập cơ bắp", "tăng cơ",
+            "giảm cân", "hỗ trợ dinh dưỡng", "tư vấn dinh dưỡng", "khóa học thể hình", "chế độ ăn", "tập bụng",
+            "tập chân", "tập tay", "tập lưng", "tập ngực", "tập vai", "tập mông", "tập toàn thân", "sức khỏe",
+            "tập thể thao", "đường cong cơ thể", "tăng cường sức khỏe", "hướng dẫn tập luyện", "gói tập PT", "tập gym",
+            "phòng tập", "thẻ thành viên", "lịch tập", "gói tập 1:1", "huấn luyện viên cá nhân", "chế độ ăn kiêng",
+            "phục hồi thể thao", "tập thể dục giảm cân", "các bài tập thể hình", "bài tập gym tại nhà", "hệ thống gym",
+            "tập thể dục tại nhà", "gói tập thể dục", "tập luyện giảm cân", "hệ thống phòng gym", "gym có tư vấn",
+            "giảm mỡ bụng", "kế hoạch tập luyện", "phương pháp tập luyện", "cung cấp dinh dưỡng"
+        };
+
+        // Kiểm tra nếu câu hỏi chứa bất kỳ từ khóa nào
+        for (String keyword : fitnessKeywords) {
+            if (input.toLowerCase().contains(keyword)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private FAQ findBestMatch(String input) {
         input = input.toLowerCase();
         double bestScore = 0.0;
         FAQ best = null;
         for (FAQ faq : faqList) {
             double score = similarity(input, faq.question.toLowerCase());
-            if (score > 0.7 && score > bestScore) {
+            if (score > 0.3 && score > bestScore) {
                 bestScore = score;
                 best = faq;
             }
@@ -119,12 +154,42 @@ public class ChatServlet extends HttpServlet {
         return best;
     }
 
+    private double cosineSimilarity(String s1, String s2) {
+        Map<String, Integer> termFrequency1 = getTermFrequency(s1);
+        Map<String, Integer> termFrequency2 = getTermFrequency(s2);
+
+        Set<String> allTerms = new HashSet<>(termFrequency1.keySet());
+        allTerms.addAll(termFrequency2.keySet());
+
+        int dotProduct = 0;
+        int norm1 = 0;
+        int norm2 = 0;
+
+        for (String term : allTerms) {
+            int tf1 = termFrequency1.getOrDefault(term, 0);
+            int tf2 = termFrequency2.getOrDefault(term, 0);
+            dotProduct += tf1 * tf2;
+            norm1 += tf1 * tf1;
+            norm2 += tf2 * tf2;
+        }
+
+        return dotProduct / (Math.sqrt(norm1) * Math.sqrt(norm2));
+    }
+
+    private Map<String, Integer> getTermFrequency(String s) {
+        Map<String, Integer> termFrequency = new HashMap<>();
+        String[] words = s.toLowerCase().split("\\s+");
+
+        for (String word : words) {
+            termFrequency.put(word, termFrequency.getOrDefault(word, 0) + 1);
+        }
+
+        return termFrequency;
+    }
+
     private double similarity(String s1, String s2) {
-        Set<String> words1 = new HashSet<>(Arrays.asList(s1.split("\\s+")));
-        Set<String> words2 = new HashSet<>(Arrays.asList(s2.split("\\s+")));
-        Set<String> intersect = new HashSet<>(words1);
-        intersect.retainAll(words2);
-        return (2.0 * intersect.size()) / (words1.size() + words2.size());
+        // Sử dụng Cosine similarity để đo độ tương tự
+        return cosineSimilarity(s1, s2);
     }
 
     private String callChatGPT(String prompt) throws IOException {

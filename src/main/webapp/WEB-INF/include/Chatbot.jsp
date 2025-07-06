@@ -42,7 +42,7 @@
         }
 
         .chat-popup-header {
-            background-color: #007bff;
+            background-color: #ff8300;
             color: white;
             padding: 10px;
             border-top-left-radius: 10px;
@@ -114,6 +114,7 @@
 
         .chat-input button {
             padding: 6px 10px;
+            background-color: #ff8300;
         }
 
         .typing {

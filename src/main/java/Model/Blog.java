@@ -1,6 +1,7 @@
 package Model;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class Blog {
 
@@ -12,6 +13,23 @@ public class Blog {
     private Staff author; // Nếu bạn dùng Admin thay vì Staff, đổi sang Admin
     private boolean isPublished;
     private int primaryImageId; // thêm dòng này
+    private List<BlogImage> images;
+
+    public boolean isIsPublished() {
+        return isPublished;
+    }
+
+    public void setIsPublished(boolean isPublished) {
+        this.isPublished = isPublished;
+    }
+
+    public List<BlogImage> getImages() {
+        return images;
+    }
+
+    public void setImages(List<BlogImage> images) {
+        this.images = images;
+    }
 
     public Blog() {
     }

@@ -4,6 +4,9 @@ import DAO.UserDao;
 import Model.Account;
 import Model.Staff;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonSerializationContext;
+import com.google.gson.JsonSerializer;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.MultipartConfig;
 import jakarta.servlet.annotation.WebServlet;
@@ -12,6 +15,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -41,17 +45,40 @@ public class StaffServlet extends HttpServlet {
                 }
 
                 case "ajaxList": {
+                    String searchStaff = request.getParameter("searchStaff"); // Tìm kiếm theo tên hoặc username
+                    String searchPhone = request.getParameter("searchPhone"); // Tìm kiếm theo tên hoặc username
+                    String staffFilter = request.getParameter("staffFilter");  // Lọc theo kinh nghiệm
+
+                    List<Staff> staffList;
+                    // Nếu có tham số tìm kiếm hoặc lọc, gọi hàm searchTrainers
+                    if (searchStaff != null || searchPhone != null || staffFilter != null) {
+                        staffList = userDao.searchStaffs(searchStaff, searchPhone, staffFilter);
+                    } else {
+                        // Nếu không có tham số tìm kiếm, trả về tất cả huấn luyện viên
+                        staffList = userDao.getAllStaffs();
+                    }
+                    // Trả kết quả dưới dạng JSON
+                    Gson gson = new GsonBuilder()
+                            .registerTypeAdapter(LocalDateTime.class, new JsonSerializer<LocalDateTime>() {
+                                @Override
+                                public com.google.gson.JsonElement serialize(LocalDateTime src, java.lang.reflect.Type typeOfSrc, JsonSerializationContext context) {
+                                    return src == null ? null : new com.google.gson.JsonPrimitive(src.toString());
+                                }
+                            })
+                            .create();
+
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    response.getWriter().write(gson.toJson(staffList));
+
+                    break;
+                }
+                default: {
                     List<Staff> staffList = userDao.getAllStaffs();
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
                     String json = new Gson().toJson(staffList);
                     response.getWriter().write(json);
-                    break;
-                }
-                default: {
-                    List<Staff> staffList = userDao.getAllStaffs();
-                    request.setAttribute("staffList", staffList);
-                    request.getRequestDispatcher("/WEB-INF/View/admin/adminHome.jsp").forward(request, response);
                     break;
                 }
             }
@@ -99,10 +126,10 @@ public class StaffServlet extends HttpServlet {
                 case "edit": {
                     int accountId = Integer.parseInt(request.getParameter("accountId"));
                     String fullName = request.getParameter("fullName");
+                    String email = request.getParameter("email");
                     String phone = request.getParameter("phone");
                     String position = request.getParameter("position");
                     String status = request.getParameter("status");
-                    System.out.println("AccountID" + accountId);
 
                     Account account = userDao.getAccountById(accountId);
                     if (account == null) {
@@ -116,7 +143,8 @@ public class StaffServlet extends HttpServlet {
                         avatarStream = avatarPart.getInputStream();
                     }
 
-                    userDao.updateStaff(accountId, fullName, phone, position, status, avatarStream);
+                    // Truyền thêm email xuống hàm update
+                    userDao.updateStaff(accountId, fullName, email, phone, position, status, avatarStream);
 
                     response.sendRedirect("staffs");
                     break;
@@ -134,7 +162,7 @@ public class StaffServlet extends HttpServlet {
                     response.setContentType("text/plain;charset=UTF-8");
                     response.getWriter().write("OK");
                     return;
-                
+
                 }
 
                 default: {

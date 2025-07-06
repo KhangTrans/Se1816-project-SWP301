@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
     reloadTrainerList();
     reloadBlogList();
     loadCustomers();
+    loadLoginLogs();
+    loadPackages();
+    loadMemberPackage();
     ;
 });
 
@@ -125,10 +128,10 @@ function submitFormAjax(form, resultContainerId, event) {
     if (event)
         event.preventDefault();
     const selectedCategory = document.getElementById("editProductCategory").value;
-    console.log("📤 Sending categoryId:", selectedCategory);
+    console.log("Sending categoryId:", selectedCategory);
 
     const formData = new FormData(form);
-    console.log("✅ Dữ liệu gửi đi:");
+    console.log(" Dữ liệu gửi đi:");
     for (let [key, val] of formData.entries()) {
         console.log(`${key}: ${val}`);
     }
@@ -136,7 +139,7 @@ function submitFormAjax(form, resultContainerId, event) {
     const method = form.getAttribute('method') || 'post';
 
     if (!action) {
-        console.error("❌ Form không có thuộc tính 'action'");
+        console.error(" Form không có thuộc tính 'action'");
         const resultDiv = document.getElementById(resultContainerId);
         if (resultDiv) {
             resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: form không có action!</p>`;
@@ -178,8 +181,10 @@ function submitFormAjax(form, resultContainerId, event) {
                         reloadTrainerList();
                     if (typeof reloadBlogList === 'function') //cminh
                         reloadBlogList();
-                    if (typeof loadCustomers() === 'function') //cminh
+                    if (typeof loadCustomers === 'function') //cminh
                         loadCustomers();
+                    if (typeof loadPackages === 'function')
+                        loadPackages();
                     ;
                 }, 500);
             })
@@ -230,7 +235,7 @@ function loadAccounts() {
                     const row = `
                     <tr>
                         <td>${index + 1}</td>
-                        <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
+                        <td><img src="${avatarUrl}" alt="Avatar" style="width:60px;height:60px;border-radius:50%;"></td>
                         <td>${acc.username}</td>
                         <td>${acc.role}</td>
                         <td>${acc.createdAt}</td>
@@ -266,25 +271,29 @@ function filterAccounts() {
     const fromDate = document.getElementById("fromDate").value;
     const toDate = document.getElementById("toDate").value;
 
-    if (search) url.searchParams.append("search", search);
-    if (role) url.searchParams.append("role", role);
-    if (fromDate) url.searchParams.append("fromDate", fromDate);
-    if (toDate) url.searchParams.append("toDate", toDate);
+    if (search)
+        url.searchParams.append("search", search);
+    if (role)
+        url.searchParams.append("role", role);
+    if (fromDate)
+        url.searchParams.append("fromDate", fromDate);
+    if (toDate)
+        url.searchParams.append("toDate", toDate);
 
     fetch(url)
-        .then(response => response.json())
-        .then(data => {
-            const tbody = document.querySelector('#accountTable tbody');
-            tbody.innerHTML = '';
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#accountTable tbody');
+                tbody.innerHTML = '';
 
-            if (data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Không tìm thấy tài khoản nào</td></tr>`;
-                return;
-            }
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Không tìm thấy tài khoản nào</td></tr>`;
+                    return;
+                }
 
-            data.forEach((acc, index) => {
-                const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${acc.username}&t=${Date.now()}`;
-                const row = `
+                data.forEach((acc, index) => {
+                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${acc.username}&t=${Date.now()}`;
+                    const row = `
                     <tr>
                         <td>${index + 1}</td>
                         <td><img src="${avatarUrl}" style="width:40px;height:40px;border-radius:50%;"></td>
@@ -297,12 +306,12 @@ function filterAccounts() {
                         </td>
                     </tr>
                 `;
-                tbody.innerHTML += row;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error("Lỗi khi lọc tài khoản:", error);
             });
-        })
-        .catch(error => {
-            console.error("Lỗi khi lọc tài khoản:", error);
-        });
 }
 
 
@@ -395,7 +404,7 @@ function openEditProductModal(productId) {
                 const product = data.product;
                 const categories = data.categories;
 
-                // ✅ Gán dữ liệu vào form
+                //  Gán dữ liệu vào form
                 document.getElementById('editProductId').value = product.productId;
                 document.getElementById('editProductName').value = product.name;
                 document.getElementById('editProductDescription').value = product.description;
@@ -407,7 +416,7 @@ function openEditProductModal(productId) {
                 select.innerHTML = '';
 
                 const selectedCategoryId = product.categoryId; // Giả sử server trả số nguyên
-                console.log("📌 Selected Category ID:", selectedCategoryId);
+                console.log(" Selected Category ID:", selectedCategoryId);
 
                 // Gắn các option trước
                 categories.forEach(cat => {
@@ -422,14 +431,14 @@ function openEditProductModal(productId) {
 
                 // Nếu không khớp, chọn option đầu tiên và cảnh báo
                 if (!select.value) {
-                    console.warn("⚠ Không tìm thấy category khớp, chọn giá trị mặc định đầu tiên");
+                    console.warn(" Không tìm thấy category khớp, chọn giá trị mặc định đầu tiên");
                     if (select.options.length > 0) {
                         select.selectedIndex = 0;
                     }
                 }
 
                 // Kiểm tra cuối cùng
-                console.log("✔️ Gán lại select.value =", select.value);
+                console.log("️ Gán lại select.value =", select.value);
 
 
                 //  Hiển thị ảnh chính
@@ -471,7 +480,7 @@ function openEditProductModal(productId) {
                         };
 
                         const deleteBtn = document.createElement('button');
-                        deleteBtn.textContent = "✖";
+                        deleteBtn.textContent = "no";
                         deleteBtn.style.position = "absolute";
                         deleteBtn.style.top = "0";
                         deleteBtn.style.right = "0";
@@ -497,7 +506,7 @@ function openEditProductModal(productId) {
                 openModal('editProductModal');
             })
             .catch(error => {
-                console.error("❌ Lỗi khi load product:", error);
+                console.error(" Lỗi khi load product:", error);
             });
 }
 
@@ -558,8 +567,10 @@ function openDeleteProductModal(productId) {
 const contextPath = '${pageContext.request.contextPath}';
 
 function reloadProductList() {
+    const search = document.getElementById('searchKeyword').value;
+    const category = document.getElementById('categoryFilter').value;
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/admin/products?action=ajaxList`;
+    const url = `${window.location.origin}${contextPath}/admin/products?action=ajaxList&search=${encodeURIComponent(search)}&category=${category}`;
 
     fetch(url)
             .then(response => {
@@ -580,16 +591,19 @@ function reloadProductList() {
                     const imageUrl = product.primaryImageId
                             ? `${window.location.origin}${contextPath}/ImagesServlet?type=product&imageId=${product.primaryImageId}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
-                            
+                    // Giới hạn mô tả chỉ hiển thị 150 ký tự và thêm "..." nếu dài hơn
+                    const truncatedDescription = product.description && product.description.length > 150
+                            ? product.description.slice(0, 150) + "..."
+                            : product.description;
                     const row = `
                     <tr>
                         <td style="width:60px;">${index + 1}</td>
-                        <td><img src="${imageUrl}" alt="Image" style="width:60px; height:60px; border-radius:10px; margin-top: 5px"></td>
+                        <td><img src="${imageUrl}" alt="Image" style="width:100px; height:100px; border-radius:10px; margin-top: 5px"></td>
                         <td>${product.name}</td>
                         <td>${product.categoryName}</td>
                         <td>${product.price.toLocaleString('vi-VN')} đ</td>
                         <td>${product.stockQuantity}</td>
-                        <td>${product.description || ''}</td>
+                        <td>${truncatedDescription || ''}</td>
                         <td>
                             <button class="action-buttons__btn action-buttons__btn--edit"
                                 onclick="openEditProductModal('${product.productId}', '${product.name}', '${product.description}', '${product.price}', '${product.stockQuantity}', '${product.categoryId}', '${imageUrl}')">
@@ -683,26 +697,42 @@ function previewNewImages(input) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Function to load the list of vouchers from the server
+// Function to load the list of vouchers from the server
 function loadVouchers() {
-    console.log('Đang tải danh sách voucher...');
+    console.log('Loading voucher list with filters...');
+    ///NHATKHANG - Modified to handle search, date filters and status correctly
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/admin/vouchers?action=ajaxList`;
+
+    // Get filter values
+    const searchTerm = document.getElementById('searchVoucher') ? document.getElementById('searchVoucher').value : '';
+    const status = document.getElementById('statusFilter') ? document.getElementById('statusFilter').value : '';
+    const startDate = document.getElementById('startDate') ? document.getElementById('startDate').value : '';
+    const endDate = document.getElementById('endDate') ? document.getElementById('endDate').value : '';
+
+    // Build URL with query parameters
+    let url = `${window.location.origin}${contextPath}/admin/vouchers?action=ajaxList`;
+    url += `&search=${encodeURIComponent(searchTerm)}`;
+    url += `&status=${encodeURIComponent(status)}`;
+    url += `&startDate=${encodeURIComponent(startDate)}`;
+    url += `&endDate=${encodeURIComponent(endDate)}`;
+
+    console.log('Fetching vouchers from URL:', url);
 
     fetch(url)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
                 }
-                return response.json(); // Đảm bảo trả về dữ liệu JSON
+                return response.json();
             })
             .then(data => {
-                console.log('Dữ liệu voucher nhận được:', data);
+                console.log('Voucher data received:', data);
                 const tbody = document.querySelector('#voucherTable tbody');
                 if (!tbody) {
-                    console.error('Không tìm thấy tbody trong ##voucherTable tbody');
+                    console.error('Cannot find tbody in #voucherTable');
                     return;
                 }
-                tbody.innerHTML = ''; // Xóa nội dung hiện tại
+                tbody.innerHTML = ''; // Clear current content
 
                 if (data.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">No vouchers available</td></tr>`;
@@ -722,6 +752,10 @@ function loadVouchers() {
                     })
                             : 'N/A';
 
+                    // Escape strings for JavaScript
+                    const safeDescription = voucher.description ? voucher.description.replace(/'/g, "\\'") : '';
+                    const safeCode = voucher.code ? voucher.code.replace(/'/g, "\\'") : '';
+
                     const row = `
                 <tr>
                     <td>${index + 1}</td>
@@ -736,11 +770,11 @@ function loadVouchers() {
                     <td>${endDate}</td>
                     <td>${voucher.isActive ? 'Active' : 'Inactive'}</td>
                     <td>
-                        <button class="action-buttons__btn action-buttons__btn--edit" style=" margin-top: 5px;"
-                            onclick="openEditVoucherModal('${voucher.voucherId}', '${voucher.code}', '${voucher.description}', '${voucher.discountPercent}', '${voucher.maxDiscount}', '${voucher.usageLimit}', '${voucher.usedCount}', '${voucher.minOrderAmount}', '${voucher.startDate}', '${voucher.endDate}', '${voucher.isActive}')">
+                        <button class="action-buttons__btn action-buttons__btn--edit" style="margin-top: 5px;"
+                            onclick="openEditVoucherModal('${voucher.voucherId}', '${safeCode}', '${safeDescription}', '${voucher.discountPercent}', '${voucher.maxDiscount}', '${voucher.usageLimit}', '${voucher.usedCount}', '${voucher.minOrderAmount}', '${voucher.startDate}', '${voucher.endDate}', '${voucher.isActive}')">
                             Edit
                         </button>
-                        <button class="action-buttons__btn action-buttons__btn--delete" style=" margin-top: 5px;"
+                        <button class="action-buttons__btn action-buttons__btn--delete" style="margin-top: 5px;"
                             onclick="openDeleteVoucherModal('${voucher.voucherId}')">
                             Delete
                         </button>
@@ -750,15 +784,14 @@ function loadVouchers() {
                 });
             })
             .catch(error => {
-                console.error('Lỗi khi tải danh sách voucher:', error);
+                console.error('Error loading voucher list:', error);
+                // Try to get text response for troubleshooting
                 fetch(url)
                         .then(r => r.text())
-                        .then(text => console.warn("Phản hồi server không phải JSON:", text));
+                        .then(text => console.warn("Server response is not JSON:", text))
+                        .catch(err => console.error("Failed to get error details:", err));
             });
 }
-
-
-
 
 
 
@@ -785,7 +818,7 @@ function submitDeleteVouchers(form) {
     })
             .then(res => res.text())
             .then(text => {
-                console.log("🔍 Raw response:", text);
+                console.log(" Raw response:", text);
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -813,7 +846,7 @@ function submitDeleteVouchers(form) {
 
 // Mở và đổ dữ liệu vào Delete Voucher Modal
 function openDeleteVoucherModal(voucherId) {
-    console.log("voucherId = ", voucherId); // ✅ Log để kiểm tra
+    console.log("voucherId = ", voucherId); // Log để kiểm tra
     document.getElementById("deleteVoucherId").value = voucherId;
     openModal('deleteVoucherModal');
 }
@@ -937,7 +970,7 @@ function openModal(id) {
 
 
 function openEditVoucherModal(voucherId, code, description, discountPercent, maxDiscount, usageLimit, usedCount, minOrderAmount, startDate, endDate, isActive) {
-    // Điền dữ liệu vào các trường trong modal
+// Điền dữ liệu vào các trường trong modal
     document.getElementById('editVoucherCode').value = code;
     document.getElementById('editVoucherId').value = voucherId;
     document.getElementById('editVoucherDescription').value = description;
@@ -978,7 +1011,7 @@ function submitEditVoucher(form) {
     })
             .then(res => res.text())
             .then(text => {
-                console.log("🔍 Raw response:", text);
+                console.log(" Raw response:", text);
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -1003,6 +1036,492 @@ function submitEditVoucher(form) {
 
     return false;
 }
+
+// Get context path for AJAX URL
+function getContextPath() {
+    return window.location.pathname.substring(0, window.location.pathname.indexOf("/admin"));
+}
+
+// Function to handle real-time search as the user types
+var searchTimeout;
+function initVoucherSearch() {
+    ///NHATKHANG - Modified to prevent page reload when searching
+    // Add event listeners when DOM is loaded
+    document.getElementById('searchVoucher').addEventListener('input', function () {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(loadVouchers, 300); // Use loadVouchers instead of searchVouchers
+    });
+}
+
+// Initialize search when DOM is fully loaded
+document.addEventListener('DOMContentLoaded', function () {
+    if (document.getElementById('searchVoucher')) {
+        initVoucherSearch();
+    }
+});
+
+// Order Management Functions
+
+// Function to load orders data
+function loadOrders() {
+    console.log('Loading order list with filters...');
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+
+    // Get filter values
+    const searchTerm = document.getElementById('searchOrder') ? document.getElementById('searchOrder').value : '';
+    const status = document.getElementById('orderStatusFilter') ? document.getElementById('orderStatusFilter').value : '';
+
+    // Build URL with query parameters
+    let url = `${window.location.origin}${contextPath}/admin/orders?action=ajaxList`;
+    url += `&search=${encodeURIComponent(searchTerm)}`;
+    url += `&status=${encodeURIComponent(status)}`;
+
+    console.log('Fetching orders from URL:', url);
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const tbody = document.querySelector('#orderTableBody');
+                if (!tbody) {
+                    console.error('Cannot find tbody in #orderTable');
+                    return;
+                }
+                tbody.innerHTML = ''; // Clear current content
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No orders available</td></tr>`;
+                    return;
+                }
+
+                data.forEach(order => {
+                    const orderItems = order.orderItems || [];
+
+                    if (orderItems.length > 0) {
+                        // If order has items, create a row for each item
+                        orderItems.forEach(item => {
+                            // Create status dropdown with appropriate class
+                            const statusDropdown = `
+                            <select class="status-dropdown" name="status_${order.orderId}" onchange="updateOrderStatus('${order.orderId}', this.value)">
+                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''} class="status-pending">Pending</option>
+                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''} class="status-processing">Processing</option>
+                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''} class="status-shipped">Shipped</option>
+                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''} class="status-cancelled">Cancelled</option>
+                            </select>
+                        `;
+
+                            const row = `
+                        <tr>
+                            <td>${order.referralCode || ''}</td>
+                            <td>${item.productName || 'Unknown Product'}</td>
+                            <td>${item.quantity || 0}</td>
+                            <td>${item.unitPrice ? (Number(item.unitPrice) * item.quantity).toLocaleString() + ' VND' : '0 VND'}</td>
+                            <td>${statusDropdown}</td>
+                            <td>${order.shippingAddress || ''}</td>
+                            <td>${order.customerName || ''}</td>
+                            <td>${order.customerPhoneNumber || ''}</td>
+                            <td>
+                                <button class="action-buttons__btn action-buttons__btn--edit" 
+                                    onclick="openEditOrderModal('${order.orderId}')">
+                                    Edit
+                                </button>
+                                <button class="action-buttons__btn action-buttons__btn--delete" 
+                                    onclick="openDeleteOrderModal('${order.orderId}')">
+                                    Delete
+                                </button>
+                            </td>
+                        </tr>`;
+
+                            tbody.innerHTML += row;
+                        });
+                    } else {
+                        // If order has no items, create a single row
+                        // Create status dropdown with appropriate class
+                        const statusDropdown = `
+                        <select class="status-dropdown" name="status_${order.orderId}" onchange="updateOrderStatus('${order.orderId}', this.value)">
+                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''} class="status-pending">Pending</option>
+                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''} class="status-processing">Processing</option>
+                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''} class="status-shipped">Shipped</option>
+                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''} class="status-cancelled">Cancelled</option>
+                        </select>
+                    `;
+
+                        const row = `
+                    <tr>
+                        <td>${order.referralCode || ''}</td>
+                        <td>No products</td>
+                        <td>-</td>
+                        <td>${order.totalAmount ? Number(order.totalAmount).toLocaleString() + ' VND' : '0 VND'}</td>
+                        <td>${statusDropdown}</td>
+                        <td>${order.shippingAddress || ''}</td>
+                        <td>${order.customerName || ''}</td>
+                        <td>${order.customerPhoneNumber || ''}</td>
+                        <td>
+                            <button class="action-buttons__btn action-buttons__btn--edit" 
+                                onclick="openEditOrderModal('${order.orderId}')">
+                                Edit
+                            </button>
+                            <button class="action-buttons__btn action-buttons__btn--delete" 
+                                onclick="openDeleteOrderModal('${order.orderId}')">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>`;
+
+                        tbody.innerHTML += row;
+                    }
+                });
+            })
+            .catch(error => {
+                console.error('Error loading order list:', error);
+                const tbody = document.querySelector('#orderTableBody');
+                if (tbody) {
+                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">Error loading orders: ${error.message}</td></tr>`;
+                }
+            });
+}
+
+// Function to update order status
+function updateOrderStatus(orderId, newStatus) {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/orders`;
+
+    const params = new URLSearchParams();
+    params.append('orderId', orderId);
+    params.append('status', newStatus);
+    params.append('formAction', 'updateStatus');
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: params
+    })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === "updated") {
+                    // Update the UI for this specific row
+                    const statusCell = document.querySelector(`select[name="status_${orderId}"]`);
+                    if (statusCell) {
+                        statusCell.value = newStatus;
+                    }
+
+                    // Create simple text notification in the corner
+                    const notification = document.createElement('div');
+                    notification.textContent = 'Order updated successfully';
+                    notification.style.position = 'fixed';
+                    notification.style.top = '20px';
+                    notification.style.right = '20px';
+                    notification.style.color = 'green';
+                    notification.style.fontWeight = 'bold';
+                    notification.style.zIndex = '1000';
+
+                    document.body.appendChild(notification);
+
+                    // Remove notification after 3 seconds
+                    setTimeout(() => {
+                        notification.style.opacity = '0';
+                        notification.style.transition = 'opacity 0.5s';
+                        setTimeout(() => {
+                            document.body.removeChild(notification);
+                        }, 500);
+                    }, 3000);
+                } else {
+                    console.error('Failed to update order status:', data.message);
+                    alert('Failed to update order status: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error updating order status:', error);
+                alert('Error updating order status: ' + error.message);
+            });
+}
+
+// Function to open the edit order modal
+function openEditOrderModal(orderId) {
+    // Xây dựng URL đúng format
+    const baseUrl = window.location.origin;
+    const pathArray = window.location.pathname.split('/');
+    const contextPath = pathArray[1] ? '/' + pathArray[1] : '';
+
+    // Ghi log giá trị orderId
+    console.log("Opening edit modal for orderId:", orderId);
+
+    // Đảm bảo đường dẫn URL đầy đủ và chính xác
+    const url = `${baseUrl}${contextPath}/admin/orders?action=getOrder&orderId=${orderId}`;
+    console.log("Requesting order data from URL:", url);
+
+    fetch(url)
+            .then(response => {
+                console.log("Response status:", response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(order => {
+                console.log("Order data received:", order);
+
+                // Fill in the form fields with order data
+                document.getElementById('editOrderId').value = order.orderId || '';
+                document.getElementById('editStatus').value = order.status || 'pending';
+                document.getElementById('editShippingAddress').value = order.shippingAddress || '';
+                document.getElementById('editCustomerName').value = order.customerName || '';
+                document.getElementById('editCustomerPhone').value = order.customerPhoneNumber || '';
+                console.log("Customer phone number set to:", order.customerPhoneNumber);
+                document.getElementById('editReferralCode').value = order.referralCode || '';
+
+                // Hiển thị thông tin sản phẩm
+                if (order.orderItems && order.orderItems.length > 0) {
+                    const firstItem = order.orderItems[0];
+
+                    // Hiển thị tên sản phẩm
+                    document.getElementById('productNameDisplay').value = firstItem.productName || 'Unknown Product';
+
+                    // Set quantity và item ID
+                    document.getElementById('editOrderQuantity').value = firstItem.quantity || 1;
+                    document.getElementById('editOrderQuantity').disabled = false;
+                    document.getElementById('hiddenOrderItemId').value = firstItem.orderItemId || '';
+
+                    // Set unit price for calculations
+                    if (firstItem.unitPrice) {
+                        const unitPriceHidden = document.createElement('input');
+                        unitPriceHidden.type = 'hidden';
+                        unitPriceHidden.id = 'unitPriceHidden';
+                        unitPriceHidden.value = Number(firstItem.unitPrice);
+                        document.getElementById('editOrderForm').appendChild(unitPriceHidden);
+                    }
+                } else {
+                    // If no items, disable the quantity field
+                    document.getElementById('productNameDisplay').value = 'No product available';
+                    document.getElementById('editOrderQuantity').value = '';
+                    document.getElementById('editOrderQuantity').disabled = true;
+                    document.getElementById('hiddenOrderItemId').value = '';
+
+                    // Add hidden unit price field with 0 value
+                    const unitPriceHidden = document.createElement('input');
+                    unitPriceHidden.type = 'hidden';
+                    unitPriceHidden.id = 'unitPriceHidden';
+                    unitPriceHidden.value = '0';
+                    document.getElementById('editOrderForm').appendChild(unitPriceHidden);
+                }
+
+                // Open the modal
+                openModal('editOrderModal');
+            })
+            .catch(error => {
+                console.error('Error fetching order details:', error);
+                alert('Error fetching order details: ' + error.message);
+            });
+}
+
+// Function to submit order edit form
+function submitEditOrder(form) {
+    event.preventDefault();
+    console.log("Submitting edit order form");
+
+    // Validate quantity if present
+    const quantityInput = document.getElementById('editOrderQuantity');
+    if (quantityInput && !quantityInput.disabled) {
+        const quantity = parseInt(quantityInput.value);
+        if (isNaN(quantity) || quantity <= 0) {
+            alert('Please enter a valid quantity (must be greater than 0)');
+            quantityInput.focus();
+            return false;
+        }
+    }
+
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+
+    for (let [key, value] of formData.entries()) {
+        console.log(`Form field: ${key}=${value}`);
+        params.append(key, value);
+    }
+
+    const resultDiv = document.getElementById("resultEditOrder");
+    resultDiv.innerHTML = `<p style="color:blue; font-weight:bold;">Đang xử lý yêu cầu cập nhật...</p>`;
+
+    console.log("Form action URL:", form.action);
+    console.log("Request body:", params.toString());
+
+    fetch(form.action, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params,
+    })
+            .then(res => {
+                console.log("Response status:", res.status);
+                if (!res.ok) {
+                    throw new Error(`Server responded with status: ${res.status}`);
+                }
+                return res.text();
+            })
+            .then(text => {
+                console.log("🔍 Raw response:", text);
+                let data;
+                try {
+                    data = JSON.parse(text);
+                    console.log("Parsed JSON response:", data);
+                } catch (err) {
+                    console.error("Error parsing JSON:", err);
+                    throw new Error("Phản hồi không hợp lệ từ server: " + text);
+                }
+
+                // Kiểm tra cả hai trạng thái có thể có từ server
+                if (data.status === "success" || data.message === "Order updated successfully") {
+                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">${data.message}</p>`;
+
+                    setTimeout(() => {
+                        closeModal("editOrderModal");
+                        loadOrders(); // Reload bảng để đảm bảo hiển thị dữ liệu mới nhất
+                    }, 800);
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Cập nhật thất bại: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi khi cập nhật đơn hàng: ${error.message}</p>`;
+            });
+
+    return false;
+}
+
+// Function to open delete order modal
+function openDeleteOrderModal(orderId) {
+    console.log("orderId = ", orderId); // Log để kiểm tra
+    document.getElementById("deleteOrderId").value = orderId;
+    openModal('deleteOrderModal');
+}
+
+// Function to submit order deletion
+function submitDeleteOrder(form) {
+    event.preventDefault();
+    console.log("Submitting delete order form");
+
+    const formData = new FormData(form);
+    const params = new URLSearchParams();
+
+    for (let [key, value] of formData.entries()) {
+        console.log(`Form parameter: ${key}=${value}`);
+        params.append(key, value);
+    }
+
+    const resultDiv = document.getElementById("resultDeleteOrder");
+    resultDiv.innerHTML = `<p style="color:blue; font-weight:bold;">Đang xử lý yêu cầu xóa...</p>`;
+
+    console.log("Form action URL:", form.action);
+    console.log("Request body:", params.toString());
+
+    fetch(form.action, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params,
+    })
+            .then(res => {
+                console.log("Response status:", res.status);
+                if (!res.ok) {
+                    throw new Error(`Server responded with status: ${res.status}`);
+                }
+                return res.text();
+            })
+            .then(text => {
+                console.log("🔍 Raw response:", text);
+                let data;
+                try {
+                    data = JSON.parse(text);
+                    console.log("Parsed JSON response:", data);
+                } catch (err) {
+                    console.error("Error parsing JSON:", err);
+                    throw new Error("Phản hồi không hợp lệ từ server: " + text);
+                }
+
+                if (data.status === "deleted") {
+                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">${data.message}</p>`;
+
+                    // Lấy orderId đã xóa
+                    const deletedOrderId = document.getElementById("deleteOrderId").value;
+
+                    // Tìm và xóa các dòng trong bảng có orderId tương ứng
+                    const tbody = document.querySelector('#orderTableBody');
+                    if (tbody) {
+                        const rows = tbody.querySelectorAll('tr');
+                        rows.forEach(row => {
+                            const editButton = row.querySelector('button.action-buttons__btn--edit');
+                            if (editButton && editButton.getAttribute('onclick').includes(deletedOrderId)) {
+                                row.remove();
+                            }
+                        });
+
+                        // Nếu không còn dòng nào, hiển thị thông báo
+                        if (tbody.querySelectorAll('tr').length === 0) {
+                            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No orders available</td></tr>`;
+                        }
+                    }
+
+                    setTimeout(() => {
+                        closeModal("deleteOrderModal");
+                    }, 800);
+                } else {
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Xóa thất bại: ${data.message}</p>`;
+                }
+            })
+            .catch(error => {
+                console.error("Lỗi:", error);
+                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi khi xóa đơn hàng: ${error.message}</p>`;
+            });
+
+    return false;
+}
+
+// Add loadOrders to the DOMContentLoaded event
+document.addEventListener('DOMContentLoaded', function () {
+    // Existing code already includes these
+    // loadAccounts();
+    // reloadProductList();
+    // loadVouchers();
+    // loadStaffData();
+    // reloadTrainerList();
+    // reloadBlogList();
+    // loadCustomers();
+
+    // Add loadOrders
+    loadOrders();
+});
+
+// Xóa hàm trùng lặp
+
+// Đã xóa hàm initOrderSearch vì không cần thiết nữa
+
+// Function to update the total price in the edit form (internal calculations only)
+function updateTotalPrice() {
+    // This function is kept for compatibility with the onchange event
+    // but doesn't need to display anything now
+    const quantity = parseInt(document.getElementById('editOrderQuantity').value) || 0;
+    const unitPriceElement = document.getElementById('unitPriceHidden');
+
+    if (unitPriceElement) {
+        const unitPrice = parseFloat(unitPriceElement.value) || 0;
+        // We can still calculate the total price for internal use if needed
+        const totalPrice = quantity * unitPrice;
+        console.log(`Total price updated: ${totalPrice.toLocaleString()} VND`);
+    }
+}
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                    HOANG KHANG       
 //
@@ -1011,7 +1530,14 @@ function submitEditVoucher(form) {
 
 function loadStaffData() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/admin/staffs?action=ajaxList`;
+    const staffSearchUrl = `${window.location.origin}${contextPath}/admin/staffs?action=ajaxList`;
+
+    const searchStaff = document.getElementById("searchStaff").value; // Tìm kiếm theo tên hoặc username
+    const searchPhone = document.getElementById("searchPhone").value; // Lọc theo sdt
+    const staffFilter = document.getElementById("staffFilter").value;
+
+
+    const url = `${staffSearchUrl}&searchStaff=${encodeURIComponent(searchStaff)}&searchPhone=${encodeURIComponent(searchPhone)}&staffFilter=${encodeURIComponent(staffFilter)}`;
 
     fetch(url)
             .then(response => {
@@ -1070,6 +1596,12 @@ function loadStaffData() {
                         .then(text => console.warn("Nội dung server trả về không phải JSON:", text));
             });
 }
+
+// Gọi hàm loadStaffData khi thay đổi các trường tìm kiếm và lọc
+document.getElementById('searchStaff').addEventListener('input', loadStaffData);
+document.getElementById('searchPhone').addEventListener('input', loadStaffData);
+document.getElementById('staffFilter').addEventListener('change', loadStaffData);
+
 
 document.addEventListener("DOMContentLoaded", function () {
     // Khi modal được mở
@@ -1302,9 +1834,17 @@ function openDeleteStaffModal(staffId) {
 //                                              HA PHUONG                                                                                   /////
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                                              
 
+
+// Hàm tải danh sách Trainer với các bộ lọc và tìm kiếm
 function reloadTrainerList() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/TrainerServlet?action=json`;
+    const baseUrl = `${window.location.origin}${contextPath}/TrainerServlet?action=json`;
+
+    const searchTerm = document.getElementById("searchTerm").value; // Tìm kiếm theo tên hoặc username
+    const experience = document.getElementById("experienceFilter").value; // Lọc theo kinh nghiệm
+    const rating = document.getElementById("ratingFilter").value; // Lọc theo rating
+
+    const url = `${baseUrl}&searchTerm=${encodeURIComponent(searchTerm)}&experience=${encodeURIComponent(experience)}&rating=${encodeURIComponent(rating)}`;
 
     fetch(url)
             .then(response => {
@@ -1313,38 +1853,51 @@ function reloadTrainerList() {
                 return response.json();
             })
             .then(data => {
+                console.log(data);  // Kiểm tra dữ liệu trả về từ servlet
                 const tbody = document.querySelector('#trainerTable tbody');
-                tbody.innerHTML = '';
+                tbody.innerHTML = ''; // Clear existing data
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="10" style="text-align:center;">Chưa có huấn luyện viên nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;">Không có huấn luyện viên nào</td></tr>`;
                     return;
                 }
 
+                // Debug: Kiểm tra dữ liệu trainer và price
+                console.log("Received Trainer Data:", data);
+
                 data.forEach((trainer, index) => {
-                    const account = trainer.accountId; // Đây là object Account
+
+                    console.log("Trainer ID: ", trainer.trainerId, "Price: ", trainer.price);
+
+                    const account = trainer.accountId; // Object Account
                     const avatarUrl = account && account.username
                             ? `${window.location.origin}${contextPath}/AvatarServlet?user=${account.username}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
 
+                    const formattedPrice = (trainer.price != null && !isNaN(trainer.price))
+                            ? trainer.price.toLocaleString('vi-VN') + ' VND'
+                            : '0 VND';
 
+                    // Giới hạn mô tả (bio) chỉ hiển thị 150 ký tự và thêm "..." nếu dài hơn
+                    const truncatedBio = trainer.bio && trainer.bio.length > 50
+                            ? trainer.bio.slice(0, 50) + "..."
+                            : trainer.bio;
                     const row = `
                     <tr>
-                        <td>${index + 1}</td>
                         <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%"></td>
                         <td>${account.username}</td>
                         <td>${trainer.fullName}</td>
                         <td>${trainer.email || ''}</td>
                         <td>${trainer.phone || ''}</td>
-                        <td>${trainer.bio || ''}</td>
+                        <td>${truncatedBio || ''}</td>
                         <td>${trainer.experienceYears} year</td>
                         <td>${trainer.rating.toFixed(1)} ★</td>
+                        <td>${formattedPrice}</td>
                         <td>
                             <button class="action-buttons__btn action-buttons__btn--edit"
                                onclick="openEditTrainerModal(${trainer.trainerId})">Edit</button>
                             <button class="action-buttons__btn action-buttons__btn--delete"
                                 onclick="openDeleteTrainerModal(${trainer.trainerId})">Delete</button>
-
                         </td>
                     </tr>
                 `;
@@ -1353,11 +1906,17 @@ function reloadTrainerList() {
             })
             .catch(error => {
                 console.error('Lỗi khi tải danh sách trainer:', error);
-                fetch(url)
-                        .then(r => r.text())
-                        .then(text => console.warn("Nội dung không phải JSON:", text));
             });
 }
+
+// Gọi hàm loadTrainers khi thay đổi các trường tìm kiếm và lọc
+document.getElementById('searchTerm').addEventListener('input', reloadTrainerList);
+document.getElementById('experienceFilter').addEventListener('change', reloadTrainerList);
+document.getElementById('ratingFilter').addEventListener('change', reloadTrainerList);
+
+// Gọi hàm để load danh sách Trainer khi trang được tải lần đầu
+document.addEventListener('DOMContentLoaded', reloadTrainerList);
+
 
 
 function submitEditTrainerForm(form, resultContainerId) {
@@ -1420,6 +1979,7 @@ function openEditTrainerModal(trainerId) {
                     document.getElementById('editTrainerBio').value = trainer.bio || '';
                     document.getElementById('editTrainerExperience').value = trainer.experienceYears || '';
                     document.getElementById('editTrainerRating').value = trainer.rating || '';
+                    document.getElementById("editTrainerPrice").value = trainer.price || '0';
                     document.getElementById('editTrainerModal').style.display = 'flex';
                 } else {
                     alert("Không tìm thấy trainer.");
@@ -1503,7 +2063,7 @@ function loadTrainerAccountOptions() {
                 return res.json();
             })
             .then(data => {
-                console.log("✅ Trainer Accounts loaded:", data);
+                console.log(" Trainer Accounts loaded:", data);
                 const modal = document.getElementById("addTrainer");
                 const select = modal.querySelector('select[name="accountId"]');
                 select.innerHTML = '<option value="">-- Choose Username --</option>';
@@ -1517,7 +2077,7 @@ function loadTrainerAccountOptions() {
                 }
 
                 data.forEach(acc => {
-                    console.log("➕ Adding option:", acc.username);
+                    console.log("Adding option:", acc.username);
                     const opt = document.createElement('option');
                     opt.value = acc.accountId;               // <-- Đây là giá trị gửi đi
                     opt.textContent = acc.username;          // <-- Đây là nội dung hiển thị
@@ -1525,7 +2085,7 @@ function loadTrainerAccountOptions() {
                 });
             })
             .catch(err => {
-                console.error("❌ Error loading trainer accounts:", err);
+                console.error(" Error loading trainer accounts:", err);
             });
 }
 
@@ -1536,11 +2096,11 @@ function openAddTrainerModal() {
 
 
 function submitFormAjaxTrainers(form, resultContainerId) {
-    console.log("🚀 Submitting form via AJAX...");
+    console.log("? Submitting form via AJAX...");
 
     const formData = new FormData(form);
     for (let [key, val] of formData.entries()) {
-        console.log(`🔍 ${key} = ${val}`);
+        console.log(`? ${key} = ${val}`);
     }
 
     const actionUrl = form.getAttribute("action");
@@ -1552,13 +2112,13 @@ function submitFormAjaxTrainers(form, resultContainerId) {
     })
             .then(async response => {
                 const rawText = await response.text();
-                console.log("📥 Raw response from server:", rawText);
+                console.log("? Raw response from server:", rawText);
 
                 if (!rawText)
                     throw new Error("Empty response");
 
                 let result = JSON.parse(rawText);
-                console.log("✅ Parsed JSON:", result);
+                console.log(" Parsed JSON:", result);
 
                 if (result.status === 'success') {
                     resultContainer.innerHTML = `<p style="color:green;">${result.message}</p>`;
@@ -1570,14 +2130,174 @@ function submitFormAjaxTrainers(form, resultContainerId) {
                 }
             })
             .catch(error => {
-                console.error("❌ Lỗi xử lý response:", error);
+                console.error(" Lỗi xử lý response:", error);
                 resultContainer.innerHTML = `<p style="color:red;">Lỗi server: ${error.message}</p>`;
             });
 
     return false;
+
+}
+
+function loadMemberPackage() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const baseUrl = `${window.location.origin}${contextPath}/MemberShipPackageServlet?action=json`;
+
+    const username = document.getElementById('username').value;
+    const packageName = document.getElementById('packageName').value;
+    const paymentStatus = document.getElementById('paymentStatus').value;
+
+
+
+
+
+    document.getElementById('username').addEventListener('input', loadMemberPackage);
+    document.getElementById('packageName').addEventListener('change', loadMemberPackage);
+    document.getElementById('startDate').addEventListener('change', loadMemberPackage);
+    document.getElementById('endDate').addEventListener('change', loadMemberPackage);
+    document.getElementById('paymentStatus').addEventListener('change', loadMemberPackage);
+
+
+
+    let url = baseUrl;
+    const params = [];
+    if (username)
+        params.push(`username=${encodeURIComponent(username)}`);
+    if (packageName)
+        params.push(`packageName=${encodeURIComponent(packageName)}`);
+    if (paymentStatus)
+        params.push(`paymentStatus=${encodeURIComponent(paymentStatus)}`);
+
+    if (params.length > 0) {
+        url += `&${params.join('&')}`;
+    }
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    console.error(`Lỗi khi gọi API, mã lỗi: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Dữ liệu trả về từ API: ", data);
+                const tbody = document.querySelector('#trainerPackageTableBody');
+                tbody.innerHTML = '';
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Không có gói thành viên nào</td></tr>`;
+                    return;
+                }
+
+                const rows = data.map((packageItem, index) => {
+                    const accountUsername = packageItem.customer && packageItem.customer.fullName ? packageItem.customer.fullName : 'N/A';
+                    const packageName = packageItem.membershipPackage ? packageItem.membershipPackage.name : 'N/A';
+                    const startDate = packageItem.startDate ? new Date(packageItem.startDate.year, packageItem.startDate.month - 1, packageItem.startDate.day).toLocaleDateString() : 'Invalid Date';
+                    const endDate = packageItem.endDate ? new Date(packageItem.endDate.year, packageItem.endDate.month - 1, packageItem.endDate.day).toLocaleDateString() : 'Invalid Date';
+                    const paymentStatus = packageItem.paymentStatus || 'pending';
+                    const membershipId = packageItem.membershipId || null;
+
+                    return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${accountUsername}</td>
+                        <td>${packageName}</td>
+                        <td>${startDate}</td>
+                        <td>${endDate}</td>
+                        <td>
+                            <select class="status-dropdown" data-membership-id="${membershipId}">
+                                <option value="pending" ${paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="paid" ${paymentStatus === 'paid' ? 'selected' : ''}>Paid</option>
+                                <option value="cancelled" ${paymentStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </td>         
+                    </tr>`;
+                });
+
+                tbody.innerHTML = rows.join(''); // Đẩy dữ liệu vào bảng
+
+                // Lắng nghe sự kiện thay đổi trạng thái
+                document.querySelectorAll('.status-dropdown').forEach(select => {
+                    select.addEventListener('change', function () {
+                        const membershipId = this.getAttribute('data-membership-id');
+                        const newStatus = this.value;
+                        updateStatus(membershipId, newStatus); // Cập nhật trạng thái
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh sách gói thành viên:', error);
+            });
 }
 
 
+// Hàm cập nhật trạng thái thành viên
+function updateStatus(membershipId, newStatus) {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/MemberShipPackageServlet?action=updateStatus`;
+
+    // Kiểm tra giá trị status trước khi gửi
+    console.log('Updating status for membershipId:', membershipId, 'with status:', newStatus);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            membershipId: membershipId,
+            status: newStatus,
+        })
+    })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hiển thị thông báo thành công
+                    document.getElementById('successMessage').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('successMessage').style.display = 'none';
+                    }, 2000); // Ẩn thông báo sau 3 giây
+                    console.log('Trạng thái đã được cập nhật thành công!');
+                } else {
+                    console.error('Lỗi khi cập nhật trạng thái: ', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi gửi yêu cầu cập nhật trạng thái:', error);
+            });
+}
+
+
+// Hàm load danh sách gói vào dropdown khi trang được tải
+function loadPackagesForDropdown() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/MemberShipPackageServlet?action=loadPackages`;
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    console.error(`Lỗi khi gọi API, mã lỗi: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const packageDropdown = document.getElementById('packageName');
+                data.forEach(pkg => {
+                    const option = document.createElement('option');
+                    option.value = pkg.name;
+                    option.textContent = pkg.name;
+                    packageDropdown.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh sách gói cho dropdown:', error);
+            });
+}
+document.addEventListener('DOMContentLoaded', function () {
+    loadPackagesForDropdown();
+    loadMemberPackage();
+});
 //=============================================================================================================================
 //||                                                                                                                         ||
 //||                                           BaoMinh                                                                       ||
@@ -1701,7 +2421,7 @@ function submitDeleteCustomer(event) {
                 }
             })
             .catch(error => {
-                console.error("❌ Lỗi khi xóa:", error);
+                console.error(" Lỗi khi xóa:", error);
                 document.getElementById("resultDeleteCustomer").innerText = `Lỗi khi gửi yêu cầu xóa: ${error.message}`;
             });
 
@@ -1735,7 +2455,7 @@ function reloadBlogList() {
                 return response.json();
             })
             .then(data => {
-                console.log("✅ JSON Blog Data:", data); // ← debug
+                console.log(" JSON Blog Data:", data); // ← debug
                 const tbody = document.querySelector('#blogsTable tbody');
                 tbody.innerHTML = '';
 
@@ -1750,14 +2470,22 @@ function reloadBlogList() {
                             : `${contextPath}/avatar/default.png`;
 
                     const escapedTitle = escapeHtml(blog.title);
-                    const escapedContent = escapeHtml(blog.content);
+                    let escapedContent = escapeHtml(blog.content);
+
+                    // Kiểm tra nếu nội dung là null hoặc trống
+                    if (!escapedContent || escapedContent === 'null' || escapedContent === '') {
+                        escapedContent = 'Chưa có nội dung'; // Thông báo khi không có nội dung
+                    }
+
+                    // Giới hạn nội dung chỉ còn 150 ký tự và thêm dấu "..."
+                    const truncatedContent = escapedContent.length > 150 ? escapedContent.substring(0, 150) + "..." : escapedContent;
 
                     const row = `
                     <tr>
                         <td>${index + 1}</td>
-                        <td><img src="${imageUrl}" alt="Blog Image" style="width:60px;height:60px;border-radius:10px;"></td>
+                        <td><img src="${imageUrl}" alt="Blog Image" style="width:120px;height:130px;border-radius:10px;"></td>
                         <td>${escapedTitle}</td>
-                        <td>${escapedContent}</td>
+                        <td>${truncatedContent}</td>
                         <td>${new Date(blog.createdAt).toLocaleString('vi-VN')}</td>
                         <td>${new Date(blog.updatedAt).toLocaleString('vi-VN')}</td>
                         <td>
@@ -1783,6 +2511,8 @@ function reloadBlogList() {
                         .then(text => console.warn("Nội dung không phải JSON:", text));
             });
 }
+
+
 
 // Hàm thoát ký tự đặc biệt để tránh lỗi injection hoặc hỏng layout
 function escapeHtml(text) {
@@ -1867,7 +2597,7 @@ function openEditBlogModal(blogId) {
                     imageFilenameLabel.textContent = "";
                 }
 
-                // ✅ Hiển thị các ảnh phụ
+                // Hiển thị các ảnh phụ
                 const imageListDiv = document.getElementById('editBlogImageList');
                 imageListDiv.innerHTML = '';  // Xóa danh sách ảnh cũ
                 images.forEach(img => {
@@ -1895,7 +2625,7 @@ function openEditBlogModal(blogId) {
                     };
 
                     const deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = "✖";
+                    deleteBtn.textContent = "no";
                     deleteBtn.style.position = "absolute";
                     deleteBtn.style.top = "0";
                     deleteBtn.style.right = "0";
@@ -1916,11 +2646,11 @@ function openEditBlogModal(blogId) {
                     imageListDiv.appendChild(imgWrapper);
                 });
 
-                // ✅ Mở modal chỉnh sửa blog
+                //  Mở modal chỉnh sửa blog
                 openModal('editBlogModal');
             })
             .catch(error => {
-                console.error("❌ Lỗi khi load blog:", error);
+                console.error(" Lỗi khi load blog:", error);
             });
 }
 
@@ -1955,3 +2685,129 @@ function openAddBlogModal() {
     document.getElementById('resultAddBlog').innerHTML = ''; // clear thông báo cũ
     openModal('addBlogModal');
 }
+
+function loadLoginLogs() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/loginLog`;
+
+    fetch(url)
+            .then(res => res.json())
+            .then(data => {
+                const tbody = document.querySelector('#loginLogsTable tbody');
+                tbody.innerHTML = '';
+
+                if (data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Không có log nào</td></tr>`;
+                    return;
+                }
+
+                data.forEach(log => {
+                    const row = `
+                    <tr>
+                        <td>${log.index}</td>
+                        <td>${log.username}</td>
+                        <td>${log.loginTime}</td>
+                        <td>${log.ip}</td>
+                        <td>${log.userAgent}</td>
+                    </tr>
+                `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(err => {
+                console.error("Lỗi khi tải login logs:", err);
+            });
+}
+// Override showTable để ẩn biểu đồ và hiện đúng bảng cần thiết
+
+// Tự động reload login logs mỗi 10 giây nếu bảng đang mở
+setInterval(() => {
+    const table = document.getElementById('loginLogsTable');
+    if (table && table.style.display === 'block') {
+        loadLoginLogs();
+    }
+}, 10000); // 10000ms = 10 giây
+
+
+function loadPackages() {
+    // Lấy context path từ URL hiện tại
+    const pathParts = window.location.pathname.split('/');
+    const contextPath = pathParts.length > 1 ? `/${pathParts[1]}` : '';
+
+    fetch(`${contextPath}/admin/packages`)
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error("HTTP status " + res.status);
+                }
+                return res.json();
+            })
+            .then(data => {
+                const tbody = document.querySelector("#packagesTableData tbody");
+                tbody.innerHTML = "";
+
+                data.forEach((pkg, index) => {
+                    const tr = document.createElement("tr");
+                    // Giới hạn mô tả chỉ hiển thị 150 ký tự và thêm "..." nếu dài hơn
+                    const truncatedDescription = pkg.description && pkg.description.length > 150
+                            ? pkg.description.slice(0, 150) + "..."
+                            : pkg.description;
+
+                    tr.innerHTML = `
+                    <td>${index + 1}</td>
+                    <td>${pkg.name}</td>
+                    <td>${pkg.price.toLocaleString()}₫</td>
+                    <td>${pkg.durationDays}</td>
+                    <td>${truncatedDescription || ""}</td>
+                    <td>
+                        <button class="action-buttons__btn action-buttons__btn--edit" onclick="openEditPackageModal(${pkg.id})"> Edit</button>
+                        <button class="action-buttons__btn action-buttons__btn--editdelete" onclick="openDeletePackageModal(${pkg.id})"> Delete</button>
+                    </td>
+                `;
+
+                    tbody.appendChild(tr);
+                });
+            })
+            .catch(error => {
+                console.error(" Failed to load packages:", error);
+                alert("Không thể tải danh sách gói tập!");
+            });
+}
+
+
+function openEditPackageModal(id) {
+    const pathParts = window.location.pathname.split('/');
+    const contextPath = pathParts.length > 1 ? `/${pathParts[1]}` : '';
+
+    fetch(`${contextPath}/admin/packages?id=${id}`)
+            .then(res => {
+                if (!res.ok)
+                    throw new Error("Không tìm thấy package");
+                return res.json();
+            })
+            .then(pkg => {
+                document.getElementById("editPackageId").value = pkg.id;
+                document.getElementById("editPackageName").value = pkg.name;
+                document.getElementById("editPackageDescription").value = pkg.description;
+                document.getElementById("editPackageDuration").value = pkg.durationDays;
+                document.getElementById("editPackagePrice").value = pkg.price;
+                document.getElementById("editPackageStatus").value = pkg.isActive ? "1" : "0";
+
+                // Hiển thị modal
+                document.getElementById("editPackageModal").style.display = "block";
+            })
+            .catch(err => {
+                alert(" Không thể tải dữ liệu gói tập.");
+                console.error(err);
+            });
+}
+
+
+function openDeletePackageModal(id) {
+    document.getElementById("deletePackageId").value = id;
+    document.getElementById("resultDeletePackage").innerHTML = "";
+    document.getElementById("deletePackageModal").style.display = "block";
+}
+//function openAddPackageModal() {
+//    document.getElementById("resultAddPackage").innerHTML = "";
+//    document.getElementById("addPackageModal").style.display = "block";
+//}

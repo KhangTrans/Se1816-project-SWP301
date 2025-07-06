@@ -10,8 +10,21 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 public class VoucherDao extends DBcontext {
+
+    public int countVouchers() {
+        String sql = "SELECT COUNT(*) FROM vouchers";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     /**
      * Retrieves all vouchers from the database.
@@ -160,8 +173,88 @@ public class VoucherDao extends DBcontext {
         return null;
     }
 
+    /**
+     * Single comprehensive search method for vouchers that replaces all other
+     * search methods. All parameters are optional - pass null for any parameter
+     * you don't want to filter by.
+     *
+     * @param search Text to search in code or description (null for no text
+     * search)
+     * @param active Filter by active status (true=only active, false=only
+     * inactive, null=all)
+     * @param fromDate Filter by start date (null for no start date filter)
+     * @param toDate Filter by end date (null for no end date filter)
+     * @return List of vouchers matching the criteria
+     * @throws SQLException If a database error occurs
+     */
+    public List<Voucher> searchVoucher(String search, Boolean active, LocalDate fromDate, LocalDate toDate) throws SQLException {
+        List<Voucher> results = new ArrayList<>();
+
+        // Build the SQL query with optional conditions
+        StringBuilder sql = new StringBuilder("SELECT * FROM vouchers WHERE 1=1");
+
+        List<Object> params = new ArrayList<>();
+
+        // Add search condition if provided
+        if (search != null && !search.trim().isEmpty()) {
+            sql.append(" AND (code LIKE ? OR description LIKE ?)");
+            params.add("%" + search.trim() + "%");
+            params.add("%" + search.trim() + "%");
+        }
+
+        // Add active status condition if specified
+        if (active != null) {
+            sql.append(" AND is_active = ?");
+            params.add(active ? 1 : 0);
+        }
+
+        // Add date range conditions if provided
+        if (fromDate != null) {
+            sql.append(" AND start_date >= ?");
+            params.add(java.sql.Date.valueOf(fromDate));
+        }
+
+        if (toDate != null) {
+            sql.append(" AND end_date <= ?");
+            params.add(java.sql.Date.valueOf(toDate));
+        }
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+
+            for (int i = 0; i < params.size(); i++) {
+                Object param = params.get(i);
+                if (param instanceof String) {
+                    ps.setString(i + 1, (String) param);
+                } else if (param instanceof Integer) {
+                    ps.setInt(i + 1, (Integer) param);
+                } else if (param instanceof java.sql.Date) {
+                    ps.setDate(i + 1, (java.sql.Date) param);
+                }
+            }
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Voucher voucher = new Voucher();
+                    voucher.setVoucherId(rs.getInt("voucher_id"));
+                    voucher.setCode(rs.getString("code"));
+                    voucher.setDescription(rs.getString("description"));
+                    voucher.setDiscountPercent(rs.getInt("discount_percent"));
+                    voucher.setMaxDiscount(rs.getBigDecimal("max_discount"));
+                    voucher.setUsageLimit(rs.getInt("usage_limit"));
+                    voucher.setUsedCount(rs.getInt("used_count"));
+                    voucher.setMinOrderAmount(rs.getBigDecimal("min_order_amount"));
+                    voucher.setStartDate(rs.getDate("start_date").toLocalDate());
+                    voucher.setEndDate(rs.getDate("end_date").toLocalDate());
+                    voucher.setActive(rs.getBoolean("is_active"));
+                    results.add(voucher);
+                }
+            }
+        }
+
+        return results;
+    }
+
     //=============DUY KHANG==================================//
-    
     public List<Voucher> getActiveVouchers() throws SQLException {
         List<Voucher> list = new ArrayList<>();
         String sql = "SELECT * FROM vouchers WHERE is_active = 1 AND GETDATE() BETWEEN start_date AND end_date";
@@ -189,7 +282,7 @@ public class VoucherDao extends DBcontext {
     }
 
     public boolean hasUserClaimed(int voucherId, int customerId) throws SQLException {
-        String sql = "SELECT 1 FROM voucher_usages WHERE voucher_id = ? AND customer_id = ?";
+        String sql = "SELECT 1 FROM voucher_usages WHERE voucher_id = ? AND account_id = ?";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, voucherId);
             ps.setInt(2, customerId);
@@ -203,11 +296,119 @@ public class VoucherDao extends DBcontext {
             return false;
         }
 
-        String sql = "INSERT INTO voucher_usages (voucher_id, customer_id) VALUES (?, ?)";
+        String sql = "INSERT INTO voucher_usages (voucher_id, account_id) VALUES (?, ?)";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, voucherId);
             ps.setInt(2, customerId);
             return ps.executeUpdate() > 0;
         }
+    }
+
+    // Hàm lấy danh sách các voucher mà khách hàng có thể sử dụng
+    public List<Voucher> getAvailableVouchersForCustomer(int accountId) throws SQLException {
+        List<Voucher> vouchers = new ArrayList<>();
+
+        String query = "SELECT v.* FROM vouchers v "
+                + "JOIN voucher_usages vu ON v.voucher_id = vu.voucher_id "
+                + "WHERE vu.account_id = ? AND v.is_active = 1 "
+                + "AND v.used_count < v.usage_limit "
+                + // Kiểm tra số lượng sử dụng còn lại
+                "AND CURRENT_DATE BETWEEN v.start_date AND v.end_date";  // Kiểm tra ngày hết hạn
+
+        // Khai báo PreparedStatement và ResultSet
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
+
+            ps.setInt(1, accountId);  // Set account_id vào câu truy vấn
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    // Nếu tìm thấy voucher, thêm vào danh sách
+                    Voucher voucher = new Voucher();
+                    voucher.setVoucherId(rs.getInt("voucher_id"));
+                    voucher.setCode(rs.getString("code"));
+                    voucher.setDescription(rs.getString("description"));
+                    voucher.setDiscountPercent(rs.getInt("discount_percent"));
+                    voucher.setMaxDiscount(rs.getBigDecimal("max_discount"));
+                    voucher.setUsageLimit(rs.getInt("usage_limit"));
+                    voucher.setUsedCount(rs.getInt("used_count"));
+                    voucher.setMinOrderAmount(rs.getBigDecimal("min_order_amount"));
+                    voucher.setStartDate(rs.getDate("start_date").toLocalDate());
+                    voucher.setEndDate(rs.getDate("end_date").toLocalDate());
+                    voucher.setActive(rs.getBoolean("is_active"));
+
+                    vouchers.add(voucher);  // Thêm voucher vào danh sách
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new SQLException("Error fetching available vouchers for customer: " + e.getMessage());
+        }
+
+        return vouchers;  // Trả về danh sách voucher có sẵn cho khách hàng
+    }
+
+    // Lấy danh sách các vouchers mà khách hàng đã thu thập
+    public List<Voucher> getVouchersByAccountId(int accountId) {
+        List<Voucher> vouchers = new ArrayList<>();
+
+        // Kết nối đến cơ sở dữ liệu và truy vấn thông tin vouchers của khách hàng
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(
+                "SELECT v.voucher_id, v.code, v.description, v.discount_percent, v.max_discount, v.usage_limit, v.used_count, v.min_order_amount, v.start_date, v.end_date, v.is_active "
+                + "FROM vouchers v "
+                + "INNER JOIN voucher_usages vu ON v.voucher_id = vu.voucher_id "
+                + "WHERE vu.account_id = ?")) {
+
+            stmt.setInt(1, accountId);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Voucher voucher = new Voucher();
+                voucher.setVoucherId(rs.getInt("voucher_id"));
+                voucher.setCode(rs.getString("code"));
+                voucher.setDescription(rs.getString("description"));
+                voucher.setDiscountPercent(rs.getInt("discount_percent"));
+                voucher.setMaxDiscount(rs.getBigDecimal("max_discount"));
+                voucher.setUsageLimit(rs.getInt("usage_limit"));
+                voucher.setUsedCount(rs.getInt("used_count"));
+                voucher.setMinOrderAmount(rs.getBigDecimal("min_order_amount"));
+                voucher.setStartDate(rs.getDate("start_date").toLocalDate());
+                voucher.setEndDate(rs.getDate("end_date").toLocalDate());
+                voucher.setActive(rs.getBoolean("is_active"));
+
+                vouchers.add(voucher);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return vouchers;
+    }
+
+    // Lấy voucher theo referralCode
+    public Voucher getVoucherByReferralCode(String referralCode) {
+        String query = "SELECT * FROM vouchers WHERE code = '?'";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setString(1, referralCode);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Voucher voucher = new Voucher();
+                voucher.setVoucherId(rs.getInt("voucher_id"));
+                voucher.setCode(rs.getString("code"));
+                voucher.setDescription(rs.getString("description"));
+                voucher.setDiscountPercent(rs.getInt("discount_percent"));
+                voucher.setMaxDiscount(rs.getBigDecimal("max_discount"));
+                voucher.setUsageLimit(rs.getInt("usage_limit"));
+                voucher.setUsedCount(rs.getInt("used_count"));
+                voucher.setMinOrderAmount(rs.getBigDecimal("min_order_amount"));
+                voucher.setStartDate(rs.getDate("start_date").toLocalDate());
+                voucher.setEndDate(rs.getDate("end_date").toLocalDate());
+                voucher.setActive(rs.getBoolean("is_active"));
+                return voucher;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

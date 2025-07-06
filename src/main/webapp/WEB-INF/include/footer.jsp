@@ -112,13 +112,11 @@
         <!-- Copyright -->
         <div class="row align-items-center">
             <div class="col-md-8 col-lg-8">
-                <p class="text-left">© 2025 Bản quyền thuộc về <strong>FPT University - Cần Thơ</strong>. All rights reserved.</p>
+                <p class="text-left">© 2025 Bản quyền thuộc về <strong>Group 4 SE1816 FPTU Cần Thơ</strong>. All rights reserved.</p>
             </div>
         </div>
     </div>
 </footer>
-
-
 <!-- Font Awesome (for icons) -->
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 <!-- Bootstrap CSS (n?u ch?a có) -->

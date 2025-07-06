@@ -20,7 +20,8 @@
             <label>Full Name:</label>
             <input type="text" name="fullName" id="editFullName" required><br><br>
 
-            <input type="email" name="email" id="editEmail" hidden>
+            <label>Email:</label>
+            <input type="email" name="email" id="editEmail" required>
 
             <label>Phone:</label>
             <input type="text" name="phone" id="editPhone" required><br><br>

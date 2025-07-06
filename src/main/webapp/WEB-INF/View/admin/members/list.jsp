@@ -13,7 +13,7 @@
         <table class="data-table" id="customerTable">
             <thead>
                 <tr>
-                    <th>No</th>
+                    <th style="width: 50px">No</th>
                     <th>Avatar</th>
                     <th>Username</th>
                     <th>Full Name</th>

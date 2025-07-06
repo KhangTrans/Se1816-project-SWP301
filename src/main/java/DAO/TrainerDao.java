@@ -16,7 +16,7 @@ public class TrainerDao extends DBcontext {
 
         String sql
                 = "SELECT "
-                + "t.trainer_id, t.full_name, t.phone, t.email, t.bio, t.experience_years, t.rating, t.trainer_code, "
+                + "t.trainer_id, t.full_name, t.phone, t.email, t.bio, t.experience_years, t.rating,t.price, t.trainer_code, "
                 + "a.account_id, a.username, a.avatar, a.role, a.auth_provider, a.created_at "
                 + "FROM trainers t "
                 + "JOIN accounts a ON t.account_id = a.account_id";
@@ -33,8 +33,9 @@ public class TrainerDao extends DBcontext {
                 trainer.setBio(rs.getString("bio"));
                 trainer.setExperienceYears(rs.getInt("experience_years"));
                 trainer.setRating(rs.getFloat("rating"));
+                trainer.setPrice(rs.getDouble("price"));
                 trainer.setTrainer_code(rs.getString("trainer_code"));
-
+                System.out.println("Gia: " + trainer.getPrice());
                 // Tạo đối tượng Account và gán
                 Account account = new Account();
                 account.setAccountId(rs.getInt("account_id"));
@@ -107,8 +108,8 @@ public class TrainerDao extends DBcontext {
 
     ////////////////TEST////////////////
     public boolean insertTrainer(Trainers trainer) {
-        String sql = "INSERT INTO trainers (account_id, full_name, email, phone, bio, experience_years, rating, trainer_code)\n"
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO trainers (account_id, full_name, email, phone, bio, experience_years, rating, trainer_code, price)\n"
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, trainer.getAccountId().getAccountId());
             stmt.setString(2, trainer.getFullName());
@@ -118,6 +119,7 @@ public class TrainerDao extends DBcontext {
             stmt.setInt(6, trainer.getExperienceYears());
             stmt.setFloat(7, trainer.getRating());
             stmt.setString(8, trainer.getTrainer_code());
+            stmt.setDouble(9, trainer.getPrice());
             System.out.println(" Trainer code trước khi insert: " + trainer.getTrainer_code());
             return stmt.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -230,7 +232,7 @@ public class TrainerDao extends DBcontext {
     }
 
     public boolean updateTrainer(Trainers trainer) {
-        String sql = "UPDATE trainers SET full_name = ?, email = ?, phone = ?, bio = ?, experience_years = ?, rating = ? WHERE trainer_id = ?";
+        String sql = "UPDATE trainers SET full_name = ?, email = ?, phone = ?, bio = ?, experience_years = ?, rating = ?, price = ? WHERE trainer_id = ?";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, trainer.getFullName());
             ps.setString(2, trainer.getEmail());
@@ -238,7 +240,8 @@ public class TrainerDao extends DBcontext {
             ps.setString(4, trainer.getBio());
             ps.setInt(5, trainer.getExperienceYears());
             ps.setFloat(6, trainer.getRating());
-            ps.setInt(7, trainer.getTrainerId());
+            ps.setDouble(7, trainer.getPrice());      // moved price to position 7
+            ps.setInt(8, trainer.getTrainerId());     // moved trainerId to last position
             int affected = ps.executeUpdate();
             return affected > 0;
         } catch (Exception e) {
@@ -259,4 +262,104 @@ public class TrainerDao extends DBcontext {
         return false;
     }
 
+    public int countTrainers() {
+        String sql = "SELECT COUNT(*) FROM trainers";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    public Trainers getTrainerDetails(int trainerId) {
+        Trainers trainer = null;
+        String sql = "SELECT t.*, a.* FROM trainers t JOIN accounts a ON t.account_id = a.account_id WHERE t.trainer_id = ?";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, trainerId); // Đảm bảo rằng trainerId được truyền vào
+            System.out.println("Executing query with trainerId: " + trainerId); // Kiểm tra giá trị trainerId
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                trainer = new Trainers();
+                trainer.setTrainerId(rs.getInt("trainer_id"));
+                trainer.setFullName(rs.getString("full_name"));
+                trainer.setEmail(rs.getString("email"));
+                trainer.setPhone(rs.getString("phone"));
+                trainer.setBio(rs.getString("bio"));
+                trainer.setExperienceYears(rs.getInt("experience_years"));
+                trainer.setRating(rs.getFloat("rating"));
+                trainer.setPrice(rs.getDouble("price"));
+                trainer.setTrainer_code(rs.getString("trainer_code"));
+
+                // Lấy object Account
+                Account acc = new Account();
+                acc.setAccountId(rs.getInt("account_id"));
+                acc.setUsername(rs.getString("username"));
+                acc.setAvatar(rs.getBytes("avatar"));
+                trainer.setAccountId(acc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace(); // In lỗi nếu có
+        }
+        return trainer;
+    }
+
+    public List<Trainers> searchTrainers(String searchTerm, String experience, String rating) throws SQLException {
+        List<Trainers> trainersList = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT t.*, a.* FROM trainers t JOIN accounts a ON t.account_id = a.account_id WHERE 1=1");
+
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            sql.append(" AND (a.username LIKE ? OR t.full_name LIKE ?)");
+        }
+
+        if (experience != null && !experience.isEmpty()) {
+            sql.append(" AND t.experience_years >= ?");
+        }
+
+        if (rating != null && !rating.isEmpty()) {
+            sql.append(" AND t.rating >= ?");
+        }
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+
+            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + searchTerm + "%");
+                ps.setString(paramIndex++, "%" + searchTerm + "%");
+            }
+
+            if (experience != null && !experience.isEmpty()) {
+                ps.setInt(paramIndex++, Integer.parseInt(experience));
+            }
+
+            if (rating != null && !rating.isEmpty()) {
+                ps.setFloat(paramIndex++, Float.parseFloat(rating));
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Trainers trainer = new Trainers();
+                trainer.setTrainerId(rs.getInt("trainer_id"));
+                trainer.setFullName(rs.getString("full_name"));
+                trainer.setEmail(rs.getString("email"));
+                trainer.setPhone(rs.getString("phone"));
+                trainer.setBio(rs.getString("bio"));
+                trainer.setExperienceYears(rs.getInt("experience_years"));
+                trainer.setRating(rs.getFloat("rating"));
+                trainer.setPrice(rs.getDouble("price"));
+
+                Account account = new Account();
+                account.setAccountId(rs.getInt("account_id"));
+                account.setUsername(rs.getString("username"));
+                trainer.setAccountId(account);
+
+                trainersList.add(trainer);
+            }
+        }
+        return trainersList;
+    }
 }

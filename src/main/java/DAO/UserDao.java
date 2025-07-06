@@ -59,7 +59,7 @@ public class UserDao extends DBcontext {
     }
 
     public boolean login(String username, String password) throws SQLException {
-        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role IN ('customer','trainer')";
+        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role IN ('customer')";
         try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, username);
             stmt.setString(2, hashMD5(password));
@@ -465,6 +465,59 @@ public class UserDao extends DBcontext {
         }
     }
 
+    public List<Staff> searchStaffs(String searchTerm, String phone, String status) throws SQLException {
+        List<Staff> staffList = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT s.*, a.* FROM staff s JOIN accounts a ON s.account_id = a.account_id WHERE 1=1");
+
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            sql.append(" AND (a.username LIKE ? OR s.full_name LIKE ?)");
+        }
+        if (phone != null && !phone.trim().isEmpty()) {
+            sql.append(" AND s.phone LIKE ?");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append(" AND s.status = ?");
+        }
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+                String keyword = "%" + searchTerm + "%";
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+            }
+            if (phone != null && !phone.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + phone + "%");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Staff staff = new Staff();
+                staff.setStaffId(rs.getInt("staff_id"));
+                staff.setStatus(rs.getString("status"));
+                staff.setFullName(rs.getString("full_name"));
+                staff.setEmail(rs.getString("email"));
+                staff.setStaffCode(rs.getString("staff_code"));
+                staff.setPhone(rs.getString("phone"));
+                staff.setPosition(rs.getString("position"));
+
+                Account acc = new Account();
+                acc.setAccountId(rs.getInt("account_id"));
+                acc.setUsername(rs.getString("username"));
+                acc.setRole(rs.getString("role"));
+                acc.setCreatedAt(rs.getTimestamp("created_at"));
+                acc.setAvatar(rs.getBytes("avatar"));
+                staff.setAccount(acc);
+
+                staffList.add(staff);
+            }
+        }
+        return staffList;
+    }
+
     public List<Account> getAvailableStaffAccounts() throws SQLException {
         List<Account> accounts = new ArrayList<>();
         String sql
@@ -532,35 +585,33 @@ public class UserDao extends DBcontext {
         }
     }
 
-    public void updateStaff(int accountId, String fullName, String phone, String position, String status, InputStream avatarStream) throws SQLException {
-        String updateStaffSql = "UPDATE staff SET full_name = ?, phone = ?, position = ?, status = ? WHERE account_id = ?";
-        String updateAvatarSql = "UPDATE accounts SET avatar = ? WHERE account_id = ?";
+    public void updateStaff(int accountId, String fullName, String email, String phone, String position, String status, InputStream avatarStream) throws SQLException {
+        String updateStaffSql = "UPDATE staff SET full_name = ?, email = ?, phone = ?, position = ?, status = ? WHERE account_id = ?";
+        String updateAccountSql = "UPDATE accounts SET" + (avatarStream != null ? ", avatar = ?" : "") + " WHERE account_id = ?";
 
         try ( Connection conn = getConnection()) {
             conn.setAutoCommit(false);
 
             try (
-                     PreparedStatement stmt1 = conn.prepareStatement(updateStaffSql);  PreparedStatement stmt2 = (avatarStream != null) ? conn.prepareStatement(updateAvatarSql) : null) {
+                     PreparedStatement stmt1 = conn.prepareStatement(updateStaffSql);  PreparedStatement stmt2 = conn.prepareStatement(updateAccountSql)) {
                 // Cập nhật bảng staff
                 stmt1.setString(1, fullName);
-                stmt1.setString(2, phone);
-                stmt1.setString(3, position);
-                stmt1.setString(4, status);
-                stmt1.setInt(5, accountId);
-                int updatedStaff = stmt1.executeUpdate();
-                System.out.println("✅ Rows updated in staff = " + updatedStaff);
+                stmt1.setString(2, email);
+                stmt1.setString(3, phone);
+                stmt1.setString(4, position);
+                stmt1.setString(5, status);
+                stmt1.setInt(6, accountId);
+                stmt1.executeUpdate();
 
+                // Cập nhật avatar (nếu có) trong account
                 if (avatarStream != null) {
                     stmt2.setBlob(1, avatarStream);
                     stmt2.setInt(2, accountId);
-                    int updatedAvatar = stmt2.executeUpdate();
-                    System.out.println("✅ Rows updated in account avatar = " + updatedAvatar);
+                    stmt2.executeUpdate();
                 }
-
                 conn.commit();
             } catch (SQLException e) {
                 conn.rollback();
-                System.err.println("❌ Error during updating staff or avatar: " + e.getMessage());
                 throw e;
             } finally {
                 conn.setAutoCommit(true);
@@ -662,30 +713,44 @@ public class UserDao extends DBcontext {
     }
 //============================DUY KHANG======================================================
 
-    public Customer getCustomerByAccountId(int accountId) {
+    public Customer getCustomerByAccountId(int accountId) throws SQLException {
         String sql = "SELECT * FROM customers WHERE account_id = ?";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
-
             ps.setInt(1, accountId);
-            ResultSet rs = ps.executeQuery();
-            if (rs.next()) {
-                Customer customer = new Customer();
-                customer.setCustomerId(rs.getInt("customer_id"));
-                customer.setFullName(rs.getString("full_name"));
-                customer.setEmail(rs.getString("email"));
-                customer.setPhone(rs.getString("phone"));
-                customer.setCustomerCode(rs.getString("customer_code"));
-                customer.setAddress(rs.getString("address"));
-
-                Account acc = new Account();
-                acc.setAccountId(rs.getInt("account_id")); // Chỉ cần ID, nếu cần đầy đủ thì lấy thêm từ bảng accounts
-                customer.setAccount(acc);
-
-                return customer;
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("customer_id"));
+                    customer.setFullName(rs.getString("full_name"));
+                    customer.setEmail(rs.getString("email"));
+                    customer.setPhone(rs.getString("phone"));
+                    customer.setCustomerCode(rs.getString("customer_code"));
+                    customer.setAddress(rs.getString("address"));
+                    return customer;
+                }
             }
+        }
+        return null;
+    }
 
-        } catch (Exception e) {
-            e.printStackTrace();
+    public Account loginAndReturnAccount(String username, String password) throws SQLException {
+        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role = 'customer'";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, username);
+            stmt.setString(2, hashMD5(password));
+
+            try ( ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Account acc = new Account();
+                    acc.setAccountId(rs.getInt("account_id"));
+                    acc.setUsername(rs.getString("username"));
+                    acc.setPassword(rs.getString("password"));
+                    acc.setRole(rs.getString("role"));
+                    acc.setCreatedAt(rs.getTimestamp("created_at"));
+                    return acc;
+                }
+            }
         }
         return null;
     }

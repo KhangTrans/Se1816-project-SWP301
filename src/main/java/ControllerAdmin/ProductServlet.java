@@ -34,11 +34,47 @@ public class ProductServlet extends HttpServlet {
                 request.setAttribute("product", product);
                 request.getRequestDispatcher("/WEB-INF/View/admin/products/edit.jsp").forward(request, response);
             } else if ("ajaxList".equals(action)) {
-                // Trả JSON để dùng với fetch JavaScript
-                List<Products> products = productDao.getAllProducts(); // nên bao gồm cả categoryName
+                // Lấy tham số lọc từ request
+                String search = request.getParameter("search");
+                String categoryStr = request.getParameter("category");
+
+                Integer categoryId = null;
+                if (categoryStr != null && !categoryStr.isEmpty()) {
+                    try {
+                        categoryId = Integer.parseInt(categoryStr);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+
+                // Gọi DAO để lấy sản phẩm theo keyword và category
+                List<Products> products = productDao.getProductsBySearch(
+                        search != null ? search : "",
+                        categoryId,
+                        null, // sortOrder (có thể xử lý sau nếu muốn sắp xếp)
+                        1, // page
+                        100 // pageSize
+                );
+
+                // Trả kết quả JSON
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 new com.google.gson.Gson().toJson(products, response.getWriter());
+            } else if ("ajaxList".equals(action)) {
+                String search = request.getParameter("search");
+                String categoryStr = request.getParameter("category");
+
+                Integer categoryId = null;
+                if (categoryStr != null && !categoryStr.isEmpty()) {
+                    try {
+                        categoryId = Integer.parseInt(categoryStr);
+                    } catch (NumberFormatException ignored) {
+                    }
+                }
+
+                List<Products> filteredProducts = productDao.getProductsBySearch(search, categoryId, null);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                new com.google.gson.Gson().toJson(filteredProducts, response.getWriter());
             } else {
                 List<Products> products = productDao.getAllProducts();
                 // LẤY THÊM LIST CATEGORIES

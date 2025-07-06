@@ -71,13 +71,18 @@
                                accept=".png, .jpg"/>
                     </div>
                 </div>
-
+                <a href="#" class="d-flex justify-content-center"
+                   data-bs-toggle="modal"
+                   data-bs-target="#loginModal">
+                   Already have an account? Login here</a>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary w-100">Register</button>
                 </div>
             </form>
+
         </div>
     </div>
+
 </div>
 <script>
     document.getElementById("signupForm").addEventListener("submit", function (e) {

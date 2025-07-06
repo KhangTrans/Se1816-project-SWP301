@@ -36,7 +36,7 @@
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>No</th>
+                    <th style="width: 50px">No</th>
                     <th>Avatar</th>
                     <th>Username</th>
                     <th>Role</th>

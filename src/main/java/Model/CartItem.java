@@ -5,18 +5,18 @@ import java.time.LocalDateTime;
 public class CartItem {
 
     private int cartItemId;
-    private Customer customer;       // Quan hệ N-1
-    private Products product;        // Quan hệ N-1
+    private int accountId;       // Thay đổi thành kiểu int
+    private int productId;       // Thay đổi thành kiểu int
     private int quantity;
     private LocalDateTime addedAt;
 
     public CartItem() {
     }
 
-    public CartItem(int cartItemId, Customer customer, Products product, int quantity, LocalDateTime addedAt) {
+    public CartItem(int cartItemId, int accountId, int productId, int quantity, LocalDateTime addedAt) {
         this.cartItemId = cartItemId;
-        this.customer = customer;
-        this.product = product;
+        this.accountId = accountId;
+        this.productId = productId;
         this.quantity = quantity;
         this.addedAt = addedAt;
     }
@@ -29,20 +29,20 @@ public class CartItem {
         this.cartItemId = cartItemId;
     }
 
-    public Customer getCustomer() {
-        return customer;
+    public int getAccountId() {
+        return accountId;
     }
 
-    public void setCustomer(Customer customer) {
-        this.customer = customer;
+    public void setAccountId(int accountId) {
+        this.accountId = accountId;
     }
 
-    public Products getProduct() {
-        return product;
+    public int getProductId() {
+        return productId;
     }
 
-    public void setProduct(Products product) {
-        this.product = product;
+    public void setProductId(int productId) {
+        this.productId = productId;
     }
 
     public int getQuantity() {
@@ -59,16 +59,5 @@ public class CartItem {
 
     public void setAddedAt(LocalDateTime addedAt) {
         this.addedAt = addedAt;
-    }
-
-    @Override
-    public String toString() {
-        return "CartItem{" +
-                "cartItemId=" + cartItemId +
-                ", customerId=" + (customer != null ? customer.getCustomerId() : "null") +
-                ", productId=" + (product != null ? product.getProductId() : "null") +
-                ", quantity=" + quantity +
-                ", addedAt=" + addedAt +
-                '}';
     }
 }

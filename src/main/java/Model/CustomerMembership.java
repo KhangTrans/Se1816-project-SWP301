@@ -10,8 +10,26 @@ public class CustomerMembership {
     private LocalDate startDate;
     private LocalDate endDate;
     private String paymentStatus; // "pending", "paid", "cancelled"
+    private Account accountId;
 
     public CustomerMembership() {
+    }
+
+    public Account getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(Account accountId) {
+        this.accountId = accountId;
+    }
+
+    public CustomerMembership(int membershipId, MembershipPackage membershipPackage, LocalDate startDate, LocalDate endDate, String paymentStatus, Account accountId) {
+        this.membershipId = membershipId;
+        this.membershipPackage = membershipPackage;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.paymentStatus = paymentStatus;
+        this.accountId = accountId;
     }
 
     public CustomerMembership(int membershipId, Customer customer, MembershipPackage membershipPackage, LocalDate startDate, LocalDate endDate, String paymentStatus) {
