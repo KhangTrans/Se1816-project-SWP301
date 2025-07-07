@@ -41,24 +41,28 @@
             <p class="main-content__subtitle">System and Data Management</p>
         </div>
         <div class="dashboard__stats">
-            <div class="stat-card" onclick="AdminDashboard.showTable('accountTable')">👤<br>Accounts<br><strong><%= request.getAttribute("accountCount")%></strong></div>
-            <div class="stat-card" onclick="AdminDashboard.showTable('trainersTable')">🧑‍🏫<br>Trainers<br><strong><%= request.getAttribute("trainerCount")%></strong></div>
-            <div class="stat-card" onclick="AdminDashboard.showTable('staffsTable')">🧑‍💼<br>Staff<br><strong><%= request.getAttribute("staffCount")%></strong></div>
-            <div class="stat-card" onclick="AdminDashboard.showTable('customersTable')">🧍<br>Members<br><strong><%= request.getAttribute("memberCount")%></strong></div>
-            <div class="stat-card" onclick="AdminDashboard.showTable('productsTable')">🛒<br>Products<br><strong><%= request.getAttribute("productCount")%></strong></div>
-            <div class="stat-card" onclick="AdminDashboard.showTable('vouchersTable')">🎟️<br>Vouchers<br><strong><%= request.getAttribute("voucherCount")%></strong></div>
-            <div class="stat-card" onclick="AdminDashboard.showTable('blogTable')">📝<br>Blogs<br><strong><%= request.getAttribute("blogCount")%></strong></div>
-            <div class="stat-card" onclick="AdminDashboard.showTable('blogTable')">📝<br>Blogs<br><strong><%= request.getAttribute("blogCount")%></strong></div>
+            <div class="stat-card" onclick="AdminDashboard.showTable('accountTable')"><br>Accounts<br><strong><%= request.getAttribute("accountCount")%></strong></div>
+            <div class="stat-card" onclick="AdminDashboard.showTable('trainersTable')"><br>Trainers<br><strong><%= request.getAttribute("trainerCount")%></strong></div>
+            <div class="stat-card" onclick="AdminDashboard.showTable('staffsTable')"><br>Staff<br><strong><%= request.getAttribute("staffCount")%></strong></div>
+            <div class="stat-card" onclick="AdminDashboard.showTable('customersTable')"><br>Members<br><strong><%= request.getAttribute("memberCount")%></strong></div>
+            <div class="stat-card" onclick="AdminDashboard.showTable('productsTable')"><br>Products<br><strong><%= request.getAttribute("productCount")%></strong></div>
+            <div class="stat-card" onclick="AdminDashboard.showTable('vouchersTable')">️<br>Vouchers<br><strong><%= request.getAttribute("voucherCount")%></strong></div>
+            <div class="stat-card" onclick="AdminDashboard.showTable('ordersTable')"><br>Orders<br><strong><%= request.getAttribute("orderCount")%></strong></div>            <div class="stat-card" onclick="AdminDashboard.showTable('blogTable')">📝<br>Blogs<br><strong><%= request.getAttribute("blogCount")%></strong></div>
 
         </div>
-        <button onclick="toggleChart()" id="toggleChartBtn" style="padding: 6px 12px; background-color:#007bff; color:white; border:none; border-radius:5px; margin-bottom: 10px">
-            📈 Biểu đồ
+        <button onclick="toggleChart()" id="toggleChartBtn"
+                style="padding: 6px 12px;
+                background-color:#007bff;
+                color:white; border:none;
+                border-radius:5px;
+                margin-bottom: 10px">
+             Biểu đồ
         </button>
 
 
         <div id="chartWrapper" style="width: 100%; max-width: 90%; height: 500px; margin: 40px auto;">
             <div style="display:flex; justify-content: space-between; align-items:center; margin-bottom: 10px;">
-                <h3 style="margin: 0;">📊 Thống kê số sản phẩm bán ra</h3>
+                <h3 style="margin: 0;"> Thống kê số sản phẩm bán ra</h3>
                 <select id="rangeSelect" onchange="loadChartData()">
                     <option value="7">7 ngày gần đây</option>
                     <option value="30">30 ngày gần đây</option>
@@ -77,6 +81,7 @@
         <%@include file="/WEB-INF/View/admin/loginLog/loginLog.jsp" %>
         <%@include file="/WEB-INF/View/admin/packages/list.jsp" %>
         <%@include file="/WEB-INF/View/admin/orders/list.jsp" %>
+        <%@include file="/WEB-INF/View/admin/memberPackages/list.jsp" %>
     </main>
 </div>
 

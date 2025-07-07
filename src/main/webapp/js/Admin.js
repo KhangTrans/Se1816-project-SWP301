@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loadCustomers();
     loadLoginLogs();
     loadPackages();
+    loadMemberPackage();
     ;
 });
 
@@ -127,10 +128,10 @@ function submitFormAjax(form, resultContainerId, event) {
     if (event)
         event.preventDefault();
     const selectedCategory = document.getElementById("editProductCategory").value;
-    console.log("📤 Sending categoryId:", selectedCategory);
+    console.log("Sending categoryId:", selectedCategory);
 
     const formData = new FormData(form);
-    console.log("✅ Dữ liệu gửi đi:");
+    console.log(" Dữ liệu gửi đi:");
     for (let [key, val] of formData.entries()) {
         console.log(`${key}: ${val}`);
     }
@@ -138,7 +139,7 @@ function submitFormAjax(form, resultContainerId, event) {
     const method = form.getAttribute('method') || 'post';
 
     if (!action) {
-        console.error("❌ Form không có thuộc tính 'action'");
+        console.error(" Form không có thuộc tính 'action'");
         const resultDiv = document.getElementById(resultContainerId);
         if (resultDiv) {
             resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: form không có action!</p>`;
@@ -234,7 +235,7 @@ function loadAccounts() {
                     const row = `
                     <tr>
                         <td>${index + 1}</td>
-                        <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
+                        <td><img src="${avatarUrl}" alt="Avatar" style="width:60px;height:60px;border-radius:50%;"></td>
                         <td>${acc.username}</td>
                         <td>${acc.role}</td>
                         <td>${acc.createdAt}</td>
@@ -403,7 +404,7 @@ function openEditProductModal(productId) {
                 const product = data.product;
                 const categories = data.categories;
 
-                // ✅ Gán dữ liệu vào form
+                //  Gán dữ liệu vào form
                 document.getElementById('editProductId').value = product.productId;
                 document.getElementById('editProductName').value = product.name;
                 document.getElementById('editProductDescription').value = product.description;
@@ -415,7 +416,7 @@ function openEditProductModal(productId) {
                 select.innerHTML = '';
 
                 const selectedCategoryId = product.categoryId; // Giả sử server trả số nguyên
-                console.log("📌 Selected Category ID:", selectedCategoryId);
+                console.log(" Selected Category ID:", selectedCategoryId);
 
                 // Gắn các option trước
                 categories.forEach(cat => {
@@ -430,14 +431,14 @@ function openEditProductModal(productId) {
 
                 // Nếu không khớp, chọn option đầu tiên và cảnh báo
                 if (!select.value) {
-                    console.warn("⚠ Không tìm thấy category khớp, chọn giá trị mặc định đầu tiên");
+                    console.warn(" Không tìm thấy category khớp, chọn giá trị mặc định đầu tiên");
                     if (select.options.length > 0) {
                         select.selectedIndex = 0;
                     }
                 }
 
                 // Kiểm tra cuối cùng
-                console.log("✔️ Gán lại select.value =", select.value);
+                console.log("️ Gán lại select.value =", select.value);
 
 
                 //  Hiển thị ảnh chính
@@ -479,7 +480,7 @@ function openEditProductModal(productId) {
                         };
 
                         const deleteBtn = document.createElement('button');
-                        deleteBtn.textContent = "✖";
+                        deleteBtn.textContent = "no";
                         deleteBtn.style.position = "absolute";
                         deleteBtn.style.top = "0";
                         deleteBtn.style.right = "0";
@@ -505,7 +506,7 @@ function openEditProductModal(productId) {
                 openModal('editProductModal');
             })
             .catch(error => {
-                console.error("❌ Lỗi khi load product:", error);
+                console.error(" Lỗi khi load product:", error);
             });
 }
 
@@ -566,8 +567,10 @@ function openDeleteProductModal(productId) {
 const contextPath = '${pageContext.request.contextPath}';
 
 function reloadProductList() {
+    const search = document.getElementById('searchKeyword').value;
+    const category = document.getElementById('categoryFilter').value;
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/admin/products?action=ajaxList`;
+    const url = `${window.location.origin}${contextPath}/admin/products?action=ajaxList&search=${encodeURIComponent(search)}&category=${category}`;
 
     fetch(url)
             .then(response => {
@@ -588,16 +591,19 @@ function reloadProductList() {
                     const imageUrl = product.primaryImageId
                             ? `${window.location.origin}${contextPath}/ImagesServlet?type=product&imageId=${product.primaryImageId}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
-
+                    // Giới hạn mô tả chỉ hiển thị 150 ký tự và thêm "..." nếu dài hơn
+                    const truncatedDescription = product.description && product.description.length > 150
+                            ? product.description.slice(0, 150) + "..."
+                            : product.description;
                     const row = `
                     <tr>
                         <td style="width:60px;">${index + 1}</td>
-                        <td><img src="${imageUrl}" alt="Image" style="width:60px; height:60px; border-radius:10px; margin-top: 5px"></td>
+                        <td><img src="${imageUrl}" alt="Image" style="width:100px; height:100px; border-radius:10px; margin-top: 5px"></td>
                         <td>${product.name}</td>
                         <td>${product.categoryName}</td>
                         <td>${product.price.toLocaleString('vi-VN')} đ</td>
                         <td>${product.stockQuantity}</td>
-                        <td>${product.description || ''}</td>
+                        <td>${truncatedDescription || ''}</td>
                         <td>
                             <button class="action-buttons__btn action-buttons__btn--edit"
                                 onclick="openEditProductModal('${product.productId}', '${product.name}', '${product.description}', '${product.price}', '${product.stockQuantity}', '${product.categoryId}', '${imageUrl}')">
@@ -812,7 +818,7 @@ function submitDeleteVouchers(form) {
     })
             .then(res => res.text())
             .then(text => {
-                console.log("🔍 Raw response:", text);
+                console.log(" Raw response:", text);
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -840,7 +846,7 @@ function submitDeleteVouchers(form) {
 
 // Mở và đổ dữ liệu vào Delete Voucher Modal
 function openDeleteVoucherModal(voucherId) {
-    console.log("voucherId = ", voucherId); // ✅ Log để kiểm tra
+    console.log("voucherId = ", voucherId); // Log để kiểm tra
     document.getElementById("deleteVoucherId").value = voucherId;
     openModal('deleteVoucherModal');
 }
@@ -1005,7 +1011,7 @@ function submitEditVoucher(form) {
     })
             .then(res => res.text())
             .then(text => {
-                console.log("🔍 Raw response:", text);
+                console.log(" Raw response:", text);
                 let data;
                 try {
                     data = JSON.parse(text);
@@ -1597,7 +1603,6 @@ document.getElementById('searchPhone').addEventListener('input', loadStaffData);
 document.getElementById('staffFilter').addEventListener('change', loadStaffData);
 
 
-
 document.addEventListener("DOMContentLoaded", function () {
     // Khi modal được mở
     window.openModal = function (id) {
@@ -1684,13 +1689,15 @@ document.addEventListener("DOMContentLoaded", function () {
 });
 
 function openEditStaffModal(staffId, accountId, username, fullName, email, phone, position, status) {
+
+
     document.getElementById('editStaffId').value = staffId;
     document.getElementById('editStaffAccountId').value = accountId;
     document.getElementById('editFullName').value = fullName;
-    document.getElementById('editEmail').value = email; 
     document.getElementById('editPhone').value = phone;
     document.getElementById('editPosition').value = position;
-    document.getElementById('editStaffStatus').value = status;
+    document.getElementById('editStatus').value = status;
+
     document.querySelector('input[name="action"]').value = 'edit';
 
     const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${username}&t=${Date.now()}`;
@@ -1704,6 +1711,85 @@ function openEditStaffModal(staffId, accountId, username, fullName, email, phone
     document.getElementById('editStaffModal').style.display = 'flex';
 }
 
+//
+//function submitFormForStaff(form, resultContainerId, event) {
+//    // Ngừng hành động mặc định của form (ngăn gửi form theo cách thông thường)
+//    if (event) {
+//        event.preventDefault();
+//    }
+//
+//    // Lấy giá trị action từ thuộc tính của form
+//    const action = form.getAttribute('action');
+//    console.log("Form action:", action);
+//
+//    if (!action) {
+//        console.error("❌ Form không có thuộc tính 'action'");
+//        const resultDiv = document.getElementById(resultContainerId);
+//        if (resultDiv) {
+//            resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: Form không có action!</p>`;
+//        }
+//        return false;
+//    }
+//
+//    // Lấy dữ liệu từ form (bao gồm cả file avatar nếu có)
+//    const formData = new FormData(form);
+//    console.log("✅ Dữ liệu gửi đi:");
+//    for (let [key, val] of formData.entries()) {
+//        console.log(`${key}: ${val}`);
+//    }
+//
+//    // Vô hiệu hóa các input trong form khi đang gửi
+//    form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
+//
+//    // Gửi dữ liệu form qua fetch
+//    fetch(action, {
+//        method: 'POST', // Phương thức gửi form
+//        body: formData, // Dữ liệu form
+//    })
+//            .then(response => {
+//                // Kích hoạt lại các input sau khi gửi xong
+//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
+//
+//                // Kiểm tra xem response có thành công không
+//                if (!response.ok) {
+//                    throw new Error(`HTTP error! Status: ${response.status}`);
+//                }
+//                return response.text();
+//            })
+//            .then(data => {
+//                // Hiển thị kết quả thành công
+//                const resultDiv = document.getElementById(resultContainerId);
+//                if (resultDiv) {
+//                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Thành công!</p>`;
+//                }
+//
+//                // Đóng modal sau khi thành công
+//                const modal = form.closest('.modal');
+//                if (modal) {
+//                    setTimeout(() => closeModal(modal.id), 800);
+//                }
+//
+//                // Sau khi gửi thành công, làm mới danh sách nhân viên
+//                setTimeout(() => {
+//                    if (typeof loadStaffData === 'function') {
+//                        loadStaffData();  // Hàm này tải lại dữ liệu nhân viên
+//                    }
+//                }, 500);
+//            })
+//            .catch(error => {
+//                // Kích hoạt lại các input nếu có lỗi
+//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
+//
+//                // Hiển thị thông báo lỗi nếu có
+//                console.error('Lỗi khi gửi form:', error);
+//                const resultDiv = document.getElementById(resultContainerId);
+//                if (resultDiv) {
+//                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
+//                }
+//            });
+//
+//    return false;
+//}
 
 function openDeleteStaffModal(staffId) {
     document.getElementById('deleteStaffId').value = staffId;
@@ -1792,16 +1878,18 @@ function reloadTrainerList() {
                             ? trainer.price.toLocaleString('vi-VN') + ' VND'
                             : '0 VND';
 
-
+                    // Giới hạn mô tả (bio) chỉ hiển thị 150 ký tự và thêm "..." nếu dài hơn
+                    const truncatedBio = trainer.bio && trainer.bio.length > 50
+                            ? trainer.bio.slice(0, 50) + "..."
+                            : trainer.bio;
                     const row = `
                     <tr>
-                        <td>${index + 1}</td>
                         <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%"></td>
                         <td>${account.username}</td>
                         <td>${trainer.fullName}</td>
                         <td>${trainer.email || ''}</td>
                         <td>${trainer.phone || ''}</td>
-                        <td>${trainer.bio || ''}</td>
+                        <td>${truncatedBio || ''}</td>
                         <td>${trainer.experienceYears} year</td>
                         <td>${trainer.rating.toFixed(1)} ★</td>
                         <td>${formattedPrice}</td>
@@ -1975,7 +2063,7 @@ function loadTrainerAccountOptions() {
                 return res.json();
             })
             .then(data => {
-                console.log("✅ Trainer Accounts loaded:", data);
+                console.log(" Trainer Accounts loaded:", data);
                 const modal = document.getElementById("addTrainer");
                 const select = modal.querySelector('select[name="accountId"]');
                 select.innerHTML = '<option value="">-- Choose Username --</option>';
@@ -1989,7 +2077,7 @@ function loadTrainerAccountOptions() {
                 }
 
                 data.forEach(acc => {
-                    console.log("➕ Adding option:", acc.username);
+                    console.log("Adding option:", acc.username);
                     const opt = document.createElement('option');
                     opt.value = acc.accountId;               // <-- Đây là giá trị gửi đi
                     opt.textContent = acc.username;          // <-- Đây là nội dung hiển thị
@@ -1997,7 +2085,7 @@ function loadTrainerAccountOptions() {
                 });
             })
             .catch(err => {
-                console.error("❌ Error loading trainer accounts:", err);
+                console.error(" Error loading trainer accounts:", err);
             });
 }
 
@@ -2008,11 +2096,11 @@ function openAddTrainerModal() {
 
 
 function submitFormAjaxTrainers(form, resultContainerId) {
-    console.log("🚀 Submitting form via AJAX...");
+    console.log("? Submitting form via AJAX...");
 
     const formData = new FormData(form);
     for (let [key, val] of formData.entries()) {
-        console.log(`🔍 ${key} = ${val}`);
+        console.log(`? ${key} = ${val}`);
     }
 
     const actionUrl = form.getAttribute("action");
@@ -2024,13 +2112,13 @@ function submitFormAjaxTrainers(form, resultContainerId) {
     })
             .then(async response => {
                 const rawText = await response.text();
-                console.log("📥 Raw response from server:", rawText);
+                console.log("? Raw response from server:", rawText);
 
                 if (!rawText)
                     throw new Error("Empty response");
 
                 let result = JSON.parse(rawText);
-                console.log("✅ Parsed JSON:", result);
+                console.log(" Parsed JSON:", result);
 
                 if (result.status === 'success') {
                     resultContainer.innerHTML = `<p style="color:green;">${result.message}</p>`;
@@ -2042,7 +2130,7 @@ function submitFormAjaxTrainers(form, resultContainerId) {
                 }
             })
             .catch(error => {
-                console.error("❌ Lỗi xử lý response:", error);
+                console.error(" Lỗi xử lý response:", error);
                 resultContainer.innerHTML = `<p style="color:red;">Lỗi server: ${error.message}</p>`;
             });
 
@@ -2050,8 +2138,166 @@ function submitFormAjaxTrainers(form, resultContainerId) {
 
 }
 
+function loadMemberPackage() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const baseUrl = `${window.location.origin}${contextPath}/MemberShipPackageServlet?action=json`;
+
+    const username = document.getElementById('username').value;
+    const packageName = document.getElementById('packageName').value;
+    const paymentStatus = document.getElementById('paymentStatus').value;
 
 
+
+
+
+    document.getElementById('username').addEventListener('input', loadMemberPackage);
+    document.getElementById('packageName').addEventListener('change', loadMemberPackage);
+    document.getElementById('startDate').addEventListener('change', loadMemberPackage);
+    document.getElementById('endDate').addEventListener('change', loadMemberPackage);
+    document.getElementById('paymentStatus').addEventListener('change', loadMemberPackage);
+
+
+
+    let url = baseUrl;
+    const params = [];
+    if (username)
+        params.push(`username=${encodeURIComponent(username)}`);
+    if (packageName)
+        params.push(`packageName=${encodeURIComponent(packageName)}`);
+    if (paymentStatus)
+        params.push(`paymentStatus=${encodeURIComponent(paymentStatus)}`);
+
+    if (params.length > 0) {
+        url += `&${params.join('&')}`;
+    }
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    console.error(`Lỗi khi gọi API, mã lỗi: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Dữ liệu trả về từ API: ", data);
+                const tbody = document.querySelector('#trainerPackageTableBody');
+                tbody.innerHTML = '';
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Không có gói thành viên nào</td></tr>`;
+                    return;
+                }
+
+                const rows = data.map((packageItem, index) => {
+                    const accountUsername = packageItem.customer && packageItem.customer.fullName ? packageItem.customer.fullName : 'N/A';
+                    const packageName = packageItem.membershipPackage ? packageItem.membershipPackage.name : 'N/A';
+                    const startDate = packageItem.startDate ? new Date(packageItem.startDate.year, packageItem.startDate.month - 1, packageItem.startDate.day).toLocaleDateString() : 'Invalid Date';
+                    const endDate = packageItem.endDate ? new Date(packageItem.endDate.year, packageItem.endDate.month - 1, packageItem.endDate.day).toLocaleDateString() : 'Invalid Date';
+                    const paymentStatus = packageItem.paymentStatus || 'pending';
+                    const membershipId = packageItem.membershipId || null;
+
+                    return `
+                    <tr>
+                        <td>${index + 1}</td>
+                        <td>${accountUsername}</td>
+                        <td>${packageName}</td>
+                        <td>${startDate}</td>
+                        <td>${endDate}</td>
+                        <td>
+                            <select class="status-dropdown" data-membership-id="${membershipId}">
+                                <option value="pending" ${paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                                <option value="paid" ${paymentStatus === 'paid' ? 'selected' : ''}>Paid</option>
+                                <option value="cancelled" ${paymentStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                            </select>
+                        </td>         
+                    </tr>`;
+                });
+
+                tbody.innerHTML = rows.join(''); // Đẩy dữ liệu vào bảng
+
+                // Lắng nghe sự kiện thay đổi trạng thái
+                document.querySelectorAll('.status-dropdown').forEach(select => {
+                    select.addEventListener('change', function () {
+                        const membershipId = this.getAttribute('data-membership-id');
+                        const newStatus = this.value;
+                        updateStatus(membershipId, newStatus); // Cập nhật trạng thái
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh sách gói thành viên:', error);
+            });
+}
+
+
+// Hàm cập nhật trạng thái thành viên
+function updateStatus(membershipId, newStatus) {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/MemberShipPackageServlet?action=updateStatus`;
+
+    // Kiểm tra giá trị status trước khi gửi
+    console.log('Updating status for membershipId:', membershipId, 'with status:', newStatus);
+
+    fetch(url, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            membershipId: membershipId,
+            status: newStatus,
+        })
+    })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Hiển thị thông báo thành công
+                    document.getElementById('successMessage').style.display = 'block';
+                    setTimeout(() => {
+                        document.getElementById('successMessage').style.display = 'none';
+                    }, 2000); // Ẩn thông báo sau 3 giây
+                    console.log('Trạng thái đã được cập nhật thành công!');
+                } else {
+                    console.error('Lỗi khi cập nhật trạng thái: ', data.error);
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi khi gửi yêu cầu cập nhật trạng thái:', error);
+            });
+}
+
+
+// Hàm load danh sách gói vào dropdown khi trang được tải
+function loadPackagesForDropdown() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/MemberShipPackageServlet?action=loadPackages`;
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    console.error(`Lỗi khi gọi API, mã lỗi: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                const packageDropdown = document.getElementById('packageName');
+                data.forEach(pkg => {
+                    const option = document.createElement('option');
+                    option.value = pkg.name;
+                    option.textContent = pkg.name;
+                    packageDropdown.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh sách gói cho dropdown:', error);
+            });
+}
+document.addEventListener('DOMContentLoaded', function () {
+    loadPackagesForDropdown();
+    loadMemberPackage();
+});
 //=============================================================================================================================
 //||                                                                                                                         ||
 //||                                           BaoMinh                                                                       ||
@@ -2175,7 +2421,7 @@ function submitDeleteCustomer(event) {
                 }
             })
             .catch(error => {
-                console.error("❌ Lỗi khi xóa:", error);
+                console.error(" Lỗi khi xóa:", error);
                 document.getElementById("resultDeleteCustomer").innerText = `Lỗi khi gửi yêu cầu xóa: ${error.message}`;
             });
 
@@ -2209,7 +2455,7 @@ function reloadBlogList() {
                 return response.json();
             })
             .then(data => {
-                console.log("✅ JSON Blog Data:", data); // ← debug
+                console.log(" JSON Blog Data:", data); // ← debug
                 const tbody = document.querySelector('#blogsTable tbody');
                 tbody.innerHTML = '';
 
@@ -2237,7 +2483,7 @@ function reloadBlogList() {
                     const row = `
                     <tr>
                         <td>${index + 1}</td>
-                        <td><img src="${imageUrl}" alt="Blog Image" style="width:90px;height:100px;border-radius:10px;"></td>
+                        <td><img src="${imageUrl}" alt="Blog Image" style="width:120px;height:130px;border-radius:10px;"></td>
                         <td>${escapedTitle}</td>
                         <td>${truncatedContent}</td>
                         <td>${new Date(blog.createdAt).toLocaleString('vi-VN')}</td>
@@ -2245,11 +2491,11 @@ function reloadBlogList() {
                         <td>
                             <button class="action-buttons__btn action-buttons__btn--edit"
                                 onclick="openEditBlogModal(${blog.blogId}, \`${escapedTitle}\`, \`${escapedContent}\`, '${imageUrl}')">
-                                Sửa
+                                Edit
                             </button>
                             <button class="action-buttons__btn action-buttons__btn--delete"
                                 onclick="openDeleteBlogModal(${blog.blogId})">
-                                Xóa
+                                Delete
                             </button>
                         </td>
                     </tr>
@@ -2351,7 +2597,7 @@ function openEditBlogModal(blogId) {
                     imageFilenameLabel.textContent = "";
                 }
 
-                // ✅ Hiển thị các ảnh phụ
+                // Hiển thị các ảnh phụ
                 const imageListDiv = document.getElementById('editBlogImageList');
                 imageListDiv.innerHTML = '';  // Xóa danh sách ảnh cũ
                 images.forEach(img => {
@@ -2379,7 +2625,7 @@ function openEditBlogModal(blogId) {
                     };
 
                     const deleteBtn = document.createElement('button');
-                    deleteBtn.textContent = "✖";
+                    deleteBtn.textContent = "no";
                     deleteBtn.style.position = "absolute";
                     deleteBtn.style.top = "0";
                     deleteBtn.style.right = "0";
@@ -2400,11 +2646,11 @@ function openEditBlogModal(blogId) {
                     imageListDiv.appendChild(imgWrapper);
                 });
 
-                // ✅ Mở modal chỉnh sửa blog
+                //  Mở modal chỉnh sửa blog
                 openModal('editBlogModal');
             })
             .catch(error => {
-                console.error("❌ Lỗi khi load blog:", error);
+                console.error(" Lỗi khi load blog:", error);
             });
 }
 
@@ -2501,16 +2747,20 @@ function loadPackages() {
 
                 data.forEach((pkg, index) => {
                     const tr = document.createElement("tr");
+                    // Giới hạn mô tả chỉ hiển thị 150 ký tự và thêm "..." nếu dài hơn
+                    const truncatedDescription = pkg.description && pkg.description.length > 150
+                            ? pkg.description.slice(0, 150) + "..."
+                            : pkg.description;
 
                     tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${pkg.name}</td>
                     <td>${pkg.price.toLocaleString()}₫</td>
                     <td>${pkg.durationDays}</td>
-                    <td>${pkg.description || ""}</td>
+                    <td>${truncatedDescription || ""}</td>
                     <td>
-                        <button class="table-action-btn" onclick="openEditPackageModal(${pkg.id})">✏️ Edit</button>
-                        <button class="table-action-btn table-action-delete" onclick="openDeletePackageModal(${pkg.id})">🗑️ Delete</button>
+                        <button class="action-buttons__btn action-buttons__btn--edit" onclick="openEditPackageModal(${pkg.id})"> Edit</button>
+                        <button class="action-buttons__btn action-buttons__btn--editdelete" onclick="openDeletePackageModal(${pkg.id})"> Delete</button>
                     </td>
                 `;
 
@@ -2518,7 +2768,7 @@ function loadPackages() {
                 });
             })
             .catch(error => {
-                console.error("❌ Failed to load packages:", error);
+                console.error(" Failed to load packages:", error);
                 alert("Không thể tải danh sách gói tập!");
             });
 }
@@ -2546,7 +2796,7 @@ function openEditPackageModal(id) {
                 document.getElementById("editPackageModal").style.display = "block";
             })
             .catch(err => {
-                alert("❌ Không thể tải dữ liệu gói tập.");
+                alert(" Không thể tải dữ liệu gói tập.");
                 console.error(err);
             });
 }

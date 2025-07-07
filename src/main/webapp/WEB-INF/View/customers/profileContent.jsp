@@ -1,6 +1,6 @@
 <div class="container-profile" id="profileContent">
     <div>
-        <h1 class="header-profile">Profile</h1>
+        <h1 class="header-content" style="margin-top: 50px">Profile</h1>
         <form class="form-profile" action="${pageContext.request.contextPath}/profile?action=update" method="post">
             <label for="full-name">Full Name:</label>
             <input type="hidden" name="cusId" value="${customer.customerId}">

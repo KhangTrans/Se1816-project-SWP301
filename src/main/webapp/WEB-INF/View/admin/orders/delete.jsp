@@ -10,7 +10,6 @@
     <div class="modal-content">
         <div class="modal__header">
             <h2 class="modal__title">Delete Order</h2>
-            <span class="modal-close" onclick="closeModal('deleteOrderModal')">&times;</span>
         </div>
         <div class="modal__body">
             <form id="deleteOrderForm" action="<%= request.getContextPath()%>/admin/orders" method="post" 

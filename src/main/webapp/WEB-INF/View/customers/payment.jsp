@@ -134,9 +134,9 @@
                 <form action="payment" method="post">
                     <input type="hidden" name="cardId" value="<%= pkg.getId()%>">
                     <% if (Boolean.TRUE.equals(renewMode)) { %>
-                    <input type="hidden" name="renewMode" value="1">
-                    <% }%>
-                    <input type="hidden" name="cardId" value="<%= pkg.getId()%>">
+                    <input type="hidden" name="renew" value="1">
+                    <% } %>
+
                     <div class="method">
                         <input type="radio" name="paymentMethod" id="offline" value="offline" checked>
                         <label for="offline">Đóng tiền tại cơ sở (thanh toán trực tiếp)</label>
@@ -167,13 +167,9 @@
                         <input type="radio" name="applyOption" id="applyLater" value="applyLater">
                         <label for="applyLater">Áp dụng khi hết hạn gói cũ (gói mới bắt đầu sau ngày hết hạn)</label>
                     </div>
-                    <% }%>
+                    <% } %>
 
-                    <!-- Gửi POST tới /payment -->
-                    <form action="payment" method="post">
-                        <input type="hidden" name="cardId" value="<%= pkg.getId()%>">
-                        <button type="submit">Xác nhận thanh toán</button>
-                    </form>
+                    <button type="submit" class="pay-btn">Xác nhận thanh toán</button>
                     <% if (request.getAttribute("error") != null) {%>
                     <div style="color:red"><%= request.getAttribute("error")%></div>
                     <% } %>

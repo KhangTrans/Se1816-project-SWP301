@@ -9,7 +9,7 @@
             <input type="hidden" name="action" value="create">
 
             <div class="modal__header">
-                <h2>Create New Membership Package</h2>
+                <h2>Create New Package</h2>
             </div>
 
             <div class="modal__body">

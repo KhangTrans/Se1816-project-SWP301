@@ -42,15 +42,13 @@
                         </div>
 
                         <button type="submit" class="btn btn-primary w-100 mb-3">Login</button>
-                        <div class="text-end">
+                        
+                        <div class="d-flex justify-content-between container">
+                            <a href="#" onclick="openRegisterModal()">Register</a>
                             <a href="#" onclick="openForgotPasswordModal()">Forgot password</a>
                         </div>
 
-
-                        <div class="text-center">or</div>
-
-
-                        <div class="social-login row text-center mt-3 mb-3">
+                        <div class="d-flex justify-content-between container mt-3">
                             <!-- Google Login -->
                             <div class="col-6 d-flex justify-content-center align-items-center">
                                 <div>
@@ -83,6 +81,8 @@
             </form> 
         </div>
     </div>
+
+
     <!-- Forgot Password Modal -->
     <div class="modal fade" id="forgotPasswordModal" tabindex="-1" aria-labelledby="forgotPasswordLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -220,6 +220,17 @@
             }
         });
     }
+    // Mở modal đăng ký (register/signupModal)
+    function openRegisterModal() {
+        // Đóng mọi modal đang mở
+        const modals = document.querySelectorAll('.modal.show');
+                modals.forEach(m => bootstrap.Modal.getInstance(m)?.hide());
+
+        // Mở modal đăng ký
+        const modal = new bootstrap.Modal(document.getElementById("signupModal"));
+        modal.show();
+    }
+
 
     // M? modal forgot password
     function openForgotPasswordModal() {
@@ -260,9 +271,9 @@
             }
             );
     });
-// Khi xác nh?n OTP + m?t kh?u m?i
+        // Khi xác nh?n OTP + m?t kh?u m?i
             document.getElementById("otpForm").addEventListener("submit", function (e) {
-    e.preventDefault();
+             e.preventDefault();
             const data = new URLSearchParams(new FormData(this));
             fetch("${pageContext.request.contextPath}/ResetPasswordServlet", {
             method: "POST",

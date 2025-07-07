@@ -9,9 +9,8 @@
 
 <!-- Danh sách các gói tập -->
 <div class="content">
-    <p class="content__text--bottom">
-        ALL MEMBERSHIP PACKAGES
-    </p>
+    <p class="content__text--bottom" style="font-size: 40px">
+        All Membership Packages
 </div>
 
 <div class="membership-cards-container container">

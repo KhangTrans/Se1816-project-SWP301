@@ -4,12 +4,12 @@
 
 <!--===Danh sách các Gói Tập===-->
 <div class="content">
-    <p class="content__text--bottom">
+    <p class="content__text--bottom" style="font-size: 40px">
         MEMBERSHIP
     </p>
 </div>
 
-<div class="membership-cards-container container">
+<div class="membership-cards-container container d-flex justify-content-center">
     <!-- Duyệt qua tất cả các gói -->
     <%
         // Lấy danh sách các gói từ request

@@ -124,11 +124,11 @@ justify-content: center;
 
 <!-- === Gallery === -->
 <div class="content">
-    <p class="content__text--bottom">TOP TRAINERS</p>
+    <p class="content__text--bottom" style="font-size: 40px">TOP TRAINERS</p>
 </div>
 
 <!-- === Gallery: Hiển thị các huấn luyện viên === -->
-<div class="gallery" id="top-trainers-gallery">
+<div class="gallery d-flex justify-content-center" id="top-trainers-gallery">
     <%
         List<Trainers> topTrainers = (List<Trainers>) request.getAttribute("trainersList");
 

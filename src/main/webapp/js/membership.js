@@ -9,22 +9,17 @@ function showMembershipMessage(success, message) {
 }
 function reloadMembershipCard() {
     fetch("MembershipServlet")
-            .then(response => {
-                if (!response.ok)
-                    throw new Error(`HTTP ${response.status}`);
-                return response.text();
-            })
-            .then(html => {
-                const container = document.querySelector('#membershipCardContainer');
-                if (container) {
-                    container.innerHTML = html;
-                    // Gắn lại event handler cho nút Gia hạn/Hủy (vì block đã bị replace)
-                    reattachMembershipHandlers();
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi tải lại thẻ membership:', error);
-            });
+        .then(response => response.text())
+        .then(html => {
+            const container = document.querySelector('#membership-block'); // Đảm bảo id đúng!
+            if (container) {
+                container.innerHTML = html;
+                reattachMembershipHandlers(); // Gắn lại nút bấm cho block mới
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi khi tải lại thẻ membership:', error);
+        });
 }
 
 // Hàm helper hiện message trong card
@@ -56,21 +51,6 @@ function doCancelMembership(id) {
             .then(response => response.json())
             .then(data => {
                 showMembershipMessage(data.success, data.message || "Đã hủy gói thành công!");
-                setTimeout(() => {
-                    reloadMembershipCard();
-                }, 2200); // delay 2.2 giây
-            });
-}
-
-function renewMembership(id, duration) {
-    fetch('MembershipServlet', {
-        method: 'POST',
-        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-        body: `action=renew&membershipId=${id}&packageDuration=${duration}`
-    })
-            .then(response => response.json())
-            .then(data => {
-                showMembershipMessage(data.success, data.message || "Gia hạn thành công!");
                 setTimeout(() => {
                     reloadMembershipCard();
                 }, 2200); // delay 2.2 giây

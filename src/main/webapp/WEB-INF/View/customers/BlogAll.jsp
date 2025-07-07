@@ -44,9 +44,13 @@
 
     .blog-image {
         width: 200px;
-        height: auto;
-        margin: 0 auto;
+        height: 150px;
+        margin: 5px auto;
         border-radius: 8px;
+    }
+    .blog-image:hover {
+        transform: scale(1.1);
+        box-shadow: 0px 4px 15px rgba(0, 0, 0, 0.2);
     }
 
     .read-more-link {
@@ -68,7 +72,7 @@
     }
 
 </style>
-<h1 class="header-content" style="margin-top: 80px">Tất Cả Các Bài Blog</h1>
+<h1 class="header-content" style="margin-top: 80px">Blogs</h1>
 
 <%
     // Lấy danh sách các blog từ request
@@ -158,4 +162,22 @@
             readMoreLink.innerText = "Xem Thêm";   // Thay đổi văn bản trở lại "Xem Thêm"
         }
     }
+    // Mở modal và hiển thị hình ảnh lớn
+    function openModal(imageElement) {
+        const modal = document.getElementById('imageModal');
+        const modalImage = document.getElementById('modalImage');
+
+        // Set ảnh trong modal là ảnh đã click
+        modalImage.src = imageElement.querySelector('img').src;
+
+        // Hiển thị modal
+        modal.classList.add('modal-show');
+    }
+
+// Đóng modal khi click vào modal
+    function closeModal() {
+        const modal = document.getElementById('imageModal');
+        modal.classList.remove('modal-show');
+    }
+
 </script>

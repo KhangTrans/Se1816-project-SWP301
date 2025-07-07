@@ -59,7 +59,8 @@ public class ProductDao extends DBcontext {
                 = "SELECT p.*, c.name AS category_name, img.image_id AS primary_image_id "
                 + "FROM products p "
                 + "JOIN categories c ON p.category_id = c.category_id "
-                + "LEFT JOIN product_images img ON p.product_id = img.product_id AND img.is_primary = 1";
+                + "LEFT JOIN product_images img ON p.product_id = img.product_id AND img.is_primary = 1"
+                + "Where is_active = 1";
 
         try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
 
@@ -90,7 +91,9 @@ public class ProductDao extends DBcontext {
     }
 
     public void deleteProduct(int productId) throws SQLException {
-        String sql = "DELETE FROM products WHERE product_id=?";
+        String sql = "UPDATE products \n"
+                + "SET is_active = 0 \n"
+                + "WHERE product_id = ?;";
         try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, productId);
             ps.executeUpdate();
@@ -161,8 +164,6 @@ public class ProductDao extends DBcontext {
         }
         return null;
     }
-    
-    
 
     public void addProductImage(int productId, byte[] imageData, boolean isPrimary) throws SQLException {
         String sql = "INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?, ?, ?)";
@@ -445,11 +446,12 @@ public class ProductDao extends DBcontext {
         String sql = "SELECT p.*, c.name AS category_name, img.image_id AS primary_image_id "
                 + "FROM products p "
                 + "JOIN categories c ON p.category_id = c.category_id "
-                + "LEFT JOIN product_images img ON p.product_id = img.product_id AND img.is_primary = 1 ";
+                + "LEFT JOIN product_images img ON p.product_id = img.product_id AND img.is_primary = 1"
+                + "WHERE p.is_active = 1";
 
         //Add WHERE if there's cate id
         if (categoryId != null) {
-            sql += "WHERE p.category_id = ? ";
+            sql += "AND p.category_id = ? ";
         }
 
         //Sort
@@ -535,7 +537,8 @@ public class ProductDao extends DBcontext {
                 + "FROM products p "
                 + "JOIN categories c ON p.category_id = c.category_id "
                 + "LEFT JOIN product_images img ON p.product_id = img.product_id AND img.is_primary = 1 "
-                + "WHERE (p.name LIKE ? OR p.description LIKE ?)";
+                + "WHERE (p.name LIKE ? OR p.description LIKE ?)"
+                + "AND p.is_active = 1";
         if (categoryId != null) {
             sql += " AND p.category_id = ? ";
         }
@@ -626,13 +629,13 @@ public class ProductDao extends DBcontext {
         return 0;
     }
 
-     // Phương thức lấy sản phẩm theo productId
+    // Phương thức lấy sản phẩm theo productId
     public Products getProductByIdPage(int productId) {
         Products product = null;
         String sql = "SELECT * FROM products WHERE product_id = ?"; // Câu truy vấn lấy thông tin sản phẩm
 
-        try (Connection con = getConnection();  // Giả sử bạn có một lớp để kết nối CSDL
-             PreparedStatement pst = con.prepareStatement(sql)) {
+        try ( Connection con = getConnection(); // Giả sử bạn có một lớp để kết nối CSDL
+                  PreparedStatement pst = con.prepareStatement(sql)) {
 
             // Gán tham số vào câu truy vấn
             pst.setInt(1, productId);
@@ -658,4 +661,72 @@ public class ProductDao extends DBcontext {
 
         return product;
     }
+
+    public List<Products> getProductsBySearch(String keyword, Integer categoryId, String sortOrder) throws SQLException {
+        List<Products> list = new ArrayList<>();
+
+        String sql = "SELECT p.*, c.name AS category_name, img.image_id AS primary_image_id "
+                + "FROM products p "
+                + "JOIN categories c ON p.category_id = c.category_id "
+                + "LEFT JOIN product_images img ON p.product_id = img.product_id AND img.is_primary = 1 "
+                + "WHERE p.is_active = 1 ";
+
+        if (keyword != null && !keyword.trim().isEmpty()) {
+            sql += "AND (p.name LIKE ? OR p.description LIKE ?) ";
+        }
+
+        if (categoryId != null) {
+            sql += "AND p.category_id = ? ";
+        }
+
+        if ("asc".equalsIgnoreCase(sortOrder)) {
+            sql += "ORDER BY p.price ASC ";
+        } else if ("desc".equalsIgnoreCase(sortOrder)) {
+            sql += "ORDER BY p.price DESC ";
+        } else {
+            sql += "ORDER BY p.product_id DESC ";
+        }
+
+        try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            int idx = 1;
+
+            if (keyword != null && !keyword.trim().isEmpty()) {
+                ps.setString(idx++, "%" + keyword + "%");
+                ps.setString(idx++, "%" + keyword + "%");
+            }
+
+            if (categoryId != null) {
+                ps.setInt(idx++, categoryId);
+            }
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Products p = new Products();
+                    p.setProductId(rs.getInt("product_id"));
+                    p.setName(rs.getString("name"));
+                    p.setDescription(rs.getString("description"));
+                    p.setPrice(rs.getDouble("price"));
+                    p.setStockQuantity(rs.getInt("stock_quantity"));
+                    p.setActive(rs.getBoolean("is_active"));
+
+                    Categories cat = new Categories();
+                    cat.setCategory_id(rs.getInt("category_id"));
+                    cat.setName(rs.getString("category_name"));
+                    p.setCategoryId(cat);
+                    p.setCategoryName(rs.getString("category_name"));
+
+                    int imageId = rs.getInt("primary_image_id");
+                    if (!rs.wasNull()) {
+                        p.setPrimaryImageId(imageId);
+                    }
+
+                    list.add(p);
+                }
+            }
+        }
+
+        return list;
+    }
+
 }

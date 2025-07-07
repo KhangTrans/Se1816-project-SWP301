@@ -1,7 +1,7 @@
 
 
 <div class="modal" id="editProductModal">
-    <div class="modal-content">
+    <div class="modal-content" style="width: 750px">
         <form method="post"
               action="${pageContext.request.contextPath}/admin/products"
               enctype="multipart/form-data"
@@ -24,7 +24,7 @@
                 <!-- Description -->
                 <div class="modal__form-group">
                     <label class="modal__label">Description</label>
-                    <textarea name="description" id="editProductDescription" class="modal__textarea"></textarea>
+                    <textarea name="description" id="editProductDescription" class="modal__textarea" style="height: 200px"></textarea>
                 </div>
 
                 <!-- Price -->

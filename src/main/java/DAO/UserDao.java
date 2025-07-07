@@ -465,6 +465,59 @@ public class UserDao extends DBcontext {
         }
     }
 
+    public List<Staff> searchStaffs(String searchTerm, String phone, String status) throws SQLException {
+        List<Staff> staffList = new ArrayList<>();
+        StringBuilder sql = new StringBuilder("SELECT s.*, a.* FROM staff s JOIN accounts a ON s.account_id = a.account_id WHERE 1=1");
+
+        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+            sql.append(" AND (a.username LIKE ? OR s.full_name LIKE ?)");
+        }
+        if (phone != null && !phone.trim().isEmpty()) {
+            sql.append(" AND s.phone LIKE ?");
+        }
+        if (status != null && !status.trim().isEmpty()) {
+            sql.append(" AND s.status = ?");
+        }
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            int paramIndex = 1;
+            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
+                String keyword = "%" + searchTerm + "%";
+                ps.setString(paramIndex++, keyword);
+                ps.setString(paramIndex++, keyword);
+            }
+            if (phone != null && !phone.trim().isEmpty()) {
+                ps.setString(paramIndex++, "%" + phone + "%");
+            }
+            if (status != null && !status.trim().isEmpty()) {
+                ps.setString(paramIndex++, status);
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Staff staff = new Staff();
+                staff.setStaffId(rs.getInt("staff_id"));
+                staff.setStatus(rs.getString("status"));
+                staff.setFullName(rs.getString("full_name"));
+                staff.setEmail(rs.getString("email"));
+                staff.setStaffCode(rs.getString("staff_code"));
+                staff.setPhone(rs.getString("phone"));
+                staff.setPosition(rs.getString("position"));
+
+                Account acc = new Account();
+                acc.setAccountId(rs.getInt("account_id"));
+                acc.setUsername(rs.getString("username"));
+                acc.setRole(rs.getString("role"));
+                acc.setCreatedAt(rs.getTimestamp("created_at"));
+                acc.setAvatar(rs.getBytes("avatar"));
+                staff.setAccount(acc);
+
+                staffList.add(staff);
+            }
+        }
+        return staffList;
+    }
+
     public List<Account> getAvailableStaffAccounts() throws SQLException {
         List<Account> accounts = new ArrayList<>();
         String sql
@@ -595,64 +648,11 @@ public class UserDao extends DBcontext {
             e.printStackTrace();
         }
     }
-
-    public List<Staff> searchStaffs(String searchTerm, String phone, String status) throws SQLException {
-        List<Staff> staffList = new ArrayList<>();
-        StringBuilder sql = new StringBuilder("SELECT s.*, a.* FROM staff s JOIN accounts a ON s.account_id = a.account_id WHERE 1=1");
-
-        if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            sql.append(" AND (a.username LIKE ? OR s.full_name LIKE ?)");
-        }
-        if (phone != null && !phone.trim().isEmpty()) {
-            sql.append(" AND s.phone LIKE ?");
-        }
-        if (status != null && !status.trim().isEmpty()) {
-            sql.append(" AND s.status = ?");
-        }
-
-        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql.toString())) {
-            int paramIndex = 1;
-            if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-                String keyword = "%" + searchTerm + "%";
-                ps.setString(paramIndex++, keyword);
-                ps.setString(paramIndex++, keyword);
-            }
-            if (phone != null && !phone.trim().isEmpty()) {
-                ps.setString(paramIndex++, "%" + phone + "%");
-            }
-            if (status != null && !status.trim().isEmpty()) {
-                ps.setString(paramIndex++, status);
-            }
-
-            ResultSet rs = ps.executeQuery();
-            while (rs.next()) {
-                Staff staff = new Staff();
-                staff.setStaffId(rs.getInt("staff_id"));
-                staff.setStatus(rs.getString("status"));
-                staff.setFullName(rs.getString("full_name"));
-                staff.setEmail(rs.getString("email"));
-                staff.setStaffCode(rs.getString("staff_code"));
-                staff.setPhone(rs.getString("phone"));
-                staff.setPosition(rs.getString("position"));
-
-                Account acc = new Account();
-                acc.setAccountId(rs.getInt("account_id"));
-                acc.setUsername(rs.getString("username"));
-                acc.setRole(rs.getString("role"));
-                acc.setCreatedAt(rs.getTimestamp("created_at"));
-                acc.setAvatar(rs.getBytes("avatar"));
-                staff.setAccount(acc);
-
-                staffList.add(staff);
-            }
-        }
-        return staffList;
-    }
-
     /////////////////////////////////////////////////////
     //
     //     Xu Ly Phan Loc
     ////////////////////////////////////////////////////
+
     public List<Account> getFilteredAccounts(String search, String role, String fromDate, String toDate) throws SQLException {
         List<Account> list = new ArrayList<>();
 

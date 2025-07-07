@@ -7,6 +7,7 @@ package ControllerAdmin;
 import DAO.AccountDao;
 import DAO.BlogDao;
 import DAO.MemberDao;
+import DAO.OrderDao;
 import DAO.ProductDao;
 import DAO.StaffDao;
 import DAO.TrainerDao;
@@ -58,14 +59,14 @@ public class HomePageAdminServlet extends HttpServlet {
             MemberDao memberDao = new MemberDao();
             BlogDao blogDao = new BlogDao();
             VoucherDao voucherDao = new VoucherDao();
-
+            OrderDao orderDao = new OrderDao();
             // Luôn có
             request.setAttribute("trainerCount", trainerDao.countTrainers());
             request.setAttribute("productCount", productDao.countProductsInStock());
             request.setAttribute("memberCount", memberDao.countMembers());
             request.setAttribute("blogCount", blogDao.countBlogs());
             request.setAttribute("voucherCount", voucherDao.countVouchers());
-
+            request.setAttribute("orderCount", orderDao.countOrders());
             // Nếu là admin thì gán thêm
             if ("admin".equalsIgnoreCase(role)) {
                 AccountDao accountDao = new AccountDao();

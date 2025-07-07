@@ -90,10 +90,10 @@
             </a>
         </li>
         <li class="sidebar__nav-item">
-            <form method="post" action="LogoutServlet">
-                <button type="submit" class="sidebar__nav-link">
-                    <i class="fas fa-sign-out-alt"></i> LOGOUT
-                </button>
+            <a class="sidebar__nav-link" href="${pageContext.request.contextPath}/adminlogout">
+                <i class="fas fa-sign-out-alt"></i>
+                Logout
+            </a>
             </form>
         </li>
 

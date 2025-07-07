@@ -119,11 +119,16 @@
                 type="button"
                 onclick="showCancelConfirm(<%= activeMembership.getMembershipId()%>)">Hủy gói</button>
         <% if (daysLeft != null && daysLeft <= 7) {%>
-        <button class="membership-btn-renew"
-                type="button"
-                onclick="renewMembership(<%= activeMembership.getMembershipId()%>, <%= pkg.getDurationDays()%>)">
-            Gia hạn
-        </button>
+        <!--        <button class="membership-btn-renew"
+                        type="button"
+                        onclick="renewMembership(<%= activeMembership.getMembershipId()%>, <%= pkg.getDurationDays()%>)">
+                    Gia hạn
+                </button>-->
+        <form action="payment" method="get" style="display:inline;">
+            <input type="hidden" name="cardId" value="<%= pkg.getPackageId()%>">
+            <input type="hidden" name="renew" value="1">
+            <button class="membership-btn-renew" type="submit">Gia hạn</button>
+        </form>
         <% }%>
     </div>
     <!-- Xác nhận hủy gói (ẩn mặc định) -->
@@ -139,8 +144,8 @@
     <% } %>
     <% } else if ("cancelled".equalsIgnoreCase(activeMembership.getPaymentStatus())) {%>
     <div class="membership-warning" style="color:gray;">
-        Gói sẽ kết thúc vào <%= activeMembership.getEndDate()%>.   <br> 
-        <button id="show-packages-btn" class="membership-btn-renew" style="margin-top:14px;">Mua gói mới</button>
+        Gói sẽ kết thúc vào <%= activeMembership.getEndDate()%>.    <br> <br> 
+        <a href="AllPackages" class="membership-btn-renew" style="margin-top:14px;">Mua gói mới</a>
 
     </div>
 
@@ -148,4 +153,10 @@
 
 </div>
 
+<% } else { %>
+<div class="membership-info-box" style="background: #fff7ec; color: #e65100; border: 1.5px solid #ff9800;">
+    <b>Bạn không có gói tập đang hoạt động.</b>
+    <br>
+    <a href="AllPackages" style="color: #388e3c; text-decoration: underline;">Đăng ký gói tập ngay</a>
+</div>
 <% }%>

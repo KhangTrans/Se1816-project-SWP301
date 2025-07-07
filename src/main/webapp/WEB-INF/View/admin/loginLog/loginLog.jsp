@@ -1,7 +1,7 @@
 <div class="table-container" id="loginLogsTable" style="display: none;">
     <div class="table-container__header">
         <h2 class="table-container__title">Login Logs</h2>
-        <p class="table-container__description">L?ch s? ??ng nh?p h? th?ng</p>
+        <p class="table-container__description">System login history</p>
     </div>
 
     <div class="table-container__content" style="overflow-x: auto;">

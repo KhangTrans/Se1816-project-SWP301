@@ -3,14 +3,17 @@ package Controller;
 import DAO.CartDao;
 import DAO.ProductDao;
 import DAO.CustomerDao;
+import DAO.VoucherDao;
 import Model.CartItem;
 import Model.Customer;
 import Model.Products;
+import Model.Voucher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -68,6 +71,48 @@ public class CartServlet extends HttpServlet {
             addToCart(request, response);
         } else if ("clearCart".equals(action)) {
             clearCart(request, response);
+        } else if ("applyVoucher".equals(action)) {
+            applyVoucher(request, response);
+        }
+    }
+
+    private void applyVoucher(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        int customerId = getCustomerIdFromSession(request);
+        int voucherId = Integer.parseInt(request.getParameter("voucherId"));
+
+        try {
+            CartDao cartDao = new CartDao();
+            List<CartItem> cartItems = cartDao.getCartItems(customerId);
+            VoucherDao voucherDao = new VoucherDao();
+            Voucher voucher = voucherDao.getVoucherById(voucherId);
+
+            // Tính toán tổng giá trị giỏ hàng
+            BigDecimal totalAmount = BigDecimal.ZERO;
+            for (CartItem item : cartItems) {
+                Products product = new ProductDao().getProductById(item.getProductId());
+                totalAmount = totalAmount.add(BigDecimal.valueOf(product.getPrice()).multiply(BigDecimal.valueOf(item.getQuantity())));
+            }
+
+            // Áp dụng voucher vào subtotal
+            BigDecimal discountAmount = totalAmount.multiply(BigDecimal.valueOf(voucher.getDiscountPercent()))
+                    .divide(BigDecimal.valueOf(100));
+            if (discountAmount.compareTo(voucher.getMaxDiscount()) > 0) {
+                discountAmount = voucher.getMaxDiscount();
+            }
+
+            BigDecimal finalAmount = totalAmount.subtract(discountAmount);
+
+            // Cập nhật giá trị giỏ hàng và tổng số tiền sau khi áp dụng voucher
+            request.getSession().setAttribute("totalAmount", finalAmount);
+            request.getSession().setAttribute("discountAmount", discountAmount);
+
+            // Chuyển hướng về trang giỏ hàng
+            response.sendRedirect("CartServlet?action=view");
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            response.sendRedirect("error.jsp");
         }
     }
 
@@ -150,6 +195,9 @@ public class CartServlet extends HttpServlet {
             CartDao dao = new CartDao();
             List<CartItem> cartItems = dao.getCartItems(customerId);
 
+            // Lấy thông tin vouchers mà khách hàng đã thu thập
+            VoucherDao voucherDao = new VoucherDao();
+            List<Voucher> vouchers = voucherDao.getVouchersByAccountId(customerId);
             // Tính tổng số sản phẩm trong giỏ hàng
             int totalItems = 0;
             for (CartItem item : cartItems) {
@@ -158,7 +206,9 @@ public class CartServlet extends HttpServlet {
             request.getSession().setAttribute("cartCount", totalItems);
 
             // Gửi danh sách giỏ hàng về JSP
-            request.setAttribute("cart", cartItems);
+            HttpSession session = request.getSession();
+            session.setAttribute("cart", cartItems);
+            session.setAttribute("vouchers", vouchers);
             request.getRequestDispatcher("/WEB-INF/View/customers/cart.jsp").forward(request, response);
 
         } catch (SQLException e) {

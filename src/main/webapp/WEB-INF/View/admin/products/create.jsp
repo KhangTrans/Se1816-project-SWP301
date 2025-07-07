@@ -1,7 +1,7 @@
 <%@page import="java.util.List"%>
 <%@ page import="Model.Categories" %>
 <div class="modal" id="addProductModal" style="display:none;">
-    <div class="modal-content">
+    <div class="modal-content" style="width: 750px">
         <form method="post" action="${pageContext.request.contextPath}/admin/products" 
               enctype="multipart/form-data" 
               onsubmit="return submitFormAjax(this, 'resultAddProduct')">
@@ -16,7 +16,7 @@
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Description</label>
-                    <textarea name="description" class="modal__textarea" maxlength="250"></textarea>
+                    <textarea name="description" class="modal__textarea" style="height: 200px" maxlength="250"></textarea>
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Price</label>

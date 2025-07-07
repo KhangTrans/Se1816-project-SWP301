@@ -28,6 +28,7 @@ public class OrderItem {
     }
 
     // Getters and Setters
+   
     public int getOrderItemId() {
         return orderItemId;
     }
@@ -101,12 +102,12 @@ public class OrderItem {
 
     @Override
     public String toString() {
-        return "OrderItem{" +
-                "orderItemId=" + orderItemId +
-                ", productName=" + productName +
-                ", quantity=" + quantity +
-                ", unitPrice=" + unitPrice +
-                ", price=" + price +
-                '}';
+        return "OrderItem{"
+                + "orderItemId=" + orderItemId
+                + ", productName=" + productName
+                + ", quantity=" + quantity
+                + ", unitPrice=" + unitPrice
+                + ", price=" + price
+                + '}';
     }
 }

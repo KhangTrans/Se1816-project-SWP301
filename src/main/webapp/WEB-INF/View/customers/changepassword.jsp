@@ -1,6 +1,7 @@
+
 <div class="container-profile" id ="changepassword">
     <div>
-        <h1 class="header-profile">Change Password</h1>
+        <h1 class="header-content" style="margin-top: 50px">Change Password</h1>
         <form class="form-profile" action="${pageContext.request.contextPath}/profile?action=changepassword" method="post">
             <label for="old-password">Old Password:</label>
             <input type="password" id="old-password" name="oldPassword" required>

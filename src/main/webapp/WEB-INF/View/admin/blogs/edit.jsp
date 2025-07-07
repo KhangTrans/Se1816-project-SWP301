@@ -1,5 +1,5 @@
 <div class="modal" id="editBlogModal" style="display:none;">
-    <div class="modal-content">      
+    <div class="modal-content" style="width: 750px">      
         <form method="post" action="${pageContext.request.contextPath}/admin/blogs"
               enctype="multipart/form-data"
               onsubmit="return submitFormAjax(this, 'resultEditBlog', event)">
@@ -18,7 +18,7 @@
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Content</label>
-                    <textarea name="content" id="editBlogContent" class="modal__textarea"></textarea>
+                    <textarea name="content" id="editBlogContent" class="modal__textarea" style="height: 200px"></textarea>
                 </div>
 
                 <div class="modal__form-group">

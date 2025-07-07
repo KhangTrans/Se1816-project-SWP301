@@ -53,7 +53,7 @@
                 <tr>
                     <th style="width: 120px">Referral Code</th>
                     <th>Products Name</th>
-                    <th>Quantity</th>
+                    <th style="width: 80px">Quantity</th>
                     <th>Price</th>
                     <th>Status</th>
                     <th>Address</th>

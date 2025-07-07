@@ -114,10 +114,6 @@
             <input type="hidden" name="action" value="add">
             <input type="hidden" name="productId" value="${product.productId}">
             <input type="hidden" name="quantity" value="1">
-
-            <button type="submit" style="background: none; border: none;">
-                <i class="fas fa-cart-plus" style="font-size: 24px; color: white;"></i>
-            </button>
         </form>
         <%-- Voucher--%>
         <%
@@ -125,7 +121,7 @@
         %>
 
         <div class="voucher-section">
-            <h2 class="voucher-title">🎁 VOUCHER ƯU ĐÃI</h2>
+            <h2 class="voucher-title"> VOUCHER ƯU ĐÃI</h2>
             <div class="voucher-container">
                 <% if (voucherList != null && !voucherList.isEmpty()) {
                         for (Model.Voucher v : voucherList) {
@@ -155,14 +151,14 @@
                 <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
                 <%-- Nếu có filter category thì thêm input hidden ở đây --%>
                 <button type="submit" class="filter-btn <%= "desc".equals(request.getParameter("sort")) ? "active" : ""%>">
-                    ⇅ Giá Cao - Thấp
+                    Giá Cao - Thấp
                 </button>
             </form>
             <form method="get" style="display:inline;">
                 <input type="hidden" name="sort" value="asc">
                 <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
                 <button type="submit" class="filter-btn <%= "asc".equals(request.getParameter("sort")) ? "active" : ""%>">
-                    ⇅ Giá Thấp - Cao
+                    Giá Thấp - Cao
                 </button>
             </form>
             <form method="get" id="categoryForm" style="display:inline;">

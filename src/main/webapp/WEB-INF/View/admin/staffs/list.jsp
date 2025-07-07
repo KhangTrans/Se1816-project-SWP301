@@ -18,18 +18,25 @@
     <div class="table-container__header">
         <h2 class="table-container__title">Staff List</h2>
         <p class="table-container__description">Manage staff information</p>
-        <div>
-            <input type="text" id="searchStaff" placeholder="Full name or username">
-            <input type="text" id="searchPhone" placeholder="Phone number">
-            <select id="staffFilter">
-                <option value="">Status</option>
-                <option value="active">active</option>
-                <option value="inactive">inactive</option>
-            </select>
+        <div class="row g-2 mb-3 align-items-end d-flex justify-content-end">
+            <div class="col-md-4">
+                <input type="text" id="searchStaff" class="form-control" placeholder="Search by full name or username">
+            </div>
+
+            <div class="col-md-4">
+                <input type="text" id="searchPhone" class="form-control" placeholder="Search by phone number">
+            </div>
+
+            <div class="col-md-3">
+                <select id="staffFilter" class="form-select">
+                    <option value="">Select status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                </select>
+            </div>
         </div>
+
     </div>
-
-
 
     <div class="table-container__content" style="overflow-x: auto;">
         <button class="add-button" onclick="openModal('addStaffModal')">+ Add Staff</button>
@@ -37,6 +44,7 @@
             <thead>
                 <tr>
                     <th style="width: 50px">No</th>
+                    <!--                    <th>Account ID</th>-->
                     <th>Avatar</th>
                     <th>Username</th>
                     <th>Full Name</th>

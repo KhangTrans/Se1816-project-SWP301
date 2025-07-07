@@ -6,6 +6,9 @@ package DAO;
 
 import Model.Order;
 import Model.OrderItem;
+import Model.OrderVoucher;
+import Model.Products;
+import Model.Voucher;
 import db.DBcontext;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -17,6 +20,7 @@ import java.util.Map;
 import java.math.BigDecimal;
 import java.util.HashMap;
 import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
  *
@@ -726,6 +730,113 @@ public class OrderDao extends DBcontext {
         }
 
         return hasPurchased;
+    }
+
+    public void addOrderItem(OrderItem orderItem) {
+        String query = "INSERT INTO order_items (order_id, product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, orderItem.getOrder().getOrderId());  // orderId
+            ps.setInt(2, orderItem.getProductId());  // productId
+            ps.setInt(3, orderItem.getQuantity());  // quantity
+            ps.setBigDecimal(4, orderItem.getUnitPrice());  // unitPrice
+
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public int createOrder(Order order, Integer voucherId, BigDecimal discountAmount) {
+        String query = "INSERT INTO orders (account_id, total_amount, shipping_address, status, referral_code, customer_name, customer_phone_number) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?)";
+        int orderId = 0;
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
+            // Set các giá trị vào PreparedStatement
+            ps.setInt(1, order.getAccount().getAccountId());  // accountId
+            ps.setBigDecimal(2, order.getTotalAmount());  // totalAmount
+            ps.setString(3, order.getShippingAddress());  // shippingAddress
+            ps.setString(4, order.getStatus());  // status
+            ps.setString(5, order.getReferralCode());  // referralCode
+            ps.setString(6, order.getCustomerName());  // customerName
+            ps.setString(7, order.getCustomerPhoneNumber());  // customerPhoneNumber
+
+            // Thực thi câu lệnh và lấy orderId được tự động sinh
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows > 0) {
+                try ( ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                    if (generatedKeys.next()) {
+                        orderId = generatedKeys.getInt(1);  // Lấy orderId được sinh ra
+                    }
+                }
+                // Nếu voucher được áp dụng, chèn vào bảng order_vouchers
+                // If voucher is applied, insert into order_vouchers
+                if (voucherId != null && discountAmount.compareTo(BigDecimal.ZERO) > 0) {
+                    Voucher voucher = new VoucherDao().getVoucherById(voucherId);  // Get voucher
+                    OrderVoucher orderVoucher = new OrderVoucher();
+                    orderVoucher.setOrder(order);
+                    orderVoucher.setVoucher(voucher);
+                    orderVoucher.setDiscountAmount(discountAmount);
+
+                    // Insert into order_vouchers
+                    new OrderDao().addOrderVoucher(orderVoucher);
+                }
+
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return orderId;  // Trả về orderId
+    }
+    // Thêm voucher vào bảng order_vouchers
+
+    // Insert a new OrderVoucher into the database
+    public void addOrderVoucher(OrderVoucher orderVoucher) throws SQLException {
+        String query = "INSERT INTO order_vouchers (order_id, voucher_id, discount_amount) VALUES (?, ?, ?)";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, orderVoucher.getOrder().getOrderId());
+            ps.setInt(2, orderVoucher.getVoucher().getVoucherId());
+            ps.setBigDecimal(3, orderVoucher.getDiscountAmount());
+            ps.executeUpdate();
+        }
+    }
+
+    public List<OrderItem> getOrderItemsByOrderId(int orderId) {
+        List<OrderItem> orderItems = new ArrayList<>();
+        String query = "SELECT * FROM order_items WHERE order_id = ?";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+
+            // Lấy danh sách tất cả sản phẩm trong đơn hàng
+            Map<Integer, Products> productMap = new HashMap<>();
+
+            while (rs.next()) {
+                OrderItem orderItem = new OrderItem();
+                int productId = rs.getInt("product_id");
+
+                // Chỉ gọi getProductById một lần và lưu vào map để tránh truy vấn nhiều lần
+                if (!productMap.containsKey(productId)) {
+                    Products product = new ProductDao().getProductById(productId);
+                    productMap.put(productId, product);
+                }
+
+                orderItem.setOrderItemId(rs.getInt("order_item_id"));
+                orderItem.setOrder(getOrderById(rs.getInt("order_id")));
+                orderItem.setProduct(productMap.get(productId));  // Lấy sản phẩm từ map
+                orderItem.setQuantity(rs.getInt("quantity"));
+                orderItem.setUnitPrice(rs.getBigDecimal("unit_price"));
+
+                orderItems.add(orderItem);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return orderItems;
     }
 
 }

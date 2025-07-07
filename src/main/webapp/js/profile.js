@@ -39,7 +39,6 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 });
-
 function loadMembershipBlock() {
     fetch('MembershipServlet')
             .then(response => response.text())
@@ -72,7 +71,6 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log("Không tìm thấy .tab-btn.package");
     }
 });
-
 // Hàm showTab hiển thị nội dung của tab đã chọn
 function showTab(tabName) {
     // Ẩn tất cả các tab

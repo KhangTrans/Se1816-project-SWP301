@@ -99,8 +99,11 @@
 <%
     Trainers trainer = (Trainers) request.getAttribute("trainer");
 %>
+<div class="content">
+    <p class="content__text--bottom" style="font-size: 40px">Trainer Detail</p>
+</div>
 
-<div style="background-color: #1a2b3c; color: white; padding: 20px; text-align: center;margin-top: 100px;">
+<div style="background-color: #1a2b3c; color: white; padding: 20px; text-align: center;margin-top: 10px;">
     <!-- Hiển thị ảnh huấn luyện viên -->
     <div style="display: inline-block; background-color: #d3d3d3; width: 200px; height: 300px; margin-right: 20px; border-radius: 5px;">
         <img src="<%= request.getContextPath() + "/AvatarServlet?user=" + trainer.getAccountId().getUsername()%>" 
@@ -108,9 +111,9 @@
     </div>
 
     <!-- Hiển thị thông tin chi tiết của huấn luyện viên -->
-    <div style="display: inline-block; vertical-align: top; text-align: left;">
+    <div   style="display: inline-block; vertical-align: top; text-align: left;">
         <h1><%= trainer.getFullName()%></h1>
-        <ul>
+        <ul >
             <li><strong>Bio:</strong> <%= trainer.getBio()%></li>
             <li><strong>Phone:</strong> <%= trainer.getPhone()%></li>
             <li><strong>Experience:</strong> <%= trainer.getExperienceYears()%> years</li>

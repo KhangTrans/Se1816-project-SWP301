@@ -3,12 +3,6 @@
 <%
     Model.Package pkg = (Model.Package) request.getAttribute("pkg");
 %>
-<%
-    String err = (String) request.getAttribute("error");
-    out.println("DEBUG error: " + err + "<br>");
-    out.println("DEBUG pkg: " + (pkg != null ? pkg.getName() : "NULL") + "<br>");
-%>
-
 <!DOCTYPE html>
 <html>
 

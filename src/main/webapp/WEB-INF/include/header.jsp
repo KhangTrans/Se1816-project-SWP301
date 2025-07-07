@@ -80,8 +80,9 @@
                             <li><a class="btn w-100 mb-2" href="${pageContext.request.contextPath}/profile">Profile</a></li>
                             <li class="btn w-100 mb-2"><a style="text-decoration: none; color: #333" href="<%= request.getContextPath()%>/FavoriteListServlet?page=1">
                                     <i class="fa fa-heart"></i>
-                                    <span> My Favorite</span></a>
+                                    <span>Favorite List</span></a>
                             </li>
+                            <li><a class="btn w-100 mb-2" href="${pageContext.request.contextPath}/historyorder">History Order</a></li>
                             <li><a class="btn w-100" href="${pageContext.request.contextPath}/logout">Logout</a></li>
                                 <% } else { %>
                             <li>
