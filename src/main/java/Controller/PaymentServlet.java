@@ -25,7 +25,7 @@ public class PaymentServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String cardIdStr = request.getParameter("cardId");
-        String renewParam = request.getParameter("renew"); // ← THÊM DÒNG NÀY!
+        String renewParam = request.getParameter("renew"); // ← ADDED THIS LINE
         boolean renewMode = "1".equals(renewParam) || "true".equalsIgnoreCase(renewParam);
         request.setAttribute("renewMode", renewMode);
         HttpSession session = request.getSession(false);
@@ -41,10 +41,14 @@ public class PaymentServlet extends HttpServlet {
         }
 
         CustomerMembership activeMembership = null;
+        CustomerMembership upcomingMembership = null;
+
         if (accountId != null) {
             CustomerDao customerDao = new CustomerDao();
             activeMembership = customerDao.getActiveMembershipByAccountId(accountId);
+            upcomingMembership = customerDao.getUpcomingMembership(accountId, java.time.LocalDate.now());
             request.setAttribute("activeMembership", activeMembership);
+            request.setAttribute("upcomingMembership", upcomingMembership);
         }
 
         if (cardIdStr != null) {
@@ -52,19 +56,29 @@ public class PaymentServlet extends HttpServlet {
             PackageDao packageDao = new PackageDao();
             Package pkg = packageDao.getPackageById(cardId);
 
-            if (pkg != null) {
-                if (!renewMode && activeMembership != null && !"cancelled".equalsIgnoreCase(activeMembership.getPaymentStatus())) {
-                    // Báo lỗi qua session và redirect
+            // Block new purchase if active or upcoming membership exists
+            if (!renewMode) {
+                if (activeMembership != null && !"cancelled".equalsIgnoreCase(activeMembership.getPaymentStatus())) {
                     if (session != null) {
-                        session.setAttribute("membershipError", "Bạn đã có gói thành viên. Vui lòng hủy ở profile trước khi mua gói mới!");
+                        session.setAttribute("membershipError", "You already have an active membership. Please cancel it in your profile before purchasing a new package!");
                     }
                     response.sendRedirect(request.getContextPath() + "/package-details?id=" + cardIdStr);
                     return;
                 }
+                if (upcomingMembership != null) {
+                    if (session != null) {
+                        session.setAttribute("membershipError", "You already have an upcoming membership package. You cannot purchase a new package until this one is activated.");
+                    }
+                    response.sendRedirect(request.getContextPath() + "/package-details?id=" + cardIdStr);
+                    return;
+                }
+            }
+
+            if (pkg != null) {
                 request.setAttribute("pkg", pkg);
                 request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
             } else {
-                request.setAttribute("error", "Không tìm thấy gói tập!");
+                request.setAttribute("error", "Package not found!");
                 request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
             }
         } else {
@@ -88,14 +102,14 @@ public class PaymentServlet extends HttpServlet {
         } else if (accObj instanceof String) {
             accountId = Integer.parseInt((String) accObj);
         } else {
-            request.setAttribute("error", "Không xác định được tài khoản!");
+            request.setAttribute("error", "Unable to identify the account!");
             request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
             return;
         }
 
         String cardIdStr = request.getParameter("cardId");
         if (cardIdStr == null || cardIdStr.trim().isEmpty()) {
-            request.setAttribute("error", "Thiếu thông tin gói tập!");
+            request.setAttribute("error", "Package information is missing!");
             request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
             return;
         }
@@ -104,7 +118,7 @@ public class PaymentServlet extends HttpServlet {
         PackageDao packageDao = new PackageDao();
         Package pkg = packageDao.getPackageById(packageId);
         if (pkg == null) {
-            request.setAttribute("error", "Không tìm thấy gói tập!");
+            request.setAttribute("error", "Package not found!");
             request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
             return;
         }
@@ -115,27 +129,25 @@ public class PaymentServlet extends HttpServlet {
         String renewParam = request.getParameter("renew");
         boolean renewMode = "1".equals(renewParam) || "true".equalsIgnoreCase(renewParam);
 
-        // Nếu đã có membership còn hạn và chưa hủy
+        // If there is an active membership and it is not cancelled
         if (renewMode) {
-            // **Gia hạn membership đang active**
+            // **Renew active membership**
             if (activeMembership != null && "paid".equalsIgnoreCase(activeMembership.getPaymentStatus())) {
-                // Cộng thêm thời hạn cho gói hiện tại
                 java.time.LocalDate newEnd = activeMembership.getEndDate().plusDays(pkg.getDurationDays());
                 customerDao.updateMembershipEndDate(activeMembership.getMembershipId(), newEnd);
 
-                request.setAttribute("success", "Gia hạn thành công! Gói của bạn được kéo dài tới " + newEnd + ".");
+                request.setAttribute("success", "Renewal successful! Your package has been extended until " + newEnd + ".");
                 request.setAttribute("pkg", pkg);
                 request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
             } else {
-                request.setAttribute("error", "Không tìm thấy gói thành viên để gia hạn.");
+                request.setAttribute("error", "Active membership not found for renewal.");
                 request.setAttribute("pkg", pkg);
                 request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
             }
         } else {
-            // **ĐĂNG KÝ MỚI như cũ (KHÔNG đổi code cũ)**
+            // **New registration as before (do not change old code)**
             if (activeMembership != null && !"cancelled".equalsIgnoreCase(activeMembership.getPaymentStatus())) {
-                // Báo lỗi qua session và redirect
-                session.setAttribute("membershipError", "Bạn đã có gói thành viên. Vui lòng hủy ở profile trước khi mua gói mới!");
+                session.setAttribute("membershipError", "You already have a membership package. Please cancel it in your profile before buying a new one!");
                 response.sendRedirect(request.getContextPath() + "/package-details?id=" + cardIdStr);
                 return;
             }
@@ -159,13 +171,13 @@ public class PaymentServlet extends HttpServlet {
             try {
                 customer = userdao.getCustomerByAccountId(accountId);
             } catch (SQLException ex) {
-                request.setAttribute("error", "Lỗi truy vấn khách hàng: " + ex.getMessage());
+                request.setAttribute("error", "Customer query error: " + ex.getMessage());
                 request.setAttribute("pkg", pkg);
                 request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
                 return;
             }
             if (customer == null) {
-                request.setAttribute("error", "Không tìm thấy thông tin khách hàng!");
+                request.setAttribute("error", "Customer information not found!");
                 request.setAttribute("pkg", pkg);
                 request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
                 return;
@@ -180,16 +192,16 @@ public class PaymentServlet extends HttpServlet {
             membership.setMembershipPackage(membershipPackage);
             membership.setStartDate(newStart);
             membership.setEndDate(newEnd);
-            membership.setPaymentStatus("PAID");
+            membership.setPaymentStatus("PENDING");
 
             boolean added = customerDao.addMembership(membership);
 
             if (added) {
-                request.setAttribute("success", "Đăng ký gói thành công!");
+                request.setAttribute("success", "Package registration successful!");
             } else {
-                request.setAttribute("error", "Đã có lỗi xảy ra khi ghi membership. Vui lòng thử lại!");
+                request.setAttribute("error", "An error occurred while saving membership. Please try again!");
             }
-            request.setAttribute("pkg", pkg); // Để vẫn show thông tin gói
+            request.setAttribute("pkg", pkg);
 
             request.getRequestDispatcher("/WEB-INF/View/customers/payment.jsp").forward(request, response);
         }

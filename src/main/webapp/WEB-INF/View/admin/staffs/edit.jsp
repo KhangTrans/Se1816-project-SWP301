@@ -11,17 +11,20 @@
         <h2>Edit Staff</h2>
         <form method="post" action="<%= request.getContextPath()%>/admin/staffs"
               enctype="multipart/form-data"
-             onsubmit="return submitFormAjax(this, 'resultEdit')">
+              onsubmit="return validateStaffForm(this, 'editStaffError') && submitFormAjax(this, 'resultEditStaff')">
+
+            <div id="editStaffError" style="color: red; margin-bottom: 10px;"></div>
+
 
             <input type="hidden" name="action" value="edit">
             <input type="hidden" name="staffId" id="editStaffId" readonly>
-            
+
 
             <label>Full Name:</label>
             <input type="text" name="fullName" id="editFullName" required><br><br>
 
             <label>Email:</label>
-            <input type="email" name="email" id="editEmail" required>
+            <input type="text" name="email" id="editEmail" required><br><br>
 
             <label>Phone:</label>
             <input type="text" name="phone" id="editPhone" required><br><br>

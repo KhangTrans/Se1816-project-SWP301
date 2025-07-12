@@ -9,6 +9,24 @@ public class CartItem {
     private int productId;       // Thay đổi thành kiểu int
     private int quantity;
     private LocalDateTime addedAt;
+    private Products product;
+
+    public CartItem(int cartItemId, int accountId, int productId, int quantity, Products product, LocalDateTime addedAt) {
+        this.cartItemId = cartItemId;
+        this.accountId = accountId;
+        this.productId = productId;
+        this.quantity = quantity;
+        this.product = product;
+        this.addedAt = addedAt;
+    }
+
+    public Products getProduct() {
+        return product;
+    }
+
+    public void setProduct(Products product) {
+        this.product = product;
+    }
 
     public CartItem() {
     }

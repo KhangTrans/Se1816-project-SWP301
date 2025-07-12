@@ -1119,7 +1119,7 @@ function loadOrders() {
                             <td>${order.referralCode || ''}</td>
                             <td>${item.productName || 'Unknown Product'}</td>
                             <td>${item.quantity || 0}</td>
-                            <td>${item.unitPrice ? (Number(item.unitPrice) * item.quantity).toLocaleString() + ' VND' : '0 VND'}</td>
+                            <td>${order.totalAmount ? Number(order.totalAmount).toLocaleString() + ' VND' : '0 VND'}</td>
                             <td>${statusDropdown}</td>
                             <td>${order.shippingAddress || ''}</td>
                             <td>${order.customerName || ''}</td>
@@ -1694,6 +1694,7 @@ function openEditStaffModal(staffId, accountId, username, fullName, email, phone
     document.getElementById('editStaffId').value = staffId;
     document.getElementById('editStaffAccountId').value = accountId;
     document.getElementById('editFullName').value = fullName;
+    document.getElementById('editEmail').value = email;
     document.getElementById('editPhone').value = phone;
     document.getElementById('editPosition').value = position;
     document.getElementById('editStatus').value = status;
@@ -1711,124 +1712,38 @@ function openEditStaffModal(staffId, accountId, username, fullName, email, phone
     document.getElementById('editStaffModal').style.display = 'flex';
 }
 
-//
-//function submitFormForStaff(form, resultContainerId, event) {
-//    // Ngừng hành động mặc định của form (ngăn gửi form theo cách thông thường)
-//    if (event) {
-//        event.preventDefault();
-//    }
-//
-//    // Lấy giá trị action từ thuộc tính của form
-//    const action = form.getAttribute('action');
-//    console.log("Form action:", action);
-//
-//    if (!action) {
-//        console.error("❌ Form không có thuộc tính 'action'");
-//        const resultDiv = document.getElementById(resultContainerId);
-//        if (resultDiv) {
-//            resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: Form không có action!</p>`;
-//        }
-//        return false;
-//    }
-//
-//    // Lấy dữ liệu từ form (bao gồm cả file avatar nếu có)
-//    const formData = new FormData(form);
-//    console.log("✅ Dữ liệu gửi đi:");
-//    for (let [key, val] of formData.entries()) {
-//        console.log(`${key}: ${val}`);
-//    }
-//
-//    // Vô hiệu hóa các input trong form khi đang gửi
-//    form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
-//
-//    // Gửi dữ liệu form qua fetch
-//    fetch(action, {
-//        method: 'POST', // Phương thức gửi form
-//        body: formData, // Dữ liệu form
-//    })
-//            .then(response => {
-//                // Kích hoạt lại các input sau khi gửi xong
-//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
-//
-//                // Kiểm tra xem response có thành công không
-//                if (!response.ok) {
-//                    throw new Error(`HTTP error! Status: ${response.status}`);
-//                }
-//                return response.text();
-//            })
-//            .then(data => {
-//                // Hiển thị kết quả thành công
-//                const resultDiv = document.getElementById(resultContainerId);
-//                if (resultDiv) {
-//                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Thành công!</p>`;
-//                }
-//
-//                // Đóng modal sau khi thành công
-//                const modal = form.closest('.modal');
-//                if (modal) {
-//                    setTimeout(() => closeModal(modal.id), 800);
-//                }
-//
-//                // Sau khi gửi thành công, làm mới danh sách nhân viên
-//                setTimeout(() => {
-//                    if (typeof loadStaffData === 'function') {
-//                        loadStaffData();  // Hàm này tải lại dữ liệu nhân viên
-//                    }
-//                }, 500);
-//            })
-//            .catch(error => {
-//                // Kích hoạt lại các input nếu có lỗi
-//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
-//
-//                // Hiển thị thông báo lỗi nếu có
-//                console.error('Lỗi khi gửi form:', error);
-//                const resultDiv = document.getElementById(resultContainerId);
-//                if (resultDiv) {
-//                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
-//                }
-//            });
-//
-//    return false;
-//}
-
 function openDeleteStaffModal(staffId) {
     document.getElementById('deleteStaffId').value = staffId;
     openModal('deleteStaffModal');
 }
 
-//function submitDeleteStaff(form, event) {
-//    event.preventDefault();
-//
-//    const formData = new FormData(form);
-//    const resultDiv = document.getElementById("resultDeleteStaff");
-//    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-//
-//    fetch(`${window.location.origin}${contextPath}/admin/staffs`, {
-//        method: 'POST',
-//        body: formData
-//    })
-//            .then(res => res.text())
-//            .then(result => {
-//                console.log("📥 Server returned:", JSON.stringify(result));
-//
-//                if (result.trim() === "OK") {
-//                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Xóa thành công!</p>`;
-//                    setTimeout(() => {
-//                        closeModal('deleteStaffModal');
-//                        loadStaffData();
-//                        setTimeout(() => location.reload(), 1000);
-//                    }, 800);
-//                } else {
-//                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Xóa thất bại.</p>`;
-//                }
-//            })
-//            .catch(error => {
-//                console.error("Error delete staff:", error);
-//                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
-//            });
-//
-//    return false;
-//}
+function validateStaffForm(form, errorDivId) {
+    var errorDiv = document.getElementById(errorDivId);
+    if (errorDiv)
+        errorDiv.innerText = ''; // clear old error
+
+    var phoneInput = form.querySelector('input[name="phone"]');
+    var phone = phoneInput.value.trim();
+    var vietPhoneRegex = /^(0|\+84)(3[2-9]|5[6|8|9]|7[06-9]|8[1-5]|9[0-9])[0-9]{7}$/;
+    if (!vietPhoneRegex.test(phone)) {
+        if (errorDiv)
+            errorDiv.innerText = "Please enter a valid Vietnamese phone number!";
+        phoneInput.focus();
+        return false;
+    }
+    var emailInput = form.querySelector('input[name="email"]');
+    var email = emailInput.value.trim();
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    if (!emailRegex.test(email)) {
+        if (errorDiv)
+            errorDiv.innerText = "Please enter a valid email address!";
+        emailInput.focus();
+        return false;
+    }
+    return true;
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                              HA PHUONG                                                                                   /////

@@ -4,16 +4,20 @@
     Author     : Le Nguyen Hoang Khang - CE191583
 --%>
 
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="Model.Package" %>
 <%@ page import="jakarta.servlet.http.HttpSession" %>
+<%@include file="/WEB-INF/include/head.jsp" %>
+<%@include file="/WEB-INF/include/Login.jsp" %>
+<%@include file="/WEB-INF/include/Register.jsp" %>
+<%@include file="/WEB-INF/include/forgotPassword.jsp" %>
+<%@include file="/WEB-INF/include/header.jsp" %>
 <%
     Boolean renewMode = (Boolean) request.getAttribute("renewMode");
 %>
 <%
     Package pkg = (Package) request.getAttribute("pkg");
     // Lấy username từ session
-    String username = null;
     Integer accountId = null;
     if (session != null) {
         username = (String) session.getAttribute("username");
@@ -36,14 +40,17 @@
             }
             .container {
                 display: flex;
-                max-width: 850px;
+                max-width: 900px; /* Hoặc lớn hơn nếu muốn */
                 margin: 40px auto;
                 background: #fff;
                 border-radius: 18px;
                 box-shadow: 0 6px 32px rgba(0,0,0,0.07);
             }
             .left, .right {
+                flex: 1 1 0;
+                box-sizing: border-box;
                 padding: 36px 28px;
+                min-width: 0;         /* Fix flexbox bug khi nội dung lớn */
             }
             .left {
                 flex: 1;
@@ -51,11 +58,21 @@
                 background: #f2f8fd;
             }
             .right {
-                flex: 1;
+                display: flex;
+                flex-direction: column;
+                justify-content: flex-start;
+                align-items: flex-start; /* căn trái toàn bộ */
+            }
+
+            .right form {
+                width: 100%;       /* full chiều ngang cột phải */
+                max-width: 100%;   /* không giới hạn max */
+                text-align: left;
             }
             .pay-btn {
                 padding: 14px 0;
-                width: 100%;
+                width: 45%;
+                gap: 10px;
                 background: #3a7bfd;
                 color: #fff;
                 font-size: 18px;
@@ -74,7 +91,12 @@
                 margin-bottom: 18px;
             }
             .method input[type="radio"] {
-                margin-right: 12px;
+                width: 16px !important;   /* radio mặc định thường là 16px */
+                height: 16px !important;
+                min-width: 0 !important;
+                max-width: 24px !important;
+                margin: 4px 12px 4px 0;
+                vertical-align: middle;
             }
             .method label {
                 font-size: 16px;
@@ -117,19 +139,19 @@
         <div class="container">
             <!-- Thông tin gói -->
             <div class="left">
-                <h2>Xin chào, <%= username%>!</h2>
+                <h2>Hello, <%= username%>!</h2>
                 <% if (pkg != null) {%>
-                <p><strong>Tên gói:</strong> <%= pkg.getName()%></p>
-                <p><strong>Mô tả:</strong> <%= pkg.getDescription()%></p>
-                <p><strong>Thời hạn:</strong> <%= pkg.getDurationDays()%> ngày</p>
-                <p><strong>Giá:</strong> <span style="color:#e63946"><%= pkg.getPrice()%> VNĐ</span></p>
+                <p><strong>Membership Package name:</strong> <%= pkg.getName()%></p>
+                <p><strong>Description:</strong> <%= pkg.getDescription()%></p>
+                <p><strong>Duration:</strong> <%= pkg.getDurationDays()%> ngày</p>
+                <p><strong>Price:</strong> <span style="color:#e63946"><%= pkg.getPrice()%> VNĐ</span></p>
                 <% } else { %>
-                <p>Không tìm thấy gói tập.</p>
+                <p>Can't find package.</p>
                 <% } %>
             </div>
             <!-- Phương thức thanh toán -->
             <div class="right">
-                <h2>Phương thức thanh toán</h2>
+                <h2>Payment method</h2>
                 <% if (success == null && pkg != null) {%>
                 <form action="payment" method="post">
                     <input type="hidden" name="cardId" value="<%= pkg.getId()%>">
@@ -139,11 +161,11 @@
 
                     <div class="method">
                         <input type="radio" name="paymentMethod" id="offline" value="offline" checked>
-                        <label for="offline">Đóng tiền tại cơ sở (thanh toán trực tiếp)</label>
+                        <label for="offline">Pay in person (Direct payment)</label>
                     </div>
                     <div class="method">
                         <input type="radio" name="paymentMethod" id="online" value="online" disabled>
-                        <label for="online" class="disabled">Thanh toán online (Chưa hỗ trợ)</label>
+                        <label for="online" class="disabled">Online payment (unsupported)</label>
                     </div>
                     <%
                         // Lấy membership đang bị "cancelled" mà chưa hết hạn
@@ -157,19 +179,24 @@
                     %>
                     <% if (canChooseApplyTime) { %>
                     <div class="method">
-                        <label><b>Thời điểm áp dụng gói mới:</b></label>
+                        <label><h2>When to apply new membership package</h2></label>
                     </div>
                     <div class="method">
                         <input type="radio" name="applyOption" id="applyNow" value="applyNow" checked>
-                        <label for="applyNow">Áp dụng ngay lập tức (gói hiện tại sẽ dừng và thay thế)</label>
+                        <label for="applyNow">Apply immediately (the current package will be stopped and replaced)</label>
                     </div>
                     <div class="method">
                         <input type="radio" name="applyOption" id="applyLater" value="applyLater">
-                        <label for="applyLater">Áp dụng khi hết hạn gói cũ (gói mới bắt đầu sau ngày hết hạn)</label>
+                        <label for="applyLater">Apply after the current package expires (the new package will start after the old one ends)</label>
                     </div>
                     <% } %>
 
-                    <button type="submit" class="pay-btn">Xác nhận thanh toán</button>
+                    <div style="display: flex">
+                    <button type="submit" class="pay-btn">Confirm</button>
+                    <a href="homepage" class="pay-btn" style="margin-left: 10%; background: #ccc; color: #111; text-align:center; text-decoration:none; display:flex; align-items:end; justify-content:center; width: 45%">
+                        Cancel
+                    </a>
+                    </div>
                     <% if (request.getAttribute("error") != null) {%>
                     <div style="color:red"><%= request.getAttribute("error")%></div>
                     <% } %>
@@ -179,7 +206,7 @@
         </div>
         <% } else { %>
         <div class="warning">
-            Bạn chưa đăng nhập! <a href="login.jsp">Đăng nhập ngay</a>
+            You are not logged in! <a href="login.jsp">Login now</a>
         </div>
         <% }%>
     </body>
@@ -190,3 +217,4 @@
     <div class="warning"><%= request.getAttribute("error")%></div>
     <% }%>
 </html>
+<%@include file="/WEB-INF/include/footer.jsp" %>

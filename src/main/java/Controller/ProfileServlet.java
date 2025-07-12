@@ -36,7 +36,7 @@ public class ProfileServlet extends HttpServlet {
         HttpSession session = request.getSession();
         Integer accountId = (Integer) session.getAttribute("accountId");
         if (accountId == null) {
-            response.sendRedirect(request.getContextPath() + "/LoginServlet"); // Redirect đến trang đăng nhập nếu không có session
+            response.sendRedirect(request.getContextPath() + "/homepage"); // Redirect đến trang đăng nhập nếu không có session
             return;
         }
 

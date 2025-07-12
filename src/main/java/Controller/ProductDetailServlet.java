@@ -8,9 +8,11 @@ import DAO.AccountDao;
 import DAO.OrderDao;
 import DAO.ProductDao;
 import DAO.ReviewDao;
+import DAO.VoucherDao;
 import Model.Account;
 import Model.Products;
 import Model.Review;
+import Model.Voucher;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -18,7 +20,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -74,6 +79,16 @@ public class ProductDetailServlet extends HttpServlet {
         // Kiểm tra xem người dùng có đăng nhập không (kiểm tra session)
         Integer accountId = (Integer) request.getSession().getAttribute("accountId");
         boolean isLoggedIn = accountId != null;
+
+        List<Voucher> claimedVouchers = null;
+        if (accountId != null) {
+            try {
+                claimedVouchers = new VoucherDao().getAvailableVouchersForCustomer(accountId);
+            } catch (SQLException ex) {
+                Logger.getLogger(ProductDetailServlet.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+        request.setAttribute("claimedVouchers", claimedVouchers);
 
         // Kiểm tra xem người dùng đã mua sản phẩm hay chưa
         boolean hasPurchased = false;

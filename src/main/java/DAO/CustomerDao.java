@@ -185,7 +185,7 @@ public class CustomerDao extends DBcontext {
     // Tìm khách hàng theo ID
     public Customer getCustomerById(int customerId) {
         Customer customer = null;
-        String query = "SELECT * FROM customers WHERE customer_id = ?"; // sửa
+        String query = "SELECT * FROM customers WHERE customer_id = ?";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, customerId);
             try ( ResultSet rs = ps.executeQuery()) {
@@ -258,7 +258,8 @@ public class CustomerDao extends DBcontext {
         }
         return null;
     }
-public boolean addMembership(CustomerMembership membership) {
+
+    public boolean addMembership(CustomerMembership membership) {
         String sql = "INSERT INTO customer_memberships (account_id, package_id, start_date, end_date, payment_status) VALUES (?, ?, ?, ?, ?)";
         try (
                  Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -284,7 +285,12 @@ public boolean addMembership(CustomerMembership membership) {
         CustomerMembership membership = null;
         String sql = "SELECT * FROM customer_memberships "
                 + "WHERE account_id = ? AND end_date >= GETDATE() "
-                + "AND (payment_status = 'paid' OR payment_status = 'cancelled')";
+                + "ORDER BY "
+                + "CASE payment_status "
+                + "  WHEN 'paid' THEN 1 "
+                + "  WHEN 'cancelled' THEN 2 "
+                + "  WHEN 'pending' THEN 3 "
+                + "  ELSE 4 END, end_date DESC";
 
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, accountId);
@@ -387,5 +393,41 @@ public boolean addMembership(CustomerMembership membership) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public boolean deleteMembership(int membershipId) {
+        String sql = "DELETE FROM customer_memberships WHERE membership_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, membershipId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public CustomerMembership getUpcomingMembership(int accountId, java.time.LocalDate today) {
+        String sql = "SELECT TOP 1 * FROM customer_memberships "
+                + "WHERE account_id = ? "
+                + "AND (payment_status = 'pending' OR payment_status = 'paid') "
+                + "AND start_date > ? "
+                + "ORDER BY start_date ASC";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            ps.setDate(2, java.sql.Date.valueOf(today));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                CustomerMembership m = new CustomerMembership();
+                m.setMembershipId(rs.getInt("membership_id"));
+                m.setStartDate(rs.getDate("start_date").toLocalDate());
+                m.setEndDate(rs.getDate("end_date").toLocalDate());
+                m.setPaymentStatus(rs.getString("payment_status"));
+                return m;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

@@ -38,6 +38,8 @@ public class MembershipServlet extends HttpServlet {
 
         Model.CustomerMembership activeMembership = null;
         Long daysLeft = null;
+        Model.CustomerMembership upcomingMembership = null;
+
         if (accountId != null) {
             DAO.CustomerDao customerDao = new DAO.CustomerDao();
             activeMembership = customerDao.getActiveMembershipByAccountId(accountId);
@@ -45,8 +47,11 @@ public class MembershipServlet extends HttpServlet {
             if (activeMembership != null && activeMembership.getEndDate() != null) {
                 daysLeft = java.time.temporal.ChronoUnit.DAYS.between(java.time.LocalDate.now(), activeMembership.getEndDate());
             }
+            // Lấy pending membership kế tiếp (nếu có)
+            upcomingMembership = customerDao.getUpcomingMembership(accountId, java.time.LocalDate.now());
             request.setAttribute("activeMembership", activeMembership);
             request.setAttribute("daysLeft", daysLeft);
+            request.setAttribute("upcomingMembership", upcomingMembership); 
         }
         DAO.PackageDao packageDao = new DAO.PackageDao();
         List<Model.Package> packages = packageDao.getAllPackages();
@@ -69,23 +74,38 @@ public class MembershipServlet extends HttpServlet {
             int membershipId = Integer.parseInt(request.getParameter("membershipId"));
             DAO.CustomerDao dao = new DAO.CustomerDao();
 
-            if ("renew".equals(action)) {
-                int duration = Integer.parseInt(request.getParameter("packageDuration"));
-                // Lấy membership hiện tại
-                Model.CustomerMembership m = dao.getMembershipById(membershipId);
-                if (m != null) {
-                    java.time.LocalDate newEnd = m.getEndDate().plusDays(duration);
-                    dao.updateMembershipEndDate(membershipId, newEnd);
-                    success = true;
-                } else {
-                    message = "Không tìm thấy membership!";
-                }
-            } else if ("delete".equals(action)) {
-                // Chỉ cần update payment_status thành "cancelled"
-                dao.cancelMembership(membershipId);
-                success = true;
-            } else {
+            if (null == action) {
                 message = "Action không hợp lệ!";
+            } else {
+                switch (action) {
+                    case "renew":
+                        int duration = Integer.parseInt(request.getParameter("packageDuration"));
+                        Model.CustomerMembership m = dao.getMembershipById(membershipId);
+                        if (m != null && "paid".equalsIgnoreCase(m.getPaymentStatus())) {
+                            java.time.LocalDate newEnd = m.getEndDate().plusDays(duration);
+                            dao.updateMembershipEndDate(membershipId, newEnd);
+                            success = true;
+                        } else {
+                            message = "Chỉ được gia hạn khi gói đang hoạt động!";
+                        }
+                        break;
+                    case "delete":
+                        m = dao.getMembershipById(membershipId);
+                        if (m != null) {
+                            if ("pending".equalsIgnoreCase(m.getPaymentStatus())) {
+                                success = dao.deleteMembership(membershipId); // xóa luôn bản ghi
+                            } else {
+                                dao.cancelMembership(membershipId); // cập nhật status = cancelled
+                                success = true;
+                            }
+                        } else {
+                            message = "Không tìm thấy membership!";
+                        }
+                        break;
+                    default:
+                        message = "Action không hợp lệ!";
+                        break;
+                }
             }
         } catch (Exception ex) {
             success = false;

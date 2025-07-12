@@ -1,6 +1,3 @@
-<%@page import="java.math.BigDecimal"%>
-<%@page import="Model.Voucher"%>
-<%@page import="DAO.VoucherDao"%>
 <%@page import="DAO.ProductDao"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ page import="java.util.List" %>
@@ -225,97 +222,24 @@
             }
         %>
     </div>
-    <!-- Thanh toán và nhập thông tin giao hàng -->
     <div class="cart-summary">
         <h4>Subtotal</h4>
-        <div class="subtotal">
-            <%= String.format("%,.0f", session.getAttribute("totalAmount") != null ? session.getAttribute("totalAmount") : total)%>₫
-        </div>
-
-        <!-- Hiển thị số tiền đã giảm từ voucher -->
-        <h4>Discount from Voucher</h4>
-        <div class="voucher-discount">
-            <%
-                BigDecimal discountAmount = (BigDecimal) session.getAttribute("discountAmount");
-                if (discountAmount == null) {
-                    discountAmount = BigDecimal.ZERO; // Nếu không có discountAmount, gán là 0
-                }
-            %>
-            <%= String.format("%,.0f", discountAmount)%>₫
-        </div>
-
-        <!-- Hiển thị các voucher mà khách hàng đã thu thập dưới dạng carousel -->
-        <h4>Available Vouchers</h4>
-        <div id="voucherCarousel" class="carousel slide" data-bs-ride="carousel">
-            <div class="carousel-inner">
-                <%
-                    List<Voucher> vouchers = (List<Voucher>) session.getAttribute("vouchers");
-                    if (vouchers != null && !vouchers.isEmpty()) {
-                        int index = 0;
-                        for (Voucher voucher : vouchers) {
-                            String activeClass = (index == 0) ? "active" : "";  // Đảm bảo chỉ có 1 slide đầu tiên là active
-                %>
-                <div class="carousel-item <%= activeClass%>">
-                    <div class="voucher">
-                        <div class="voucher-code"><%= voucher.getCode()%></div>
-                        <div class="voucher-description"><%= voucher.getDescription()%></div>
-                        <div class="voucher-discount">
-                            Discount: <%= voucher.getDiscountPercent()%>% off, Max Discount: <%= voucher.getMaxDiscount()%>₫
-                        </div>
-                        <input type="radio" name="voucher" value="<%= voucher.getVoucherId()%>" /> Apply this Voucher
-                    </div>
-                </div>
-                <%
-                        index++;
-                    }
-                } else {
-                %>
-                <div class="carousel-item active">
-                    <p>No vouchers available.</p>
-                </div>
-                <%
-                    }
-                %>
-            </div>
-            <!-- Controls -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#voucherCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
-            </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#voucherCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
-            </button>
-        </div>
-
-        <!-- Nút Apply Voucher -->
-        <button type="button" id="applyVoucherBtn" class="btn btn-primary">Apply Voucher</button>
-
-        <form id="voucherForm" action="CartServlet" method="POST" style="display:none;">
-            <input type="hidden" name="action" value="applyVoucher">
-            <input type="hidden" name="voucherId" id="voucherId">
+        <div class="subtotal"><%= String.format("%,.0f", total)%>₫</div>
+        <form action="checkout" method="post">
+            <input type="submit" value="Continue to checkout" class="checkout-btn" />
         </form>
-        <!-- Form nhập thông tin thanh toán -->
-        <form action="checkout" method="POST">
-            <h4>Enter Shipping Information</h4>
-            <input type="text" name="shipping_address" placeholder="Shipping Address" required class="checkout-input" />
-            <input type="text" name="customer_name" placeholder="Your Name" required class="checkout-input" />
-            <input type="tel" name="customer_phone" placeholder="Your Phone Number" required class="checkout-input" />
-            <div class="checkout-btn-container">
-                <input type="submit" value="Proceed to Payment" class="checkout-btn" />
-            </div>
+
+
+
+        <!-- Move the "clear cart" button here -->
+        <form action="CartServlet" method="post" style="margin-top: 20px; text-align: center;">
+            <input type="hidden" name="action" value="clearCart">
+            <button type="submit" style="color: white; border: none; background-color: red; padding: 10px 20px; border-radius: 5px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                Clear all carts
+                <i class="trash fas fa-trash-alt"></i>
+            </button>
         </form>
     </div>
 </div>
+
 <%@ include file="/WEB-INF/include/footer.jsp" %>
-<script>
-    document.getElementById("applyVoucherBtn").addEventListener("click", function () {
-        var selectedVoucher = document.querySelector('input[name="voucher"]:checked');
-        if (selectedVoucher) {
-            document.getElementById("voucherId").value = selectedVoucher.value;
-            document.getElementById("voucherForm").submit();
-        } else {
-            alert("Please select a voucher to apply!");
-        }
-    });
-</script>

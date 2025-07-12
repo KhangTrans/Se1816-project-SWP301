@@ -86,10 +86,14 @@
                 <button id="favBtn" class="fav" onclick="toggleFavorite('<%= p.getProductId()%>')">
                     <i id="favIcon" class="fa fa-heart <%= isFavorite ? "favorite" : ""%>"></i> Favorite
                 </button>
-                <button class="cart" onclick="addToCart('<%= p.getProductId()%>')">
+                <button class="cart"
+                        onclick="addToCart('<%= p.getProductId()%>')"
+                        <%= p.getStockQuantity() < 1 ? "disabled style='opacity:0.5;pointer-events:none;' title=\"Out of stock\"" : ""%>>
                     <i class="fa fa-shopping-cart"></i> Add to Cart
                 </button>
-                <button class="buy" onclick="buyNow('<%= p.getProductId()%>')">
+                <button class="buy"
+                        onclick="showBuyNowModal('<%= p.getProductId()%>')"
+                        <%= p.getStockQuantity() < 1 ? "disabled style='opacity:0.5;pointer-events:none;' title=\"Out of stock\"" : ""%>>
                     <i class="fa fa-bolt"></i> Buy Now
                 </button>
             </div>
@@ -113,7 +117,7 @@
                     // Duyệt qua các đánh giá và tạo các item carousel
                     for (int i = 0; i < reviewCount; i += 2) {
                         String activeClass = (i == 0) ? "active" : ""; // Đánh dấu phần tử đầu tiên là active
-                %>
+%>
                 <div class="carousel-item <%= activeClass%>">
                     <div class="d-flex justify-content-between">
                         <%
@@ -385,7 +389,9 @@
     .stars .fa-star.checked {
         color: #ffcc00; /* Gold color when selected */
     }
-
+    .alert-box {
+        z-index: 20000;
+    }
 </style>
 
 <!-- Alert Box -->
@@ -394,5 +400,89 @@
     <button onclick="closeAlert()" class="close-btn">X</button>
 </div>
 
+<!-- Buy Now Modal -->
+<div id="buyNowModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:white; z-index:10000; padding:30px; border-radius:10px; box-shadow:0 4px 8px #0002;">
+    <h3>[[BUY NOW]]</h3>
+    <form id="buyNowForm">
+        <input type="hidden" name="productId" id="modalProductId">
+        <div>
+            <label>Full name:</label>
+            <input type="text" name="fullName" required>
+        </div>
+        <div>
+            <label>Phone Number:</label>
+            <input type="text" name="phone" required>
+        </div>
+        <div>
+            <label>Address:</label>
+            <input type="text" name="address" required>
+        </div>
+
+        <div>
+            <label>Voucher:</label>
+            <%
+                List<Model.Voucher> claimedVouchers = (List<Model.Voucher>) request.getAttribute("claimedVouchers");
+            %>
+            <select name="voucherId" id="voucherIdDropdown" class="form-control">
+                <option value="">No Voucher chosen</option>
+                <%
+                    if (claimedVouchers != null) {
+                        for (Model.Voucher v : claimedVouchers) {
+                %>
+                <option value="<%= v.getVoucherId()%>"
+                        data-discount="<%= v.getDiscountPercent()%>"
+                        data-max="<%= v.getMaxDiscount()%>"
+                        data-minorder="<%= v.getMinOrderAmount()%>">
+                    <%= v.getCode()%> - Discount <%= v.getDiscountPercent()%>% (Max: <%= v.getMaxDiscount()%>, Min Order: <%= v.getMinOrderAmount()%>)
+                </option>
+                <%
+                        }
+                    }
+                %>
+            </select>
+            <label>Payment Method</label>
+            <select id="paymentMethod" name="paymentMethod" class="form-control">                
+                <option value="cashOnDelivery">Cash on Delivery</option>
+                <option value="paypal" hidden>PayPal (not supported)</option>
+            </select>
+        </div>
+        <div>
+            <label>Quantity:</label>
+            <input type="number" name="quantity" value="1" min="1" max="<%= p.getStockQuantity()%>">
+        </div>
+        <!-- Thêm vào phía trên nút submit, bên trong <form id="buyNowForm"> -->
+        <div id="pricePreview" style="margin:12px 0; font-size:17px;">
+            Original price: <span id="originPrice"></span>₫ <br>
+            Discounted price: <span id="discountedPrice" style="font-weight:bold;color:#e53;"></span>₫
+        </div>
+        <button type="submit" class="btn btn-success mt-3">[[BUY NOW]]</button>
+        <button type="button" onclick="closeBuyNowModal()" class="btn btn-secondary mt-3">close</button>
+    </form>
+</div>
+<script>
+    // Truyền số lượng stock sang JS biến toàn cục
+    window.PRODUCT_STOCK = <%= p.getStockQuantity()%>;
+</script>
+<script>
+    const productPrice = <%= p.getPrice()%>;
+
+    window.APP_CONTEXT_PATH = '<%= request.getContextPath()%>';
+
+    function showBuyNowModal(productId) {
+        // Nếu chưa login thì show alert và return
+        var accountId = '<%= (session.getAttribute("accountId") != null) ? session.getAttribute("accountId") : "null"%>';
+        if (accountId === "null") {
+            showAlert("you need to be logged in to use this feature!");
+            return;
+        }
+
+        document.getElementById('modalProductId').value = productId;
+        document.getElementById('buyNowModal').style.display = 'block';
+    }
+</script>
+
 <script src="<%= request.getContextPath()%>/js/cart.js"></script>
+<script src="<%= request.getContextPath()%>/js/shopDetail.js"></script>
+
+
 <%@include file="/WEB-INF/include/footer.jsp" %>

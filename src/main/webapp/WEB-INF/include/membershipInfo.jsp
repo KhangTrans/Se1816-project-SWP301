@@ -94,69 +94,85 @@
 %>
 
 <% if (activeMembership != null) {
-        MembershipPackage pkg = activeMembership.getMembershipPackage();
+    MembershipPackage pkg = activeMembership.getMembershipPackage();
 %>
-
 <div id="membershipInfoBox" class="membership-info-box" data-packageid="<%= pkg.getPackageId()%>">
-    <h2>GÓI THÀNH VIÊN HIỆN TẠI CỦA BẠN</h2>
-    <p><b>Tên gói:</b> <%= pkg.getName()%></p>
-    <p><b>Ngày bắt đầu:</b> <%= activeMembership.getStartDate()%></p>
-    <p><b>Ngày hết hạn:</b> <%= activeMembership.getEndDate()%></p>
-    <p><b>Trạng thái:</b>
-        <% if ("cancelled".equalsIgnoreCase(activeMembership.getPaymentStatus())) {%>
+    <h2>YOUR MEMBERSHIP PACKAGE</h2>
+    <p><b>Package name:</b> <%= pkg.getName()%></p>
+    <p><b>Start date:</b> <%= activeMembership.getStartDate()%></p>
+    <p><b>End date:</b> <%= activeMembership.getEndDate()%></p>
+    <p><b>Status:</b>
+        <% if ("cancelled".equalsIgnoreCase(activeMembership.getPaymentStatus())) { %>
         Cancelled (active until <%= activeMembership.getEndDate()%>)
+        <% } else if ("pending".equalsIgnoreCase(activeMembership.getPaymentStatus())) { %>
+        <span style="color:#e65100;font-weight:bold;">Pending (Waiting for confirmation)</span>
         <% } else { %>
         Active
-        <% }%>
+        <% } %>
     </p>
     <p style="color: #388e3c; font-weight: bold;">
         <i class="fa fa-clock"></i>
-        Còn <%= daysLeft%> ngày
+        you have <%= daysLeft%> day(s) left
     </p>
-    <% if ("paid".equalsIgnoreCase(activeMembership.getPaymentStatus())) {%>
+    <% if ("paid".equalsIgnoreCase(activeMembership.getPaymentStatus())) { %>
     <div style="margin-top:20px;">
         <button class="membership-btn-cancel"
                 type="button"
-                onclick="showCancelConfirm(<%= activeMembership.getMembershipId()%>)">Hủy gói</button>
-        <% if (daysLeft != null && daysLeft <= 7) {%>
-        <!--        <button class="membership-btn-renew"
-                        type="button"
-                        onclick="renewMembership(<%= activeMembership.getMembershipId()%>, <%= pkg.getDurationDays()%>)">
-                    Gia hạn
-                </button>-->
+                onclick="showCancelConfirm(<%= activeMembership.getMembershipId()%>)">CANCEL</button>
+        <% if (daysLeft != null && daysLeft <= 7) { %>
         <form action="payment" method="get" style="display:inline;">
             <input type="hidden" name="cardId" value="<%= pkg.getPackageId()%>">
             <input type="hidden" name="renew" value="1">
-            <button class="membership-btn-renew" type="submit">Gia hạn</button>
+            <button class="membership-btn-renew" type="submit">RENEW</button>
         </form>
-        <% }%>
+        <% } %>
     </div>
     <!-- Xác nhận hủy gói (ẩn mặc định) -->
     <div id="cancel-confirm-box" style="display:none; margin-top:12px;">
-        <span>Bạn có chắc muốn hủy gói thành viên này?</span>
-        <button class="membership-btn-cancel" onclick="doCancelMembership(<%= activeMembership.getMembershipId()%>)">Xác nhận</button>
-        <button class="membership-btn-renew" onclick="hideCancelConfirm()">Không</button>
+        <span>are you sure you want to cancel this membership ?</span>
+        <button class="membership-btn-cancel" onclick="doCancelMembership(<%= activeMembership.getMembershipId()%>)">YES</button>
+        <button class="membership-btn-renew" onclick="hideCancelConfirm()">NO</button>
     </div>
     <% if (daysLeft != null && daysLeft <= 7) { %>
     <div class="membership-warning">
-        ⚠ Gói của bạn sắp hết hạn!
+        ⚠ Your membership package is about to expire!
     </div>
     <% } %>
-    <% } else if ("cancelled".equalsIgnoreCase(activeMembership.getPaymentStatus())) {%>
-    <div class="membership-warning" style="color:gray;">
-        Gói sẽ kết thúc vào <%= activeMembership.getEndDate()%>.    <br> <br> 
-        <a href="AllPackages" class="membership-btn-renew" style="margin-top:14px;">Mua gói mới</a>
-
+    <% } else if ("pending".equalsIgnoreCase(activeMembership.getPaymentStatus())) { %>
+    <!-- Block cho PENDING -->
+    <div style="margin-top:20px;">
+        <button class="membership-btn-cancel"
+                type="button"
+                onclick="showCancelConfirm(<%= activeMembership.getMembershipId()%>)">
+            CANCEL REQUEST
+        </button>
     </div>
-
-    <% } %>
-
+    <div id="cancel-confirm-box" style="display:none; margin-top:12px;">
+        <span>Are you sure you want to cancel this membership request?</span> <br>
+        <button class="membership-btn-cancel" onclick="doCancelMembership(<%= activeMembership.getMembershipId()%>)">YES</button>
+        <button class="membership-btn-renew" onclick="hideCancelConfirm()">NO</button>
+    </div>
+    <div class="membership-warning" style="color:#e65100;">
+        ⚠ This membership is pending confirmation. You can cancel it at any time before approval.
+    </div>
+    <% } else if ("cancelled".equalsIgnoreCase(activeMembership.getPaymentStatus())) {
+        CustomerMembership pendingMembership = (CustomerMembership) request.getAttribute("upcomingMembership");
+        if (pendingMembership != null && pendingMembership.getStartDate().isAfter(java.time.LocalDate.now())) { %>
+            <div class="membership-warning" style="color:#0d47a1;">
+                You have new package coming on <%= pendingMembership.getStartDate() %>
+            </div>
+        <% } else { %>
+            <div class="membership-warning" style="color:gray;">
+                Membership package will end on <%= activeMembership.getEndDate()%>.<br><br>
+                <a href="AllPackages" class="membership-btn-renew" style="margin-top:14px;">BUY NEW</a>
+            </div>
+        <% }
+    } %>
 </div>
-
 <% } else { %>
 <div class="membership-info-box" style="background: #fff7ec; color: #e65100; border: 1.5px solid #ff9800;">
-    <b>Bạn không có gói tập đang hoạt động.</b>
+    <b>You don't have any active membership.</b>
     <br>
-    <a href="AllPackages" style="color: #388e3c; text-decoration: underline;">Đăng ký gói tập ngay</a>
+    <a href="AllPackages" style="color: #388e3c; text-decoration: underline;">BUY ONE NOW</a>
 </div>
-<% }%>
+<% } %>
