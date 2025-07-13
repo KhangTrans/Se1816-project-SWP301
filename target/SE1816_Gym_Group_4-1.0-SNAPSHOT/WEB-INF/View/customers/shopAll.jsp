@@ -121,7 +121,7 @@
         %>
 
         <div class="voucher-section">
-            <h2 class="voucher-title"> VOUCHER ƯU ĐÃI</h2>
+            <h2 class="voucher-title"> DISCOUNT VOUCHER</h2>
             <div class="voucher-container">
                 <% if (voucherList != null && !voucherList.isEmpty()) {
                         for (Model.Voucher v : voucherList) {
@@ -137,7 +137,7 @@
                 </div>
                 <% }
                 } else { %>
-                <p>Không có voucher khả dụng.</p>
+                <p>No vouchers available.</p>
                 <% }%>
             </div>
         </div>
@@ -145,25 +145,25 @@
 
         <h1 class="header-content">SHOP</h1>
         <div class="filter-bar">
-            <span class="filter-title">Sắp Xếp Theo</span>
+            <span class="filter-title">Sort By</span>
             <form method="get" style="display:inline;">
                 <input type="hidden" name="sort" value="desc">
                 <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
                 <%-- Nếu có filter category thì thêm input hidden ở đây --%>
                 <button type="submit" class="filter-btn <%= "desc".equals(request.getParameter("sort")) ? "active" : ""%>">
-                    Giá Cao - Thấp
+                    High Price - Low Price
                 </button>
             </form>
             <form method="get" style="display:inline;">
                 <input type="hidden" name="sort" value="asc">
                 <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
                 <button type="submit" class="filter-btn <%= "asc".equals(request.getParameter("sort")) ? "active" : ""%>">
-                    Giá Thấp - Cao
+                  Low Price - High Price
                 </button>
             </form>
             <form method="get" id="categoryForm" style="display:inline;">
                 <select name="category" onchange="document.getElementById('categoryForm').submit()" class="filter-btn">
-                    <option value="">Tất cả danh mục</option>
+                    <option value="">All categories</option>
                     <%
                         List<Categories> categories = (List<Categories>) request.getAttribute("categories");
                         String selectedCat = request.getParameter("category");
@@ -270,7 +270,7 @@
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
             body: 'voucherId=' + encodeURIComponent(voucherId),
-            credentials: 'include' // ✅ cực kỳ quan trọng
+            credentials: 'include' // cực kỳ quan trọng
         })
                 .then(res => res.json())
                 .then(data => {

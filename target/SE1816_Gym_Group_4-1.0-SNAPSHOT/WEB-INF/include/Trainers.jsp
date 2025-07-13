@@ -141,7 +141,7 @@ justify-content: center;
         <div class="trainer-info">
             <h4><%= trainer.getFullName()%></h4>
             <a href="<%= request.getContextPath() + "/TrainerDetail?trainerId=" + trainer.getTrainerId()%>" class="view-details-btn">
-                Xem chi tiết
+               View details
             </a>
         </div>
     </div>
@@ -158,7 +158,7 @@ justify-content: center;
 <!-- === Nút "XEM TẤT CẢ" sẽ chuyển sang servlet allTrainerServlet === -->
 <div class="gallery__view-all-container">
     <a href="<%= request.getContextPath() + "/allTrainerServlet"%>" class="gallery__view-all">
-        <span class="gallery__view-all-text">XEM TẤT CẢ</span>
+        <span class="gallery__view-all-text">View All</span>
         <span class="gallery-slider__arrow">
             <img src="./logo/🦆 icon _nav arrow down_.svg" alt="arrow" width="28" height="16" />
         </span>

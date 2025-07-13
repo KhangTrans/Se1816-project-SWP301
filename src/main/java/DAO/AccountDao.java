@@ -85,7 +85,7 @@ public class AccountDao extends DBcontext {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("❌ Lỗi khi lấy danh sách account chưa là customer: " + e.getMessage());
+            System.err.println(" Lỗi khi lấy danh sách account chưa là customer: " + e.getMessage());
         }
 
         return accounts;

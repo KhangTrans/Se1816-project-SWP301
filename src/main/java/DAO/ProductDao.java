@@ -729,4 +729,12 @@ public class ProductDao extends DBcontext {
         return list;
     }
 
+    public void updateProductQuantity(int productId, int quantityToSubtract) throws SQLException {
+        String sql = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE product_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantityToSubtract);
+            stmt.setInt(2, productId);
+            stmt.executeUpdate();
+        }
+    }
 }

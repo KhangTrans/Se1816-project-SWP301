@@ -8,7 +8,6 @@
 <!DOCTYPE html>
 <div id="deleteStaffModal" class="modal" style="display:none;">
     <div class="modal-content">
-        <span class="close" onclick="closeModal('deleteStaffModal')">&times;</span>
         <h2>Confirm to demote this staff ?</h2>
         <p>do you want to demote this staff to customer ?</p>
 
@@ -19,8 +18,8 @@
             <input type="hidden" id="deleteStaffId" name="staffId">
 
             <div style="margin-top: 20px; text-align: right;">
-                <button type="button" class="action-buttons__btn" onclick="closeModal('deleteStaffModal')">Cancel</button>
                 <button type="submit" class="action-buttons__btn action-buttons__btn--delete">Confirm</button>
+                <button type="button" class="action-buttons__btn" onclick="closeModal('deleteStaffModal')">Cancel</button>                
             </div>
 
             <div id="resultDeleteStaff" style="margin-top: 10px;"></div>

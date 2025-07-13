@@ -35,7 +35,7 @@
         </div>
 
         <!-- Liên kết đến trang chi tiết gói -->
-        <a href="package-details?id=<%= pkg.getId()%>">Xem chi tiết ></a>
+        <a href="package-details?id=<%= pkg.getId()%>">View details</a>
     </div>
     <%
         }
@@ -43,7 +43,7 @@
 </div>        
 <!-- === View All Button === -->
 <a href="#!" id="view-all-btn" class="gallery__view-all" onclick="window.location.href = '${pageContext.request.contextPath}/AllPackages'">
-    <span class="gallery__view-all-text">XEM TẤT CẢ</span>
+    <span class="gallery__view-all-text">View All</span>
     <span class="gallery-slider__arrow">
         <img src="./logo/🦆 icon _nav arrow down_.svg" alt="arrow" width="28" height="16" />
     </span>

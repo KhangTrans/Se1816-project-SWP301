@@ -9,22 +9,17 @@ function showMembershipMessage(success, message) {
 }
 function reloadMembershipCard() {
     fetch("MembershipServlet")
-            .then(response => {
-                if (!response.ok)
-                    throw new Error(`HTTP ${response.status}`);
-                return response.text();
-            })
-            .then(html => {
-                const container = document.querySelector('#membershipInfoBox');
-                if (container) {
-                    container.innerHTML = html;
-                    // Gắn lại event handler cho nút Gia hạn/Hủy (vì block đã bị replace)
-                    reattachMembershipHandlers();
-                }
-            })
-            .catch(error => {
-                console.error('Lỗi khi tải lại thẻ membership:', error);
-            });
+        .then(response => response.text())
+        .then(html => {
+            const container = document.querySelector('#membership-block'); // Đảm bảo id đúng!
+            if (container) {
+                container.innerHTML = html;
+                reattachMembershipHandlers(); // Gắn lại nút bấm cho block mới
+            }
+        })
+        .catch(error => {
+            console.error('Lỗi khi tải lại thẻ membership:', error);
+        });
 }
 
 // Hàm helper hiện message trong card
@@ -61,61 +56,6 @@ function doCancelMembership(id) {
                 }, 2200); // delay 2.2 giây
             });
 }
-//
-//function renewMembership(id, duration) {
-//    fetch('MembershipServlet', {
-//        method: 'POST',
-//        headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-//        body: `action=renew&membershipId=${id}&packageDuration=${duration}`
-//    })
-//            .then(response => response.json())
-//            .then(data => {
-//                showMembershipMessage(data.success, data.message || "Gia hạn thành công!");
-//                setTimeout(() => {
-//                    reloadMembershipCard();
-//                }, 2200); // delay 2.2 giây
-//            });
-//}
-
-function renewMembership() {
-    const packageId = document.getElementById('membershipInfoBox').dataset.packageid;
-    if (!packageId) {
-        alert("Không lấy được packageId!");
-        return;
-    }
-    // Chuyển trang, để user xác nhận và thanh toán lại
-    window.location.href = `payment?cardId=${packageId}&renew=1`;
-}
-
-
-document.addEventListener("DOMContentLoaded", function () {
-    const form = document.getElementById('book-membership-form');
-    const errorDiv = document.getElementById('membership-error-msg');
-    form.addEventListener('submit', function (e) {
-        e.preventDefault(); // Ngăn reload trang mặc định
-
-        const formData = new FormData(form);
-        for (let [key, value] of formData.entries()) {
-            console.log(key, value);
-        }
-        fetch('payment', {
-            method: 'POST',
-            body: formData
-        })
-
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = '<%= request.getContextPath() %>/homepage';
-                    } else {
-                        errorDiv.innerText = data.message || "Đã có lỗi xảy ra, vui lòng thử lại!";
-                    }
-                })
-                .catch(err => {
-                    errorDiv.innerText = "Có lỗi kết nối đến server!";
-                });
-    });
-});
 
 
 function reattachMembershipHandlers() {

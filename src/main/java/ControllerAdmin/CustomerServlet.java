@@ -45,7 +45,15 @@ public class CustomerServlet extends HttpServlet {
         try {
             switch (action) {
                 case "ajaxList": {
-                    List<Customer> customers = customerDao.getAllCustomers();
+                    String fullName = request.getParameter("fullName");
+                    List<Customer> customers;
+                    if (fullName == null || fullName.isEmpty()) {
+                        // Nếu không có từ khóa tìm kiếm, lấy tất cả khách hàng
+                        customers = customerDao.getAllCustomers();
+                    } else {
+                        // Nếu có từ khóa tìm kiếm, tìm kiếm theo fullName
+                        customers = customerDao.searchCustomersByFullName(fullName);
+                    }
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
                     new Gson().toJson(customers, response.getWriter());

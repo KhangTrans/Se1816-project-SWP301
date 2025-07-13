@@ -148,7 +148,7 @@
         <div class="trainer-info">
             <h4><%= trainer.getFullName()%></h4>
             <a href="<%= request.getContextPath() + "/TrainerDetail?trainerId=" + trainer.getTrainerId()%>" class="view-details-btn">
-                Xem chi tiết
+                View details
             </a>
         </div>
     </div>

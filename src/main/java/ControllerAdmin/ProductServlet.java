@@ -121,10 +121,10 @@ public class ProductServlet extends HttpServlet {
                 Products product = parseProductFromRequest(request);
                 product.setProductId(Integer.parseInt(request.getParameter("productId")));
 
-                // ✅ Cập nhật sản phẩm
+                // Cập nhật sản phẩm
                 productDao.updateProduct(product);
 
-                // ✅ Cập nhật ảnh chính nếu người dùng upload
+                //  Cập nhật ảnh chính nếu người dùng upload
                 try {
                     Part mainImagePart = request.getPart("mainImage");
                     if (mainImagePart != null && mainImagePart.getSize() > 0) {
@@ -135,7 +135,7 @@ public class ProductServlet extends HttpServlet {
                     System.err.println("Lỗi khi xử lý ảnh chính: " + ex.getMessage());
                 }
 
-                // ✅ Thêm ảnh phụ (nếu có)
+                //  Thêm ảnh phụ (nếu có)
                 for (Part part : request.getParts()) {
                     if ("images".equals(part.getName()) && part.getSize() > 0) {
                         byte[] imageData = getImageBytes(part);
@@ -180,7 +180,7 @@ public class ProductServlet extends HttpServlet {
 
         if (priceStr == null || stockStr == null || categoryStr == null
                 || priceStr.equals("") || stockStr.equals("") || categoryStr.equals("") || categoryStr.equals("undefined")) {
-            throw new IllegalArgumentException("❌ Dữ liệu không hợp lệ: thiếu price / stock / categoryId.");
+            throw new IllegalArgumentException(" Dữ liệu không hợp lệ: thiếu price / stock / categoryId.");
         }
 
         double price = Double.parseDouble(priceStr);

@@ -6,10 +6,15 @@
     <div class="table-container__header">
         <h2 class="table-container__title">Member List</h2>
         <p class="table-container__description">Manage member information</p>
-    </div>
+        <div class="justify-content-end ">
+            <input type="text" id="searchInputMember"
+                   style="padding: 8px 30px 8px 10px; border: 1px solid #ccc; border-radius: 5px; margin-left: 75%"
+                   placeholder="Search by Full Name..." onkeyup="loadCustomers()">
+        </div>
 
+    </div>
     <div class="table-container__content" style="overflow-x:auto;">
-<button class="add-button" onclick="openModal('addCustomerModal')">+ Add Member</button>
+        <button class="add-button" onclick="openModal('addCustomerModal')">+ Add Member</button>
         <table class="data-table" id="customerTable">
             <thead>
                 <tr>

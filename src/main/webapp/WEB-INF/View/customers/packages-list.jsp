@@ -37,7 +37,7 @@
         </div>
 
         <!-- Liên kết đến trang chi tiết gói -->
-        <a href="package-details?id=<%= pkg.getId() %>">Xem chi tiết ></a>
+        <a href="package-details?id=<%= pkg.getId() %>">View details</a>
     </div>
     <%
             }

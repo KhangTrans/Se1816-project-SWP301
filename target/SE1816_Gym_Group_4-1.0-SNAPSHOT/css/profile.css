@@ -38,7 +38,7 @@ body, html {
 
 .sidebar-profile {
     background-color: #1d1d1d;
-    width: 247px;
+    width: 250px;
     padding: 20px;
     color: white;
     box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.3); /* Sidebar shadow for a slight 3D effect */
@@ -217,4 +217,140 @@ button:hover {
 
 .camera-icon i {
     font-size: 20px;
+}
+
+
+.schedule-container {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.schedule-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.date-picker-wrapper {
+    margin-bottom: 20px;
+}
+
+.date-label {
+    margin-right: 10px;
+    font-weight: bold;
+}
+
+.date-input {
+    padding: 5px;
+    font-size: 1em;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+.week-info {
+    text-align: center;
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.schedule-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0 auto;
+}
+
+.table-header th {
+    border: 1px solid #ddd;
+    padding: 10px;
+    font-weight: bold;
+}
+
+.time-header {
+    width: 15%;
+}
+
+.day-header {
+    width: 12.5%;
+}
+
+.schedule-body td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.time-slot {
+    font-weight: bold;
+}
+
+.slot-cell {
+    position: relative;
+}
+
+/*.slot-available {
+    height: 20px;
+    background-color: #e0f7fa;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}*/
+
+.slot-available:hover {
+    background-color: #b2ebf2;
+}
+
+.slot-booked {
+    background-color: #ffcccc;
+    padding: 5px;
+    border: none;
+    cursor: default;
+    color: #d32f2f;
+}
+
+.cancel-btn {
+    background-color: #ef5350;
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 5px;
+}
+
+.cancel-btn:disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+}
+
+.slot-booked + .cancel-btn {
+    margin-left: 5px;
+}
+
+/* Highlight selected time slots like in the image */
+.slot-cell[selected] {
+    background-color: #00bcd4;
+    color: white;
+}
+
+.slot-cell[selected] .slot-booked {
+    color: white;
+    background-color: transparent;
+}
+
+.selected-slots {
+    margin-top: 20px;
+    text-align: center;
+}
+.trainer-name.upcoming {
+    color: #5A4A59;
+    background: #E2B8DF;
+}
+
+.trainer-name.completed {
+    color: #4A4D5A;
+    background: #9DA3C0;
 }

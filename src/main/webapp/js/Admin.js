@@ -10,6 +10,7 @@ document.addEventListener('DOMContentLoaded', function () {
     loadLoginLogs();
     loadPackages();
     loadMemberPackage();
+    loadCategori();
     ;
 });
 
@@ -1528,6 +1529,12 @@ function updateTotalPrice() {
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//                                    HOANG KHANG       
+//
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
 function loadStaffData() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const staffSearchUrl = `${window.location.origin}${contextPath}/admin/staffs?action=ajaxList`;
@@ -1694,6 +1701,7 @@ function openEditStaffModal(staffId, accountId, username, fullName, email, phone
     document.getElementById('editStaffId').value = staffId;
     document.getElementById('editStaffAccountId').value = accountId;
     document.getElementById('editFullName').value = fullName;
+    document.getElementById('editEmail').value = email;
     document.getElementById('editPhone').value = phone;
     document.getElementById('editPosition').value = position;
     document.getElementById('editStatus').value = status;
@@ -1711,124 +1719,38 @@ function openEditStaffModal(staffId, accountId, username, fullName, email, phone
     document.getElementById('editStaffModal').style.display = 'flex';
 }
 
-//
-//function submitFormForStaff(form, resultContainerId, event) {
-//    // Ngừng hành động mặc định của form (ngăn gửi form theo cách thông thường)
-//    if (event) {
-//        event.preventDefault();
-//    }
-//
-//    // Lấy giá trị action từ thuộc tính của form
-//    const action = form.getAttribute('action');
-//    console.log("Form action:", action);
-//
-//    if (!action) {
-//        console.error("❌ Form không có thuộc tính 'action'");
-//        const resultDiv = document.getElementById(resultContainerId);
-//        if (resultDiv) {
-//            resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: Form không có action!</p>`;
-//        }
-//        return false;
-//    }
-//
-//    // Lấy dữ liệu từ form (bao gồm cả file avatar nếu có)
-//    const formData = new FormData(form);
-//    console.log("✅ Dữ liệu gửi đi:");
-//    for (let [key, val] of formData.entries()) {
-//        console.log(`${key}: ${val}`);
-//    }
-//
-//    // Vô hiệu hóa các input trong form khi đang gửi
-//    form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = true);
-//
-//    // Gửi dữ liệu form qua fetch
-//    fetch(action, {
-//        method: 'POST', // Phương thức gửi form
-//        body: formData, // Dữ liệu form
-//    })
-//            .then(response => {
-//                // Kích hoạt lại các input sau khi gửi xong
-//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
-//
-//                // Kiểm tra xem response có thành công không
-//                if (!response.ok) {
-//                    throw new Error(`HTTP error! Status: ${response.status}`);
-//                }
-//                return response.text();
-//            })
-//            .then(data => {
-//                // Hiển thị kết quả thành công
-//                const resultDiv = document.getElementById(resultContainerId);
-//                if (resultDiv) {
-//                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Thành công!</p>`;
-//                }
-//
-//                // Đóng modal sau khi thành công
-//                const modal = form.closest('.modal');
-//                if (modal) {
-//                    setTimeout(() => closeModal(modal.id), 800);
-//                }
-//
-//                // Sau khi gửi thành công, làm mới danh sách nhân viên
-//                setTimeout(() => {
-//                    if (typeof loadStaffData === 'function') {
-//                        loadStaffData();  // Hàm này tải lại dữ liệu nhân viên
-//                    }
-//                }, 500);
-//            })
-//            .catch(error => {
-//                // Kích hoạt lại các input nếu có lỗi
-//                form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
-//
-//                // Hiển thị thông báo lỗi nếu có
-//                console.error('Lỗi khi gửi form:', error);
-//                const resultDiv = document.getElementById(resultContainerId);
-//                if (resultDiv) {
-//                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
-//                }
-//            });
-//
-//    return false;
-//}
-
 function openDeleteStaffModal(staffId) {
     document.getElementById('deleteStaffId').value = staffId;
     openModal('deleteStaffModal');
 }
 
-//function submitDeleteStaff(form, event) {
-//    event.preventDefault();
-//
-//    const formData = new FormData(form);
-//    const resultDiv = document.getElementById("resultDeleteStaff");
-//    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-//
-//    fetch(`${window.location.origin}${contextPath}/admin/staffs`, {
-//        method: 'POST',
-//        body: formData
-//    })
-//            .then(res => res.text())
-//            .then(result => {
-//                console.log("📥 Server returned:", JSON.stringify(result));
-//
-//                if (result.trim() === "OK") {
-//                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Xóa thành công!</p>`;
-//                    setTimeout(() => {
-//                        closeModal('deleteStaffModal');
-//                        loadStaffData();
-//                        setTimeout(() => location.reload(), 1000);
-//                    }, 800);
-//                } else {
-//                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Xóa thất bại.</p>`;
-//                }
-//            })
-//            .catch(error => {
-//                console.error("Error delete staff:", error);
-//                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: ${error.message}</p>`;
-//            });
-//
-//    return false;
-//}
+function validateStaffForm(form, errorDivId) {
+    var errorDiv = document.getElementById(errorDivId);
+    if (errorDiv)
+        errorDiv.innerText = ''; // clear old error
+
+    var phoneInput = form.querySelector('input[name="phone"]');
+    var phone = phoneInput.value.trim();
+    var vietPhoneRegex = /^(0|\+84)(3[2-9]|5[6|8|9]|7[06-9]|8[1-5]|9[0-9])[0-9]{7}$/;
+    if (!vietPhoneRegex.test(phone)) {
+        if (errorDiv)
+            errorDiv.innerText = "Please enter a valid Vietnamese phone number!";
+        phoneInput.focus();
+        return false;
+    }
+    var emailInput = form.querySelector('input[name="email"]');
+    var email = emailInput.value.trim();
+    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
+    if (!emailRegex.test(email)) {
+        if (errorDiv)
+            errorDiv.innerText = "Please enter a valid email address!";
+        emailInput.focus();
+        return false;
+    }
+    return true;
+}
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                              HA PHUONG                                                                                   /////
@@ -2298,6 +2220,172 @@ document.addEventListener('DOMContentLoaded', function () {
     loadPackagesForDropdown();
     loadMemberPackage();
 });
+
+
+// Hàm tải danh sách Category với các bộ lọc và tìm kiếm
+function loadCategori() {
+    const searchTerm = document.getElementById("searchTermCategory").value.trim();  // Lấy từ khóa tìm kiếm
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const baseUrl = `${window.location.origin}${contextPath}/Categori?action=json`;
+
+    // Gửi URL tới Servlet với từ khóa tìm kiếm
+    const url = `${baseUrl}&searchTerm=${encodeURIComponent(searchTerm)}`;
+
+    console.log("Pathname:", window.location.pathname);
+    console.log("Context path:", contextPath);
+    console.log("Generated URL:", url);
+    fetch(url)
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                const tbody = document.querySelector('#categoryTableBody');
+                tbody.innerHTML = ''; // Clear existing data
+
+                if (data.length === 0) {
+                    // Thông báo không có danh mục nào nếu không có kết quả
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Không có danh mục nào</td></tr>`;
+                    return;
+                }
+
+                // Hiển thị kết quả tìm kiếm
+                data.forEach((category) => {
+                    const truncatedDescription = category.description && category.description.length > 50
+                            ? category.description.slice(0, 50) + "..."
+                            : category.description;
+
+                    const row = `
+                    <tr>
+                        <td>${category.category_id}</td>
+                        <td>${category.name}</td>
+                        <td>${category.description}</td>
+                        <td>
+                            <button class="action-buttons__btn action-buttons__btn--edit"
+                                    onclick="openEditCategoryModal(${category.category_id})">Edit</button>
+                        </td>
+                    </tr>
+                `;
+                    tbody.innerHTML += row;
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh mục:', error);
+            });
+}
+
+// Lắng nghe sự kiện khi người dùng gõ vào ô tìm kiếm
+document.getElementById("searchTerm").addEventListener("input", loadCategori);
+
+// Gọi hàm loadCategori khi trang được tải lần đầu
+document.addEventListener('DOMContentLoaded', loadCategori);
+
+
+
+function submitFormAjaxCategory(form, resultId) {
+    const formData = new FormData(form);
+    const contextPath = '/SE1816_Gym_Group_4';
+    const formAction = `${window.location.origin}${contextPath}/Categori`;
+    if (!formData.has('formAction')) {
+        formData.append('formAction', 'create');
+    }
+    console.log("Form action:", formData.get('formAction'));
+    console.log("FormData content:", Object.fromEntries(formData));
+    fetch(formAction, {
+        method: 'POST',
+        body: formData
+    })
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                return response.text();
+            })
+            .then(result => {
+                document.getElementById(resultId).innerText = result;
+                if (result.includes("successfully")) {
+                    loadCategori();
+                    closeModal('addCategory');
+                }
+            })
+            .catch(error => {
+                console.error('Error during form submission:', error);
+                document.getElementById(resultId).innerText = `Lỗi: ${error.message}`;
+            });
+    return false;
+}
+
+function openEditCategoryModal(categoryId) {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/Categori?action=json`;
+
+    console.log("Fetching URL:", url);
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                }
+                return response.json();
+            })
+            .then(categories => {
+                console.log("Categories:", categories);
+                const category = categories.find(cat => cat.category_id === categoryId);
+                if (!category) {
+                    throw new Error(`Category with ID ${categoryId} not found`);
+                }
+                document.getElementById('editCategoryId').value = category.category_id;
+                document.getElementById('editCategoryName').value = category.name || '';
+                document.getElementById('editCategoryDescription').value = category.description || '';
+                document.getElementById('editCategoryModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error fetching category details:', error);
+            });
+}
+
+
+function submitEditCategoryForm(form, resultId) {
+    const formData = new FormData(form);
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const formAction = `${window.location.origin}${contextPath}/Categori`; // URL của servlet
+
+    // In thông tin formData để kiểm tra
+    console.log("FormData being sent:", Object.fromEntries(formData));
+
+    if (!formData.has('formAction')) {
+        formData.append('formAction', 'edit');
+    }
+
+    // Kiểm tra lại URL trước khi gửi
+    console.log("Sending request to URL:", formAction);
+
+    fetch(formAction, {
+        method: 'POST',
+        body: formData
+    })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
+                }
+                return response.text();
+            })
+            .then(result => {
+                console.log("Form submission result:", result); // In kết quả trả về
+                document.getElementById(resultId).innerText = result;
+                if (result.includes("successfully")) {
+                    loadCategori(); // Gọi lại để cập nhật danh sách
+                    closeModal('editCategoryModal'); // Đóng modal nếu thành công
+                }
+            })
+            .catch(error => {
+                // In lỗi chi tiết vào console để biết chính xác nguyên nhân
+                console.error('Error during form submission:', error);
+                document.getElementById(resultId).innerText = `Lỗi: ${error.message}`;
+            });
+
+    return false;
+}
 //=============================================================================================================================
 //||                                                                                                                         ||
 //||                                           BaoMinh                                                                       ||
@@ -2305,8 +2393,16 @@ document.addEventListener('DOMContentLoaded', function () {
 //=============================================================================================================================
 let customerDataMap = {};
 function loadCustomers() {
+    const searchTerm = document.getElementById('searchInputMember').value;  // Lấy từ khóa tìm kiếm
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/admin/customer?action=ajaxList`;
+
+    // Nếu có từ khóa tìm kiếm, thêm vào URL để gọi API ajaxList, nếu không thì lấy tất cả khách hàng
+    let url = `${window.location.origin}${contextPath}/admin/customer?action=ajaxList`; // Lấy tất cả khách hàng
+
+    // Nếu có từ khóa tìm kiếm, thêm nó vào URL (dưới dạng tham số)
+    if (searchTerm) {
+        url = `${window.location.origin}${contextPath}/admin/customer?action=ajaxList&fullName=${encodeURIComponent(searchTerm)}`;
+    }
 
     fetch(url)
             .then(response => {
@@ -2328,29 +2424,27 @@ function loadCustomers() {
                     customerDataMap[cus.customerId] = cus;
                     const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${cus.account.username}&t=${Date.now()}`;
                     const row = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
-                        <td>${cus.account.username}</td>
-                        <td>${cus.fullName}</td>
-                        <td>${cus.email}</td>
-                        <td>${cus.phone}</td>
-                        <td>${cus.customerCode || ''}</td>
-                        <td>
-                         <button class="action-buttons__btn action-buttons__btn--edit"
-                            onclick="openEditCustomerModal('${cus.customerId}')">
-                            Edit</button>
-
-
-                            <button class="action-buttons__btn action-buttons__btn--delete"
-                                onclick="openDeleteCustomerModal('${cus.customerId}')">Delete</button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
+                    <td>${cus.account.username}</td>
+                    <td>${cus.fullName}</td>
+                    <td>${cus.email}</td>
+                    <td>${cus.phone}</td>
+                    <td>${cus.customerCode || ''}</td>
+                    <td>
+                        <button class="action-buttons__btn action-buttons__btn--edit"
+                        onclick="openEditCustomerModal('${cus.customerId}')">
+                        Edit</button>
+                        <button class="action-buttons__btn action-buttons__btn--delete"
+                        onclick="openDeleteCustomerModal('${cus.customerId}')">Delete</button>
+                    </td>
+                </tr>
                 `;
                     tbody.innerHTML += row;
                 });
                 console.log("DEBUG: customerDataMap", customerDataMap);
-                // --- In thử 1 object (nếu có) ---
+                // In thử 1 object (nếu có)
                 for (let key in customerDataMap) {
                     console.log("Customer:", key, customerDataMap[key]);
                     break; // chỉ in 1 để xem mẫu
@@ -2363,6 +2457,7 @@ function loadCustomers() {
                         .then(text => console.warn("Phản hồi không phải JSON:", text));
             });
 }
+
 
 
 function openEditCustomerModal(customerId) {
@@ -2421,7 +2516,7 @@ function submitDeleteCustomer(event) {
                 }
             })
             .catch(error => {
-                console.error(" Lỗi khi xóa:", error);
+                console.error("❌ Lỗi khi xóa:", error);
                 document.getElementById("resultDeleteCustomer").innerText = `Lỗi khi gửi yêu cầu xóa: ${error.message}`;
             });
 
@@ -2728,13 +2823,17 @@ setInterval(() => {
     }
 }, 10000); // 10000ms = 10 giây
 
-
-function loadPackages() {
-    // Lấy context path từ URL hiện tại
+function loadPackages(searchKeyword = '') {
     const pathParts = window.location.pathname.split('/');
     const contextPath = pathParts.length > 1 ? `/${pathParts[1]}` : '';
+    let url = `${contextPath}/admin/packages`;
 
-    fetch(`${contextPath}/admin/packages`)
+    // Nếu có từ khóa tìm kiếm, thêm param vào URL
+    if (searchKeyword && searchKeyword.trim() !== '') {
+        url += `?name=${encodeURIComponent(searchKeyword.trim())}`;
+    }
+
+    fetch(url)
             .then(res => {
                 if (!res.ok) {
                     throw new Error("HTTP status " + res.status);
@@ -2747,8 +2846,9 @@ function loadPackages() {
 
                 data.forEach((pkg, index) => {
                     const tr = document.createElement("tr");
-                    // Giới hạn mô tả chỉ hiển thị 150 ký tự và thêm "..." nếu dài hơn
-                    const truncatedDescription = pkg.description && pkg.description.length > 150
+
+                    // Giới hạn mô tả chỉ hiển thị 150 ký tự, nếu dài hơn thì thêm "..."
+                    const shortDescription = pkg.description && pkg.description.length > 150
                             ? pkg.description.slice(0, 150) + "..."
                             : pkg.description;
 
@@ -2757,22 +2857,31 @@ function loadPackages() {
                     <td>${pkg.name}</td>
                     <td>${pkg.price.toLocaleString()}₫</td>
                     <td>${pkg.durationDays}</td>
-                    <td>${truncatedDescription || ""}</td>
+                    <td>${shortDescription || ""}</td>
                     <td>
-                        <button class="action-buttons__btn action-buttons__btn--edit" onclick="openEditPackageModal(${pkg.id})"> Edit</button>
-                        <button class="action-buttons__btn action-buttons__btn--editdelete" onclick="openDeletePackageModal(${pkg.id})"> Delete</button>
+                        <button class="action-buttons__btn action-buttons__btn--edit" onclick="openEditPackageModal(${pkg.id})">Edit</button>
+                        <button class="action-buttons__btn action-buttons__btn--delete" onclick="openDeletePackageModal(${pkg.id})">Delete</button>
                     </td>
                 `;
-
                     tbody.appendChild(tr);
                 });
             })
             .catch(error => {
-                console.error(" Failed to load packages:", error);
+                console.error("❌ Failed to load packages:", error);
                 alert("Không thể tải danh sách gói tập!");
             });
 }
 
+
+// Gọi lại loadPackages mỗi khi người dùng nhập vào ô tìm kiếm
+document.getElementById('packageSearchInput').addEventListener('input', function () {
+    loadPackages(this.value);
+});
+
+// Khi trang vừa load, show toàn bộ danh sách (không filter)
+document.addEventListener('DOMContentLoaded', function () {
+    loadPackages();
+});
 
 function openEditPackageModal(id) {
     const pathParts = window.location.pathname.split('/');

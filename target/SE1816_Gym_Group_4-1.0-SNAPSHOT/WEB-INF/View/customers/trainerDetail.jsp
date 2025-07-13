@@ -123,9 +123,7 @@
     </div>
 
     <!-- Nút Book Now -->
-    <button class="book-now">
-        BOOK NOW
-    </button>
+    <a class="book-now" href="<%= request.getContextPath()%>/bookingpt?trainerid=<%= trainer.getTrainerId()%>">Book Now</a>
 </div>
 
 <%@ include file="/WEB-INF/include/footer.jsp" %>

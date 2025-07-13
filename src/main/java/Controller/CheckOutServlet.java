@@ -66,13 +66,13 @@ public class CheckOutServlet extends HttpServlet {
         Random random = new Random();
 
         // Tạo phần chữ
-        for (int i = 0; i < 8; i++) {
+        for (int i = 0; i < 4; i++) {
             int index = random.nextInt(alphanumeric.length());
             sb.append(alphanumeric.charAt(index));
         }
 
         // Tạo phần số
-        sb.append(String.format("%04d", random.nextInt(10000))); // Đảm bảo luôn có 4 chữ số
+        sb.append(String.format("%08d", random.nextInt(10000))); // Đảm bảo luôn có 4 chữ số
 
         return sb.toString();
     }

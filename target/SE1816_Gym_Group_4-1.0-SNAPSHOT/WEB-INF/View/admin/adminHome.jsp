@@ -2,6 +2,12 @@
 <%@include file="/WEB-INF/View/admin/headAdmin.jsp" %>
 <%    Model.Account acc = (Model.Account) session.getAttribute("account");
     String role = acc != null ? acc.getRole() : "";
+    // Kiểm tra nếu người dùng không phải là 'admin' hoặc 'staff'
+    if (acc == null || (!role.equals("admin") && !role.equals("staff"))) {
+        // Nếu người dùng không có quyền, chuyển hướng về trang đăng nhập
+        response.sendRedirect(request.getContextPath() + "/loginAdmin"); // Hoặc trang lỗi như 'accessDenied.jsp'
+        return;
+    }
 %>
 <style>
     .dashboard__stats {
@@ -41,9 +47,21 @@
             <p class="main-content__subtitle">System and Data Management</p>
         </div>
         <div class="dashboard__stats">
+
+<!--            <div class="stat-card" onclick="AdminDashboard.showTable('accountTable')"><br>Accounts<br><strong><%= request.getAttribute("accountCount")%></strong></div>
+            <div class="stat-card" onclick="AdminDashboard.showTable('staffsTable')"><br>Staff<br><strong><%= request.getAttribute("staffCount")%></strong></div>-->
+            <%-- Chỉ hiển thị phần "Accounts" nếu người dùng là admin --%>
+            <% if ("admin".equals(role)) {%>
             <div class="stat-card" onclick="AdminDashboard.showTable('accountTable')"><br>Accounts<br><strong><%= request.getAttribute("accountCount")%></strong></div>
-            <div class="stat-card" onclick="AdminDashboard.showTable('trainersTable')"><br>Trainers<br><strong><%= request.getAttribute("trainerCount")%></strong></div>
+                <% } %>
+
+            <%-- Chỉ hiển thị phần "Staff" nếu người dùng là admin --%>
+            <% if ("admin".equals(role)) {%>
             <div class="stat-card" onclick="AdminDashboard.showTable('staffsTable')"><br>Staff<br><strong><%= request.getAttribute("staffCount")%></strong></div>
+                <% }%>
+
+            <%-- Hiển thị phần "Trainers", "Members", "Products", etc. cho tất cả người dùng --%>
+            <div class="stat-card" onclick="AdminDashboard.showTable('trainersTable')"><br>Trainers<br><strong><%= request.getAttribute("trainerCount")%></strong></div>
             <div class="stat-card" onclick="AdminDashboard.showTable('customersTable')"><br>Members<br><strong><%= request.getAttribute("memberCount")%></strong></div>
             <div class="stat-card" onclick="AdminDashboard.showTable('productsTable')"><br>Products<br><strong><%= request.getAttribute("productCount")%></strong></div>
             <div class="stat-card" onclick="AdminDashboard.showTable('vouchersTable')">️<br>Vouchers<br><strong><%= request.getAttribute("voucherCount")%></strong></div>
@@ -56,7 +74,7 @@
                 color:white; border:none;
                 border-radius:5px;
                 margin-bottom: 10px">
-             Biểu đồ
+            Biểu đồ
         </button>
 
 
@@ -82,6 +100,7 @@
         <%@include file="/WEB-INF/View/admin/packages/list.jsp" %>
         <%@include file="/WEB-INF/View/admin/orders/list.jsp" %>
         <%@include file="/WEB-INF/View/admin/memberPackages/list.jsp" %>
+        <%@include file="/WEB-INF/View/admin/categori/list.jsp" %>
     </main>
 </div>
 

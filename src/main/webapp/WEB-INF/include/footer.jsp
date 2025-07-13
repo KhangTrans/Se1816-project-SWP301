@@ -73,7 +73,7 @@
     }
 </style>
 
-<footer class="container-fluid text-white pt-5 pb-4 mt-5">
+<footer class="container-fluid text-white pt-5 pb-4 mt-5" id="footer_gym">
     <div class="container text-md-left">
         <div class="row text-md-left">
             <!-- About section -->

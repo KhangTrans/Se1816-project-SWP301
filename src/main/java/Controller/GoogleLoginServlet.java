@@ -73,10 +73,14 @@ public class GoogleLoginServlet extends HttpServlet {
                 }
 
                 // Set session
-                HttpSession session = request.getSession();
+                HttpSession session = request.getSession(true);
                 session.setAttribute("username", username);
                 session.setAttribute("role", "customer");
+                int id = dao.getAccountIdByUserName(username);
 
+                if (id > 0) {
+                    session.setAttribute("accountId", id);
+                }
                 json.put("status", "success");
                 json.put("message", "Google login success!");
             } else {

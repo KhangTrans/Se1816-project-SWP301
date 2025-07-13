@@ -35,8 +35,8 @@
                 <ul class="navbar-nav">
                     <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath()%>/homepage">Home</a></li>
                     <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath()%>/shopAll">Product</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#">Contact</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#about-gym">About</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#footer_gym">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath()%>/blogPage">Blogs</a></li>
                     <li class="nav-item">
                         <a class="nav-link position-relative" href="<%= request.getContextPath()%>/CartServlet?action=view">

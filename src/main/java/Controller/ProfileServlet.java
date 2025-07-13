@@ -4,8 +4,12 @@
  */
 package Controller;
 
+import DAO.ScheduleDao;
 import DAO.profileDao;
 import Model.Customer;
+import Model.TrainerBooking;
+import Model.TrainerSchedule;
+import com.google.gson.Gson;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -18,6 +22,8 @@ import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -33,6 +39,7 @@ public class ProfileServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+
         HttpSession session = request.getSession();
         Integer accountId = (Integer) session.getAttribute("accountId");
         if (accountId == null) {
@@ -41,25 +48,32 @@ public class ProfileServlet extends HttpServlet {
         }
 
         profileDao dao = new profileDao();
+        ScheduleDao scheduleDao = new ScheduleDao();
+        List<TrainerSchedule> schedules = new ArrayList<>();
+        List<TrainerBooking> myBookings = null;
+        List<TrainerBooking> booking = new ArrayList<>();
         try {
-            // Lấy thông tin customer theo accountId từ session
+            schedules = scheduleDao.getAllTrainerSchedules();
+            List<String> timeSlots = new ArrayList<>();
+            for (TrainerSchedule schedule : schedules) {
+                String timeSlot = schedule.getStartTime().toString() + " - " + schedule.getEndTime().toString();
+                if (!timeSlots.contains(timeSlot)) {
+                    timeSlots.add(timeSlot);
+                }
+            }
+            System.out.println(timeSlots);
+            
             Customer customer = dao.getCustomerById(accountId);
+            myBookings = scheduleDao.getBookingsByAccountId(accountId);
+            booking = scheduleDao.getAllBookings();
+            
             request.setAttribute("customer", customer);
-
-//            // Lấy tham số tab và mặc định là "profileContent"
-//            String tab = request.getParameter("tab");
-//            if (tab == null || tab.isEmpty()) {
-//                tab = "profileContent"; // Tab mặc định là profile content
-//            }
-//
-//            request.setAttribute("tab", tab);
-//            
-//            // Nếu yêu cầu từ Ajax, chỉ gửi nội dung của tab
-//            if ("profileContent".equals(tab)) {
-//                request.getRequestDispatcher("/WEB-INF/View/customers/sidebarprofile.jsp").forward(request, response);
-//            } else if ("changepassword".equals(tab)) {
+            request.setAttribute("schedules", new Gson().toJson(schedules));
+            request.setAttribute("mybooking", new Gson().toJson(myBookings));
+            request.setAttribute("booking", new Gson().toJson(booking));
+            request.setAttribute("timeSlots", new Gson().toJson(timeSlots));
+            System.out.println(myBookings);
             request.getRequestDispatcher("/WEB-INF/View/customers/sidebarprofile.jsp").forward(request, response);
-//            }
         } catch (Exception e) {
             e.printStackTrace();
             response.getWriter().write("Error: " + e.getMessage());

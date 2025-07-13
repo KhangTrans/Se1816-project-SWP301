@@ -84,7 +84,7 @@
 %>
 
 <div class="blog-item">
-    <p class="created-at">Ngày tạo: <%= blog.getCreatedAt()%></p>
+    <p class="created-at">Create at: <%= blog.getCreatedAt()%></p>
     <h2 class="blog-title"><%= blog.getTitle()%></h2>
 
     <%-- Hiển thị các hình ảnh trong blog --%>
@@ -121,7 +121,7 @@
         <%
             if (blog.getContent().length() > 300) {
         %>
-        <span class="read-more-link" onclick="toggleContent('<%= blog.getBlogId()%>')">Xem Thêm</span>
+        <span class="read-more-link" onclick="toggleContent('<%= blog.getBlogId()%>')">See More</span>
         <%
             }
         %>
@@ -131,7 +131,7 @@
     <p class="full-content" id="full-content-<%= blog.getBlogId()%>" style="display: none;">
         <%= blog.getContent()%>
         <%-- Liên kết "Ẩn bớt" khi nội dung được mở rộng --%>
-        <span class="read-more-link" onclick="toggleContent('<%= blog.getBlogId()%>')">Ẩn bớt</span>
+        <span class="read-more-link" onclick="toggleContent('<%= blog.getBlogId()%>')">Hide less</span>
     </p>
 
 </div>
@@ -140,7 +140,7 @@
     }
 } else {
 %>
-<p>Không có bài viết nào.</p>
+<p>There are no articles.</p>
 <% }%>
 
 <%@include file="/WEB-INF/include/footer.jsp" %>

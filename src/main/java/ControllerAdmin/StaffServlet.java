@@ -1,5 +1,6 @@
 package ControllerAdmin;
 
+import DAO.StaffDao;
 import DAO.UserDao;
 import Model.Account;
 import Model.Staff;
@@ -24,7 +25,8 @@ import java.util.logging.Logger;
 @WebServlet(name = "StaffServlet", urlPatterns = {"/admin/staffs"})
 public class StaffServlet extends HttpServlet {
 
-    private final UserDao userDao = new UserDao();
+    UserDao userDao = new UserDao();
+    StaffDao staffdao = new StaffDao();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -37,7 +39,7 @@ public class StaffServlet extends HttpServlet {
         try {
             switch (action) {
                 case "loadAccounts": {
-                    List<Account> availableStaffAccounts = userDao.getStaffsThatNotStaffYet();
+                    List<Account> availableStaffAccounts = staffdao.getStaffsThatNotStaffYet();
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
                     response.getWriter().write(new Gson().toJson(availableStaffAccounts));
@@ -52,10 +54,10 @@ public class StaffServlet extends HttpServlet {
                     List<Staff> staffList;
                     // Nếu có tham số tìm kiếm hoặc lọc, gọi hàm searchTrainers
                     if (searchStaff != null || searchPhone != null || staffFilter != null) {
-                        staffList = userDao.searchStaffs(searchStaff, searchPhone, staffFilter);
+                        staffList = staffdao.searchStaffs(searchStaff, searchPhone, staffFilter);
                     } else {
                         // Nếu không có tham số tìm kiếm, trả về tất cả huấn luyện viên
-                        staffList = userDao.getAllStaffs();
+                        staffList = staffdao.getAllStaffs();
                     }
                     // Trả kết quả dưới dạng JSON
                     Gson gson = new GsonBuilder()
@@ -74,7 +76,7 @@ public class StaffServlet extends HttpServlet {
                     break;
                 }
                 default: {
-                    List<Staff> staffList = userDao.getAllStaffs();
+                    List<Staff> staffList = staffdao.getAllStaffs();
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
                     String json = new Gson().toJson(staffList);
@@ -106,7 +108,7 @@ public class StaffServlet extends HttpServlet {
                     String phone = request.getParameter("phone");
                     String position = request.getParameter("position");
 
-                    Account account = userDao.getStaffAccountById(accountId);
+                    Account account = staffdao.getStaffAccountById(accountId);
                     if (account != null) {
                         Staff staff = new Staff();
                         staff.setAccount(account);
@@ -116,7 +118,7 @@ public class StaffServlet extends HttpServlet {
                         staff.setPosition(position);
                         staff.setStatus("active");
 
-                        userDao.addStaff(staff);
+                        staffdao.addStaff(staff);
                     }
 
                     response.sendRedirect("staffs");
@@ -144,21 +146,21 @@ public class StaffServlet extends HttpServlet {
                     }
 
                     // Truyền thêm email xuống hàm update
-                    userDao.updateStaff(accountId, fullName, email, phone, position, status, avatarStream);
+                    staffdao.updateStaff(accountId, fullName, email, phone, position, status, avatarStream);
 
                     response.sendRedirect("staffs");
                     break;
                 }
                 case "delete": {
                     int staffId = Integer.parseInt(request.getParameter("staffId"));
-                    int accountId = userDao.getAccountIdByStaffId(staffId);
+                    int accountId = staffdao.getAccountIdByStaffId(staffId);
 
                     if (accountId == -1) {
                         response.getWriter().write("STAFF_NOT_FOUND");
                         return;
                     }
 
-                    userDao.demoteStaff(staffId);
+                    staffdao.demoteStaff(staffId);
                     response.setContentType("text/plain;charset=UTF-8");
                     response.getWriter().write("OK");
                     return;

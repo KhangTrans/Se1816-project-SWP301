@@ -30,7 +30,7 @@ public class CustomerDao extends DBcontext {
             stmt.setString(6, customer.getAddress());
 
             stmt.executeUpdate();
-            System.out.println("✅ Đã thêm mới customer: " + customer.getFullName());
+            System.out.println("Đã thêm mới customer: " + customer.getFullName());
         }
     }
 
@@ -258,7 +258,8 @@ public class CustomerDao extends DBcontext {
         }
         return null;
     }
-public boolean addMembership(CustomerMembership membership) {
+
+    public boolean addMembership(CustomerMembership membership) {
         String sql = "INSERT INTO customer_memberships (account_id, package_id, start_date, end_date, payment_status) VALUES (?, ?, ?, ?, ?)";
         try (
                  Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
@@ -284,7 +285,12 @@ public boolean addMembership(CustomerMembership membership) {
         CustomerMembership membership = null;
         String sql = "SELECT * FROM customer_memberships "
                 + "WHERE account_id = ? AND end_date >= GETDATE() "
-                + "AND (payment_status = 'paid' OR payment_status = 'cancelled')";
+                + "ORDER BY "
+                + "CASE payment_status "
+                + "  WHEN 'paid' THEN 1 "
+                + "  WHEN 'cancelled' THEN 2 "
+                + "  WHEN 'pending' THEN 3 "
+                + "  ELSE 4 END, end_date DESC";
 
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, accountId);
@@ -387,5 +393,95 @@ public boolean addMembership(CustomerMembership membership) {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public List<Customer> searchCustomersByFullName(String fullName) {
+        List<Customer> customers = new ArrayList<>();
+        String query = "SELECT c.*, a.account_id, a.username, a.avatar "
+                + "FROM customers c "
+                + "JOIN accounts a ON c.account_id = a.account_id "
+                + "WHERE a.role = 'customer' "
+                + "AND c.full_name LIKE ?";  // Chỉ tìm theo full_name
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
+            String searchPattern = "%" + fullName + "%";  // Tạo pattern tìm kiếm với LIKE
+
+            // Cài đặt tham số tìm kiếm vào query
+            ps.setString(1, searchPattern);  // Tìm theo full_name
+
+            try ( ResultSet rs = ps.executeQuery()) {
+                int count = 0;
+                while (rs.next()) {
+                    Account account = new Account();
+                    account.setAccountId(rs.getInt("account_id"));
+                    account.setUsername(rs.getString("username"));
+                    account.setAvatar(rs.getBytes("avatar")); // BLOB dùng cho AvatarServlet
+
+                    Customer customer = new Customer();
+                    customer.setCustomerId(rs.getInt("customer_id"));
+                    customer.setFullName(rs.getString("full_name"));
+                    customer.setEmail(rs.getString("email"));
+                    customer.setPhone(rs.getString("phone"));
+                    customer.setCustomerCode(rs.getString("customer_code"));
+                    customer.setAccount(account);
+
+                    customers.add(customer);
+
+                    // DEBUG LOG
+                    System.out.println("Customer #" + (++count));
+                    System.out.println("  ID: " + customer.getCustomerId());
+                    System.out.println("  Name: " + customer.getFullName());
+                    System.out.println("  Email: " + customer.getEmail());
+                    System.out.println("  Phone: " + customer.getPhone());
+                    System.out.println("  Code: " + customer.getCustomerCode());
+                    System.out.println("  Account ID: " + account.getAccountId());
+                    System.out.println("  Username: " + account.getUsername());
+                    System.out.println("  Avatar bytes: " + (account.getAvatar() != null ? account.getAvatar().length : 0));
+                    System.out.println("--------------------------------------------------");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("Lỗi SQL khi tìm kiếm khách hàng:");
+            e.printStackTrace();
+        }
+
+        System.out.println("Tổng số khách hàng tìm thấy: " + customers.size());
+        return customers;
+    }
+
+    public boolean deleteMembership(int membershipId) {
+        String sql = "DELETE FROM customer_memberships WHERE membership_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, membershipId);
+            int rowsAffected = stmt.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public CustomerMembership getUpcomingMembership(int accountId, java.time.LocalDate today) {
+        String sql = "SELECT TOP 1 * FROM customer_memberships "
+                + "WHERE account_id = ? "
+                + "AND (payment_status = 'pending' OR payment_status = 'paid') "
+                + "AND start_date > ? "
+                + "ORDER BY start_date ASC";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            ps.setDate(2, java.sql.Date.valueOf(today));
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                CustomerMembership m = new CustomerMembership();
+                m.setMembershipId(rs.getInt("membership_id"));
+                m.setStartDate(rs.getDate("start_date").toLocalDate());
+                m.setEndDate(rs.getDate("end_date").toLocalDate());
+                m.setPaymentStatus(rs.getString("payment_status"));
+                return m;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

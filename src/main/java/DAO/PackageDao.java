@@ -155,4 +155,30 @@ public class PackageDao extends DBcontext {
                 pkg.isIsActive()
         );
     }
+
+    public List<Package> searchPackagesByName(String keyword) {
+        List<Package> packages = new ArrayList<>();
+        String sql = "SELECT * FROM membership_packages WHERE name LIKE ? AND is_active = 1";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + keyword + "%"); // tìm kiếm gần đúng (LIKE)
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                int id = rs.getInt("package_id");
+                String name = rs.getString("name");
+                String description = rs.getString("description");
+                int durationDays = rs.getInt("duration_days");
+                double price = rs.getDouble("price");
+                boolean isActive = rs.getBoolean("is_active");
+
+                Package pkg = new Package(id, name, description, durationDays, price, isActive);
+                packages.add(pkg);
+            }
+            rs.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return packages;
+    }
 }

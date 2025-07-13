@@ -3,23 +3,20 @@
 <%@page import="DAO.UserDao"%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <nav class="sidebar">
-    <%
-        Account accs = (Account) session.getAttribute("account");
-        if (accs != null) {
-    %>
     <div class="sidebar__header">
         <div class="sidebar__user">
             <div class="sidebar__avatar">
-                <img src="${pageContext.request.contextPath}/AvatarServlet?user=<%= accs.getUsername()%>" alt="Avatar" style="width:40px;height:40px;border-radius:50%;">
+                <img src="${pageContext.request.contextPath}/AvatarServlet?user=<%= acc.getUsername()%>" alt="Avatar" style="width:40px;height:40px;border-radius:50%;">
             </div>
             <div class="sidebar__greeting">
                 WELCOME<br>
-                <span class="sidebar__admin-name" id="adminName"><%= accs.getUsername()%></span>
+                <span class="sidebar__admin-name" id="adminName"><%= acc.getUsername()%></span>
             </div>
         </div>
     </div>
-    <%}%>
     <ul class="sidebar__nav">
+        <%-- CHỈ ADMIN mới thấy Accounts và Staff --%>
+        <% if ("admin".equals(role)) { %>
         <li class="sidebar__nav-item">
             <a class="sidebar__nav-link sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('accountTable')"> 
                 <i class="fas fa-user-circle"></i>
@@ -32,6 +29,19 @@
                 Staff
             </a>
         </li>
+        <% }%>
+        <!--        <li class="sidebar__nav-item">
+                    <a class="sidebar__nav-link sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('accountTable')"> 
+                        <i class="fas fa-user-circle"></i>
+                        Accounts
+                    </a>
+                </li>
+                <li class="sidebar__nav-item">
+                    <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('staffsTable')">
+                        <i class="fas fa-briefcase"></i> 
+                        Staff
+                    </a>
+                </li>-->
         <li class="sidebar__nav-item">
             <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('trainersTable')">
                 <i class="fas fa-user-tie"></i>
@@ -48,6 +58,12 @@
             <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('productsTable')">
                 <i class="fas fa-dumbbell"></i>
                 Products
+            </a>
+        </li>
+        <li class="sidebar__nav-item">
+            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('categoryTableSidebar')">
+                <i class="fas fa-user-check"></i>
+                Category
             </a>
         </li>
         <li class="sidebar__nav-item">

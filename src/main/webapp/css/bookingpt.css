@@ -1,0 +1,332 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: center;
+}
+
+.slot-booked {
+    background-color: red;
+    color: white;
+}
+
+.slot-available {
+    background-color: green;
+    color: white;
+    cursor: pointer;
+}
+
+.slot-available:hover {
+    background-color: darkgreen;
+}
+
+.slot-available:active {
+    background-color: #006400;
+}
+
+.date-picker {
+    margin-bottom: 20px;
+}
+
+.week-info {
+    font-weight: bold;
+    margin: 10px 0;
+}
+
+.slot-checkbox {
+    margin: 5px;
+}
+
+.submit-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.submit-btn:hover {
+    background-color: #45a049;
+}
+
+#confirmationModal {
+    position: fixed;  /* Đặt modal ở vị trí cố định */
+    top: 50%;  /* Đặt modal ở giữa màn hình */
+    left: 50%;  /* Đặt modal ở giữa màn hình */
+    transform: translate(-50%, -50%);  /* Dịch chuyển modal để nó căn giữa chính xác */
+    background-color: white;  /* Màu nền của modal */
+    padding: 20px;
+    border-radius: 8px;
+    width: 50%;  /* Kích thước modal */
+    z-index: 9999;  /* Đảm bảo modal nằm trên các phần tử khác */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);  /* Thêm bóng đổ cho modal */
+}
+
+.modal-content {
+    text-align: center;
+}
+
+#cancelBtn {
+    background-color: #f44336;  /* Màu nút hủy */
+}
+
+#cancelBtn:hover {
+    background-color: #e53935;  /* Màu khi hover lên nút hủy */
+}
+
+#confirmBtn {
+    background-color: #4CAF50;  /* Màu nút xác nhận */
+}
+
+#confirmBtn:hover {
+    background-color: #45a049;  /* Màu khi hover lên nút xác nhận */
+}
+/*
+    .main-container {
+        background: url('https://via.placeholder.com/800x600') no-repeat center center fixed;
+        background-size: cover;
+        background-color: rgba(249, 249, 249, 0.9);
+        min-height: 100vh;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .schedule-wrapper {
+        max-width: 800px;
+        width: 100%;
+    }
+
+    .schedule-title {
+        text-align: center;
+        font-size: 2em;
+        color: #333;
+        margin-bottom: 20px;
+    }
+
+    .date-picker-container {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .date-label {
+        font-weight: bold;
+        margin-right: 10px;
+        color: #555;
+    }
+
+    .date-input {
+        padding: 5px;
+        font-size: 1em;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        background-color: #fff;
+    }
+
+    .week-info-container {
+        text-align: center;
+        font-size: 1.1em;
+        color: #555;
+        margin-bottom: 20px;
+    }
+
+    .booking-form {
+        margin-top: 20px;
+    }
+
+    .schedule-table {
+        width: 100%;
+        border-collapse: collapse;
+        background-color: #fff;
+        border-radius: 8px;
+        overflow: hidden;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .table-header th {
+        border: 1px solid #ddd;
+        padding: 10px;
+        background-color: #f1f1f1;
+        font-weight: bold;
+        color: #333;
+        text-align: center;
+    }
+
+    .time-header {
+        width: 15%;
+    }
+
+    .day-header {
+        width: 12.5%;
+    }
+
+    .table-body td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: center;
+        position: relative;
+    }
+
+    .time-slot {
+        font-weight: bold;
+    }
+
+    .slot-cell {
+        position: relative;
+    }
+
+    .slot-available {
+        height: 20px;
+        background-color: #e0f7fa;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        margin: 0 auto;
+        width: 80%;
+        border-radius: 4px;
+    }
+
+    .slot-available:hover {
+        background-color: #b2ebf2;
+    }
+
+    .slot-booked {
+        background-color: #ffcccc;
+        padding: 5px;
+        border: none;
+        cursor: default;
+        color: #d32f2f;
+        width: 80%;
+        margin: 0 auto;
+        border-radius: 4px;
+    }
+
+    .cancel-button {
+        background-color: #ef5350;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-top: 5px;
+        display: block;
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .cancel-button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+    }
+
+    .slot-booked + .cancel-button {
+        margin-top: 5px;
+    }
+
+    .submit-button {
+        background-color: #00bcd4;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 1em;
+        margin-top: 20px;
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .submit-button:hover {
+        background-color: #0097a7;
+    }
+
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        justify-content: center;
+        align-items: center;
+    }
+
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        text-align: center;
+        max-width: 400px;
+        width: 90%;
+    }
+
+    .modal-title {
+        font-size: 1.5em;
+        color: #333;
+    }
+
+    .modal-trainer-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+    }
+
+    .trainer-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 20px;
+    }
+
+    .trainer-name {
+        font-size: 1.2em;
+        color: #333;
+    }
+
+    .modal-details {
+        margin: 20px 0;
+        color: #555;
+    }
+
+    .confirm-button {
+        background-color: #00bcd4;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 0 10px;
+    }
+
+    .confirm-button:hover {
+        background-color: #0097a7;
+    }
+
+    .cancel-button {
+        background-color: #f44336;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 0 10px;
+    }
+
+    .cancel-button:hover {
+        background-color: #d32f2f;
+    }
+
+    .selected-slots-container {
+        margin-top: 20px;
+        text-align: center;
+    }*/

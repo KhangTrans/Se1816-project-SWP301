@@ -307,22 +307,17 @@ public class VoucherDao extends DBcontext {
     // Hàm lấy danh sách các voucher mà khách hàng có thể sử dụng
     public List<Voucher> getAvailableVouchersForCustomer(int accountId) throws SQLException {
         List<Voucher> vouchers = new ArrayList<>();
-
         String query = "SELECT v.* FROM vouchers v "
                 + "JOIN voucher_usages vu ON v.voucher_id = vu.voucher_id "
-                + "WHERE vu.account_id = ? AND v.is_active = 1 "
+                + "WHERE vu.account_id = ? "
+                + "AND v.is_active = 1 "
                 + "AND v.used_count < v.usage_limit "
-                + // Kiểm tra số lượng sử dụng còn lại
-                "AND CURRENT_DATE BETWEEN v.start_date AND v.end_date";  // Kiểm tra ngày hết hạn
-
-        // Khai báo PreparedStatement và ResultSet
+                + "AND vu.consumed_at IS NULL " // <-- CHỈ voucher chưa dùng
+                + "AND CAST(GETDATE() AS DATE) BETWEEN v.start_date AND v.end_date";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
-
-            ps.setInt(1, accountId);  // Set account_id vào câu truy vấn
-
+            ps.setInt(1, accountId);
             try ( ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    // Nếu tìm thấy voucher, thêm vào danh sách
                     Voucher voucher = new Voucher();
                     voucher.setVoucherId(rs.getInt("voucher_id"));
                     voucher.setCode(rs.getString("code"));
@@ -335,17 +330,11 @@ public class VoucherDao extends DBcontext {
                     voucher.setStartDate(rs.getDate("start_date").toLocalDate());
                     voucher.setEndDate(rs.getDate("end_date").toLocalDate());
                     voucher.setActive(rs.getBoolean("is_active"));
-
-                    vouchers.add(voucher);  // Thêm voucher vào danh sách
+                    vouchers.add(voucher);
                 }
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new SQLException("Error fetching available vouchers for customer: " + e.getMessage());
         }
-
-        return vouchers;  // Trả về danh sách voucher có sẵn cho khách hàng
+        return vouchers;
     }
 
     // Lấy danh sách các vouchers mà khách hàng đã thu thập
@@ -387,7 +376,7 @@ public class VoucherDao extends DBcontext {
 
     // Lấy voucher theo referralCode
     public Voucher getVoucherByReferralCode(String referralCode) {
-        String query = "SELECT * FROM vouchers WHERE code = '?'";
+        String query = "SELECT * FROM vouchers WHERE code = ?";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setString(1, referralCode);
             ResultSet rs = ps.executeQuery();
@@ -411,4 +400,59 @@ public class VoucherDao extends DBcontext {
         }
         return null;
     }
+
+    //============================================BAOMINH=================================================
+    public Voucher getVoucherByCustomer(int accountId) throws SQLException {
+        String sql = "SELECT v.* FROM vouchers v "
+                + "JOIN voucher_usages vu ON v.voucher_id = vu.voucher_id "
+                + "WHERE vu.account_id = ? AND vu.used_at IS NULL AND v.is_active = 1";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                Voucher v = new Voucher();
+                v.setVoucherId(rs.getInt("voucher_id"));
+                v.setCode(rs.getString("code"));
+                v.setDescription(rs.getString("description"));
+                v.setDiscountPercent(rs.getInt("discount_percent"));
+                v.setMaxDiscount(rs.getBigDecimal("max_discount"));
+                v.setMinOrderAmount(rs.getBigDecimal("min_order_amount"));
+                v.setStartDate(rs.getDate("start_date").toLocalDate());
+                v.setEndDate(rs.getDate("end_date").toLocalDate());
+                return v;
+            }
+        }
+        return null; // Không có voucher
+    }
+
+    public boolean hasUserConsumed(int voucherId, int accountId) throws SQLException {
+        String sql = "SELECT 1 FROM voucher_usages WHERE voucher_id = ? AND account_id = ? AND consumed_at IS NOT NULL";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, voucherId);
+            ps.setInt(2, accountId);
+            ResultSet rs = ps.executeQuery();
+            return rs.next();
+        }
+    }
+    // Đánh dấu voucher đã được dùng (update consumed_at)
+
+    public void consumeVoucher(int voucherId, int accountId) throws SQLException {
+        String sql = "UPDATE voucher_usages SET consumed_at = CURRENT_TIMESTAMP "
+                + "WHERE voucher_id = ? AND account_id = ? AND consumed_at IS NULL";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, voucherId);
+            ps.setInt(2, accountId);
+            ps.executeUpdate();
+        }
+    }
+
+// Tăng used_count lên 1
+    public void incrementVoucherUsedCount(int voucherId) throws SQLException {
+        String sql = "UPDATE vouchers SET used_count = used_count + 1 WHERE voucher_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, voucherId);
+            ps.executeUpdate();
+        }
+    }
+
 }

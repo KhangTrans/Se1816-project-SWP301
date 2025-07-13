@@ -769,6 +769,15 @@ public class OrderDao extends DBcontext {
                     if (generatedKeys.next()) {
                         orderId = generatedKeys.getInt(1);  // Lấy orderId được sinh ra
                     }
+                    // Sau khi tạo order thành công, lưu order_items
+                    if (orderId > 0 && order.getOrderItems() != null) {
+                        for (OrderItem item : order.getOrderItems()) {
+                            // Cập nhật orderId cho từng orderItem (nếu cần)
+                            item.setOrder(order);
+                            item.getOrder().setOrderId(orderId); // Đảm bảo orderId đúng cho item
+                            addOrderItem(item); // Hàm này sẽ insert vào bảng order_items
+                        }
+                    }
                 }
                 // Nếu voucher được áp dụng, chèn vào bảng order_vouchers
                 // If voucher is applied, insert into order_vouchers

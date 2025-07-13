@@ -30,7 +30,9 @@
                 <li><a class="tab-btn package" href="#" data-tab="packages">My Packages</a></li>
                 <li><a class="tab-btn work" href="#" data-tab="schedule">Work Schedule</a></li>
                 <li><a class="tab-btn" href="#" data-tab="changepassword">Change Password</a></li>
+
             </ul>
+
         </div>
 
         <!-- Content area (sẽ thay đổi nội dung ở đây)-->
@@ -40,14 +42,15 @@
                 <jsp:include page="profileContent.jsp"/>
             </div>
             <div id="packages" class="tab-content" style="display:none;">
-               <div id="membership-block"></div>
+                <div id="membership-block"></div>
             </div>
             <div id="schedule" class="tab-content" style="display:none;">
-                <%--<jsp:include page="schedule.jsp"/>--%>
+                <jsp:include page="schedule.jsp"/>
             </div>
             <div id="changepassword" class="tab-content" style="display:none;">
                 <jsp:include page="changepassword.jsp"/>
             </div>
+
         </div>
     </div>
     <script src="js/membership.js"></script>
