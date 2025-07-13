@@ -1,0 +1,366 @@
+[
+    {
+        "question": "Làm sao để đặt lịch với huấn luyện viên?",
+        "answer": "Bạn có thể đặt lịch qua website hoặc tại quầy."
+    },
+    {
+        "question": "Làm sao để đăng ký gói thành viên?",
+        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+    },
+    {
+        "question": "Thiết bị có thường xuyên được bảo trì?",
+        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+    },
+    {
+        "question": "Tôi muốn nhận hóa đơn VAT?",
+        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
+    },
+    {
+        "question": "Tôi mới bắt đầu thì nên tập gì?",
+        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+    },
+    {
+        "question": "Có gói tập riêng với HLV không?",
+        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+    },
+    {
+        "question": "Tôi muốn nhận hóa đơn VAT?",
+        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
+    },
+    {
+        "question": "Làm sao để đăng ký gói thành viên?",
+        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+    },
+    {
+        "question": "Có thể đổi huấn luyện viên không?",
+        "answer": "Bạn có thể đổi huấn luyện viên nếu không phù hợp sau buổi tập đầu tiên."
+    },
+    {
+        "question": "Huấn luyện viên có được chứng chỉ không?",
+        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
+    },
+    {
+        "question": "Thiết bị có thường xuyên được bảo trì?",
+        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+    },
+    {
+        "question": "Tôi mới bắt đầu thì nên tập gì?",
+        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+    },
+    {
+        "question": "Tôi có thể sử dụng phòng xông hơi không?",
+        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+    },
+    {
+        "question": "Phòng tập mở cửa lúc mấy giờ?",
+        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+    },
+    {
+        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
+        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
+    },
+    {
+        "question": "Huấn luyện viên có được chứng chỉ không?",
+        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
+    },
+    {
+        "question": "Thiết bị có thường xuyên được bảo trì?",
+        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+    },
+    {
+        "question": "Tôi mới bắt đầu thì nên tập gì?",
+        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+    },
+    {
+        "question": "Làm sao để gửi phản hồi?",
+        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+    },
+    {
+        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
+        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
+    },
+    {
+        "question": "Tôi có thể sử dụng phòng xông hơi không?",
+        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+    },
+    {
+        "question": "Tôi muốn nhận hóa đơn VAT?",
+        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
+    },
+    {
+        "question": "Phòng gym có tư vấn dinh dưỡng không?",
+        "answer": "Chúng tôi có chuyên viên tư vấn dinh dưỡng hỗ trợ miễn phí."
+    },
+    {
+        "question": "Có thể đổi huấn luyện viên không?",
+        "answer": "Bạn có thể đổi huấn luyện viên nếu không phù hợp sau buổi tập đầu tiên."
+    },
+    {
+        "question": "Tôi có thể sử dụng phòng xông hơi không?",
+        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+    },
+    {
+        "question": "Phòng tập mở cửa lúc mấy giờ?",
+        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+    },
+    {
+        "question": "Có phòng tắm không?",
+        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+    },
+    {
+        "question": "Huấn luyện viên có được chứng chỉ không?",
+        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
+    },
+    {
+        "question": "Tôi muốn nhận hóa đơn VAT?",
+        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
+    },
+    {
+        "question": "Nên ăn gì trước khi tập?",
+        "answer": "Bạn nên ăn nhẹ chứa carb như chuối hoặc yến mạch trước khi tập 30 phút."
+    },
+    {
+        "question": "Có gói tập riêng với HLV không?",
+        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+    },
+    {
+        "question": "Có thể đổi huấn luyện viên không?",
+        "answer": "Bạn có thể đổi huấn luyện viên nếu không phù hợp sau buổi tập đầu tiên."
+    },
+    {
+        "question": "Tôi mới bắt đầu thì nên tập gì?",
+        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+    },
+    {
+        "question": "Có gói tập riêng với HLV không?",
+        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+    },
+    {
+        "question": "Phòng tập mở cửa lúc mấy giờ?",
+        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+    },
+    {
+        "question": "Huấn luyện viên có được chứng chỉ không?",
+        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
+    },
+    {
+        "question": "Làm sao để gia hạn gói tập?",
+        "answer": "Bạn có thể gia hạn online hoặc đến quầy lễ tân để được hỗ trợ."
+    },
+    {
+        "question": "Thiết bị có thường xuyên được bảo trì?",
+        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+    },
+    {
+        "question": "Phòng tập mở cửa lúc mấy giờ?",
+        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+    },
+    {
+        "question": "Có gói tập riêng với HLV không?",
+        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+    },
+    {
+        "question": "Có những gói tập nào?",
+        "answer": "Chúng tôi có các gói theo ngày, tuần, tháng và năm để bạn lựa chọn."
+    },
+    {
+        "question": "Tôi có thể sử dụng phòng xông hơi không?",
+        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+    },
+    {
+        "question": "Thiết bị có thường xuyên được bảo trì?",
+        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+    },
+    {
+        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
+        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
+    },
+    {
+        "question": "Có gói tập riêng với HLV không?",
+        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+    },
+    {
+        "question": "Làm sao để gửi phản hồi?",
+        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+    },
+    {
+        "question": "Có phòng tắm không?",
+        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+    },
+    {
+        "question": "Làm sao để gửi phản hồi?",
+        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+    },
+    {
+        "question": "Có phòng tắm không?",
+        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+    },
+    {
+        "question": "Có phòng tắm không?",
+        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+    },
+    {
+        "question": "Làm sao để đăng ký gói thành viên?",
+        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+    },
+    {
+        "question": "Phòng gym có tư vấn dinh dưỡng không?",
+        "answer": "Chúng tôi có chuyên viên tư vấn dinh dưỡng hỗ trợ miễn phí."
+    },
+    {
+        "question": "Nên ăn gì trước khi tập?",
+        "answer": "Bạn nên ăn nhẹ chứa carb như chuối hoặc yến mạch trước khi tập 30 phút."
+    },
+    {
+        "question": "Làm sao để đăng ký gói thành viên?",
+        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+    },
+    {
+        "question": "Tôi muốn nhận hóa đơn VAT?",
+        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
+    },
+    {
+        "question": "Làm sao để đặt lịch với huấn luyện viên?",
+        "answer": "Bạn có thể đặt lịch qua ứng dụng hoặc tại quầy."
+    },
+    {
+        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
+        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
+    },
+    {
+        "question": "Có những gói tập nào?",
+        "answer": "Chúng tôi có các gói theo ngày, tuần, tháng và năm để bạn lựa chọn."
+    },
+    {
+        "question": "Tôi mới bắt đầu thì nên tập gì?",
+        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+    },
+    {
+        "question": "Làm sao để gửi phản hồi?",
+        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+    },
+    {
+        "question": "Có gói tập riêng với HLV không?",
+        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+    },
+    {
+        "question": "Nên ăn gì trước khi tập?",
+        "answer": "Bạn nên ăn nhẹ chứa carb như chuối hoặc yến mạch trước khi tập 30 phút."
+    },
+    {
+        "question": "Phòng tập mở cửa lúc mấy giờ?",
+        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+    },
+    {
+        "question": "Phòng gym có tư vấn dinh dưỡng không?",
+        "answer": "Chúng tôi có chuyên viên tư vấn dinh dưỡng hỗ trợ miễn phí."
+    },
+    {
+        "question": "Có phòng tắm không?",
+        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+    },
+    {
+        "question": "Làm sao để đăng ký gói thành viên?",
+        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+    },
+    {
+        "question": "Tôi mới bắt đầu thì nên tập gì?",
+        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+    },
+    {
+        "question": "Làm sao để gia hạn gói tập?",
+        "answer": "Bạn có thể gia hạn online hoặc đến quầy lễ tân để được hỗ trợ."
+    },
+    {
+        "question": "Làm sao để gửi phản hồi?",
+        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+    },
+    {
+        "question": "Tôi có thể sử dụng phòng xông hơi không?",
+        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+    },
+    {
+        "question": "Làm sao để gửi phản hồi?",
+        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+    },
+    {
+        "question": "Có những gói tập nào?",
+        "answer": "Chúng tôi có các gói theo ngày, tuần, tháng và năm để bạn lựa chọn."
+    },
+    {
+        "question": "Làm sao để đăng ký gói thành viên?",
+        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+    },
+    {
+        "question": "Phòng tập mở cửa lúc mấy giờ?",
+        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+    },
+    {
+        "question": "Làm sao để đặt lịch với huấn luyện viên?",
+        "answer": "Bạn có thể đặt lịch qua ứng dụng hoặc tại quầy."
+    },
+    {
+        "question": "Thiết bị có thường xuyên được bảo trì?",
+        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+    },
+    {
+        "question": "Có gói tập riêng với HLV không?",
+        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+    },
+    {
+        "question": "Tôi có thể sử dụng phòng xông hơi không?",
+        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+    },
+    {
+        "question": "Phòng gym có tư vấn dinh dưỡng không?",
+        "answer": "Chúng tôi có chuyên viên tư vấn dinh dưỡng hỗ trợ miễn phí."
+    },
+    {
+        "question": "Phòng tập mở cửa lúc mấy giờ?",
+        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+    },
+    {
+        "question": "Tôi mới bắt đầu thì nên tập gì?",
+        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+    },
+    {
+        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
+        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
+    },
+    {
+        "question": "Thành viên có thể tạm ngưng không?",
+        "answer": "Bạn có thể tạm ngưng gói tập tối đa 1 tháng/lần với lý do chính đáng."
+    },
+    {
+        "question": "Có thể đổi huấn luyện viên không?",
+        "answer": "Bạn có thể đổi huấn luyện viên nếu không phù hợp sau buổi tập đầu tiên."
+    },
+    {
+        "question": "Huấn luyện viên có được chứng chỉ không?",
+        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
+    },
+    {
+        "question": "Làm sao để đặt lịch với huấn luyện viên?",
+        "answer": "Bạn có thể đặt lịch qua ứng dụng hoặc tại quầy."
+    },
+    {
+        "question": "Tôi có thể sử dụng phòng xông hơi không?",
+        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+    },
+    {
+        "question": "Làm sao để đăng ký gói thành viên?",
+        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+    },
+    {
+        "question": "Phòng tập mở cửa lúc mấy giờ?",
+        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+    },
+    {
+        "question": "Làm sao để gửi phản hồi?",
+        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+    },
+    {
+        "question": "Có gói tập riêng với HLV không?",
+        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+    }
+]
