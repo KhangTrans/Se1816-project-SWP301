@@ -17,6 +17,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDate;
 
 /**
  *
@@ -56,6 +57,13 @@ public class MemberShipPackageDao extends DBcontext {
                 customerMembership.setStartDate(rs.getDate("start_date").toLocalDate());
                 customerMembership.setEndDate(rs.getDate("end_date").toLocalDate());
 
+                // Kiểm tra nếu hết hạn và tự động cập nhật trạng thái nếu cần
+                LocalDate endDate = customerMembership.getEndDate();
+                if (endDate.isBefore(LocalDate.now()) && !customerMembership.getPaymentStatus().equals("cancelled")) {
+                    editCustomerMembership(customerMembership.getMembershipId(), "cancelled"); // Tự update trong DB
+                    customerMembership.setPaymentStatus("cancelled"); // Cập nhật object để trả về đúng
+                }
+
                 // Thêm vào danh sách
                 customerMembershipList.add(customerMembership);
             }
@@ -67,6 +75,12 @@ public class MemberShipPackageDao extends DBcontext {
 
     // DAO/MemberShipPackageDao.java
     public boolean editCustomerMembership(int membershipId, String paymentStatus) {
+        // Thêm kiểm tra hết hạn trước khi update
+        CustomerMembership membership = getCustomerMembershipById(membershipId);
+        if (membership != null && membership.getEndDate().isBefore(LocalDate.now())) {
+            return false; // Không cho update nếu hết hạn
+        }
+
         String sql = "UPDATE customer_memberships SET payment_status = ? WHERE membership_id = ?";
         try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, paymentStatus);
@@ -77,6 +91,49 @@ public class MemberShipPackageDao extends DBcontext {
             e.printStackTrace();
             return false;
         }
+    }
+
+    // Method mới để lấy CustomerMembership theo ID (dùng cho kiểm tra hết hạn)
+    public CustomerMembership getCustomerMembershipById(int membershipId) {
+        String sql = "SELECT cm.membership_id, cm.account_id, cm.package_id, cm.start_date, cm.end_date, cm.payment_status, "
+                + "a.username, m.name AS package_name "
+                + "FROM customer_memberships cm "
+                + "JOIN accounts a ON cm.account_id = a.account_id "
+                + "JOIN membership_packages m ON cm.package_id = m.package_id "
+                + "WHERE cm.membership_id = ?";
+
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, membershipId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    CustomerMembership customerMembership = new CustomerMembership();
+
+                    customerMembership.setMembershipId(rs.getInt("membership_id"));
+                    customerMembership.setPaymentStatus(rs.getString("payment_status"));
+
+                    // Gán giá trị tài khoản
+                    Account account = new Account();
+                    account.setAccountId(rs.getInt("account_id"));
+                    account.setUsername(rs.getString("username"));
+                    customerMembership.setAccountId(account);
+
+                    // Gán gói thành viên
+                    MembershipPackage membershipPackage = new MembershipPackage();
+                    membershipPackage.setPackageId(rs.getInt("package_id"));
+                    membershipPackage.setName(rs.getString("package_name"));
+                    customerMembership.setMembershipPackage(membershipPackage);
+
+                    // Gán ngày bắt đầu và kết thúc
+                    customerMembership.setStartDate(rs.getDate("start_date").toLocalDate());
+                    customerMembership.setEndDate(rs.getDate("end_date").toLocalDate());
+
+                    return customerMembership;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
 
@@ -135,6 +192,13 @@ public class MemberShipPackageDao extends DBcontext {
                     customerMembership.setStartDate(rs.getDate("start_date").toLocalDate());
                     customerMembership.setEndDate(rs.getDate("end_date").toLocalDate());
                     customerMembership.setPaymentStatus(rs.getString("payment_status"));
+
+                    // Kiểm tra nếu hết hạn và tự động cập nhật trạng thái nếu cần
+                    LocalDate endDate = customerMembership.getEndDate();
+                    if (endDate.isBefore(LocalDate.now()) && !customerMembership.getPaymentStatus().equals("cancelled")) {
+                        editCustomerMembership(customerMembership.getMembershipId(), "cancelled"); // Tự update trong DB
+                        customerMembership.setPaymentStatus("cancelled"); // Cập nhật object để trả về đúng
+                    }
 
                     customerMembershipList.add(customerMembership);
                 }

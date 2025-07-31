@@ -7,7 +7,7 @@
         <h2>Create New Member</h2>
         <form method="post"
               action="${pageContext.request.contextPath}/admin/customer"
-              onsubmit="return submitFormAjax(this, 'resultAddCustomer')">
+              onsubmit="return submitFormAjaxCO(this, 'resultAddCustomer')">
 
             <input type="hidden" name="action" value="create">
 

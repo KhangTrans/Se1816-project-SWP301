@@ -9,12 +9,16 @@
 <%@include file="/WEB-INF/include/Register.jsp" %>
 <%@include file="/WEB-INF/include/forgotPassword.jsp" %>
 <%@include file="/WEB-INF/include/header.jsp" %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <%
     Products p = (Products) request.getAttribute("product");
     if (p == null) {
 %>
-<h2>Product not found!</h2>
+<div class="container text-center py-5">
+    <h2 class="text-danger">Product not found!</h2>
+    <a href="<%=request.getContextPath()%>/shopall" class="btn btn-primary mt-3">Return to Shop</a>
+</div>
 <%
         return;
     }
@@ -28,15 +32,661 @@
     }
 %>
 
-<h1 class="header-content" style="margin-top: 80px">Product Detail </h1>
+<style>
+    body {
+        background-color: #111;
+        color: #fff;
+        font-family: 'Arial', sans-serif;
+    }
+    
+    .page-title {
+        
+        font-size: 60px; 
+        padding: 10px; 
+        padding-top: 90px;
+        text-align: center;
+        margin: 40px 0;
+        color: #d9ff68;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .product-detail-container {
+        display: flex;
+        flex-direction: row;
+        max-width: 1200px;
+        margin: 0 auto 60px;
+        background: rgba(25, 25, 25, 0.9);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(217, 255, 104, 0.3);
+    }
+    
+    .image-frame {
+        width: 40%;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #1a1a1a, #252525);
+        position: relative;
+    }
+    
+    .image-frame::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(217, 255, 104, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+        z-index: 1;
+    }
+    
+    .product-image {
+        width: 100%;
+        height: auto;
+        object-fit: contain;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        max-height: 400px;
+        position: relative;
+        z-index: 2;
+        transition: transform 0.3s ease;
+        filter: drop-shadow(0 5px 15px rgba(217, 255, 104, 0.2));
+    }
+    
+    .product-image:hover {
+        transform: scale(1.02);
+    }
+    
+    .product-thumbnails {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: center;
+        margin-top: 20px;
+        position: relative;
+        z-index: 2;
+    }
+    
+    .product-thumbnails img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+        cursor: pointer;
+        border: 2px solid transparent;
+        transition: all 0.3s ease;
+        opacity: 0.7;
+    }
+    
+    .product-thumbnails img:hover {
+        border-color: #d9ff68;
+        opacity: 1;
+        transform: translateY(-3px);
+    }
+    
+    .product-thumbnails img.primary {
+        border-color: #d9ff68;
+        opacity: 1;
+    }
+    
+    .product-info-detail {
+        width: 60%;
+        padding: 30px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    
+    .product-info-detail h2 {
+        color: #d9ff68;
+        margin-bottom: 20px;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+    }
+    
+    .cat {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+        padding: 8px 15px;
+        background: rgba(217, 255, 104, 0.1);
+        border-radius: 30px;
+        width: fit-content;
+    }
+    
+    .cat i {
+        color: #d9ff68;
+        margin-right: 8px;
+    }
+    
+    .price {
+        font-size: 28px;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .price i {
+        color: #d9ff68;
+        margin-right: 10px;
+    }
+    
+    .desc {
+        margin-bottom: 25px;
+        padding: 20px;
+        background: rgba(30, 30, 30, 0.6);
+        border-radius: 10px;
+        line-height: 1.6;
+        border: 1px solid rgba(217, 255, 104, 0.1);
+    }
+    
+    .desc b {
+        color: #d9ff68;
+        display: block;
+        margin-bottom: 10px;
+        font-size: 18px;
+    }
+    
+    .product-info-table {
+        width: 100%;
+        margin-bottom: 25px;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+    }
+    
+    .product-info-table td {
+        padding: 12px 15px;
+        background: rgba(30, 30, 30, 0.6);
+        border-radius: 8px;
+    }
+    
+    .product-info-table td:first-child {
+        font-weight: bold;
+        color: #d9ff68;
+        width: 100px;
+        border-radius: 8px 0 0 8px;
+    }
+    
+    .product-info-table td:last-child {
+        border-radius: 0 8px 8px 0;
+    }
+    
+    .product-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 20px;
+    }
+    
+    .product-actions button {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .product-actions button i {
+        margin-right: 8px;
+        font-size: 18px;
+    }
+    
+    .product-actions .fav {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        flex: 1;
+    }
+    
+    .product-actions .fav:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+    
+    .product-actions .fav i.favorite {
+        color: #ff6b6b;
+    }
+    
+    .product-actions .cart {
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        color: #111;
+        flex: 2;
+    }
+    
+    .product-actions .cart:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 15px rgba(217, 255, 104, 0.3);
+    }
+    
+    /* Product Reviews Section */
+    .reviews-section {
+        max-width: 1200px;
+        margin: 60px auto;
+    }
+    
+    .reviews-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid rgba(217, 255, 104, 0.2);
+    }
+    
+    .reviews-title {
+        color: #d9ff68;
+        font-size: 24px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+    }
+    
+    .reviews-title i {
+        margin-right: 10px;
+    }
+    
+    .reviews-container {
+        position: relative;
+    }
+    
+    .review-carousel {
+        overflow: hidden;
+        border-radius: 15px;
+        background: rgba(25, 25, 25, 0.9);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        border: 1px solid rgba(217, 255, 104, 0.2);
+        padding: 20px;
+    }
+    
+    .review-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .review-card {
+        flex: 1;
+        background: linear-gradient(135deg, #1a2a3a 0%, #0d1b29 100%);
+        border-radius: 12px;
+        padding: 20px;
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(217, 255, 104, 0.1);
+    }
+    
+    .review-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+    }
+    
+    .review-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at top right, rgba(217, 255, 104, 0.05) 0%, rgba(0, 0, 0, 0) 70%);
+        z-index: 0;
+    }
+    
+    .review-header {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .reviewer-name {
+        font-weight: bold;
+        color: #d9ff68;
+    }
+    
+    .review-date {
+        color: #aaa;
+        font-size: 12px;
+    }
+    
+    .review-rating {
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 1;
+    }
+    
+    .review-rating i {
+        color: #555;
+        margin-right: 2px;
+    }
+    
+    .review-rating i.text-warning {
+        color: #ffcc00;
+    }
+    
+    .review-content {
+        position: relative;
+        z-index: 1;
+        line-height: 1.6;
+    }
+    
+    .review-navigation {
+        display: flex;
+        justify-content: center;
+        margin-top: 20px;
+        gap: 10px;
+    }
+    
+    .review-nav-btn {
+        width: 40px;
+        height: 40px;
+        border: none;
+        background: rgba(217, 255, 104, 0.1);
+        color: #d9ff68;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+    
+    .review-nav-btn:hover {
+        background: rgba(217, 255, 104, 0.2);
+        transform: scale(1.1);
+    }
+    
+    .no-reviews {
+        text-align: center;
+        padding: 40px;
+        color: #aaa;
+        font-style: italic;
+        background: rgba(25, 25, 25, 0.5);
+        border-radius: 12px;
+    }
+    
+    /* Add Review Section */
+    .add-review-section {
+        max-width: 1200px;
+        margin: 60px auto;
+        background: rgba(25, 25, 25, 0.9);
+        border-radius: 20px;
+        padding: 30px;
+        border: 1px solid rgba(217, 255, 104, 0.3);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+    
+    .add-review-header {
+        text-align: center;
+        margin-bottom: 25px;
+    }
+    
+    .add-review-title {
+        color: #d9ff68;
+        font-size: 24px;
+        font-weight: 700;
+        margin-bottom: 10px;
+    }
+    
+    .add-review-form .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .add-review-form label {
+        display: block;
+        margin-bottom: 8px;
+        color: #d9ff68;
+        font-weight: 500;
+    }
+    
+    .rating-stars {
+        display: flex;
+        gap: 5px;
+        font-size: 24px;
+        margin-bottom: 20px;
+    }
+    
+    .rating-stars i {
+        cursor: pointer;
+        color: #555;
+        transition: color 0.2s ease;
+    }
+    
+    .rating-stars i.checked,
+    .rating-stars i:hover {
+        color: #ffcc00;
+    }
+    
+    .add-review-form textarea {
+        width: 100%;
+        padding: 15px;
+        background: rgba(30, 30, 30, 0.6);
+        border: 1px solid rgba(217, 255, 104, 0.2);
+        border-radius: 10px;
+        color: #fff;
+        resize: vertical;
+        min-height: 120px;
+        font-family: inherit;
+        transition: border-color 0.3s ease;
+    }
+    
+    .add-review-form textarea:focus {
+        border-color: #d9ff68;
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(217, 255, 104, 0.15);
+    }
+    
+    .submit-review-btn {
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        color: #111;
+        border: none;
+        border-radius: 8px;
+        padding: 12px 25px;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        display: block;
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+        transition: all 0.3s ease;
+    }
+    
+    .submit-review-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 15px rgba(217, 255, 104, 0.3);
+    }
+    
+    .auth-message {
+        text-align: center;
+        padding: 30px;
+        color: #aaa;
+        background: rgba(25, 25, 25, 0.5);
+        border-radius: 12px;
+        font-style: italic;
+    }
+    
+    /* Related Products Section */
+    .related-products-section {
+        max-width: 1200px;
+        margin: 60px auto;
+    }
+    
+    .related-title {
+        text-align: center;
+        color: #d9ff68;
+        font-size: 28px;
+        font-weight: 700;
+        margin-bottom: 30px;
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .product-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 25px;
+    }
+    
+    .product-card {
+        background: rgba(25, 25, 25, 0.9);
+        border-radius: 15px;
+        padding: 20px;
+        text-align: center;
+        transition: all 0.3s ease;
+        border: 1px solid rgba(217, 255, 104, 0.1);
+    }
+    
+    .product-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        border-color: rgba(217, 255, 104, 0.3);
+    }
+    
+    .product-card img {
+        width: 100%;
+        height: 200px;
+        object-fit: contain;
+        margin-bottom: 15px;
+        border-radius: 8px;
+    }
+    
+    .product-card p {
+        margin: 10px 0;
+    }
+    
+    .product-card p strong {
+        color: #d9ff68;
+    }
+    
+    .product-card .btn-detail {
+        background: rgba(217, 255, 104, 0.1);
+        color: #d9ff68;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 15px;
+        margin-right: 5px;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+    
+    .product-card .btn-detail:hover {
+        background: rgba(217, 255, 104, 0.2);
+    }
+    
+    .product-card .cart {
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        color: #111;
+        border: none;
+        border-radius: 8px;
+        padding: 8px 15px;
+        margin-top: 10px;
+        width: 100%;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .product-card .cart:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(217, 255, 104, 0.3);
+    }
+    
+    /* Alert Box */
+    .alert-box {
+        position: fixed;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(26, 42, 58, 0.95);
+        color: #fff;
+        padding: 20px 25px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border-left: 4px solid #d9ff68;
+        z-index: 1000;
+        min-width: 300px;
+        max-width: 500px;
+        display: none;
+    }
+    
+    .close-btn {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: none;
+        border: none;
+        color: #aaa;
+        font-size: 18px;
+        cursor: pointer;
+        transition: color 0.2s ease;
+    }
+    
+    .close-btn:hover {
+        color: #fff;
+    }
+    
+    /* Media queries for responsive layout */
+    @media (max-width: 992px) {
+        .product-detail-container {
+            flex-direction: column;
+        }
+        
+        .image-frame,
+        .product-info-detail {
+            width: 100%;
+        }
+        
+        .review-row {
+            flex-direction: column;
+        }
+    }
+    
+    @media (max-width: 768px) {
+        .product-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+        
+        .page-title {
+            font-size: 28px;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .product-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .product-actions {
+            flex-direction: column;
+        }
+    }
+</style>
 
-<body style="background: #f6f6f7;">
+<h1 class="page-title">Product Detail</h1>
+
     <div class="product-detail-container">
         <!-- Main Product Image -->
         <div class="image-frame">
             <img id="mainProductImage" 
                  src="<%= request.getContextPath() + "/ImagesServlet?type=product&imageId=" + p.getPrimaryImageId()%>" 
-                 alt="Product Image" class="product-image"/>
+             alt="<%= p.getName() %>" class="product-image"/>
 
             <!-- Thumbnail images -->
             <div class="product-thumbnails">
@@ -44,7 +694,7 @@
                 <img
                     src="<%= request.getContextPath() + "/ImagesServlet?type=product&imageId=" + img.getImageId()%>"
                     class="<%= img.isIsPrimary() ? "primary" : ""%>"
-                    alt="Thumbnail"
+                alt="<%= p.getName() %> thumbnail"
                     onclick="changeMainImage(this.src)"/>
                 <% }%>
             </div>
@@ -54,111 +704,107 @@
         <div class="product-info-detail">
             <h2><%= p.getName()%></h2>
             <div class="cat">
-                <i class="fa fa-tags"></i> <%= p.getCategoryName()%>
+            <i class="fas fa-tags"></i> <%= p.getCategoryName()%>
             </div>
             <div class="price">
-                <i class="fa fa-money-bill-wave"></i>
+            <i class="fas fa-money-bill-wave"></i>
                 <%= String.format("%,.0f", p.getPrice())%>₫
             </div>
             <div class="desc">
-                <b>Description:</b> <br>
-                <%= p.getDescription()%>
+            <b>Description:</b>
+            <p style="color: white"><%= p.getDescription()%></p>
             </div>
             <table class="product-info-table">
                 <tr>
-                    <td><b>Status:</b></td>
+                <td>Status:</td>
                     <td>
                         <% if (p.isActive()) { %>
-                        <span style="color: #46a049; font-weight: bold;">Available</span>
+                    <span style="color: white; font-weight: bold;">Available</span>
                         <% } else { %>
-                        <span style="color: #aaa;">Out of stock</span>
+                    <span style="color: white">Out of stock</span>
                         <% }%>
                     </td>
                 </tr>
                 <tr>
-                    <td><b>Stock:</b></td>
-                    <td><%= p.getStockQuantity()%> units</td>
+                <td>Stock:</td>
+                <td style="color: white"><%= p.getStockQuantity()%> units</td>
                 </tr>
             </table>
 
             <!-- Product Actions -->
             <div class="product-actions">
                 <button id="favBtn" class="fav" onclick="toggleFavorite('<%= p.getProductId()%>')">
-                    <i id="favIcon" class="fa fa-heart <%= isFavorite ? "favorite" : ""%>"></i> Favorite
+                <i id="favIcon" class="<%= isFavorite ? "fas" : "far" %> fa-heart <%= isFavorite ? "favorite" : ""%>"></i> Favorite
                 </button>
                 <button class="cart"
                         onclick="addToCart('<%= p.getProductId()%>')"
                         <%= p.getStockQuantity() < 1 ? "disabled style='opacity:0.5;pointer-events:none;' title=\"Out of stock\"" : ""%>>
-                    <i class="fa fa-shopping-cart"></i> Add to Cart
-                </button>
-                <button class="buy"
-                        onclick="showBuyNowModal('<%= p.getProductId()%>')"
-                        <%= p.getStockQuantity() < 1 ? "disabled style='opacity:0.5;pointer-events:none;' title=\"Out of stock\"" : ""%>>
-                    <i class="fa fa-bolt"></i> Buy Now
+                <i class="fas fa-shopping-cart"></i> Add to Cart
                 </button>
             </div>
         </div>
     </div>
 
     <!-- Phần hiển thị đánh giá -->
-    <div class="product-reviews">
-        <h2 class="container" style="color: #46a049; margin-left: 80px">Members Reviews</h2>
+<div class="reviews-section">
+    <div class="reviews-header">
+        <h2 class="reviews-title"><i class="fas fa-star"></i> Members Reviews</h2>
+    </div>
 
         <%
             // Lấy danh sách đánh giá sản phẩm từ request
             List<Review> reviews = (List<Review>) request.getAttribute("productReviews");
             if (reviews != null && !reviews.isEmpty()) {
         %>
-        <!-- Carousel Container -->
-        <div id="reviewCarousel" class="carousel slide container" data-bs-ride="carousel">
-            <div class="carousel-inner" style="width: 70%; margin: 0 auto;">
+    <div class="reviews-container">
+        <div class="review-carousel">
                 <%
                     int reviewCount = reviews.size();
-                    // Duyệt qua các đánh giá và tạo các item carousel
-                    for (int i = 0; i < reviewCount; i += 2) {
-                        String activeClass = (i == 0) ? "active" : ""; // Đánh dấu phần tử đầu tiên là active
-%>
-                <div class="carousel-item <%= activeClass%>">
-                    <div class="d-flex justify-content-between">
-                        <%
-                            // Hiển thị 2 đánh giá trong mỗi item
-                            for (int j = i; j < i + 2 && j < reviewCount; j++) {
+                // Determine how many rows we need
+                int rowCount = (reviewCount + 1) / 2;
+                
+                for (int i = 0; i < rowCount; i++) {
+            %>
+            <div class="review-row">
+                <%
+                    // Display up to 2 reviews per row
+                    for (int j = i * 2; j < Math.min((i * 2) + 2, reviewCount); j++) {
                                 Review review = reviews.get(j);
                         %>
-                        <div class="review mb-2 p-3 border rounded" style="background-color: #044b12; color: white; width: 48%; margin: 1%;">
-                            <div class="reviewer-info d-flex justify-content-between">
-                                <span class="reviewer-name"><%= review.getAccount().getUsername()%></span>
-                                <span class="review-date text-muted"><%= review.getCreatedAt()%></span>
+                <div class="review-card">
+                    <div class="review-header">
+                        <span class="reviewer-name"><%= review.getAccount().getUsername() %></span>
+                        <span class="review-date"><%= review.getCreatedAt() %></span>
                             </div>
-                            <div class="review-rating my-2">
-                                <% for (int k = 1; k <= 5; k++) {%>
-                                <i class="fa fa-star <%= review.getRating() >= k ? "text-warning" : "text-muted"%>"></i>
-                                <% }%>
-                            </div>
-                            <div class="review-comment">
-                                <p><%= review.getComment()%></p>
-                            </div>
-                        </div>
+                    <div class="review-rating">
+                        <% for (int k = 1; k <= 5; k++) { %>
+                        <i class="fas fa-star <%= review.getRating() >= k ? "text-warning" : "" %>"></i>
                         <% } %>
                     </div>
+                    <div class="review-content">
+                        <p><%= review.getComment() %></p>
+                    </div>
+                </div>
+                <% } %>
                 </div>
                 <% } %>
             </div>
 
-            <!-- Nút điều hướng cho carousel -->
-            <button class="carousel-control-prev" type="button" data-bs-target="#reviewCarousel" data-bs-slide="prev">
-                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Previous</span>
+        <div class="review-navigation">
+            <button class="review-nav-btn" onclick="prevReviews()">
+                <i class="fas fa-chevron-left"></i>
             </button>
-            <button class="carousel-control-next" type="button" data-bs-target="#reviewCarousel" data-bs-slide="next">
-                <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                <span class="visually-hidden">Next</span>
+            <button class="review-nav-btn" onclick="nextReviews()">
+                <i class="fas fa-chevron-right"></i>
             </button>
         </div>
-
+    </div>
         <% } else { %>
+    <div class="no-reviews">
         <p>No reviews yet. Be the first to review this product!</p>
+    </div>
         <% } %>
+</div>
 
         <!-- Add Review Form -->
         <%
@@ -168,78 +814,89 @@
             if (isLoggedIn) {
                 if (hasPurchased) {
         %>
-        <div class="add-review mt-4 container" style="background-color: #0ba960; border-radius: 10px">
-            <h3 class="mb-4 mt-3 header-content" style="font-size: 32px;">Add Your Review</h3>
+<div class="add-review-section">
+    <div class="add-review-header">
+        <h3 class="add-review-title">Add Your Review</h3>
+    </div>
+    
+    <div class="add-review-form">
             <form action="<%= request.getContextPath()%>/ProductDetail" method="post">
                 <input type="hidden" name="productId" value="<%= p.getProductId()%>">
 
-                <!-- Rating Section -->
-                <!-- Rating Section with Star Icons -->
-                <div class="mb-3">
-                    <label for="rating" class="form-label">Rating:</label>
-                    <div id="rating" class="stars">
-                        <i class="fa fa-star" data-value="1"></i>
-                        <i class="fa fa-star" data-value="2"></i>
-                        <i class="fa fa-star" data-value="3"></i>
-                        <i class="fa fa-star" data-value="4"></i>
-                        <i class="fa fa-star" data-value="5"></i>
-                    </div>
+            <div class="form-group">
+                <label for="rating">Rating:</label>
+                <div class="rating-stars" id="rating">
+                    <i class="fas fa-star" data-value="1"></i>
+                    <i class="fas fa-star" data-value="2"></i>
+                    <i class="fas fa-star" data-value="3"></i>
+                    <i class="fas fa-star" data-value="4"></i>
+                    <i class="fas fa-star" data-value="5"></i>
                 </div>
-
-                <!-- Optional: Hidden Input for Form Submission -->
                 <input type="hidden" id="rating-value" name="rating" required>
+            </div>
 
-
-                <!-- Comment Section -->
-                <div class="mb-3">
-                    <label for="comment" class="form-label">Your Review:</label>
-                    <textarea name="comment" id="comment" rows="4" class="form-control" required></textarea>
+            <div class="form-group">
+                <label for="comment">Your Review:</label>
+                <textarea name="comment" id="comment" placeholder="Share your experience with this product..." required></textarea>
                 </div>
 
-                <!-- Submit Button -->
-                <button type="submit" class="btn btn-primary mb-3">Submit Review</button>
+            <button type="submit" class="submit-review-btn">Submit Review</button>
             </form>
+    </div>
         </div>
         <%
         } else {
         %>
-        <p class="mt-3" style="color: #46a049; text-align: center">You cannot review this product because you have not purchased it.</p>
+<div class="add-review-section">
+    <div class="auth-message">
+        <p>You cannot review this product because you have not purchased it.</p>
+    </div>
+</div>
         <%
             }
         } else {
         %>
-        <p class="mt-3" style="color: #46a049; text-align: center">Please login to leave a review.</p>
+<div class="add-review-section">
+    <div class="auth-message">
+        <p>Please login to leave a review.</p>
+    </div>
+</div>
         <%
             }
         %>
 
-    </div>
-
+<!-- Related Products Section -->
     <% List<Products> relatedProducts = (List<Products>) request.getAttribute("relatedProducts"); %>
     <% if (relatedProducts != null && !relatedProducts.isEmpty()) { %>
-    <div >
-        <h1 class="header-content" style="margin-top: 80px">Maybe You Need</h1>
+<div class="related-products-section">
+    <h2 class="related-title">Maybe You Need</h2>
         <div class="product-grid">
             <% for (Products rp : relatedProducts) {%>
             <div class="product-card">
-                <img class="product-image" 
-                     style="margin-top:10px; display: flex; margin-left: 13px"
-                     src="<%= request.getContextPath() + "/ImagesServlet?type=product&imageId=" + rp.getPrimaryImageId()%>" 
-                     alt="Product">
+            <img src="<%= request.getContextPath() + "/ImagesServlet?type=product&imageId=" + rp.getPrimaryImageId()%>" 
+                 alt="<%= rp.getName() %>">
                 <p><strong><%= rp.getName()%></strong></p>
                 <p><%= String.format("%,.0f", rp.getPrice())%>₫</p>
-                <!-- Nút Xem chi tiết -->
-                <a 
-                    class="btn btn-detail"
+            <div>
+                <a class="btn-detail"
                     href="<%= request.getContextPath()%>/ProductDetail?productId=<%= rp.getProductId()%>">
-                    <i class="fa fa-info-circle"></i> Xem chi tiết
+                    <i class="fas fa-info-circle"></i> Details
                 </a>
+                <button class="cart" onclick="addToCart('<%= rp.getProductId()%>')">
+                    <i class="fas fa-shopping-cart"></i> Add to Cart
+                </button>
+            </div>
             </div>
             <% } %>
         </div>
     </div>
     <% }%>
-</body>
+
+<!-- Alert Box -->
+<div id="alertBox" class="alert-box">
+    <span id="alertMessage"></span>
+    <button onclick="closeAlert()" class="close-btn"><i class="fas fa-times"></i></button>
+</div>
 
 <script>
     function changeMainImage(src) {
@@ -253,7 +910,7 @@
         var accountId = '<%= (session.getAttribute("accountId") != null) ? session.getAttribute("accountId") : "null"%>';
 
         if (accountId === "null") {
-            showAlert("Bạn chưa đăng nhập. Vui lòng đăng nhập để thêm vào danh sách yêu thích.");
+            showAlert("You need to be logged in to add to favorites!");
             return;
         }
 
@@ -271,21 +928,25 @@
                 var response = JSON.parse(xhr.responseText);
                 if (response.status === "success") {
                     if (action === 'add') {
-                        favIcon.classList.add('favorite'); // Đổi màu icon khi yêu thích
+                        favIcon.classList.add('favorite');
+                        favIcon.classList.remove('far');
+                        favIcon.classList.add('fas');
                     } else {
-                        favIcon.classList.remove('favorite'); // Xóa màu icon khi bỏ yêu thích
+                        favIcon.classList.remove('favorite');
+                        favIcon.classList.remove('fas');
+                        favIcon.classList.add('far');
                     }
-                    showAlert(response.message); // Hiển thị thông báo cho người dùng
+                    showAlert(response.message);
                 } else {
                     showAlert(response.message);
                 }
             } else {
-                showAlert("Đã xảy ra lỗi khi xử lý yêu cầu.");
+                showAlert("An error occurred while processing your request.");
             }
         };
 
         xhr.onerror = function () {
-            showAlert("Lỗi kết nối. Vui lòng thử lại.");
+            showAlert("Connection error. Please try again.");
         };
 
         xhr.send(data);
@@ -296,6 +957,11 @@
         var alertMessage = document.getElementById('alertMessage');
         alertMessage.innerHTML = message;
         alertBox.style.display = 'block';
+        
+        // Auto hide after 3 seconds
+        setTimeout(function() {
+            closeAlert();
+        }, 3000);
     }
 
     function closeAlert() {
@@ -319,170 +985,43 @@
             document.getElementById('rating-value').value = rating;
         });
     });
-// Tạo chức năng tự động cuộn khi có nhiều review
-    let scrollContainer = document.querySelector('.reviews-list');
-    let scrollAmount = 0;
-
-    function scrollRight() {
-        scrollContainer.scrollTo({
-            top: 0,
-            left: scrollAmount += 300, // Di chuyển 300px mỗi lần
-            behavior: 'smooth'
+    
+    // Reviews navigation
+    let currentReviewPage = 0;
+    const reviewRows = document.querySelectorAll('.review-row');
+    if (reviewRows.length > 0) {
+        showReviewPage(currentReviewPage);
+    }
+    
+    function showReviewPage(pageIndex) {
+        reviewRows.forEach((row, index) => {
+            row.style.display = index === pageIndex ? 'flex' : 'none';
         });
     }
-
-    function scrollLeft() {
-        scrollContainer.scrollTo({
-            top: 0,
-            left: scrollAmount -= 300, // Di chuyển về phía trái 300px mỗi lần
-            behavior: 'smooth'
-        });
-    }
-
-</script>
-
-<style>
-    /* Thêm class "favorite" để thay đổi màu sắc */
-    .fav i.favorite {
-        color: red; /* Đổi màu icon khi đã được yêu thích */
-    }
-
-    /* Thêm CSS cho hộp thông báo */
-    .alert-box {
-        display: none;
-        position: fixed;
-        top: 10%;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: green;
-        color: white;
-        padding: 20px;
-        border-radius: 5px;
-        font-size: 16px;
-        z-index: 1000;
-        max-width: 400px;
-        width: 100%;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .alert-box .close-btn {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-        position: absolute;
-        top: 5px;
-        right: 10px;
-    }
-    .stars {
-        display: flex;
-        cursor: pointer;
-        font-size: 24px;
-        color: #ddd;
-    }
-
-    .stars .fa-star {
-        margin-right: 5px;
-    }
-
-    .stars .fa-star.checked {
-        color: #ffcc00; /* Gold color when selected */
-    }
-    .alert-box {
-        z-index: 20000;
-    }
-</style>
-
-<!-- Alert Box -->
-<div id="alertBox" class="alert-box" style="display: none;">
-    <span id="alertMessage"></span>
-    <button onclick="closeAlert()" class="close-btn">X</button>
-</div>
-
-<!-- Buy Now Modal -->
-<div id="buyNowModal" style="display:none; position:fixed; top:10%; left:50%; transform:translateX(-50%); background:white; z-index:10000; padding:30px; border-radius:10px; box-shadow:0 4px 8px #0002;">
-    <h3>[[BUY NOW]]</h3>
-    <form id="buyNowForm">
-        <input type="hidden" name="productId" id="modalProductId">
-        <div>
-            <label>Full name:</label>
-            <input type="text" name="fullName" required>
-        </div>
-        <div>
-            <label>Phone Number:</label>
-            <input type="text" name="phone" required>
-        </div>
-        <div>
-            <label>Address:</label>
-            <input type="text" name="address" required>
-        </div>
-
-        <div>
-            <label>Voucher:</label>
-            <%
-                List<Model.Voucher> claimedVouchers = (List<Model.Voucher>) request.getAttribute("claimedVouchers");
-            %>
-            <select name="voucherId" id="voucherIdDropdown" class="form-control">
-                <option value="">No Voucher chosen</option>
-                <%
-                    if (claimedVouchers != null) {
-                        for (Model.Voucher v : claimedVouchers) {
-                %>
-                <option value="<%= v.getVoucherId()%>"
-                        data-discount="<%= v.getDiscountPercent()%>"
-                        data-max="<%= v.getMaxDiscount()%>"
-                        data-minorder="<%= v.getMinOrderAmount()%>">
-                    <%= v.getCode()%> - Discount <%= v.getDiscountPercent()%>% (Max: <%= v.getMaxDiscount()%>, Min Order: <%= v.getMinOrderAmount()%>)
-                </option>
-                <%
-                        }
-                    }
-                %>
-            </select>
-            <label>Payment Method</label>
-            <select id="paymentMethod" name="paymentMethod" class="form-control">                
-                <option value="cashOnDelivery">Cash on Delivery</option>
-                <option value="paypal" hidden>PayPal (not supported)</option>
-            </select>
-        </div>
-        <div>
-            <label>Quantity:</label>
-            <input type="number" name="quantity" value="1" min="1" max="<%= p.getStockQuantity()%>">
-        </div>
-        <!-- Thêm vào phía trên nút submit, bên trong <form id="buyNowForm"> -->
-        <div id="pricePreview" style="margin:12px 0; font-size:17px;">
-            Original price: <span id="originPrice"></span>₫ <br>
-            Discounted price: <span id="discountedPrice" style="font-weight:bold;color:#e53;"></span>₫
-        </div>
-        <button type="submit" class="btn btn-success mt-3">[[BUY NOW]]</button>
-        <button type="button" onclick="closeBuyNowModal()" class="btn btn-secondary mt-3">close</button>
-    </form>
-</div>
-<script>
-    // Truyền số lượng stock sang JS biến toàn cục
-    window.PRODUCT_STOCK = <%= p.getStockQuantity()%>;
-</script>
-<script>
-    const productPrice = <%= p.getPrice()%>;
-
-    window.APP_CONTEXT_PATH = '<%= request.getContextPath()%>';
-
-    function showBuyNowModal(productId) {
-        // Nếu chưa login thì show alert và return
-        var accountId = '<%= (session.getAttribute("accountId") != null) ? session.getAttribute("accountId") : "null"%>';
-        if (accountId === "null") {
-            showAlert("you need to be logged in to use this feature!");
-            return;
+    
+    function nextReviews() {
+        if (currentReviewPage < reviewRows.length - 1) {
+            currentReviewPage++;
+            showReviewPage(currentReviewPage);
         }
-
-        document.getElementById('modalProductId').value = productId;
-        document.getElementById('buyNowModal').style.display = 'block';
     }
+    
+    function prevReviews() {
+        if (currentReviewPage > 0) {
+            currentReviewPage--;
+            showReviewPage(currentReviewPage);
+        }
+    }
+    
+    // Initialize the reviews display
+    window.addEventListener('DOMContentLoaded', function() {
+        if (reviewRows.length > 0) {
+            showReviewPage(0);
+        }
+    });
 </script>
 
 <script src="<%= request.getContextPath()%>/js/cart.js"></script>
 <script src="<%= request.getContextPath()%>/js/shopDetail.js"></script>
-
 
 <%@include file="/WEB-INF/include/footer.jsp" %>

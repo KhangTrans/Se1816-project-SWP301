@@ -606,3 +606,12 @@ body::after {
         font-size: 16px;
     }
 }
+
+.action-buttons__btn--view {
+    background-color: #007bff;
+    color: white;
+}
+
+.action-buttons__btn--view:hover {
+    background-color: #0056b3;
+}

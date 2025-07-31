@@ -2,11 +2,47 @@
 <%@ page import="java.text.DecimalFormat" %>
 <%@ page contentType="text/html" pageEncoding="UTF-8" %>
 
+<!-- Add the exact same CSS as in Trainers.jsp -->
+<style>
+    .gallery__view-all-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: auto;
+        margin: 20px auto 0;
+    }
+
+    .gallery__view-all {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-decoration: none;
+        color: #d9ff68;
+        font-size: 16px;
+        font-weight: bold;
+        margin-top: 20px;
+        width: auto;
+        transition: color 0.3s ease;
+        padding: 0 20px;
+    }
+
+    .gallery__view-all:hover {
+        color: #c4ff00; /* Matching hover color */
+    }
+
+    .gallery__view-all-text {
+        text-align: center;
+    }
+
+    .gallery-slider__arrow {
+        margin-left: 10px;
+        vertical-align: middle;
+    }
+</style>
+
 <!--===Danh sách các Gói Tập===-->
 <div class="content">
-    <p class="content__text--bottom" style="font-size: 40px">
-        MEMBERSHIP
-    </p>
+    <p class="content__text--bottom">MEMBERSHIP</p>
 </div>
 
 <div class="membership-cards-container container d-flex justify-content-center">
@@ -35,19 +71,21 @@
         </div>
 
         <!-- Liên kết đến trang chi tiết gói -->
-        <a href="package-details?id=<%= pkg.getId()%>">Xem chi tiết ></a>
+        <a href="package-details?id=<%= pkg.getId()%>" class="view-details-btn">View details</a>
     </div>
     <%
         }
     %>
 </div>        
 <!-- === View All Button === -->
-<a href="#!" id="view-all-btn" class="gallery__view-all" onclick="window.location.href = '${pageContext.request.contextPath}/AllPackages'">
-    <span class="gallery__view-all-text">XEM TẤT CẢ</span>
-    <span class="gallery-slider__arrow">
-        <img src="./logo/🦆 icon _nav arrow down_.svg" alt="arrow" width="28" height="16" />
-    </span>
-</a>
+<div class="gallery__view-all-container">
+    <a href="${pageContext.request.contextPath}/AllPackages" class="gallery__view-all">
+        <span class="gallery__view-all-text">View All</span>
+        <span class="gallery-slider__arrow">
+            <img src="./logo/🦆 icon _nav arrow down_.svg" alt="arrow" width="28" height="16" />
+        </span>
+    </a>
+</div>
 
 
 

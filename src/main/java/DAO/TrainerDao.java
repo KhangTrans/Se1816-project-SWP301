@@ -3,6 +3,7 @@ package DAO;
 import Model.Trainers;
 import Model.Account;
 import db.DBcontext;
+import java.io.InputStream;
 
 import java.sql.*;
 import java.util.ArrayList;
@@ -361,5 +362,191 @@ public class TrainerDao extends DBcontext {
             }
         }
         return trainersList;
+    }
+    //===================NHAT KHANG========================
+
+    public Trainers getTrainerByAccountId(int accountId) {
+        Trainers trainer = null;
+        String sql = "SELECT t.*, a.* FROM trainers t JOIN accounts a ON t.account_id = a.account_id WHERE a.account_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                trainer = new Trainers();
+                trainer.setTrainerId(rs.getInt("trainer_id"));
+                trainer.setFullName(rs.getString("full_name"));
+                trainer.setEmail(rs.getString("email"));
+                trainer.setPhone(rs.getString("phone"));
+                trainer.setBio(rs.getString("bio"));
+                trainer.setExperienceYears(rs.getInt("experience_years"));
+                trainer.setRating(rs.getFloat("rating"));
+                trainer.setTrainer_code(rs.getString("trainer_code"));
+                trainer.setPrice(rs.getDouble("price"));
+
+                // Create Account object
+                Account acc = new Account();
+                acc.setAccountId(rs.getInt("account_id"));
+                acc.setUsername(rs.getString("username"));
+                acc.setAvatar(rs.getBytes("avatar"));
+                acc.setRole(rs.getString("role"));
+                trainer.setAccountId(acc);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return trainer;
+    }
+
+    //===================NHAT KHANG========================
+    public boolean updateTrainerWithAvatar(Trainers trainer, InputStream avatarStream) {
+        Connection conn = null;
+        PreparedStatement psUpdateTrainer = null;
+        PreparedStatement psUpdateAvatar = null;
+        boolean success = false;
+
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+
+            // Update trainer information
+            String trainerSql = "UPDATE trainers SET full_name = ?, email = ?, phone = ?, bio = ?, experience_years = ?, rating = ?, price = ? WHERE trainer_id = ?";
+            psUpdateTrainer = conn.prepareStatement(trainerSql);
+            psUpdateTrainer.setString(1, trainer.getFullName());
+            psUpdateTrainer.setString(2, trainer.getEmail());
+            psUpdateTrainer.setString(3, trainer.getPhone());
+            psUpdateTrainer.setString(4, trainer.getBio());
+            psUpdateTrainer.setInt(5, trainer.getExperienceYears());
+            psUpdateTrainer.setFloat(6, trainer.getRating());
+            psUpdateTrainer.setDouble(7, trainer.getPrice());
+            psUpdateTrainer.setInt(8, trainer.getTrainerId());
+
+            int trainerRowsAffected = psUpdateTrainer.executeUpdate();
+
+            // Update avatar if provided
+            int avatarRowsAffected = 0;
+            if (avatarStream != null) {
+                String avatarSql = "UPDATE accounts SET avatar = ? WHERE account_id = ?";
+                psUpdateAvatar = conn.prepareStatement(avatarSql);
+                psUpdateAvatar.setBinaryStream(1, avatarStream);
+                psUpdateAvatar.setInt(2, trainer.getAccountId().getAccountId());
+                avatarRowsAffected = psUpdateAvatar.executeUpdate();
+            } else {
+                avatarRowsAffected = 1; // Consider it successful if no avatar update needed
+            }
+
+            // Commit if both operations were successful or if only trainer info was updated
+            if (trainerRowsAffected > 0 && avatarRowsAffected > 0) {
+                conn.commit();
+                success = true;
+            } else {
+                conn.rollback();
+            }
+        } catch (Exception e) {
+            try {
+                if (conn != null) {
+                    conn.rollback();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            try {
+                if (psUpdateTrainer != null) {
+                    psUpdateTrainer.close();
+                }
+                if (psUpdateAvatar != null) {
+                    psUpdateAvatar.close();
+                }
+                if (conn != null) {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                }
+            } catch (SQLException se) {
+                se.printStackTrace();
+            }
+        }
+        return success;
+    }
+
+    public boolean updateTrainerPassword(int trainerId, String newPassword) {
+        String sql = "UPDATE Trainers SET password = ? WHERE trainer_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setInt(2, trainerId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            System.out.println("Error updating trainer password: " + e.getMessage());
+            return false;
+        }
+    }
+
+    //===================NHAT KHANG========================
+    public boolean updateAccountPassword(int accountId, String newPassword) {
+        String sql = "UPDATE Accounts SET password = ? WHERE account_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newPassword);
+            ps.setInt(2, accountId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (Exception e) {
+            System.out.println("Error updating account password: " + e.getMessage());
+            return false;
+        }
+    }
+
+    // Kiểm tra email tồn tại, loại trừ trainerId hiện tại (cho edit)
+    public boolean isEmailExistsExceptTrainer(String email, int trainerId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM trainers WHERE email = ? AND trainer_id != ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setInt(2, trainerId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+// Tương tự cho phone
+    public boolean isPhoneExistsExceptTrainer(String phone, int trainerId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM trainers WHERE phone = ? AND trainer_id != ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, phone);
+            stmt.setInt(2, trainerId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+    // New method: Check if email exists in trainers
+    public boolean isEmailExists(String email) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM trainers WHERE email = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+    // New method: Check if phone exists in trainers
+    public boolean isPhoneExists(String phone) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM trainers WHERE phone = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, phone);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
     }
 }

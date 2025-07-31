@@ -24,7 +24,7 @@ import java.util.logging.Logger;
  * @author Khaang
  */
 public class HistoryOrderDao {
-    
+
     private DBcontext db;
 
     public HistoryOrderDao() {
@@ -51,6 +51,7 @@ public class HistoryOrderDao {
                 + "o.customer_phone_number, "
                 + "o.shipping_address, "
                 + "o.status, "
+                + "o.total_amount, "
                 + "pi.image_id "
                 + "FROM orders o "
                 + "JOIN order_items oi ON o.order_id = oi.order_id "
@@ -81,6 +82,7 @@ public class HistoryOrderDao {
                 double price = rs.getDouble("unit_price");
                 int quantity = rs.getInt("quantity");
                 orderItem.put("totalPrice", price * quantity);
+                orderItem.put("totalAmount", rs.getBigDecimal("total_amount"));
 
                 orderHistoryList.add(orderItem);
             }
@@ -135,13 +137,13 @@ public class HistoryOrderDao {
                 orderDetails.put("productId", rs.getInt("product_id"));
                 orderDetails.put("productName", rs.getString("product_name"));
                 orderDetails.put("quantity", rs.getInt("quantity"));
-                
+
                 // Store unit price and total price separately
                 double unitPrice = rs.getDouble("unit_price");
                 int quantity = rs.getInt("quantity");
                 orderDetails.put("unitPrice", unitPrice);
                 orderDetails.put("totalPrice", unitPrice * quantity);
-                
+
                 orderDetails.put("customerName", rs.getString("customer_name"));
                 orderDetails.put("customerPhone", rs.getString("customerPhone"));
                 orderDetails.put("shippingAddress", rs.getString("shipping_address"));
@@ -164,26 +166,25 @@ public class HistoryOrderDao {
      */
     public double getOrderTotalPrice(int orderId) {
         double totalPrice = 0.0;
-        
+
         // This query calculates the sum of (quantity * unit_price) for all items in the order
         String sql = "SELECT SUM(oi.quantity * oi.unit_price) as total_price "
                 + "FROM order_items oi "
                 + "WHERE oi.order_id = ?";
-        
-        try (Connection conn = db.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
-            
+
+        try ( Connection conn = db.getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+
             stmt.setInt(1, orderId);
             ResultSet rs = stmt.executeQuery();
-            
+
             if (rs.next()) {
                 totalPrice = rs.getDouble("total_price");
             }
-            
+
         } catch (SQLException ex) {
             Logger.getLogger(HistoryOrderDao.class.getName()).log(Level.SEVERE, "Error calculating order total price", ex);
         }
-        
+
         return totalPrice;
     }
 

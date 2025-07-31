@@ -29,127 +29,37 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Thanh toán</title>
+        <link rel="stylesheet" href="<%=request.getContextPath()%>/css/payment.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <% if (success != null) { %>
         <meta http-equiv="refresh" content="3;url=homepage">
         <% } %>
-        <style>
-            body {
-                font-family: Arial, sans-serif;
-                background: #f7f7f7;
-            }
-            .container {
-                display: flex;
-                max-width: 900px; /* Hoặc lớn hơn nếu muốn */
-                margin: 40px auto;
-                background: #fff;
-                border-radius: 18px;
-                box-shadow: 0 6px 32px rgba(0,0,0,0.07);
-            }
-            .left, .right {
-                flex: 1 1 0;
-                box-sizing: border-box;
-                padding: 36px 28px;
-                min-width: 0;         /* Fix flexbox bug khi nội dung lớn */
-            }
-            .left {
-                flex: 1;
-                border-right: 1px solid #eee;
-                background: #f2f8fd;
-            }
-            .right {
-                display: flex;
-                flex-direction: column;
-                justify-content: flex-start;
-                align-items: flex-start; /* căn trái toàn bộ */
-            }
-
-            .right form {
-                width: 100%;       /* full chiều ngang cột phải */
-                max-width: 100%;   /* không giới hạn max */
-                text-align: left;
-            }
-            .pay-btn {
-                padding: 14px 0;
-                width: 45%;
-                gap: 10px;
-                background: #3a7bfd;
-                color: #fff;
-                font-size: 18px;
-                font-weight: bold;
-                border: none;
-                border-radius: 8px;
-                cursor: pointer;
-                margin-top: 10px;
-            }
-            .pay-btn:hover {
-                background: #2563eb;
-            }
-            .method {
-                display: flex;
-                align-items: center;
-                margin-bottom: 18px;
-            }
-            .method input[type="radio"] {
-                width: 16px !important;   /* radio mặc định thường là 16px */
-                height: 16px !important;
-                min-width: 0 !important;
-                max-width: 24px !important;
-                margin: 4px 12px 4px 0;
-                vertical-align: middle;
-            }
-            .method label {
-                font-size: 16px;
-                color: #333;
-            }
-            .disabled {
-                color: #aaa;
-            }
-            h2 {
-                margin-top: 0;
-                color: #3a7bfd;
-            }
-            .success-box {
-                color: green;
-                padding: 18px;
-                margin-bottom: 18px;
-                border-radius: 10px;
-                background: #e6ffe6;
-                font-size: 1.1rem;
-                text-align: center;
-            }
-            .warning {
-                color: #c71c22;
-                background: #fff4f4;
-                padding: 22px 30px;
-                border-radius: 12px;
-                font-size: 1.15rem;
-                margin: 60px auto;
-                max-width: 480px;
-                text-align: center;
-            }
-        </style>
     </head>
     <body>
-
+        <div class="payment-page-wrapper">
         <% if (accountId != null && username != null) { %>
         <% if (success != null) {%>
         <div class="success-box"><%= success%></div>
-        <% }%>
-        <div class="container">
-            <!-- Thông tin gói -->
-            <div class="left">
-                <h2>Hello, <%= username%>!</h2>
-                <% if (pkg != null) {%>
-                <p><strong>Membership Package name:</strong> <%= pkg.getName()%></p>
-                <p><strong>Description:</strong> <%= pkg.getDescription()%></p>
-                <p><strong>Duration:</strong> <%= pkg.getDurationDays()%> ngày</p>
-                <p><strong>Price:</strong> <span style="color:#e63946"><%= pkg.getPrice()%> VNĐ</span></p>
                 <% } else { %>
-                <p>Can't find package.</p>
+                    <div class="payment-header">
+                        <h1 class="payment-title">Membership Payment</h1>
+                    </div>
+                    <div class="container">
+                        <!-- Package Information -->
+                        <div class="left">
+                            <h2>Hello, <%= username %>!</h2>
+                            <% if (pkg != null) {%>
+                                <div class="package-info">
+                                    <p><strong>Package name:</strong> <span><%= pkg.getName()%></span></p>
+                                    <p><strong>Description:</strong> <span><%= pkg.getDescription()%></span></p>
+                                    <p><strong>Duration:</strong> <span><%= pkg.getDurationDays()%> days</span></p>
+                                    <p><strong>Price:</strong> <span class="price"><%= String.format("%,.0f", pkg.getPrice())%> VND</span></p>
+                                </div>
+                            <% } else { %>
+                                <p>Package information not available.</p>
                 <% } %>
             </div>
-            <!-- Phương thức thanh toán -->
+                        <!-- Payment Methods -->
             <div class="right">
                 <h2>Payment method</h2>
                 <% if (success == null && pkg != null) {%>
@@ -159,13 +69,21 @@
                     <input type="hidden" name="renew" value="1">
                     <% } %>
 
-                    <div class="method">
-                        <input type="radio" name="paymentMethod" id="offline" value="offline" checked>
-                        <label for="offline">Pay in person (Direct payment)</label>
+                                <div class="payment-methods">
+                                    <div class="payment-option">
+                                        <input type="radio" id="offline" name="paymentMethod" value="offline" checked>
+                                        <label for="offline" class="payment-option-label">
+                                            <i class="fas fa-money-bill-wave payment-icon"></i>
+                                            <span class="payment-option-text">Pay in person (Direct payment)</span>
+                                        </label>
+                                    </div>
+                                    <div class="payment-option disabled">
+                                        <input type="radio" id="online" name="paymentMethod" value="online" disabled>
+                                        <label for="online" class="payment-option-label disabled">
+                                            <i class="fas fa-credit-card payment-icon"></i>
+                                            <span class="payment-option-text">Online payment (unsupported)</span>
+                                        </label>
                     </div>
-                    <div class="method">
-                        <input type="radio" name="paymentMethod" id="online" value="online" disabled>
-                        <label for="online" class="disabled">Online payment (unsupported)</label>
                     </div>
                     <%
                         // Lấy membership đang bị "cancelled" mà chưa hết hạn
@@ -178,43 +96,61 @@
                         }
                     %>
                     <% if (canChooseApplyTime) { %>
-                    <div class="method">
-                        <label><h2>When to apply new membership package</h2></label>
+                                <h2>When to apply new membership package</h2>
+                                <div class="payment-methods">
+                                    <div class="payment-option">
+                                        <input type="radio" id="applyNow" name="applyOption" value="applyNow" checked>
+                                        <label for="applyNow" class="payment-option-label">
+                                            <i class="fas fa-bolt payment-icon"></i>
+                                            <span class="payment-option-text">Apply immediately (current package will be replaced)</span>
+                                        </label>
                     </div>
-                    <div class="method">
-                        <input type="radio" name="applyOption" id="applyNow" value="applyNow" checked>
-                        <label for="applyNow">Apply immediately (the current package will be stopped and replaced)</label>
+                                    <div class="payment-option">
+                                        <input type="radio" id="applyLater" name="applyOption" value="applyLater">
+                                        <label for="applyLater" class="payment-option-label">
+                                            <i class="fas fa-calendar-alt payment-icon"></i>
+                                            <span class="payment-option-text">Apply after current package expires</span>
+                                        </label>
                     </div>
-                    <div class="method">
-                        <input type="radio" name="applyOption" id="applyLater" value="applyLater">
-                        <label for="applyLater">Apply after the current package expires (the new package will start after the old one ends)</label>
                     </div>
                     <% } %>
 
                     <div style="display: flex">
                     <button type="submit" class="pay-btn">Confirm</button>
-                    <a href="homepage" class="pay-btn" style="margin-left: 10%; background: #ccc; color: #111; text-align:center; text-decoration:none; display:flex; align-items:end; justify-content:center; width: 45%">
-                        Cancel
-                    </a>
+                                    <a href="homepage" class="cancel-btn">Cancel</a>
                     </div>
                     <% if (request.getAttribute("error") != null) {%>
-                    <div style="color:red"><%= request.getAttribute("error")%></div>
+                                <div class="warning"><%= request.getAttribute("error")%></div>
                     <% } %>
                 </form>
                 <% } %>
             </div>
         </div>
+                <% } %>
         <% } else { %>
-        <div class="warning">
-            You are not logged in! <a href="login.jsp">Login now</a>
+        <div class="login-required">
+            <div class="login-required__icon">
+                <i class="fas fa-lock"></i>
+            </div>
+            <div class="login-required__title">Login Required</div>
+            <div class="login-required__message">
+                You need to be logged in to book a membership package. Please login to your account or create a new one to continue.
+            </div>
+            <div class="login-required__buttons">
+                <a href="Login.jsp" class="login-btn">Login Now</a>
+                <a href="homepage" class="cancel-btn">Go to Homepage</a>
+            </div>
         </div>
-        <% }%>
-    </body>
+            <% } %>
+        </div>
+        
     <% if (request.getAttribute("success") != null) {%>
     <div class="success-box"><%= request.getAttribute("success")%></div>
     <meta http-equiv="refresh" content="2;url=homepage">
     <% } else if (request.getAttribute("error") != null) {%>
     <div class="warning"><%= request.getAttribute("error")%></div>
     <% }%>
-</html>
+
 <%@include file="/WEB-INF/include/footer.jsp" %>
+    </body>
+</html>

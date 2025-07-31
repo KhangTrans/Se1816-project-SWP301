@@ -454,4 +454,19 @@ public class VoucherDao extends DBcontext {
             ps.executeUpdate();
         }
     }
+
+    public BigDecimal getDiscountAmountByOrderId(int orderId) {
+        BigDecimal discountAmount = BigDecimal.ZERO;
+        String sql = "SELECT discount_amount FROM order_voucher WHERE order_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                discountAmount = rs.getBigDecimal("discount_amount");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return discountAmount;
+    }
 }

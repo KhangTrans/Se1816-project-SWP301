@@ -7,7 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <div class="modal" id="editStaffModal" style="display:none;">
-    <div class="modal-content">
+    <div class="modal-content" style="margin-top: 300px">
         <h2>Edit Staff</h2>
         <form method="post" action="<%= request.getContextPath()%>/admin/staffs"
               enctype="multipart/form-data"
@@ -44,8 +44,6 @@
                 <img id="currentAvatar" src="" alt="Avatar" style="width:60px; height:60px; border-radius: 50%;">
             </div>
 
-            <label>Upload New Avatar:</label>
-            <input type="file" name="avatar" id="editStaffAvatar" accept="image/*"><br><br>
             <input type="hidden" name="accountId" id="editStaffAccountId" readonly>
 
             <button type="submit">Save</button>

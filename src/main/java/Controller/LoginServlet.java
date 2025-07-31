@@ -63,7 +63,7 @@ public class LoginServlet extends HttpServlet {
                     System.out.println("DEBUG >> Login log inserted for accountId: " + id);
 
                     // Bổ sung: Lấy customerId từ DAO và lưu vào session
-                    // ✅ Lấy customerId và lưu vào session
+                    // Lấy customerId và lưu vào session
                     Customer customer = dao.getCustomerByAccountId(id);
                     if (customer != null) {
                         session.setAttribute("customerId", customer.getCustomerId());

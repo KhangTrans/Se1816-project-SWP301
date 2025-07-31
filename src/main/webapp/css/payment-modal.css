@@ -1,0 +1,243 @@
+/* Payment Modal CSS */
+.modal-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 1000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-top: 80px; /* Add padding to shift modal content down */
+}
+
+.payment-modal {
+    background-color: #1a1a1a;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh; /* Limit height to avoid overflow */
+    overflow-y: auto; /* Add scrolling if needed */
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(217, 255, 104, 0.1);
+    margin-top: -40px; /* Offset from center to position better */
+}
+
+.modal-header {
+    padding: 20px 25px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid rgba(217, 255, 104, 0.1);
+    position: sticky;
+    top: 0;
+    background-color: #1a1a1a;
+    z-index: 10;
+}
+
+.modal-header h2 {
+    color: #d9ff68;
+    font-size: 24px;
+    margin: 0;
+}
+
+.modal-body {
+    padding: 25px;
+}
+
+.payment-info {
+    margin-bottom: 25px;
+    background: rgba(26, 42, 58, 0.4);
+    border-radius: 10px;
+    padding: 20px;
+    border: 1px solid rgba(217, 255, 104, 0.1);
+}
+
+.payment-info #customerName {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+.payment-info #packageName {
+    font-size: 16px;
+    color: #d9ff68;
+    margin-bottom: 10px;
+    word-break: break-word;
+}
+
+.payment-info .amount {
+    color: #d9ff68;
+    font-size: 24px;
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.payment-method-section h3 {
+    color: #d9ff68;
+    margin-top: 10px;
+    margin-bottom: 15px;
+    font-size: 18px;
+}
+
+.payment-method-options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.payment-option {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background: rgba(30, 30, 30, 0.6);
+    border-radius: 10px;
+    border: 1px solid rgba(217, 255, 104, 0.2);
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+.payment-option:hover {
+    background: rgba(40, 40, 40, 0.6);
+    border-color: rgba(217, 255, 104, 0.4);
+}
+
+.payment-option.selected {
+    background: rgba(40, 40, 40, 0.8);
+    border-color: #d9ff68;
+}
+
+.payment-option input[type="radio"] {
+    margin-right: 15px;
+    accent-color: #d9ff68;
+    width: 18px;
+    height: 18px;
+    min-width: 18px;
+}
+
+.payment-option-label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-weight: 500;
+    font-size: 16px;
+    flex: 1;
+}
+
+.payment-icon {
+    color: #d9ff68;
+    font-size: 20px;
+    min-width: 20px;
+}
+
+.payment-option-text {
+    flex: 1;
+    line-height: 1.4;
+    word-break: break-word;
+}
+
+.payment-option.disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    color: #888;
+}
+
+.modal-footer {
+    display: flex;
+    justify-content: space-between;
+    padding: 20px 25px;
+    border-top: 1px solid rgba(217, 255, 104, 0.1);
+    position: sticky;
+    bottom: 0;
+    background-color: #1a1a1a;
+    z-index: 10;
+}
+
+.btn-confirm {
+    background: linear-gradient(135deg, #d9ff68 0%, #a9db00 100%);
+    color: #111;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 120px;
+    font-size: 16px;
+}
+
+.btn-confirm:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(217, 255, 104, 0.3);
+}
+
+.btn-cancel {
+    background: #ccc;
+    color: #111;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s;
+    min-width: 120px;
+    font-size: 16px;
+}
+
+.btn-cancel:hover {
+    background: #aaa;
+}
+
+/* Responsive adjustments */
+@media screen and (max-height: 700px) {
+    .modal-container {
+        padding-top: 60px;
+        align-items: flex-start;
+    }
+    
+    .payment-modal {
+        margin-top: 0;
+        max-height: 85vh;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .payment-modal {
+        width: 95%;
+    }
+    
+    .modal-header, .modal-body, .modal-footer {
+        padding: 15px;
+    }
+    
+    .payment-info {
+        padding: 15px;
+    }
+    
+    .payment-option {
+        padding: 12px;
+    }
+    
+    .btn-confirm, .btn-cancel {
+        padding: 10px 20px;
+        min-width: 100px;
+    }
+    
+    .payment-option-label {
+        font-size: 14px;
+        gap: 8px;
+    }
+}
+
+/* For very small screens or high zoom levels */
+@media screen and (max-width: 400px) {
+    .payment-option-label {
+        flex-wrap: wrap;
+    }
+    
+    .payment-icon {
+        margin-bottom: 5px;
+    }
+} 

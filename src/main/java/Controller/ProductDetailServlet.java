@@ -79,7 +79,6 @@ public class ProductDetailServlet extends HttpServlet {
         // Kiểm tra xem người dùng có đăng nhập không (kiểm tra session)
         Integer accountId = (Integer) request.getSession().getAttribute("accountId");
         boolean isLoggedIn = accountId != null;
-
         List<Voucher> claimedVouchers = null;
         if (accountId != null) {
             try {
@@ -89,7 +88,6 @@ public class ProductDetailServlet extends HttpServlet {
             }
         }
         request.setAttribute("claimedVouchers", claimedVouchers);
-
         // Kiểm tra xem người dùng đã mua sản phẩm hay chưa
         boolean hasPurchased = false;
         if (isLoggedIn) {

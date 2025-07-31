@@ -378,7 +378,6 @@ public class UserDao extends DBcontext {
     //
     //     Xu Ly Phan Loc
     ////////////////////////////////////////////////////
-
     public List<Account> getFilteredAccounts(String search, String role, String fromDate, String toDate) throws SQLException {
         List<Account> list = new ArrayList<>();
 
@@ -480,5 +479,26 @@ public class UserDao extends DBcontext {
         }
         return null;
     }
+    // ===============================NHAT KHANG===============================
 
+    public Account loginTrainer(String username, String password) throws SQLException {
+        String sql = "SELECT * FROM accounts WHERE username = ? AND password = ? AND role = 'trainer'";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, username);
+            stmt.setString(2, hashMD5(password));
+            System.out.println(password);
+            try ( ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    Account acc = new Account();
+                    acc.setAccountId(rs.getInt("account_id"));
+                    acc.setUsername(rs.getString("username"));
+                    acc.setPassword(rs.getString("password"));
+                    acc.setRole(rs.getString("role"));
+                    acc.setCreatedAt(rs.getTimestamp("created_at"));
+                    return acc;
+                }
+            }
+        }
+        return null;
+    }
 }

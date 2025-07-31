@@ -176,43 +176,47 @@ html {
 
 /* Stat cards */
 .stat-card {
-    position: absolute;
-    background-color: rgba(50, 50, 40, 0.8);
-    border-radius: 15px;
-    padding: 15px;
+    background-color: rgba(17, 17, 17, 0.7);
+    border: 1px solid #d9ff68;
+    border-radius: 50%;
+    width: 80px;
+    height: 80px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    width: 100px;
+    justify-content: center;
+    position: absolute;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card:hover {
+    transform: scale(1.1);
+    box-shadow: 0 0 15px rgba(217, 255, 104, 0.5);
 }
 
 .stat-card__icon {
-    background-color: rgba(196, 255, 0, 0.2);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-bottom: 8px;
+    color: #d9ff68;
+    font-size: 22px;
+    margin-bottom: 3px;
 }
 
-.stat-card__icon-img {
-    width: 24px;
-    height: 24px;
-    filter: invert(88%) sepia(42%) saturate(1000%) hue-rotate(40deg) brightness(104%) contrast(101%);
+.stat-card__icon i {
+    text-shadow: 0 0 10px rgba(217, 255, 104, 0.5);
 }
 
 .stat-card__label {
-    font-size: 14px;
-    color: #888;
-    margin-bottom: 5px;
+    color: #fff;
+    font-size: 12px;
+    margin: 2px 0;
+    font-weight: 600;
+    text-transform: uppercase;
 }
 
 .stat-card__value {
-    font-size: 28px;
+    color: #d9ff68;
+    font-size: 20px;
     font-weight: bold;
-    color: #c4ff00;
 }
 
 .stat-card--hours {
@@ -381,9 +385,10 @@ html {
 
 
 .content__text--bottom {
-    font-size: 40px;
+    font-size: 60px;
+    padding: 10px;
+    padding-top: 90px;
     font-weight: bold;
-    padding: 60px;
     background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
     text-align: center;
     -webkit-background-clip: text;
@@ -926,3 +931,68 @@ html {
 }
 
 /* ===End New===*/
+
+/* Nút "View details" trong membership card */
+.view-details-btn {
+    display: inline-block;
+    background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+    color: #111;
+    padding: 10px 25px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: 600;
+    margin-top: 15px;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.view-details-btn:hover {
+    transform: translateY(-3px);
+    color: #111;
+    background: linear-gradient(135deg, #d9ff68 0%, #c4ff00 100%);
+}
+
+/* Nút "Book ngay" trong trang chi tiết */
+.book-now-btn {
+    display: inline-block;
+    width: 100%;
+    background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+    color: #111;
+    padding: 12px 25px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: 600;
+    margin: 15px 0;
+    text-align: center;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+}
+
+.book-now-btn:hover {
+    transform: translateY(-3px);
+    background: linear-gradient(135deg, #d9ff68 0%, #c4ff00 100%);
+}
+
+/* Link trở về trang chủ */
+.back-link {
+    display: inline-block;
+    color: #d9ff68;
+    text-decoration: none;
+    margin-top: 10px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    color: #c4ff00;
+    transform: translateX(-5px);
+}

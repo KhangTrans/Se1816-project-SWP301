@@ -11,6 +11,9 @@ public class CartItem {
     private LocalDateTime addedAt;
     private Products product;
 
+    public CartItem() {
+    }
+
     public CartItem(int cartItemId, int accountId, int productId, int quantity, Products product, LocalDateTime addedAt) {
         this.cartItemId = cartItemId;
         this.accountId = accountId;
@@ -26,17 +29,6 @@ public class CartItem {
 
     public void setProduct(Products product) {
         this.product = product;
-    }
-
-    public CartItem() {
-    }
-
-    public CartItem(int cartItemId, int accountId, int productId, int quantity, LocalDateTime addedAt) {
-        this.cartItemId = cartItemId;
-        this.accountId = accountId;
-        this.productId = productId;
-        this.quantity = quantity;
-        this.addedAt = addedAt;
     }
 
     public int getCartItemId() {

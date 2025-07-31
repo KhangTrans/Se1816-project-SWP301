@@ -18,6 +18,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -39,25 +40,18 @@ public class OrderConfirmServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-         HttpSession session = request.getSession();
-        Integer orderId = (Integer) session.getAttribute("orderId");
+        String orderIdParam = request.getParameter("orderId");
+        Integer orderId = null;
 
-        // Kiểm tra xem orderId có tồn tại trong URL không
-        if (orderId == null) {
-            // Nếu không có orderId trong session, lấy từ URL
-            String orderIdParam = request.getParameter("orderId");
-            if (orderIdParam != null && !orderIdParam.isEmpty()) {
-                try {
-                    orderId = Integer.parseInt(orderIdParam);
-                    session.setAttribute("orderId", orderId);  // Lưu orderId vào session
-                } catch (NumberFormatException e) {
-                    response.sendRedirect("cart.jsp?error=invalidOrderId");
-                    return;
-                }
+        if (orderIdParam != null && !orderIdParam.isEmpty()) {
+            try {
+                orderId = Integer.parseInt(orderIdParam);
+            } catch (NumberFormatException e) {
+                response.sendRedirect("cart.jsp?error=invalidOrderId");
+                return;
             }
         }
 
-        // Nếu không có orderId sau khi lấy từ session hoặc URL, chuyển hướng về giỏ hàng
         if (orderId == null) {
             response.sendRedirect("cart.jsp?error=noOrderId");
             return;
@@ -79,10 +73,12 @@ public class OrderConfirmServlet extends HttpServlet {
         // Lấy voucher đã áp dụng
         VoucherDao voucherDao = new VoucherDao();
         Voucher appliedVoucher = voucherDao.getVoucherByReferralCode(order.getReferralCode());
+        BigDecimal discountAmount = voucherDao.getDiscountAmountByOrderId(orderId);
 
         // Thiết lập thông tin vào request để truyền cho JSP
         request.setAttribute("order", order);
         request.setAttribute("voucher", appliedVoucher);
+        request.setAttribute("discountAmount", discountAmount); 
 
         // Forward yêu cầu đến trang xác nhận đơn hàng
         RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/customers/orderConfirmation.jsp");

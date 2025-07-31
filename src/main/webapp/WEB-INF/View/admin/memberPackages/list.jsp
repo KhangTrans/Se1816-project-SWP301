@@ -7,7 +7,7 @@
             <input type="text" id="username"
                    name="username" placeholder="Enter username..."
                    oninput="loadMemberPackage()"
-                    style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+                   style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
 
             <label for="packageName"></label>
             <select  style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;" id="packageName" name="packageName" onchange="loadMemberPackage()">
@@ -29,15 +29,18 @@
         <div id="successMessage" style="display: none; color: green; font-weight: bold;">
             Status updated successfully!
         </div>
+        <div id="errorMessage" style="display: none; color: red; font-weight: bold; margin-bottom: 10px;">
+            L?i: Không th? c?p nh?t tr?ng thái!
+        </div>
         <table class="data-table" id="trainerPackageTable">
             <thead>
                 <tr>
-                    <th style="width: 50px">No.</th>
-                    <th>Username</th>
-                    <th>Package Name</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Status</th>
+                    <th style="width: 20px">No.</th>
+                    <th style="width: 50px">Username</th>
+                    <th style="width: 50px">Package Name</th>
+                    <th style="width: 50px">Start Date</th>
+                    <th style="width: 50px">End Date</th>
+                    <th style="width: 50px">Status</th>
                 </tr>
             </thead>
 
@@ -47,3 +50,4 @@
         </table>
     </div>
 </div>
+

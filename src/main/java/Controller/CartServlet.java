@@ -3,17 +3,14 @@ package Controller;
 import DAO.CartDao;
 import DAO.ProductDao;
 import DAO.CustomerDao;
-import DAO.VoucherDao;
 import Model.CartItem;
 import Model.Customer;
 import Model.Products;
-import Model.Voucher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -71,48 +68,6 @@ public class CartServlet extends HttpServlet {
             addToCart(request, response);
         } else if ("clearCart".equals(action)) {
             clearCart(request, response);
-        } else if ("applyVoucher".equals(action)) {
-            applyVoucher(request, response);
-        }
-    }
-
-    private void applyVoucher(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        int customerId = getCustomerIdFromSession(request);
-        int voucherId = Integer.parseInt(request.getParameter("voucherId"));
-
-        try {
-            CartDao cartDao = new CartDao();
-            List<CartItem> cartItems = cartDao.getCartItems(customerId);
-            VoucherDao voucherDao = new VoucherDao();
-            Voucher voucher = voucherDao.getVoucherById(voucherId);
-
-            // Tính toán tổng giá trị giỏ hàng
-            BigDecimal totalAmount = BigDecimal.ZERO;
-            for (CartItem item : cartItems) {
-                Products product = new ProductDao().getProductById(item.getProductId());
-                totalAmount = totalAmount.add(BigDecimal.valueOf(product.getPrice()).multiply(BigDecimal.valueOf(item.getQuantity())));
-            }
-
-            // Áp dụng voucher vào subtotal
-            BigDecimal discountAmount = totalAmount.multiply(BigDecimal.valueOf(voucher.getDiscountPercent()))
-                    .divide(BigDecimal.valueOf(100));
-            if (discountAmount.compareTo(voucher.getMaxDiscount()) > 0) {
-                discountAmount = voucher.getMaxDiscount();
-            }
-
-            BigDecimal finalAmount = totalAmount.subtract(discountAmount);
-
-            // Cập nhật giá trị giỏ hàng và tổng số tiền sau khi áp dụng voucher
-            request.getSession().setAttribute("totalAmount", finalAmount);
-            request.getSession().setAttribute("discountAmount", discountAmount);
-
-            // Chuyển hướng về trang giỏ hàng
-            response.sendRedirect("CartServlet?action=view");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            response.sendRedirect("error.jsp");
         }
     }
 
@@ -126,7 +81,7 @@ public class CartServlet extends HttpServlet {
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 // Trả về JSON báo lỗi yêu cầu đăng nhập
-                response.getWriter().write("{\"status\":\"error\", \"message\":\"Bạn cần đăng nhập để thêm sản phẩm vào giỏ hàng!\"}");
+                response.getWriter().write("{\"status\":\"error\", \"message\":\"You need to login to add products to cart!\"}");
             } else {
                 // Chuyển tới trang đăng nhập nếu chưa đăng nhập
                 response.sendRedirect("Login.jsp");
@@ -150,6 +105,7 @@ public class CartServlet extends HttpServlet {
             }
 
             // Cập nhật số lượng sản phẩm trong giỏ hàng vào session
+            session.setAttribute("cart", cartItems);  // Lưu giỏ hàng vào session
             session.setAttribute("cartCount", totalItems);
 
             if (isAjax(request)) {
@@ -176,17 +132,9 @@ public class CartServlet extends HttpServlet {
         int customerId = getCustomerIdFromSession(request);
 
         if (customerId == -1) {
-            // Người dùng chưa đăng nhập, thông báo lỗi và không chuyển trang
-            if (isAjax(request)) {
-                // Trả về thông báo lỗi trong dạng JSON
-                response.setContentType("application/json");
-                response.setCharacterEncoding("UTF-8");
-                response.getWriter().write("{\"status\":\"error\", \"message\":\"Bạn cần đăng nhập để sử dụng giỏ hàng.\"}");
-            } else {
-                // Hiển thị thông báo lỗi cho người dùng nhưng vẫn ở lại trang shopAll
-                response.setContentType("text/html;charset=UTF-8");
-                response.getWriter().write("<script>alert('Bạn cần đăng nhập để sử dụng giỏ hàng!'); window.location.href = '/SE1816_Gym_Group_4/shopAll';</script>");
-            }
+            // Đưa lỗi vào session rồi redirect về shopAll
+            request.getSession().setAttribute("errorMessage", "You need to login to use the shopping cart.");
+            response.sendRedirect(request.getContextPath() + "/shopAll");
             return;
         }
 
@@ -195,9 +143,6 @@ public class CartServlet extends HttpServlet {
             CartDao dao = new CartDao();
             List<CartItem> cartItems = dao.getCartItems(customerId);
 
-            // Lấy thông tin vouchers mà khách hàng đã thu thập
-            VoucherDao voucherDao = new VoucherDao();
-            List<Voucher> vouchers = voucherDao.getVouchersByAccountId(customerId);
             // Tính tổng số sản phẩm trong giỏ hàng
             int totalItems = 0;
             for (CartItem item : cartItems) {
@@ -208,7 +153,6 @@ public class CartServlet extends HttpServlet {
             // Gửi danh sách giỏ hàng về JSP
             HttpSession session = request.getSession();
             session.setAttribute("cart", cartItems);
-            session.setAttribute("vouchers", vouchers);
             request.getRequestDispatcher("/WEB-INF/View/customers/cart.jsp").forward(request, response);
 
         } catch (SQLException e) {

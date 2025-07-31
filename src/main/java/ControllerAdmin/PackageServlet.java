@@ -26,6 +26,7 @@ public class PackageServlet extends HttpServlet {
 
         // Lấy tham số id từ request
         String idParam = request.getParameter("id");
+        String nameParam = request.getParameter("name"); // <-- nhận tham số tên để search
 
         PackageDao dao = new PackageDao();
         PrintWriter out = response.getWriter();
@@ -41,6 +42,10 @@ public class PackageServlet extends HttpServlet {
                 } else {  // Nếu không tìm thấy package, trả về lỗi 404
                     response.sendError(HttpServletResponse.SC_NOT_FOUND, "Package not found");
                 }
+            } else if (nameParam != null && !nameParam.trim().isEmpty()) {  // search by name
+                List<Package> packages = dao.searchPackagesByName(nameParam.trim());
+                String json = gson.toJson(packages);
+                out.print(json);
             } else {  // Nếu không có id thì trả về tất cả các package
                 List<Package> packages = dao.getAllPackages();
                 String json = gson.toJson(packages);

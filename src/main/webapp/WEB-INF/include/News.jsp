@@ -7,7 +7,7 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
 <!-- ===News===-->
-<div class="content">
+<div class="content" id="about-gym">
     <p class="content__text--bottom "> NEWS</p>
 </div>
 
@@ -16,11 +16,11 @@
         <img class="banner__image--main" src="<%= request.getContextPath()%>/img/alora-griffiths-LOnMc8Rp1Qs-unsplash.jpg" alt="Gym Vietnam Image 1">
     </div>
     <div class="banner__content">
-        <h1 class="banner__title">CHÀO MỪNG BẠN ĐẾN VỚI GYM VIETNAM</h1>
+        <h1 class="banner__title">WELCOME TO GYM VIETNAM</h1>
         <p class="banner__description">
-            Chúng tôi tạo ra một môi trường nơi mà mọi người đều có thể cảm thấy thoải mái tập luyện một mình hoặc
-            cùng bạn bè của mình, bất kể trình độ thể chất và hiểu biết về gym như thế nào mà không bao giờ lo lắng
-            về việc bị đánh giá.
+            We create an environment where everyone can feel comfortable training alone or with their friends,
+            regardless of their physical fitness level and understanding of the gym,
+            without ever worrying about being judged.
         </p>
     </div>
 </section>
@@ -32,11 +32,11 @@
         <img class="banner__image--main" src="<%= request.getContextPath()%>/img/anastase-maragos-7kEpUPB8vNk-unsplash.jpg" alt="Gym Vietnam Image 2">
     </div>
     <div class="banner__content">
-        <h1 class="banner__title">HƯỚNG DẪN TẬP LUYỆN MIỄN PHÍ</h1>
+        <h1 class="banner__title">FREE EXERCISE GUIDE</h1>
         <p class="banner__description">
-            The Gym VietNam khuyến khích bạn nên tham gia các lớp học hướng dẫn cơ bản để dễ dàng hơn trong việc sử
-            dụng các thiết bị tập luyện, khu vực chức năng và tận hưởng tất cả tiện ích của The New Gym. Đội ngũ The
-            New Gym thân thiện và chuyên nghiệp luôn sẵn sàng giúp đỡ các bạn.
+            The Gym VietNam encourages you to participate in the basic training classes to make it easier to use the training equipment,
+            functional areas, and enjoy all the amenities of The Gym VietNam.
+            The friendly and professional team at The Gym VietNam is always ready to assist you.
         </p>
     </div>
 </section>
@@ -48,11 +48,11 @@
         <img class="banner__image--main" src="<%= request.getContextPath()%>/img/jonathan-borba-R0y_bEUjiOM-unsplash.jpg" alt="Gym Vietnam Image 3">
     </div>
     <div class="banner__content">
-        <h1 class="banner__title">THIẾT BỊ HIỆN ĐẠI & CHẤT LƯỢNG</h1>
+        <h1 class="banner__title">MODERN EQUIPMENT & QUALITY</h1>
         <p class="banner__description">
-            Gym Vietnam đầu tư vào những thiết bị tập luyện hiện đại nhất và chất lượng cao nhất để đảm bảo trải
-            nghiệm tập luyện tốt nhất cho các thành viên. Từ máy cardio đến thiết bị tập tạ, tất cả đều được bảo trì
-            thường xuyên và cập nhật công nghệ mới nhất.
+            Gym Vietnam invests in the most modern and highest quality workout equipment to ensure the best training experience for its members.
+            From cardio machines to weight training equipment,
+            everything is regularly maintained and updated with the latest technology.
         </p>
     </div>
 </section>

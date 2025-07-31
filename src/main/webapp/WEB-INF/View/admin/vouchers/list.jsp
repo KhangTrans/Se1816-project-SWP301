@@ -11,8 +11,7 @@
 <%@include file="/WEB-INF/View/admin/vouchers/create.jsp" %>
 <%@include file="/WEB-INF/View/admin/vouchers/edit.jsp" %>
 <%@include file="/WEB-INF/View/admin/vouchers/delete.jsp" %>
-
-
+<%@include file="/WEB-INF/View/admin/vouchers/viewDetail.jsp" %>
 
 <div class="table-container" id="vouchersTable">
     <div class="table-container__header">
@@ -44,21 +43,15 @@
             <thead>
                 <tr>
                     <th style="width: 50px">No</th>
-                    <th>Code</th>
-                    <th style="width: 100px">Description</th>
-                    <th  style="width: 100px">Discount(%)</th>
-                    <th>Max Discount</th>
-                    <th>Usage Limit</th>
-                    <th>Used Count</th>
-                    <th>Min Order Amount</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Active</th>
+                    <th style="width: 100px">Code</th>
+                    <th style="width: 200px">Description</th>
+                    <th style="width: 100px">Discount(%)</th>
+                    <th style="width: 100px">Active</th>
                     <th style="width: 150px">Action</th>
                 </tr>
             </thead>
             <tbody id="voucherTableBody">
-
+                <!-- Table content will be loaded dynamically via JavaScript -->
             </tbody>
         </table>
     </div>

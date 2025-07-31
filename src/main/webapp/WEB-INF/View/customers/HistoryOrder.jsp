@@ -59,7 +59,11 @@
                             <span class="product-info__status <%= statusClass%>"><%= status != null ? status.toUpperCase() : ""%></span>
                         </div>
                         <div class="product-info__price">
-                            <%= order.containsKey("formattedPrice") ? order.get("formattedPrice") : "$0.00" %>
+                            <%
+                                java.math.BigDecimal totalAmount = (java.math.BigDecimal) order.get("totalAmount");
+                                String priceStr = totalAmount != null ? String.format("%,.0f₫", totalAmount) : "0₫";
+                            %>
+                            <%= priceStr%>
                         </div>
                     </div>
                 </section>
@@ -74,23 +78,23 @@
 
                 <section class="button-info">
                     <% if ("cancelled".equalsIgnoreCase((String) order.get("status")) || "shipped".equalsIgnoreCase((String) order.get("status"))) { %>
-                        <button class="action-button edit-button disabled" disabled>
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
-                    <% } else { %>
-                        <button class="action-button edit-button" onclick="openEditModal(<%= order.get("orderId") %>)">
-                            <i class="fas fa-edit"></i> Edit
-                        </button>
+                    <button class="action-button edit-button disabled" disabled>
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <% } else {%>
+                    <button class="action-button edit-button" onclick="openEditModal(<%= order.get("orderId")%>)">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
                     <% } %>
-                    
+
                     <% if ("cancelled".equalsIgnoreCase((String) order.get("status")) || "shipped".equalsIgnoreCase((String) order.get("status"))) { %>
-                        <button class="action-button delete-button disabled" disabled>
-                            <i class="fas fa-cancel"></i> Cancel
-                        </button>
-                    <% } else { %>
-                        <button class="action-button delete-button" onclick="deleteOrder(<%= order.get("orderId")%>)">
-                            <i class="fas fa-cancel"></i> Cancel
-                        </button>
+                    <button class="action-button delete-button disabled" disabled>
+                        <i class="fas fa-cancel"></i> Cancel
+                    </button>
+                    <% } else {%>
+                    <button class="action-button delete-button" onclick="deleteOrder(<%= order.get("orderId")%>)">
+                        <i class="fas fa-cancel"></i> Cancel
+                    </button>
                     <% } %>
                 </section>
             </div>

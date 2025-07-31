@@ -9,8 +9,9 @@
 
 <!-- Danh sách các gói tập -->
 <div class="content">
-    <p class="content__text--bottom" style="font-size: 40px">
+    <p class="content__text--bottom">
         All Membership Packages
+    </p>
 </div>
 
 <div class="membership-cards-container container">
@@ -29,7 +30,7 @@
         <div class="membership-card__duration"><%= pkg.getName() %></div> <!-- Tên gói -->
 
         <!-- Hiển thị giá gói -->
-        <div class="membership-card__price"><%= formattedPrice %><sup>₫</sup> <span class="membership-card__price-unit">/ Month</span></div>
+        <div class="membership-card__price"><%= formattedPrice %> <span class="membership-card__price-unit">VND / Month</span></div>
 
         <!-- Hiển thị mô tả gói -->
         <div class="membership-card__description">
@@ -37,7 +38,7 @@
         </div>
 
         <!-- Liên kết đến trang chi tiết gói -->
-        <a href="package-details?id=<%= pkg.getId() %>">Xem chi tiết ></a>
+        <a href="package-details?id=<%= pkg.getId() %>" class="view-details-btn">View details</a>
     </div>
     <%
             }

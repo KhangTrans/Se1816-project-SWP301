@@ -9,6 +9,9 @@
     <div class="table-container__header">
         <h2 class="table-container__title">Packages List</h2>
         <p class="table-container__description">Manage Gym Packages</p>
+        <input type="text" id="packageSearchInput"
+               placeholder="Search by Package Name..."
+               style="padding: 8px 30px 8px 10px; border: 1px solid #ccc; border-radius: 5px; margin-left: 75%">
     </div>
     <div class="table-container__content" style="overflow-x: auto;">
         <button class="add-button" onclick="openModal('addPackageModal')">+ Add Package</button>

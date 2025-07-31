@@ -108,6 +108,12 @@ public class StaffServlet extends HttpServlet {
                     String phone = request.getParameter("phone");
                     String position = request.getParameter("position");
 
+                    if (staffdao.isEmailOrPhoneTaken(email, phone, null)) {
+                        response.setStatus(400); // Bad Request
+                        response.getWriter().write("Email or phone number already existed!");
+                        return;
+                    }
+
                     Account account = staffdao.getStaffAccountById(accountId);
                     if (account != null) {
                         Staff staff = new Staff();
@@ -121,7 +127,8 @@ public class StaffServlet extends HttpServlet {
                         staffdao.addStaff(staff);
                     }
 
-                    response.sendRedirect("staffs");
+                    response.setContentType("text/plain;charset=UTF-8");
+                    response.getWriter().write("added");
                     break;
                 }
 
@@ -143,6 +150,12 @@ public class StaffServlet extends HttpServlet {
                     InputStream avatarStream = null;
                     if (avatarPart != null && avatarPart.getSize() > 0) {
                         avatarStream = avatarPart.getInputStream();
+                    }
+
+                    if (staffdao.isEmailOrPhoneTaken(email, phone, null)) {
+                        response.setStatus(400); // Bad Request
+                        response.getWriter().write("Email or phone number already existed!");
+                        return;
                     }
 
                     // Truyền thêm email xuống hàm update

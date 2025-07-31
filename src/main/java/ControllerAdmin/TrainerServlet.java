@@ -83,7 +83,6 @@ public class TrainerServlet extends HttpServlet {
                 response.setCharacterEncoding("UTF-8");
                 Gson gson = new Gson();
                 response.getWriter().write(gson.toJson(trainer));
-                return;
 
             } else {
                 // Trả về trang JSP bình thường
@@ -123,13 +122,40 @@ public class TrainerServlet extends HttpServlet {
         if ("create".equalsIgnoreCase(formAction)) {
             try {
                 int accountId = Integer.parseInt(request.getParameter("accountId"));
-                String fullname = request.getParameter("fullname");
-                String email = request.getParameter("email");
-                String phone = request.getParameter("phone_number");
+                String fullname = request.getParameter("fullname").trim();
+                String email = request.getParameter("email").trim();
+                String phone = request.getParameter("phone_number").trim();
                 String bio = request.getParameter("bio");
                 int experience = Integer.parseInt(request.getParameter("experience_years"));
                 double price = Double.parseDouble(request.getParameter("price"));
                 System.out.println("📌 Creating Trainer for account ID = " + accountId);
+
+                // Server-side validation
+                if (!fullname.matches("^[a-zA-ZÀ-ỹ\\s]+$")) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Họ tên không được chứa số hoặc ký tự đặc biệt.\"}");
+                    return;
+                }
+
+                if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email không hợp lệ.\"}");
+                    return;
+                }
+
+                if (!phone.matches("^(0|\\+84)[1-9]\\d{8,9}$")) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Số điện thoại phải là định dạng Việt Nam.\"}");
+                    return;
+                }
+
+                // Kiểm tra tồn tại
+                if (trainerDao.isEmailExists(email)) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email đã được sử dụng.\"}");
+                    return;
+                }
+
+                if (trainerDao.isPhoneExists(phone)) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Số điện thoại đã được sử dụng.\"}");
+                    return;
+                }
 
                 // Lấy account từ DB để đảm bảo tồn tại và đúng role
                 Account account = trainerDao.getTrainerAccountById(accountId);
@@ -177,13 +203,40 @@ public class TrainerServlet extends HttpServlet {
         } else if ("edit".equalsIgnoreCase(formAction)) {
             try {
                 int trainerId = Integer.parseInt(request.getParameter("trainerId"));
-                String fullname = request.getParameter("fullname");
-                String email = request.getParameter("email");
-                String phone = request.getParameter("phone_number");
+                String fullname = request.getParameter("fullname").trim();
+                String email = request.getParameter("email").trim();
+                String phone = request.getParameter("phone_number").trim();
                 String bio = request.getParameter("bio");
                 int experience = Integer.parseInt(request.getParameter("experience_years"));
                 double price = Double.parseDouble(request.getParameter("price"));
                 float rating = Float.parseFloat(request.getParameter("rating"));
+
+                // Server-side validation tương tự create
+                if (!fullname.matches("^[a-zA-ZÀ-ỹ\\s]+$")) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Họ tên không được chứa số hoặc ký tự đặc biệt.\"}");
+                    return;
+                }
+
+                if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email không hợp lệ.\"}");
+                    return;
+                }
+
+                if (!phone.matches("^(0|\\+84)[1-9]\\d{8,9}$")) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Số điện thoại phải là định dạng Việt Nam.\"}");
+                    return;
+                }
+
+                // Kiểm tra tồn tại, loại trừ trainer hiện tại
+                if (trainerDao.isEmailExistsExceptTrainer(email, trainerId)) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email đã được sử dụng bởi trainer khác.\"}");
+                    return;
+                }
+
+                if (trainerDao.isPhoneExistsExceptTrainer(phone, trainerId)) {
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Số điện thoại đã được sử dụng bởi trainer khác.\"}");
+                    return;
+                }
 
                 Trainers trainer = trainerDao.getTrainerById(trainerId);
                 if (trainer == null) {

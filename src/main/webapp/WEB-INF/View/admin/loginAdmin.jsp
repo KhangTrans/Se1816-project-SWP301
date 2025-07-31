@@ -627,7 +627,7 @@
         <!-- Main Content -->
         <main class="main">
             <div class="login">
-                <h2 class="login__title">LOGIN</h2>
+                <h2 class="login__title">LOGIN TO DASHBOARD</h2>
 
                 <form class="login__form" id="adminLoginForm" action="${pageContext.request.contextPath}/loginAdmin">
                     <div class="form-group">

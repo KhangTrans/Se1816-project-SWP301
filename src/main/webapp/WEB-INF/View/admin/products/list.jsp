@@ -15,6 +15,7 @@
 <%@include file="/WEB-INF/View/admin/products/create.jsp" %>
 <%@include file="/WEB-INF/View/admin/products/edit.jsp" %>
 <%@include file="/WEB-INF/View/admin/products/delete.jsp" %>
+<%@include file="/WEB-INF/View/admin/products/view.jsp" %>
 
 <div class="table-container" id="productsTable">
     <div class="table-container__header">
@@ -40,7 +41,7 @@
             <!-- Nút tìm kiếm có icon -->
             <div class="col-md-1 d-flex align-items-center">
                 <button type="submit" class="btn btn-success btn-sm d-flex align-items-center justify-content-center"
-                        style="width: 34px; height: 34px; padding: 0; margin-left: 20px">
+                        style="width: 34px; height: 34px; padding: 0; margin-left: 20px; margin-top: -3px">
                     <i class="bi bi-search"></i>
                 </button>
             </div>
@@ -61,14 +62,14 @@
                     <th>Category</th>
                     <th>Price</th>
                     <th>Stock</th>
-                    <th>Description</th>
-                    <th>Action</th>
+                    <th>Action</th>                    
                 </tr>
             </thead>
             <tbody>
                 <%-- dữ liệu sẽ được fill bằng JS/AJAX qua reloadProductList() --%>
             </tbody>
         </table>
+        <div id="pagination" style="margin-top: 20px; text-align:center;"></div>
     </div>
 </div>
 

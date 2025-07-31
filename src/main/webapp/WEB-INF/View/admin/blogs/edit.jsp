@@ -21,7 +21,7 @@
                     <textarea name="content" id="editBlogContent" class="modal__textarea" style="height: 200px"></textarea>
                 </div>
 
-                <div class="modal__form-group">
+                <div class="modal__form-group " hidden>
                     <label class="modal__label">Change Main Images</label>
                     <input type="file" name="mainImage" class="modal__input" accept="image/*" onchange="previewEditBlogImage(this)">
                     <span id="mainImageFilename" style="font-size: 12px; color: gray;"></span>

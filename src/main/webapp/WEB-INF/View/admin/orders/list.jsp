@@ -3,12 +3,33 @@
 
 <%@include file="/WEB-INF/View/admin/orders/edit.jsp" %>
 <%@include file="/WEB-INF/View/admin/orders/delete.jsp" %>
+<%@include file="/WEB-INF/View/admin/orders/viewDetail.jsp" %>
 
 <style>
-    .status-pending { background-color: #ffe6cc; color: #333; padding: 2px 8px; border-radius: 4px; }
-    .status-processing { background-color: #cce5ff; color: #333; padding: 2px 8px; border-radius: 4px; }
-    .status-shipped { background-color: #d4edda; color: #333; padding: 2px 8px; border-radius: 4px; }
-    .status-cancelled { background-color: #f8d7da; color: #333; padding: 2px 8px; border-radius: 4px; }
+    .status-pending {
+        background-color: #ffe6cc;
+        color: #333;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+    .status-processing {
+        background-color: #cce5ff;
+        color: #333;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+    .status-shipped {
+        background-color: #d4edda;
+        color: #333;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+    .status-cancelled {
+        background-color: #f8d7da;
+        color: #333;
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
 
     .status-dropdown {
         padding: 2px 8px;
@@ -21,6 +42,21 @@
     .status-dropdown option {
         background-color: #fff;
         color: #333;
+    }
+
+    .action-buttons__btn--view {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin-right: 5px;
+        font-size: 12px;
+    }
+
+    .action-buttons__btn--view:hover {
+        background-color: #0056b3;
     }
 </style>
 
@@ -52,13 +88,10 @@
             <thead>
                 <tr>
                     <th style="width: 120px">Referral Code</th>
-                    <th>Products Name</th>
-                    <th style="width: 80px">Quantity</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                    <th>Address</th>
                     <th>Customer Name</th>
                     <th>Phone</th>
+                    <th>Address</th>
+                    <th>Status</th>
                     <th>Action</th>
                 </tr>
             </thead>
@@ -70,20 +103,20 @@
 </div>
 
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
         // Initialize status filter from URL parameters if available
         const urlParams = new URLSearchParams(window.location.search);
         const statusParam = urlParams.get('status');
         const searchParam = urlParams.get('search');
-        
+
         if (statusParam) {
             document.getElementById('orderStatusFilter').value = statusParam;
         }
-        
+
         if (searchParam) {
             document.getElementById('searchOrder').value = searchParam;
         }
-        
+
         // Load orders with current filters
         loadOrders();
     });

@@ -18,31 +18,32 @@ public class StatisticsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        String type = request.getParameter("type");
         String range = request.getParameter("range");
         if (range == null || range.trim().isEmpty()) {
-            range = "7"; // Mặc định
+            range = "7"; // Đặt mặc định cho mọi trường hợp
         }
-
         OrderDao dao = new OrderDao();
-        Map<String, Integer> stats = null;
 
         try {
-            switch (range) {
-                case "today":
-                    stats = dao.getSalesStatsToday();
-                    break;
-                case "30":
-                    stats = dao.getSalesStatsLast30Days();
-                    break;
-                case "7":
-                default:
-                    stats = dao.getSalesStatsLast7Days();
-                    break;
+            if ("status".equals(type)) {
+                // Trả về thống kê trạng thái đơn hàng cho donut chart
+                Map<String, Integer> stats = dao.getOrderStatusStats(range);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                new Gson().toJson(stats, response.getWriter());
+                return;
+            }
+            if ("summary".equals(type)) {
+                Map<String, Object> summary = dao.getOrderSummary(range);
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                new Gson().toJson(summary, response.getWriter());
+                return;
             }
 
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
-            new Gson().toJson(stats, response.getWriter());
 
         } catch (Exception e) {
             e.printStackTrace(); // Ghi log chi tiết

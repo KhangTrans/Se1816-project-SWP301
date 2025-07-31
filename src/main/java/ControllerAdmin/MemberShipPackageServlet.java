@@ -81,6 +81,15 @@ public class MemberShipPackageServlet extends HttpServlet {
             // Kiểm tra giá trị status trước khi gọi DAO
             System.out.println("Received status: " + status);
 
+            // Thêm kiểm tra backend để đảm bảo không update nếu đã hết hạn
+            CustomerMembership membership = memberShipPackageDao.getCustomerMembershipById(membershipId); // Giả sử bạn thêm method này trong DAO
+            if (membership != null && membership.getEndDate().isBefore(java.time.LocalDate.now())) {
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+                response.getWriter().write("{\"success\": false, \"error\": \"Cannot update status for expired memberships.\"}");
+                return;
+            }
+
             boolean success = memberShipPackageDao.editCustomerMembership(membershipId, status);
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");

@@ -7,20 +7,21 @@ public class TrainerBooking {
     private int bookingId;
     private Customer customer;
     private Trainers trainer;
-    private TrainerSchedule schedule;
+    private int scheduleId;
     private LocalDate bookingDate;
     private String status; // "pending", "confirmed", "cancelled"
 
     public TrainerBooking() {}
 
-    public TrainerBooking(int bookingId, Customer customer, Trainers trainer, TrainerSchedule schedule, LocalDate bookingDate, String status) {
+    public TrainerBooking(int bookingId, Customer customer, Trainers trainer, int scheduleId, LocalDate bookingDate, String status) {
         this.bookingId = bookingId;
         this.customer = customer;
         this.trainer = trainer;
-        this.schedule = schedule;
+        this.scheduleId = scheduleId;
         this.bookingDate = bookingDate;
         this.status = status;
     }
+
 
     public int getBookingId() {
         return bookingId;
@@ -46,13 +47,14 @@ public class TrainerBooking {
         this.trainer = trainer;
     }
 
-    public TrainerSchedule getSchedule() {
-        return schedule;
+    public int getScheduleId() {
+        return scheduleId;
     }
 
-    public void setSchedule(TrainerSchedule schedule) {
-        this.schedule = schedule;
+    public void setScheduleId(int scheduleId) {
+        this.scheduleId = scheduleId;
     }
+
 
     public LocalDate getBookingDate() {
         return bookingDate;

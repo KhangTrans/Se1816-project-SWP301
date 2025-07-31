@@ -9,6 +9,9 @@ import DAO.ProductDao;
 import DAO.VoucherDao;
 import Model.Products;
 import Model.Voucher;
+import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -42,12 +45,10 @@ public class ShopAllServlet extends HttpServlet {
             throws ServletException, IOException {
         ProductDao dao = new ProductDao();
 
-        //Default: first page
+        // Default page
         int currentPage = 1;
-        //Number of products per page
-        int productsPerPage = 15;
+        int productsPerPage = 12;
 
-        // Lấy số trang từ request
         String pageParam = request.getParameter("page");
         if (pageParam != null) {
             try {
@@ -57,16 +58,12 @@ public class ShopAllServlet extends HttpServlet {
             }
         }
 
-        //Sorting filter (asc/desc)
         String sort = request.getParameter("sort");
-        //Category filter
         String categoryParam = request.getParameter("category");
-        //Search keyword
         String keyword = request.getParameter("q");
         Integer categoryId = null;
         if (categoryParam != null && !categoryParam.isEmpty()) {
             try {
-                //Convert category to int
                 categoryId = Integer.parseInt(categoryParam);
             } catch (NumberFormatException ignore) {
                 categoryId = null;
@@ -78,74 +75,70 @@ public class ShopAllServlet extends HttpServlet {
             int totalPages;
             List<Products> list;
 
-            //If there is a search keyword, filter by keyword + category
             if (keyword != null && !keyword.trim().isEmpty()) {
-                //Get products matching search + category
                 totalProducts = dao.getTotalProductsBySearch(keyword, categoryId);
                 totalPages = (int) Math.ceil(totalProducts / (double) productsPerPage);
-
-                //Get product matching Search + category + sort + pagination
                 list = dao.getProductsBySearch(keyword, categoryId, sort, currentPage, productsPerPage);
-            } //If only match category 
-            else if (categoryId != null) {
+            } else if (categoryId != null) {
                 totalProducts = dao.getTotalProductsByCategory(categoryId);
                 totalPages = (int) Math.ceil(totalProducts / (double) productsPerPage);
-
-                //Get product matching category + sort + pagination
                 list = dao.getProductsByPageAndFilter(categoryId, sort, currentPage, productsPerPage);
-            } // No search, no category filter → get all products, with sorting if needed
-            else {
+            } else {
                 totalProducts = dao.getTotalProducts();
                 totalPages = (int) Math.ceil(totalProducts / (double) productsPerPage);
-
-                //Get product matching products + sort + pagination
                 list = dao.getProductsByPageAndFilter(null, sort, currentPage, productsPerPage);
             }
 
-            request.setAttribute("list", list);
-            request.setAttribute("totalPages", totalPages);
-            request.setAttribute("currentPage", currentPage);
-            request.setAttribute("sort", sort);
-            request.setAttribute("category", categoryId);
-            request.setAttribute("q", keyword);
+            // Check if it's an AJAX request
+            boolean isAjaxRequest = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
 
-            //Category dropdown filter
-            CategoryDao cdao = new CategoryDao();
-            request.setAttribute("categories", cdao.getAllCategories());
-            VoucherDao voucherDao = new VoucherDao();
-            List<Voucher> voucherList = voucherDao.getActiveVouchers();
-            request.setAttribute("voucherList", voucherList);
-            // Forward tới JSP
-            request.getRequestDispatcher("/WEB-INF/View/customers/shopAll.jsp").forward(request, response);
+            if (isAjaxRequest) {
+                // Return JSON if it's an AJAX request
+                response.setContentType("application/json");
+                response.setCharacterEncoding("UTF-8");
+
+                Gson gson = new Gson();
+                JsonObject jsonResponse = new JsonObject();
+                JsonArray productArray = new JsonArray();
+
+                for (Products p : list) {
+                    JsonObject productJson = new JsonObject();
+                    productJson.addProperty("productId", p.getProductId());
+                    productJson.addProperty("name", p.getName());
+                    productJson.addProperty("price", p.getPrice());
+                    productJson.addProperty("stock", p.getStockQuantity());
+                    productJson.addProperty("image", request.getContextPath() + "/ImagesServlet?type=product&imageId=" + dao.getPrimaryImage(p.getProductId()).getImageId());
+                    productArray.add(productJson);
+                }
+
+                jsonResponse.add("products", productArray);
+                jsonResponse.addProperty("totalPages", totalPages);
+                jsonResponse.addProperty("currentPage", currentPage);
+
+                response.getWriter().write(jsonResponse.toString());
+            } else {
+                // For normal requests, forward to JSP
+                request.setAttribute("list", list);
+                request.setAttribute("totalPages", totalPages);
+                request.setAttribute("currentPage", currentPage);
+                request.setAttribute("sort", sort);
+                request.setAttribute("category", categoryId);
+                request.setAttribute("q", keyword);
+
+                // Set categories and vouchers for dropdowns
+                CategoryDao cdao = new CategoryDao();
+                request.setAttribute("categories", cdao.getAllCategories());
+
+                VoucherDao voucherDao = new VoucherDao();
+                List<Voucher> voucherList = voucherDao.getActiveVouchers();
+                request.setAttribute("voucherList", voucherList);
+
+                request.getRequestDispatcher("/WEB-INF/View/customers/shopAll.jsp").forward(request, response);
+            }
 
         } catch (SQLException ex) {
             ex.printStackTrace();
             response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, ex.getMessage());
         }
-
     }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-    }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }
