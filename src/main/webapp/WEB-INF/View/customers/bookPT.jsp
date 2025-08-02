@@ -1,26 +1,520 @@
+
+<%@include file="/WEB-INF/include/head.jsp" %>
+<%@include file="/WEB-INF/include/Login.jsp" %>
+<%@include file="/WEB-INF/include/Register.jsp" %>
+<%@include file="/WEB-INF/include/forgotPassword.jsp" %>
+<%@include file="/WEB-INF/include/header.jsp" %>
 <%@page import="Model.Trainers"%>
-<%@ page contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Trainer's Schedule</title>
-        <link rel="stylesheet" href="<%= request.getContextPath()%>/css/bookingpt.css"/>
-    </head>
-    <body>
+<% Trainers trainer = (Trainers) request.getAttribute("trainer");%>
 
-        <% Trainers trainer = (Trainers) request.getAttribute("trainer");%>
-        <h1>Chọn Tuần và Đặt Lịch</h1>
+<style>
+    .booking-container {
+        max-width: 1000px;
+        margin: 20px auto 50px;
+        padding: 0 20px;
+    }
+    
+    .booking-header {
+        text-align: center;
+        margin-bottom: 30px;
+    }
+    
+    .booking-title {
+        color: #d9ff68;
+        font-size: 60px;
+        font-weight: bold;
+        margin-top: 100px;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .trainer-info-bar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px;
+        background: linear-gradient(to right, rgba(26, 42, 58, 0.8), rgba(13, 27, 41, 0.8));
+        border-radius: 10px;
+        padding: 15px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .trainer-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-right: 15px;
+        border: 2px solid #d9ff68;
+    }
+    
+    .trainer-avatar img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .trainer-name {
+        font-size: 20px;
+        font-weight: bold;
+        color: #fff;
+    }
+    
+    .date-picker-container {
+        background: rgba(26, 42, 58, 0.8);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .date-picker {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+    
+    .date-picker label {
+        color: #d9ff68;
+        font-weight: bold;
+        font-size: 16px;
+    }
+    
+    .date-picker input[type="date"] {
+        padding: 10px 15px;
+        border-radius: 8px;
+        border: 1px solid #d9ff68;
+        background-color: rgba(255, 255, 255, 0.9);
+        font-size: 16px;
+        color: #333;
+        outline: none;
+    }
+    
+    .date-picker input[type="date"]:focus {
+        box-shadow: 0 0 0 2px rgba(217, 255, 104, 0.5);
+    }
+    
+    .week-info {
+        text-align: center;
+        color: #fff;
+        font-size: 18px;
+        font-weight: 600;
+        padding: 10px;
+        border-radius: 8px;
+        background: rgba(217, 255, 104, 0.2);
+        margin-top: 10px;
+    }
+    
+    .schedule-table-container {
+        overflow-x: auto;
+        margin-bottom: 30px;
+        background: rgba(17, 17, 17, 0.7);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 auto;
+    }
+    
+    table th, table td {
+        text-align: center;
+        padding: 12px;
+        border: 1px solid rgba(217, 255, 104, 0.3);
+    }
+    
+    table th {
+        background: rgba(26, 42, 58, 0.9);
+        color: #d9ff68;
+        font-weight: bold;
+        text-transform: uppercase;
+        font-size: 14px;
+    }
+    
+    table td {
+        color: #fff;
+        font-size: 14px;
+        vertical-align: middle;
+    }
+    
+    table tr:first-child th {
+        border-top: none;
+    }
+    
+    table tr td:first-child {
+        background: rgba(26, 42, 58, 0.7);
+        font-weight: bold;
+        color: #d9ff68;
+    }
+    
+    .slot-checkbox {
+        appearance: none;
+        -webkit-appearance: none;
+        width: 25px;
+        height: 25px;
+        border-radius: 5px;
+        border: 2px solid #d9ff68;
+        outline: none;
+        cursor: pointer;
+        background-color: transparent;
+        position: relative;
+    }
+    
+    .slot-checkbox:checked {
+        background-color: #d9ff68;
+    }
+    
+    .slot-checkbox:checked::before {
+        content: "";
+        font-size: 16px;
+        color: #111;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-weight: bold;
+    }
+    
+    .slot-booked {
+        padding: 8px 12px;
+        background-color: rgba(255, 107, 107, 0.3);
+        color: #ff6b6b;
+        border: 1px solid rgba(255, 107, 107, 0.5);
+        border-radius: 5px;
+        font-size: 13px;
+        width: 100px;
+        cursor: not-allowed;
+    }
+    
+    .cancel-btn {
+        padding: 5px 10px;
+        background-color: rgba(255, 107, 107, 0.8);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        margin-top: 5px;
+        font-size: 12px;
+        transition: all 0.3s ease;
+    }
+    
+    .cancel-btn:hover {
+        background-color: rgba(255, 71, 87, 0.9);
+    }
+    
+    .cancel-btn:disabled {
+        background-color: #777;
+        cursor: not-allowed;
+    }
+    
+    .submit-btn {
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        color: #111;
+        font-size: 18px;
+        font-weight: bold;
+        padding: 15px 30px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 20px auto;
+        display: block;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+    }
+    
+    .submit-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(217, 255, 104, 0.3);
+        background: linear-gradient(135deg, #d9ff68 0%, #c4ff00 100%);
+    }
+    
+    /* Modal styles */
+    #confirmationModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 200px;
+        z-index: 10000;
+    }
+    
+    .modal-content {
+        background: linear-gradient(to bottom, #1a2a3a, #0d1b29);
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+        width: 90%;
+        max-width: 500px;
+        max-height: 70vh;
+        display: flex;
+        flex-direction: column;
+        text-align: center;
+        position: relative;
+        color: #fff;
+        margin: 0 auto;
+        left: 0;
+        right: 0;
+        overflow: hidden;
+        border: 1px solid rgba(217, 255, 104, 0.3);
+    }
+    
+    .modal-header {
+        padding: 20px 30px;
+        border-bottom: 1px solid rgba(217, 255, 104, 0.2);
+        position: sticky;
+        top: 0;
+        background: linear-gradient(to right, #1a2a3a, #162533);
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 25px 50px;
+        max-height: calc(70vh - 140px);
+        text-align: left;
+    }
+    
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid rgba(217, 255, 104, 0.2);
+        position: sticky;
+        bottom: 0;
+        background: linear-gradient(to right, #162533, #1a2a3a);
+        z-index: 1;
+    }
+    
+    #modal-title {
+        color: #d9ff68;
+        margin: 0;
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+    
+    #modal-details {
+        margin-bottom: 20px;
+        line-height: 1.8;
+        color: #fff;
+    }
+    
+    .booking-item {
+        background: rgba(30, 40, 50, 0.5);
+        border-radius: 8px;
+        padding: 20px 30px;
+        margin-bottom: 20px;
+        margin-left: 10px;
+        margin-right: 10px;
+        border-left: 3px solid #d9ff68;
+    }
+    
+    .booking-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .booking-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-left: 8px;
+    }
+    
+    .booking-row:last-child {
+        margin-bottom: 0;
+    }
+    
+    .booking-label {
+        width: 85px;
+        color: #d9ff68;
+        font-weight: 600;
+        padding-right: 10px;
+    }
+    
+    .booking-value {
+        flex: 1;
+        color: #fff;
+    }
+    
+    .total-price {
+        margin-top: 25px;
+        background: rgba(217, 255, 104, 0.1);
+        padding: 18px 30px;
+        border-radius: 8px;
+        text-align: right;
+        font-weight: bold;
+        color: #d9ff68;
+        font-size: 18px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+    .trainer-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+    }
+    
+    #confirmBtn, #cancelBtn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        color: #111;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    #confirmBtn {
+        background: linear-gradient(135deg, #d9ff68 0%, #a9db00 100%);
+    }
+    
+    #confirmBtn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(217, 255, 104, 0.3);
+    }
+    
+    #cancelBtn {
+        background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
+        margin-left: 15px;
+    }
+    
+    #cancelBtn:hover {
+        background: linear-gradient(135deg, #ff4757 0%, #ff3545 100%);
+        box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+        transform: translateY(-3px);
+    }
+    
+    /* Notification modal styles */
+    #notificationModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 200px;
+        z-index: 10000;
+    }
+    
+    #modal-message {
+        margin: 20px 0;
+        font-size: 18px;
+    }
+    
+    #closeBtn {
+        background: linear-gradient(135deg, #d9ff68 0%, #a9db00 100%);
+        color: #111;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    #closeBtn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(217, 255, 104, 0.3);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .booking-title {
+            font-size: 28px;
+        }
+        
+        table th, table td {
+            padding: 8px 5px;
+            font-size: 12px;
+        }
+        
+        .submit-btn {
+            padding: 12px 25px;
+            font-size: 16px;
+        }
+    }
 
+    /* Additional notification styles */
+    .notification-icon {
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .notification-icon i {
+        font-size: 60px;
+        color: #d9ff68;
+        animation: pulse 2s infinite;
+    }
+    
+/*    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }*/
+    
+    #notificationModal .modal-content {
+        max-width: 400px;
+    }
+</style>
+
+<!-- Link to Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+<div class="booking-container">
+    <div class="booking-header">
+        <h1 class="booking-title">Book Training Session</h1>
+        <div class="trainer-info-bar">
+            <div class="trainer-avatar">
+                <img src="<%= request.getContextPath() + "/AvatarServlet?user=" + trainer.getAccountId().getUsername()%>" alt="<%= trainer.getFullName()%>">
+            </div>
+            <div class="trainer-name"><%= trainer.getFullName()%></div>
+        </div>
+    </div>
+    
+    <div class="date-picker-container">
         <div class="date-picker">
-            <label for="start-date">Chọn Ngày Bắt Đầu:</label>
+            <label for="start-date"><i class="far fa-calendar-alt"></i> Select Start Date:</label>
             <input type="date" id="start-date" onchange="updateWeek()">
         </div>
-
         <div class="week-info" id="week-info"></div>
+    </div>
 
+    <div class="schedule-table-container">
         <form method="post" action="bookingpt" id="bookingForm">
             <input type="hidden" name="trainerId" value="<%= request.getAttribute("trainerId")%>">
             <input type="hidden" name="action" id="action" value="book">
@@ -43,291 +537,359 @@
             <!-- Add hidden inputs here for each selected slot -->
             <div id="selectedSlotsContainer"></div>
 
-            <button type="button" class="submit-btn" onclick="showConfirmation('book')">Đặt ngay</button>
+            <button type="button" class="submit-btn" onclick="showConfirmation('book')"><i class="fas fa-calendar-check"></i> Book Now</button>
         </form>
+    </div>
+</div>
 
-        <!-- Confirmation Modal -->
-        <div id="confirmationModal" style="display: none;">
-            <div class="modal-content">
-                <h2 id="modal-title">Xác Nhận Đặt Lịch / Hủy Lịch</h2>
-                <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-                    <div style="background-color: #d3d3d3; width: 80px; height: 80px; margin-right: 20px; border-radius: 50%; overflow: hidden;">
-                        <img src="<%= request.getContextPath() + "/AvatarServlet?user=" + trainer.getAccountId().getUsername()%>" alt="Trainer Image" style="width: 100%; height: 100%; object-fit: cover;" />
-                    </div>
-                    <h3><%= trainer.getFullName()%></h3>
+<!-- Confirmation Modal -->
+<div id="confirmationModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 id="modal-title">Confirm Booking</h2>
+        </div>
+        <div class="modal-body">
+            <div class="trainer-info">
+                <div class="trainer-avatar" style="margin-right: 15px;">
+                    <img src="<%= request.getContextPath() + "/AvatarServlet?user=" + trainer.getAccountId().getUsername()%>" alt="<%= trainer.getFullName()%>" />
                 </div>
-                <p id="modal-details"></p>
-                <button id="confirmBtn" class="submit-btn" onclick="confirmAction()">Confirm</button>
-                <button id="cancelBtn" class="submit-btn" onclick="closeModal()" style="background-color: #f44336;">Cancel</button>
+                <h3 style="margin: 0; color: #fff;"><%= trainer.getFullName()%></h3>
+            </div>
+            <p id="modal-details"></p>
+        </div>
+        <div class="modal-footer">
+            <div style="display: flex; justify-content: center; gap: 15px; width: 100%;">
+                <button id="confirmBtn" style="flex: 1; max-width: 150px; margin: 0;" onclick="confirmAction()">Confirm</button>
+                <button id="cancelBtn" style="flex: 1; max-width: 150px; margin: 0;" onclick="closeModal()">Cancel</button>
             </div>
         </div>
+    </div>
+</div>
 
-        <script>
-            var timeSlots = JSON.parse('<%= request.getAttribute("timeSlots")%>');
-            var bookedSlots = JSON.parse('<%= request.getAttribute("bookedSlots")%>');
-            var schedules = JSON.parse('<%= request.getAttribute("schedules")%>');
-            var booking = JSON.parse('<%= request.getAttribute("booking")%>');
-            var actionType = null;
+<!-- Notification Modal -->
+<div id="notificationModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2 style="color: #d9ff68;">Notification</h2>
+        </div>
+        <div class="modal-body">
+            <div class="notification-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p id="modal-message" style="color:#d9ff68; text-align: center; font-size: 20px; margin: 20px 0;"></p>
+        </div>
+        <div class="modal-footer">
+            <div style="display: flex; justify-content: center; width: 100%;">
+                <button id="closeBtn" style="flex: 1; max-width: 150px; margin: 0;" onclick="closeModalMesage()">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
-            window.onload = function () {
-                document.getElementById('start-date').setAttribute('min', formatDate(new Date()));
-                updateWeek();  // Gọi hàm để tự động hiển thị tuần hiện tại khi trang được tải
-            };
+<script>
+    // Check for notification messages from the Servlet
+    <% String notificationMessage = (String) session.getAttribute("notificationMessage");
+    if (notificationMessage != null) {
+        session.removeAttribute("notificationMessage");
+    } %>
+    if ("<%= notificationMessage != null ? notificationMessage : "" %>" !== "") {
+        document.getElementById('modal-message').innerText = "<%= notificationMessage %>";
+        document.getElementById('notificationModal').style.display = "block";
+    }
 
-            function updateWeek() {
-                var selectedDate = document.getElementById('start-date').value;
-                var startDate = selectedDate ? new Date(selectedDate) : new Date();
+    // Close notification modal
+    function closeModalMesage() {
+        document.getElementById('notificationModal').style.display = "none";
+    }
+</script>
 
-                var startDay = startDate.getDay();
-                var startOfWeek = new Date(startDate);
-                if (startDay === 0) {
-                    // Chủ nhật, lùi về thứ 2 tuần trước
-                    startOfWeek.setDate(startDate.getDate() - 6);
-                } else {
-                    // Các ngày khác, tính đúng thứ 2 tuần này
-                    startOfWeek.setDate(startDate.getDate() - startDay + 1);
+<script>
+    var timeSlots = JSON.parse('<%= request.getAttribute("timeSlots")%>');
+    var bookedSlots = JSON.parse('<%= request.getAttribute("bookedSlots")%>');
+    var schedules = JSON.parse('<%= request.getAttribute("schedules")%>');
+    var booking = JSON.parse('<%= request.getAttribute("booking")%>');
+    var slotAvailability = JSON.parse('<%= request.getAttribute("slotAvailability")%>');
+
+    var actionType = null;
+
+    window.onload = function () {
+        document.getElementById('start-date').setAttribute('min', formatDate(new Date()));
+        updateWeek();  // Call function to automatically display the current week when page loads
+    };
+
+    function updateWeek() {
+        var selectedDate = document.getElementById('start-date').value;
+        var startDate = selectedDate ? new Date(selectedDate) : new Date();
+
+        var startDay = startDate.getDay();
+        var startOfWeek = new Date(startDate);
+        if (startDay === 0) {
+            // Sunday, go back to Monday of previous week
+            startOfWeek.setDate(startDate.getDate() - 6);
+        } else {
+            // Other days, calculate correct Monday of this week
+            startOfWeek.setDate(startDate.getDate() - startDay + 1);
+        }
+        var endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);  // Sunday
+
+        var weekInfo = document.getElementById('week-info');
+        weekInfo.innerHTML = "Week from " + formatDate(startOfWeek) + " to " + formatDate(endOfWeek);
+
+        var tbody = document.getElementById('schedule-table');
+        tbody.innerHTML = '';  // Clear previous table content
+
+        for (var i = 0; i < timeSlots.length; i++) {
+            var row = '<tr>';
+            row += '<td>' + timeSlots[i] + '</td>';  // Display hours in the "Hours" column
+
+            for (var j = 0; j < 7; j++) {
+                var currentDay = new Date(startOfWeek);
+                currentDay.setDate(startOfWeek.getDate() + j);  // Calculate date for each day of the week
+                var formattedDate = formatDate(currentDay);
+                var isBooked = false;
+                var isPastTime = false;  // Variable to check if time has passed
+
+                // Check booking with status = 'confirmed' and corresponding date
+                for (var k = 0; k < booking.length; k++) {
+                    var bookingDate = booking[k].bookingDate;
+                    var dateObject = new Date(bookingDate.year, bookingDate.month - 1, bookingDate.day);  // month is 0-indexed in JavaScript
+                    if (booking[k].scheduleId === schedules[i].scheduleId && formatDate(dateObject) === formattedDate) {
+                        if (booking[k].status === 'confirmed' || booking[k].status === 'pending') {
+                            isBooked = true;
+                        }
+                        break;
+                    }
                 }
-                var endOfWeek = new Date(startOfWeek);
-                endOfWeek.setDate(startOfWeek.getDate() + 6);  // Chủ nhật
 
-                var weekInfo = document.getElementById('week-info');
-                weekInfo.innerHTML = "Tuần từ " + formatDate(startOfWeek) + " đến " + formatDate(endOfWeek);
+                // Check if time has passed
+                var startTime = getStartTimeByScheduleId(schedules[i].scheduleId);
+                var slotDateTime = new Date(currentDay);
+                slotDateTime.setHours(startTime.hour, startTime.minute, 0, 0);  // Combine date and time
 
-                var tbody = document.getElementById('schedule-table');
-                tbody.innerHTML = '';  // Clear previous table content
+                var now = new Date();
+                if (now > slotDateTime) {
+                    isPastTime = true;
+                }
 
-                for (var i = 0; i < timeSlots.length; i++) {
-                    var row = '<tr>';
-                    row += '<td>' + timeSlots[i] + '</td>';  // Hiển thị giờ vào cột "Giờ"
+                var availability = slotAvailability.find(function (item) {
+                    var slotDate = new Date(item.slotDate.year, item.slotDate.month - 1, item.slotDate.day);
+                    var itemDate = slotDate.toLocaleDateString('en-CA'); // Normalize date for comparison
+                    return item.scheduleId === schedules[i].scheduleId && itemDate === formattedDate;
+                });
 
-                    for (var j = 0; j < 7; j++) {
-                        var currentDay = new Date(startOfWeek);
-                        currentDay.setDate(startOfWeek.getDate() + j);  // Tính ngày cho từng ngày trong tuần
-                        var formattedDate = formatDate(currentDay);
-                        var isBooked = false;
-                        var isPastTime = false;  // Biến để kiểm tra nếu đã quá thời gian
+                var isSlotAvailable = availability ? availability.isAvailable : true;
+                
+                if (!isBooked && !isPastTime) {
+                    if(isSlotAvailable){
+                        row += '<td>' +
+                            '<input type="checkbox" name="selectedSlots" class="slot-checkbox" ' +
+                            'value="' + schedules[i].scheduleId + '_' + formattedDate + '" ' +
+                            'data-schedule-id="' + schedules[i].scheduleId + '" ' +
+                            'data-date="' + formattedDate + '" onclick="addHiddenInput(this)">' +
+                            '</td>';
+                    }else{
+                        row += '<td></td>';
+                    }
+                    
+                } else {
+                    row += '<td>';
+                    if (isPastTime) {
+                        row += '<button class="slot-booked" disabled>Time passed</button>';
+                    } else {
 
-                        // Kiểm tra booking với status = 'confirmed' và ngày tương ứng
+                        // Display "Cancel" button if cancellation time is still valid
                         for (var k = 0; k < booking.length; k++) {
                             var bookingDate = booking[k].bookingDate;
-                            var dateObject = new Date(bookingDate.year, bookingDate.month - 1, bookingDate.day);  // month is 0-indexed in JavaScript
-                            if (booking[k].scheduleId === schedules[i].scheduleId && formatDate(dateObject) === formattedDate) {
-                                if (booking[k].status === 'confirmed') {
-                                    isBooked = true;
+                            var dateObject = new Date(bookingDate.year, bookingDate.month - 1, bookingDate.day);
+                            var currentScheduleId = schedules[i].scheduleId;
+                            var startTime = getStartTimeByScheduleId(currentScheduleId);
+
+                            if (booking[k].scheduleId === currentScheduleId && formatDate(dateObject) === formattedDate) {
+                                if (booking[k].status === 'confirmed' && booking[k].customer.account.accountId === <%= session.getAttribute("accountId")%>) {
+                                    row += '<button class="slot-booked" disabled>Booked</button>';
+                                    var slotDateTime = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate(), startTime.hour, startTime.minute || 0, 0, 0);
+                                    var now = new Date();
+                                    if ((slotDateTime.getTime() - now.getTime()) > 3 * 60 * 60 * 1000) {
+                                        row += '<button type="button" class="cancel-btn" ' +
+                                                'data-booking="' + booking[k].bookingId + '" ' +
+                                                'data-schedule-id="' + schedules[i].scheduleId + '" ' +
+                                                'onclick="confirmCancel(this, \'' + formattedDate + '\')">Cancel</button>';
+                                    } else {
+                                        row += '<button class="cancel-btn" disabled>Can\'t cancel</button>';
+                                    }
+                                } else if (booking[k].status === 'pending' && booking[k].customer.account.accountId === <%= session.getAttribute("accountId")%>) {
+                                    row += '<button class="slot-booked" disabled>Pending approval</button>';
+                                } else {
+                                    row += '<button class="cancel-btn" style="display:none" disabled>Cancel</button>';
                                 }
                                 break;
                             }
                         }
-
-                        // Kiểm tra nếu đã quá thời gian
-                        var startTime = getStartTimeByScheduleId(schedules[i].scheduleId);
-                        var slotDateTime = new Date(currentDay);
-                        slotDateTime.setHours(startTime.hour, startTime.minute, 0, 0);  // Kết hợp ngày và giờ
-
-                        var now = new Date();
-                        if (now > slotDateTime) {
-                            isPastTime = true;
-                        }
-
-                        if (!isBooked && !isPastTime) {
-                            row += '<td>' +
-                                    '<input type="checkbox" name="selectedSlots" class="slot-checkbox" ' +
-                                    'value="' + schedules[i].scheduleId + '_' + formattedDate + '" ' +
-                                    'data-schedule-id="' + schedules[i].scheduleId + '" ' +
-                                    'data-date="' + formattedDate + '" onclick="addHiddenInput(this)">' +
-                                    '</td>';
-                        } else {
-                            row += '<td>';
-                            if (isPastTime) {
-                                row += '<button class="slot-booked" disabled>Đã qua giờ</button>';
-                            } else {
-                                row += '<button class="slot-booked" disabled>Đã Book</button>';
-                                // Hiển thị nút "Hủy" nếu còn thời gian hủy
-                                for (var k = 0; k < booking.length; k++) {
-                                    var bookingDate = booking[k].bookingDate;
-                                    var dateObject = new Date(bookingDate.year, bookingDate.month - 1, bookingDate.day);
-                                    var currentScheduleId = schedules[i].scheduleId;
-                                    var startTime = getStartTimeByScheduleId(currentScheduleId);
-
-                                    if (booking[k].scheduleId === currentScheduleId && formatDate(dateObject) === formattedDate) {
-                                        if (booking[k].status === 'confirmed' && booking[k].customer.account.accountId === <%= session.getAttribute("accountId")%>) {
-                                            var slotDateTime = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate(), startTime.hour, startTime.minute || 0, 0, 0);
-                                            var now = new Date();
-                                            if ((slotDateTime.getTime() - now.getTime()) > 3 * 60 * 60 * 1000) {
-                                                row += '<button type="button" class="cancel-btn" ' +
-                                                        'data-booking="' + booking[k].bookingId + '" ' +
-                                                        'data-schedule-id="' + schedules[i].scheduleId + '" ' +
-                                                        'onclick="confirmCancel(this, \'' + formattedDate + '\')">Hủy</button>';
-                                            } else {
-                                                row += '<button class="cancel-btn" disabled>Hết thời gian hủy</button>';
-                                            }
-                                        } else {
-                                            row += '<button class="cancel-btn" style="display:none" disabled>Hủy</button>';
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
-
-
-
-                            row += '</td>';
-                        }
-
                     }
 
-                    row += '</tr>';
-                    tbody.innerHTML += row;  // Add the row to the table
+                    row += '</td>';
                 }
             }
 
-            function getStartTimeByScheduleId(scheduleId) {
-                for (var i = 0; i < schedules.length; i++) {
-                    if (String(schedules[i].scheduleId) === String(scheduleId)) {
-                        // startTime là object có .hour và .minute
-                        return schedules[i].startTime;
-                    }
-                }
-                // fallback
-                return {hour: 0, minute: 0};
+            row += '</tr>';
+            tbody.innerHTML += row;  // Add the row to the table
+        }
+    }
+
+    function getStartTimeByScheduleId(scheduleId) {
+        for (var i = 0; i < schedules.length; i++) {
+            if (String(schedules[i].scheduleId) === String(scheduleId)) {
+                // startTime is an object with .hour and .minute
+                return schedules[i].startTime;
             }
+        }
+        // fallback
+        return {hour: 0, minute: 0};
+    }
 
 
-            function formatDate(date) {
-                var dd = date.getDate();
-                var mm = date.getMonth() + 1;
-                var yyyy = date.getFullYear();
+    function formatDate(date) {
+        var dd = date.getDate();
+        var mm = date.getMonth() + 1;
+        var yyyy = date.getFullYear();
 
-                if (dd < 10)
-                    dd = '0' + dd;
-                if (mm < 10)
-                    mm = '0' + mm;
-                return yyyy + '-' + mm + '-' + dd;  // Định dạng yyyy-MM-dd cho ngày
-            }
+        if (dd < 10)
+            dd = '0' + dd;
+        if (mm < 10)
+            mm = '0' + mm;
+        return yyyy + '-' + mm + '-' + dd;  // Format yyyy-MM-dd for date
+    }
 
-            function addHiddenInput(checkbox) {
-                var container = document.getElementById('selectedSlotsContainer');
-                if (checkbox.checked) {
-                    var hiddenScheduleId = document.createElement("input");
-                    hiddenScheduleId.type = "hidden";
-                    hiddenScheduleId.name = "scheduleId[]";
-                    hiddenScheduleId.value = checkbox.getAttribute("data-schedule-id");
-                    container.appendChild(hiddenScheduleId);
+    function addHiddenInput(checkbox) {
+        var container = document.getElementById('selectedSlotsContainer');
+        if (checkbox.checked) {
+            var hiddenScheduleId = document.createElement("input");
+            hiddenScheduleId.type = "hidden";
+            hiddenScheduleId.name = "scheduleId[]";
+            hiddenScheduleId.value = checkbox.getAttribute("data-schedule-id");
+            container.appendChild(hiddenScheduleId);
 
-                    var hiddenDate = document.createElement("input");
-                    hiddenDate.type = "hidden";
-                    hiddenDate.name = "bookingDate[]";
-                    hiddenDate.value = checkbox.getAttribute("data-date");
-                    container.appendChild(hiddenDate);
-                } else {
-                    var hiddenScheduleIds = document.querySelectorAll(`input[name="scheduleId[]"]`);
-                    var hiddenBookingDates = document.querySelectorAll(`input[name="bookingDate[]"]`);
-                    for (var i = 0; i < hiddenScheduleIds.length; i++) {
-                        if (hiddenScheduleIds[i].value === checkbox.getAttribute("data-schedule-id") && hiddenBookingDates[i].value === checkbox.getAttribute("data-date")) {
-                            hiddenScheduleIds[i].remove();
-                            hiddenBookingDates[i].remove();
-                        }
-                    }
-                }
-            }
-
-            function confirmAction() {
-                if (actionType === 'book') {
-                    document.getElementById("action").value = actionType;
-                    document.getElementById('bookingForm').submit(); // Đặt lịch khi chọn "Đặt ngay"
-                } else if (actionType === 'cancel') {
-                    document.getElementById("action").value = actionType;
-                    console.log(actionType);
-                    document.getElementById('bookingForm').submit();
-                    cancelBooking(); // Hủy lịch
+            var hiddenDate = document.createElement("input");
+            hiddenDate.type = "hidden";
+            hiddenDate.name = "bookingDate[]";
+            hiddenDate.value = checkbox.getAttribute("data-date");
+            container.appendChild(hiddenDate);
+        } else {
+            var hiddenScheduleIds = document.querySelectorAll(`input[name="scheduleId[]"]`);
+            var hiddenBookingDates = document.querySelectorAll(`input[name="bookingDate[]"]`);
+            for (var i = 0; i < hiddenScheduleIds.length; i++) {
+                if (hiddenScheduleIds[i].value === checkbox.getAttribute("data-schedule-id") && hiddenBookingDates[i].value === checkbox.getAttribute("data-date")) {
+                    hiddenScheduleIds[i].remove();
+                    hiddenBookingDates[i].remove();
                 }
             }
+        }
+    }
 
-            function showConfirmation(type) {
-                actionType = type; // "book" or "cancel"
-                var selectedSlots = document.querySelectorAll('input[name="selectedSlots"]:checked');
-                var modalDetails = document.getElementById('modal-details');
-                var totalPrice = 0;
-                var details = '';
+    function confirmAction() {
+        if (actionType === 'book') {
+            document.getElementById("action").value = actionType;
+            document.getElementById('bookingForm').submit(); // Book when "Book Now" is selected
+        } else if (actionType === 'cancel') {
+            document.getElementById("action").value = actionType;
+            console.log(actionType);
+            document.getElementById('bookingForm').submit();
+            cancelBooking(); // Cancel booking
+        }
+    }
 
-                selectedSlots.forEach(function (slot) {
-                    var scheduleId = slot.getAttribute("data-schedule-id");
-                    var date = slot.getAttribute("data-date");
-                    var timeSlot = getTimeSlotByScheduleId(scheduleId);
-                    var price = <%= trainer.getPrice()%>;  // Giá của trainer từ request
-                    totalPrice += price;
-                    details += 'Ngày: ' + date + '<br>';
-                    details += 'Time: ' + timeSlot + '<br>';
-                    details += 'Giá: ' + price.toLocaleString() + ' VND' + '<br><br>';
-                });
-                details += 'Tổng giá: ' + totalPrice.toLocaleString() + ' VND';
-                document.getElementById('modal-title').innerHTML = actionType === 'book' ? 'Xác Nhận Đặt Lịch' : 'Xác Nhận Hủy Lịch';
-                modalDetails.innerHTML = details;
-                document.getElementById('confirmationModal').style.display = 'block';
+    function showConfirmation(type) {
+        actionType = type; // "book" or "cancel"
+        var selectedSlots = document.querySelectorAll('input[name="selectedSlots"]:checked');
+        var modalDetails = document.getElementById('modal-details');
+        var totalPrice = 0;
+        var details = '';
+
+        selectedSlots.forEach(function (slot) {
+            var scheduleId = slot.getAttribute("data-schedule-id");
+            var date = slot.getAttribute("data-date");
+            var timeSlot = getTimeSlotByScheduleId(scheduleId);
+            var price = <%= trainer.getPrice()%>;  // Trainer price from request
+            totalPrice += price;
+            
+            details += '<div class="booking-item">';
+            details += '<div class="booking-row"><span class="booking-label">Date:</span><span class="booking-value">' + date + '</span></div>';
+            details += '<div class="booking-row"><span class="booking-label">Time:</span><span class="booking-value">' + timeSlot + '</span></div>';
+            details += '<div class="booking-row"><span class="booking-label">Price:</span><span class="booking-value">' + price.toLocaleString() + ' VND</span></div>';
+            details += '</div>';
+        });
+        
+        details += '<div class="total-price">Total price: ' + totalPrice.toLocaleString() + ' VND</div>';
+        document.getElementById('modal-title').innerHTML = actionType === 'book' ? 'Confirm Booking' : 'Confirm Cancellation';
+        modalDetails.innerHTML = details;
+        document.getElementById('confirmationModal').style.display = 'flex';
+    }
+
+    function confirmCancel(button, date) {
+        actionType = 'cancel'; // Set action to "cancel"
+
+        // Get bookingId and scheduleId from data-booking and data-schedule-id attributes
+        var bookingId = button.getAttribute('data-booking');
+        var scheduleId = button.getAttribute('data-schedule-id');
+        console.log(bookingId);
+        // Get time of appointment from schedules
+        var timeSlot = getTimeSlotByScheduleId(scheduleId);  // Get slot time
+        var modalDetails = document.getElementById('modal-details');
+
+        // Update information in modal
+        var details = '<div class="booking-item">';
+        details += '<div class="booking-row"><span class="booking-label">Date:</span><span class="booking-value">' + date + '</span></div>';
+        details += '<div class="booking-row"><span class="booking-label">Time:</span><span class="booking-value">' + timeSlot + '</span></div>';
+        details += '</div>';
+        
+        modalDetails.innerHTML = details;
+        
+        // Add hidden input for bookingId to form
+        var container = document.getElementById('selectedSlotsContainer');
+        var hiddenBookingId = document.createElement("input");
+        hiddenBookingId.type = "hidden";
+        hiddenBookingId.name = "bookingId";  // Save bookingId
+        hiddenBookingId.value = bookingId;  // Assign bookingId 
+        container.appendChild(hiddenBookingId);
+
+        var hiddenScheduleId = document.createElement("input");
+        hiddenScheduleId.type = "hidden";
+        hiddenScheduleId.name = "scheduleId";  // Save scheduleId
+        hiddenScheduleId.value = scheduleId;   // Assign scheduleId
+        container.appendChild(hiddenScheduleId);
+
+        // Change modal title
+        document.getElementById('modal-title').innerHTML = 'Confirm Cancellation';
+
+        // Display cancellation modal
+        document.getElementById('confirmationModal').style.display = 'flex';
+    }
+
+    function cancelBooking() {
+        // Perform cancellation here (call to backend to cancel)
+        alert("Your session has been cancelled!");
+        closeModal();
+    }
+
+    function closeModal() {
+        document.getElementById('confirmationModal').style.display = 'none';
+    }
+
+    function getTimeSlotByScheduleId(scheduleId) {
+        for (var i = 0; i < schedules.length; i++) {
+            if (String(schedules[i].scheduleId) === String(scheduleId)) {
+                var startTime = schedules[i].startTime;
+                var endTime = schedules[i].endTime;
+                var startHour = startTime.hour;
+                var startMinute = startTime.minutes ? startTime.minutes : '00';
+                var endHour = endTime.hour;
+                var endMinute = endTime.minutes ? endTime.minutes : '00';
+                return startHour + ':' + startMinute + ' - ' + endHour + ':' + endMinute;
             }
+        }
+        return 'Unknown';
+    }
+</script>
+<%@include file="/WEB-INF/include/footer.jsp" %>
 
-            function confirmCancel(button, date) {
-                actionType = 'cancel'; // Gán hành động là "cancel"
-
-                // Lấy bookingId và scheduleId từ thuộc tính data-booking và data-schedule-id
-                var bookingId = button.getAttribute('data-booking');
-                var scheduleId = button.getAttribute('data-schedule-id');
-                console.log(bookingId);
-                // Lấy thời gian của lịch hẹn từ schedules
-                var timeSlot = getTimeSlotByScheduleId(scheduleId);  // Lấy giờ của slot
-                var modalDetails = document.getElementById('modal-details');
-
-                // Cập nhật thông tin vào modal
-                var details = 'Ngày: ' + date + '<br>';
-                details += 'Time: ' + timeSlot + '<br>';
-                modalDetails.innerHTML = details;
-                // Thêm hidden input cho bookingId vào form
-                var container = document.getElementById('selectedSlotsContainer');
-                var hiddenBookingId = document.createElement("input");
-                hiddenBookingId.type = "hidden";
-                hiddenBookingId.name = "bookingId";  // Lưu lại bookingId
-                hiddenBookingId.value = bookingId;  // Gán bookingId 
-                container.appendChild(hiddenBookingId);
-
-                var hiddenScheduleId = document.createElement("input");
-                hiddenScheduleId.type = "hidden";
-                hiddenScheduleId.name = "scheduleId";  // Lưu lại scheduleId
-                hiddenScheduleId.value = scheduleId;   // Gán scheduleId
-                container.appendChild(hiddenScheduleId);
-
-                // Thay đổi tiêu đề của modal
-                document.getElementById('modal-title').innerHTML = 'Xác Nhận Hủy Lịch';
-
-                // Hiển thị modal hủy lịch
-                document.getElementById('confirmationModal').style.display = 'block';
-            }
-
-            function cancelBooking() {
-                // Thực hiện hủy lịch tại đây (thực hiện gọi đến backend để hủy)
-                alert("Lịch đã được hủy!");
-                closeModal();
-            }
-
-            function closeModal() {
-                document.getElementById('confirmationModal').style.display = 'none';
-            }
-
-            function getTimeSlotByScheduleId(scheduleId) {
-                for (var i = 0; i < schedules.length; i++) {
-                    if (String(schedules[i].scheduleId) === String(scheduleId)) {
-                        var startTime = schedules[i].startTime;
-                        var endTime = schedules[i].endTime;
-                        var startHour = startTime.hour;
-                        var startMinute = startTime.minutes ? startTime.minutes : '00';
-                        var endHour = endTime.hour;
-                        var endMinute = endTime.minutes ? endTime.minutes : '00';
-                        return startHour + ':' + startMinute + ' - ' + endHour + ':' + endMinute;
-                    }
-                }
-                return 'Unknown';
-            }
-
-
-        </script>
-    </body>
-</html>

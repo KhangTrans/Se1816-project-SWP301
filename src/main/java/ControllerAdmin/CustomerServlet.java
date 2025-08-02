@@ -48,10 +48,8 @@ public class CustomerServlet extends HttpServlet {
                     String fullName = request.getParameter("fullName");
                     List<Customer> customers;
                     if (fullName == null || fullName.isEmpty()) {
-                        // Nếu không có từ khóa tìm kiếm, lấy tất cả khách hàng
                         customers = customerDao.getAllCustomers();
                     } else {
-                        // Nếu có từ khóa tìm kiếm, tìm kiếm theo fullName
                         customers = customerDao.searchCustomersByFullName(fullName);
                     }
                     response.setContentType("application/json");
@@ -93,11 +91,11 @@ public class CustomerServlet extends HttpServlet {
         do {
             int number = (int) (Math.random() * 1_000_000);
             code = String.format("CUS%06d", number);
-        } while (customerDao.isMemberCodeExists(code)); // DAO check trùng
+        } while (customerDao.isMemberCodeExists(code));
         return code;
     }
 
-    @Override
+@Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
@@ -111,22 +109,32 @@ public class CustomerServlet extends HttpServlet {
         try {
             switch (action) {
                 case "create": {
-                    // Lấy dữ liệu từ form
                     int accountId = Integer.parseInt(request.getParameter("accountCusId"));
-                    String fullName = request.getParameter("fullName");
-                    String email = request.getParameter("email");
-                    String phone = request.getParameter("phone");
-                    // String customerCode = request.getParameter("customerCode");
+                    String fullName = request.getParameter("fullName").trim();
+                    String email = request.getParameter("email").trim();
+                    String phone = request.getParameter("phone").trim();
                     String address = request.getParameter("address");
-                    System.out.println(accountId);
-                    System.out.println(fullName);
-                    System.out.println(email);
-                    System.out.println(phone);
-                    // System.out.println(customerCode);
-                    System.out.println(address);
                     Account acc = customerDao.getCustomerAccountById(accountId);
 
                     if (acc != null) {
+                        if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                            response.getWriter().write("{\"status\":\"error\", \"message\":\"Invalid email format.\"}");
+                            return;
+                        }
+                        if (!phone.matches("^(0|\\+84)[1-9]\\d{8,9}$")) {
+                            response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number must be in Vietnamese format.\"}");
+                            return;
+                        }
+
+                        if (customerDao.isEmailExists(email)) {
+                            response.getWriter().write("{\"status\":\"error\", \"message\":\"Email is already in use.\"}");
+                            return;
+                        }
+                        if (customerDao.isPhoneExists(phone)) {
+                            response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number is already in use.\"}");
+                            return;
+                        }
+
                         Customer customer = new Customer();
                         customer.setAccount(acc);
                         customer.setFullName(fullName);
@@ -134,20 +142,39 @@ public class CustomerServlet extends HttpServlet {
                         customer.setPhone(phone);
                         customer.setCustomerCode(generateMemberCode());
                         customer.setAddress(address);
-                        customerDao.createCustomer(customer);
-                    }
 
-                    response.setContentType("text/plain");
-                    response.getWriter().write("OK");
+                        customerDao.createCustomer(customer);
+                        response.getWriter().write("{\"status\":\"success\", \"message\":\"Customer created successfully.\"}");
+                    } else {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Account not found.\"}");
+                    }
                     break;
                 }
                 case "update": {
-                    int customerId = Integer.parseInt(request.getParameter("customerId"));
-                    String fullName = request.getParameter("fullName");
-                    String email = request.getParameter("email");
-                    String phone = request.getParameter("phone");
+int customerId = Integer.parseInt(request.getParameter("customerId"));
+                    String fullName = request.getParameter("fullName").trim();
+                    String email = request.getParameter("email").trim();
+                    String phone = request.getParameter("phone").trim();
                     String customerCode = request.getParameter("customerCode");
                     String address = request.getParameter("address");
+
+                    if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Invalid email format.\"}");
+                        return;
+                    }
+                    if (!phone.matches("^(0|\\+84)[1-9]\\d{8,9}$")) {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number must be in Vietnamese format.\"}");
+                        return;
+                    }
+
+                    if (customerDao.isEmailExistsExceptCustomer(email, customerId)) {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Email is already in use by another customer.\"}");
+                        return;
+                    }
+                    if (customerDao.isPhoneExistsExceptCustomer(phone, customerId)) {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number is already in use by another customer.\"}");
+                        return;
+                    }
 
                     Customer customer = new Customer();
                     customer.setCustomerId(customerId);
@@ -157,31 +184,36 @@ public class CustomerServlet extends HttpServlet {
                     customer.setCustomerCode(customerCode);
                     customer.setAddress(address);
 
-                    customerDao.updateCustomer(customer);
-                    response.setContentType("text/plain");
-                    response.getWriter().write("OK");
+                    boolean updated = customerDao.updateCustomer(customer);
+                    if (updated) {
+                        response.getWriter().write("{\"status\":\"success\", \"message\":\"Customer updated successfully.\"}");
+                    } else {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Update failed. Please check the data.\"}");
+                    }
                     break;
                 }
-
                 case "delete": {
                     int customerId = Integer.parseInt(request.getParameter("customerId"));
-                    customerDao.deleteCustomer(customerId);
-                    response.setContentType("text/plain");
-                    response.getWriter().write("OK");
+                    
+                    boolean deleted = customerDao.deleteCustomer(customerId);
+                    if (deleted) {
+                        response.getWriter().write("{\"status\":\"success\", \"message\":\"Customer deleted successfully.\"}");
+                    } else {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Deletion failed. Please check again.\"}");
+                    }
                     break;
                 }
-
                 default:
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Action không hợp lệ");
+response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid action");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Lỗi xử lý dữ liệu khách hàng");
+            response.getWriter().write("{\"status\":\"error\", \"message\":\"An error occurred while processing customer data.\"}");
         }
     }
 
     @Override
     public String getServletInfo() {
-        return "Servlet quản lý khách hàng";
+        return "Servlet managing customers";
     }
 }

@@ -6,8 +6,10 @@
         <h2>Create New Staff</h2>
 
         <form id="createStaffForm"
-              action="staffs?action=create" method="post"
-              onsubmit="return validateStaffForm(this, 'createStaffError') && submitFormAjax(this, 'resultAddStaff')">
+              action="<%= request.getContextPath()%>/admin/staffs?action=create"
+              method="post"
+              onsubmit="return submitFormAjaxStaff(this, 'resultAddStaff')">
+            <input type="hidden" name="action" value="create">
 
             <div id="createStaffError" style="color: red; margin-bottom: 10px;"></div>
 
@@ -32,7 +34,7 @@
 
             <button type="submit">Create</button>
             <button type="button" onclick="closeModal('addStaffModal')">Cancel</button>
-
+            <div id="resultAddStaff" style="margin-top: 10px;"></div>
         </form>
     </div>
 </div>

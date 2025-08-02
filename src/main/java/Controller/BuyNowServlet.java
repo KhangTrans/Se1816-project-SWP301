@@ -32,22 +32,33 @@ public class BuyNowServlet extends HttpServlet {
         try {
             HttpSession session = req.getSession(false);
             Integer accountId = (session != null) ? (Integer) session.getAttribute("accountId") : null;
-            if (accountId == null) {
-                resp.sendRedirect("login.jsp");
-                return;
-            }
 
             String productIdStr = req.getParameter("productId");
             Integer productId = (productIdStr != null) ? Integer.valueOf(productIdStr) : null;
 
-            Products product = new ProductDao().getProductById(productId);
+            ///////
+            Products product = new ProductDao().getProductByIdDetail(productId);
+            if (product == null || product.getStockQuantity() < 1 || !product.isActive()) {
+                req.getSession().setAttribute("errorMessage", "This product is out of stock or no longer available!");
+                resp.sendRedirect(req.getContextPath() + "/shopAll");
+                return;
+            }
+
+            if (accountId == null) {
+                // Truyền cờ hoặc message báo chưa đăng nhập
+                req.getSession().setAttribute("errorMessage", "You need to login to use this feature!");
+                resp.sendRedirect(req.getContextPath() + "/shopAll");
+                return;
+            }
+
             List<Voucher> claimedVouchers = new VoucherDao().getAvailableVouchersForCustomer(accountId);
 
             req.setAttribute("product", product);
             req.setAttribute("claimedVouchers", claimedVouchers);
             req.setAttribute("productId", productId);
 
-            req.getRequestDispatcher("/WEB-INF/View/customers/product_detail.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/View/customers/buyNow.jsp").forward(req, resp);
+
         } catch (SQLException ex) {
             Logger.getLogger(BuyNowServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -60,7 +71,9 @@ public class BuyNowServlet extends HttpServlet {
             HttpSession session = req.getSession(false);
             Integer accountId = (session != null) ? (Integer) session.getAttribute("accountId") : null;
             if (accountId == null) {
-                resp.sendRedirect("login.jsp");
+                // Truyền cờ hoặc message báo chưa đăng nhập
+                req.setAttribute("notLoggedIn", true);
+                req.getRequestDispatcher("/WEB-INF/View/customers/buyNow.jsp").forward(req, resp);
                 return;
             }
 
@@ -75,7 +88,13 @@ public class BuyNowServlet extends HttpServlet {
             String customerPhone = req.getParameter("phone");
             String shippingAddress = req.getParameter("address");
 
-            Products product = new ProductDao().getProductById(productId);
+            Products product = new ProductDao().getProductByIdDetail(productId);
+            if (product == null || product.getStockQuantity() < 1 || !product.isActive()) {
+                req.getSession().setAttribute("errorMessage", "This product is out of stock or no longer available!");
+                resp.sendRedirect(req.getContextPath() + "/shopAll");
+                return;
+            }
+
             VoucherDao voucherDao = new VoucherDao();
             Voucher voucher = null;
 
@@ -87,7 +106,8 @@ public class BuyNowServlet extends HttpServlet {
                     req.setAttribute("product", product);
                     req.setAttribute("claimedVouchers", voucherDao.getAvailableVouchersForCustomer(accountId));
                     req.setAttribute("productId", productId);
-                    req.getRequestDispatcher("/WEB-INF/View/customers/product_detail.jsp").forward(req, resp);
+                    req.getRequestDispatcher("/WEB-INF/View/customers/buyNow.jsp").forward(req, resp);
+
                     return;
                 }
                 voucher = voucherDao.getVoucherById(voucherId);
@@ -102,7 +122,8 @@ public class BuyNowServlet extends HttpServlet {
                     req.setAttribute("product", product);
                     req.setAttribute("claimedVouchers", voucherDao.getAvailableVouchersForCustomer(accountId));
                     req.setAttribute("productId", productId);
-                    req.getRequestDispatcher("/WEB-INF/View/customers/product_detail.jsp").forward(req, resp);
+                    req.getRequestDispatcher("/WEB-INF/View/customers/buyNow.jsp").forward(req, resp);
+
                     return;
                 }
             }
@@ -151,7 +172,8 @@ public class BuyNowServlet extends HttpServlet {
         } catch (SQLException ex) {
             ex.printStackTrace();
             req.setAttribute("errorMessage", "An error occured.");
-            req.getRequestDispatcher("/WEB-INF/View/customers/product_detail.jsp").forward(req, resp);
+            req.getRequestDispatcher("/WEB-INF/View/customers/buyNow.jsp").forward(req, resp);
+
         }
     }
 

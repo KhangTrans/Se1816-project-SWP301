@@ -28,14 +28,14 @@
                         <div id="loginAlert" class="alert d-none" role="alert"></div>
 
                         <div class="mb-3">
-                            <label>Username</label>
+                            <label style="color: black">Username</label>
                             <input type="text"
                                    class="form-control"
                                    name="username" required />
                         </div>
 
                         <div class="mb-3">
-                            <label>Password</label>
+                            <label style="color: black">Password</label>
                             <input type="password"
                                    class="form-control"
                                    name="password" required />

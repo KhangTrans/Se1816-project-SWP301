@@ -148,16 +148,47 @@ public class BlogDao extends DBcontext {
                 LocalDateTime create = rs.getTimestamp("created_at").toLocalDateTime();
                 LocalDateTime update = rs.getTimestamp("updated_at").toLocalDateTime();
                 int author_id = rs.getInt("author_id");
-                Staff s = getbyID(author_id);
+                Account acc = getAccountById(author_id);
                 boolean is_pub = rs.getBoolean("is_published");
 
-                Blog b = new Blog(id, title, content, create, update, s);
+                Blog b = new Blog(id, title, content, create, update, acc);
                 return b;
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
         return null;
+    }
+
+    public Account getAccountById(int accountId) {
+        Account account = null;
+        String sql = "SELECT * FROM accounts WHERE account_id = ?"; // Câu truy vấn lấy thông tin tài khoản
+
+        try ( Connection con = getConnection(); // Giả sử bạn có một lớp để kết nối CSDL
+                  PreparedStatement pst = con.prepareStatement(sql)) {
+
+            // Gán tham số vào câu truy vấn
+            pst.setInt(1, accountId);
+
+            // Thực hiện câu truy vấn và lấy kết quả
+            ResultSet rs = pst.executeQuery();
+
+            // Kiểm tra nếu có tài khoản
+            if (rs.next()) {
+                // Tạo đối tượng tài khoản và gán thông tin từ CSDL
+                account = new Account();
+                account.setAccountId(rs.getInt("account_id"));
+                account.setUsername(rs.getString("username"));
+                account.setPassword(rs.getString("password"));
+                account.setRole(rs.getString("role"));
+                // Gán các thuộc tính khác nếu cần
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return account;
     }
 
     public void insertBlogImage(int blogId, byte[] imageData, boolean isPrimary) throws SQLException, IOException {
@@ -210,7 +241,7 @@ public class BlogDao extends DBcontext {
             ps.setString(1, b.getTitle());
             ps.setString(2, b.getContent());
             ps.setTimestamp(3, Timestamp.valueOf(b.getUpdatedAt()));
-            ps.setInt(4, b.getAuthor().getStaffId());
+            ps.setInt(4, b.getAuthor().getAccountId());
             ps.setInt(5, b.getBlogId());
 
             ps.executeUpdate();
@@ -261,7 +292,7 @@ public class BlogDao extends DBcontext {
                     currentBlog.setContent(rs.getString("content"));
                     currentBlog.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
                     currentBlog.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
-                    currentBlog.setAuthor(new Staff()); // Giả sử bạn có Staff đã được thiết lập
+                    currentBlog.setAuthor(new Account()); // Giả sử bạn có Staff đã được thiết lập
                     currentBlog.setPublished(rs.getBoolean("is_published"));
 
                     // Khởi tạo danh sách hình ảnh cho blog
@@ -309,5 +340,61 @@ public class BlogDao extends DBcontext {
             e.printStackTrace();
         }
         return images;
+    }
+
+    public List<Blog> searchBlogs(String titleKeyword, LocalDateTime fromDate, LocalDateTime toDate) throws SQLException {
+        List<Blog> results = new ArrayList<>();
+
+        StringBuilder sql = new StringBuilder("SELECT b.*, i.image_id AS imageId ");
+        sql.append("FROM blogs b ");
+        sql.append("LEFT JOIN blog_images i ON b.blog_id = i.blog_id AND i.is_primary = 1 ");
+        sql.append("WHERE 1=1 ");
+
+        List<Object> params = new ArrayList<>();
+
+        // Search theo tiêu đề
+        if (titleKeyword != null && !titleKeyword.trim().isEmpty()) {
+            sql.append("AND b.title LIKE ? ");
+            params.add("%" + titleKeyword.trim() + "%");
+        }
+
+        // Filter theo fromDate
+        if (fromDate != null) {
+            sql.append("AND b.created_at >= ? ");
+            params.add(Timestamp.valueOf(fromDate));
+        }
+
+        // Filter theo toDate
+        if (toDate != null) {
+            sql.append("AND b.created_at <= ? ");
+            params.add(Timestamp.valueOf(toDate));
+        }
+
+        sql.append("ORDER BY b.created_at DESC");
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < params.size(); i++) {
+                Object param = params.get(i);
+                if (param instanceof String) {
+                    ps.setString(i + 1, (String) param);
+                } else if (param instanceof Timestamp) {
+                    ps.setTimestamp(i + 1, (Timestamp) param);
+                }
+            }
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Blog blog = new Blog();
+                blog.setBlogId(rs.getInt("blog_id"));
+                blog.setTitle(rs.getString("title"));
+                blog.setContent(rs.getString("content"));
+                blog.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+                blog.setUpdatedAt(rs.getTimestamp("updated_at").toLocalDateTime());
+                blog.setPrimaryImageId(rs.getInt("imageId")); // đảm bảo có field imageId trong Blog
+                results.add(blog);
+            }
+        }
+
+        return results;
     }
 }

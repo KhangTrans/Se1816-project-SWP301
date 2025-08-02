@@ -1,18 +1,76 @@
 // Admin Dashboard JavaScript - BEM Methodology
+function escapeHTML(str) {
+    // Ép kiểu sang string, nếu là null/undefined trả về rỗng
+    if (str === undefined || str === null)
+        return '';
+    str = String(str);
+    return str.replace(/[&<>"']/g, function (m) {
+        switch (m) {
+            case '&':
+                return '&amp;';
+            case '<':
+                return '&lt;';
+            case '>':
+                return '&gt;';
+            case '"':
+                return '&quot;';
+            case "'":
+                return '&#39;';
+            default:
+                return m;
+        }
+    });
+}
+function escapeJSAttr(str) {
+    // Đảm bảo là string, tránh lỗi .replace is not a function
+    str = (str === undefined || str === null) ? '' : String(str);
+    // Escape các ký tự đặc biệt cho thuộc tính JS trong HTML (tránh đóng quote và XSS)
+    return str.replace(/['"\\\n\r\u2028\u2029]/g, function (m) {
+        switch (m) {
+            case "'":
+                return "\\'";
+            case '"':
+                return '\\"';
+            case '\\':
+                return '\\\\';
+            case '\n':
+                return '\\n';
+            case '\r':
+                return '\\r';
+            case '\u2028':
+                return '\\u2028';
+            case '\u2029':
+                return '\\u2029';
+            default:
+                return m;
+        }
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function () {
-    loadAccounts();
-    reloadProductList();
-    loadVouchers();
-    loadStaffData();
-    reloadTrainerList();
-    reloadBlogList();
-    loadCustomers();
-    loadLoginLogs();
-    loadPackages();
-    loadMemberPackage();
-    loadCategori();
+    loadAccounts(); //
+    reloadProductList(); //
+    loadVouchers(); //
+    loadStaffData(); //
+    reloadTrainerList(); //
+    reloadBlogList(); //
+    loadCustomers(); //
+    loadLoginLogs(); //
+    loadPackages(); //
+    loadMemberPackage();//
+    loadCategori(); //
     ;
 });
+function validateInput(input) {
+    // Kiểm tra nếu giá trị nhập vào chứa ký tự đặc biệt
+    const forbiddenChars = /script/gi;
+
+    // Nếu chứa ký tự đặc biệt, hiển thị thông báo lỗi và xóa toàn bộ nội dung
+    if (forbiddenChars.test(input.value)) {
+        alert("Must not contain special characters that affect system security.");
+        input.value = '';  // Xóa toàn bộ dữ liệu nhập vào (lưu dữ liệu rỗng)
+    }
+}
 
 // Show specific table
 function showTable(tableId) {
@@ -50,10 +108,13 @@ async function loadAllData() {
 
 // Format currency
 function formatCurrency(amount) {
+    if (isNaN(parseFloat(amount))) {
+        return '0 ₫';
+    }
     return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND'
-    }).format(amount);
+        style: 'decimal',
+        maximumFractionDigits: 0
+    }).format(amount) + ' ₫';
 }
 
 // Form validation
@@ -227,32 +288,66 @@ function loadAccounts() {
                 tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Chưa có tài khoản nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No account yet</td></tr>`;
                     return;
                 }
 
                 data.forEach((acc, index) => {
-                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${acc.username}&t=${Date.now()}`;
+                    const createdAtDate = new Date(acc.createdAt);
+                    const formattedDate = `${createdAtDate.getMonth() + 1}/${createdAtDate.getDate()}/${createdAtDate.getFullYear()}`;
+                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${encodeURIComponent(acc.username)}&t=${Date.now()}`;
+
+                    const isCustomer = acc.role === 'customer';
+                    const deleteBtnHTML = `
+                    <button class="action-buttons__btn action-buttons__btn--delete account-delete"
+                        data-account-id='${acc.accountId}'
+                        ${isCustomer ? 'disabled title="Unable to delete customer account" style="background-color: #6c757d; border-color: #6c757d; color: white;"' : ''}>
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+
                     const row = `
                     <tr>
                         <td>${index + 1}</td>
-                        <td><img src="${avatarUrl}" alt="Avatar" style="width:60px;height:60px;border-radius:50%;"></td>
-                        <td>${acc.username}</td>
-                        <td>${acc.role}</td>
-                        <td>${acc.createdAt}</td>
+                        <td><img src="${escapeHTML(avatarUrl)}" alt="Avatar" style="width:60px;height:60px;border-radius:50%;"></td>
+                        <td>${escapeHTML(acc.username)}</td>
+                        <td>${escapeHTML(acc.role)}</td>
+                        <td>${formattedDate}</td>
                         <td>
-                            <button class="action-buttons__btn action-buttons__btn--edit"
-                                onclick="openEditAccountModal('${acc.accountId}', '${acc.username}', '${acc.role}', '${avatarUrl}')">
-                                Edit
+                            <button class="action-buttons__btn action-buttons__btn--edit account-edit"
+                                data-account-id='${acc.accountId}'
+                                data-username='${acc.username.replace(/'/g, "&#39;")}'
+                                data-role='${acc.role.replace(/'/g, "&#39;")}'
+                                data-avatar-url='${avatarUrl.replace(/'/g, "&#39;")}'
+>
+                                <i class="fas fa-edit"></i>
                             </button>
-                            <button class="action-buttons__btn action-buttons__btn--delete"
-                                onclick="openDeleteAccountModal('${acc.accountId}')">
-                                Delete
-                            </button>
+                            ${deleteBtnHTML}
                         </td>
                     </tr>
                 `;
                     tbody.innerHTML += row;
+                });
+
+                // Gắn sự kiện cho nút Edit
+                document.querySelectorAll('.account-edit').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openEditAccountModal(
+                                this.dataset.accountId,
+                                this.dataset.username.replace(/&#39;/g, "'"),
+                                this.dataset.role.replace(/&#39;/g, "'"),
+                                this.dataset.avatarUrl.replace(/&#39;/g, "'")
+                                );
+                    });
+                });
+
+                // Gắn sự kiện cho nút Delete (bỏ qua nếu bị disable)
+                document.querySelectorAll('.account-delete').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        if (btn.disabled)
+                            return;
+                        openDeleteAccountModal(this.dataset.accountId);
+                    });
                 });
             })
             .catch(error => {
@@ -293,17 +388,27 @@ function filterAccounts() {
                 }
 
                 data.forEach((acc, index) => {
-                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${acc.username}&t=${Date.now()}`;
+                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${encodeURIComponent(acc.username)}&t=${Date.now()}`;
                     const row = `
                     <tr>
                         <td>${index + 1}</td>
-                        <td><img src="${avatarUrl}" style="width:40px;height:40px;border-radius:50%;"></td>
-                        <td>${acc.username}</td>
-                        <td>${acc.role}</td>
-                        <td>${acc.createdAt}</td>
+                        <td><img src="${escapeHTML(avatarUrl)}" style="width:40px;height:40px;border-radius:50%;"></td>
+                        <td>${escapeHTML(acc.username)}</td>
+                        <td>${escapeHTML(acc.role)}</td>
+                        <td>${escapeHTML(acc.createdAt)}</td>
                         <td>
-                            <button onclick="openEditAccountModal('${acc.accountId}', '${acc.username}', '${acc.role}', '${avatarUrl}')">Edit</button>
-                            <button onclick="openDeleteAccountModal('${acc.accountId}')">Delete</button>
+                 <button class="action-buttons__btn action-buttons__btn--edit account-edit"
+                    data-account-id='${acc.accountId}'
+                    data-username='${acc.username.replace(/'/g, "&#39;")}'
+                    data-role='${acc.role.replace(/'/g, "&#39;")}'
+                    data-avatar-url='${avatarUrl.replace(/'/g, "&#39;")}'
+                >
+                    <i class="fas fa-edit"></i>
+                </button>
+                <button class="action-buttons__btn action-buttons__btn--delete account-delete"
+                    data-account-id='${acc.accountId}'>
+                    <i class="fas fa-trash-alt"></i>
+                </button>
                         </td>
                     </tr>
                 `;
@@ -481,9 +586,11 @@ function openEditProductModal(productId) {
                         };
 
                         const deleteBtn = document.createElement('button');
-                        deleteBtn.textContent = "no";
+                        deleteBtn.textContent = "X";
                         deleteBtn.style.position = "absolute";
                         deleteBtn.style.top = "0";
+                        deleteBtn.style.padding = "5px";
+                        deleteBtn.style.borderradius = "5px";
                         deleteBtn.style.right = "0";
                         deleteBtn.style.background = "red";
                         deleteBtn.style.color = "white";
@@ -584,7 +691,7 @@ function reloadProductList() {
                 tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="8" style="text-align:center;">Chưa có sản phẩm nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Chưa có sản phẩm nào</td></tr>`;
                     return;
                 }
 
@@ -592,32 +699,82 @@ function reloadProductList() {
                     const imageUrl = product.primaryImageId
                             ? `${window.location.origin}${contextPath}/ImagesServlet?type=product&imageId=${product.primaryImageId}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
-                    // Giới hạn mô tả chỉ hiển thị 150 ký tự và thêm "..." nếu dài hơn
+
                     const truncatedDescription = product.description && product.description.length > 150
                             ? product.description.slice(0, 150) + "..."
                             : product.description;
+
                     const row = `
-                    <tr>
-                        <td style="width:60px;">${index + 1}</td>
-                        <td><img src="${imageUrl}" alt="Image" style="width:100px; height:100px; border-radius:10px; margin-top: 5px"></td>
-                        <td>${product.name}</td>
-                        <td>${product.categoryName}</td>
-                        <td>${product.price.toLocaleString('vi-VN')} đ</td>
-                        <td>${product.stockQuantity}</td>
-                        <td>${truncatedDescription || ''}</td>
-                        <td>
-                            <button class="action-buttons__btn action-buttons__btn--edit"
-                                onclick="openEditProductModal('${product.productId}', '${product.name}', '${product.description}', '${product.price}', '${product.stockQuantity}', '${product.categoryId}', '${imageUrl}')">
-                                Edit
-                            </button>
-                            <button class="action-buttons__btn action-buttons__btn--delete"
-                                onclick="openDeleteProductModal('${product.productId}')">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td style="width:60px;">${index + 1}</td>
+                    <td><img src="${escapeHTML(imageUrl)}" alt="Hình ảnh" style="width:100px; height:100px; border-radius:10px; margin-top: 5px"></td>
+                    <td>${escapeHTML(product.name)}</td>
+                    <td>${escapeHTML(product.categoryName)}</td>
+                    <td>${escapeHTML(product.price.toLocaleString('vi-VN'))} đ</td>
+                    <td>${escapeHTML(product.stockQuantity + '')}</td>
+                    <td>
+                        <button class="action-buttons__btn action-buttons__btn--view product-view"
+                            data-product-id='${product.productId}'
+                            data-name='${product.name.replace(/'/g, "&#39;")}'
+                            data-description='${product.description.replace(/'/g, "&#39;")}'
+                            data-price='${product.price}'
+                            data-stock-quantity='${product.stockQuantity}'
+                            data-category-name='${product.categoryName.replace(/'/g, "&#39;")}'
+                            data-image-url='${imageUrl.replace(/'/g, "&#39;")}'>
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--edit product-edit"
+data-product-id='${product.productId}'
+                            data-name='${product.name.replace(/'/g, "&#39;")}'
+                            data-description='${product.description.replace(/'/g, "&#39;")}'
+                            data-price='${product.price}'
+                            data-stock-quantity='${product.stockQuantity}'
+                            data-category-id='${product.categoryId}'
+                            data-image-url='${imageUrl.replace(/'/g, "&#39;")}'>
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--delete product-delete"
+                            data-product-id='${product.productId}'>
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
                 `;
                     tbody.innerHTML += row;
+                });
+
+                document.querySelectorAll('.product-edit').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openEditProductModal(
+                                this.dataset.productId,
+                                this.dataset.name.replace(/&#39;/g, "'"),
+                                this.dataset.description.replace(/&#39;/g, "'"),
+                                this.dataset.price,
+                                this.dataset.stockQuantity,
+                                this.dataset.categoryId,
+                                this.dataset.imageUrl.replace(/&#39;/g, "'")
+                                );
+                    });
+                });
+
+                document.querySelectorAll('.product-delete').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openDeleteProductModal(this.dataset.productId);
+                    });
+                });
+
+                document.querySelectorAll('.product-view').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openViewProductModal(
+                                this.dataset.productId,
+                                this.dataset.name.replace(/&#39;/g, "'"),
+                                this.dataset.description.replace(/&#39;/g, "'"),
+                                this.dataset.price,
+                                this.dataset.stockQuantity,
+                                this.dataset.categoryName.replace(/&#39;/g, "'"),
+                                this.dataset.imageUrl.replace(/&#39;/g, "'")
+                                );
+                    });
                 });
             })
             .catch(error => {
@@ -628,6 +785,38 @@ function reloadProductList() {
             });
 }
 
+// Thêm trình nghe sự kiện cho tìm kiếm động và bộ lọc danh mục
+document.getElementById('searchKeyword').addEventListener('input', function () {
+    reloadProductList();
+});
+
+document.getElementById('categoryFilter').addEventListener('change', function () {
+    reloadProductList();
+});
+//-----------------------------------------
+
+
+function openViewProductModal(productId, name, description, price, stock, categoryId, imageUrl) {
+    document.getElementById('viewProductName').innerText = name;
+    document.getElementById('viewProductDescription').innerText = description;
+    document.getElementById('viewProductPrice').innerText = price;
+    document.getElementById('viewProductStock').innerText = stock;
+    document.getElementById('viewProductCategory').innerText = categoryId.name || categoryId;
+
+    const imageList = document.getElementById('viewProductImageList');
+    imageList.innerHTML = '';
+    if (imageUrl) {
+        const img = document.createElement('img');
+        img.src = imageUrl;
+        img.style.maxWidth = '100px';
+        img.style.height = 'auto';
+        imageList.appendChild(img);
+    }
+
+    document.getElementById('viewProductModal').style.display = 'flex';
+}
+
+//--------------------------------------------
 function validateProductForm(form) {
     const price = parseFloat(form.price.value);
     const stock = parseInt(form.stockQuantity.value);
@@ -698,7 +887,6 @@ function previewNewImages(input) {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Function to load the list of vouchers from the server
-// Function to load the list of vouchers from the server
 function loadVouchers() {
     console.log('Loading voucher list with filters...');
     ///NHATKHANG - Modified to handle search, date filters and status correctly
@@ -736,23 +924,11 @@ function loadVouchers() {
                 tbody.innerHTML = ''; // Clear current content
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="12" style="text-align:center;">No vouchers available</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No vouchers available</td></tr>`;
                     return;
                 }
 
                 data.forEach((voucher, index) => {
-                    const startDate = voucher.startDate
-                            ? new Date(voucher.startDate + 'T00:00:00').toLocaleDateString('vi-VN', {
-                        day: '2-digit', month: '2-digit', year: 'numeric'
-                    })
-                            : 'N/A';
-
-                    const endDate = voucher.endDate
-                            ? new Date(voucher.endDate + 'T00:00:00').toLocaleDateString('vi-VN', {
-                        day: '2-digit', month: '2-digit', year: 'numeric'
-                    })
-                            : 'N/A';
-
                     // Escape strings for JavaScript
                     const safeDescription = voucher.description ? voucher.description.replace(/'/g, "\\'") : '';
                     const safeCode = voucher.code ? voucher.code.replace(/'/g, "\\'") : '';
@@ -760,24 +936,22 @@ function loadVouchers() {
                     const row = `
                 <tr>
                     <td>${index + 1}</td>
-                    <td>${voucher.code}</td>
-                    <td>${voucher.description}</td>
+                    <td>${escapeHTML(voucher.code)}</td>
+                    <td>${escapeHTML(voucher.description)}</td>
                     <td>${voucher.discountPercent}</td>
-                    <td>${voucher.maxDiscount}</td>
-                    <td>${voucher.usageLimit}</td>
-                    <td>${voucher.usedCount}</td>
-                    <td>${voucher.minOrderAmount}</td>
-                    <td>${startDate}</td>
-                    <td>${endDate}</td>
                     <td>${voucher.isActive ? 'Active' : 'Inactive'}</td>
                     <td>
-                        <button class="action-buttons__btn action-buttons__btn--edit" style="margin-top: 5px;"
-                            onclick="openEditVoucherModal('${voucher.voucherId}', '${safeCode}', '${safeDescription}', '${voucher.discountPercent}', '${voucher.maxDiscount}', '${voucher.usageLimit}', '${voucher.usedCount}', '${voucher.minOrderAmount}', '${voucher.startDate}', '${voucher.endDate}', '${voucher.isActive}')">
-                            Edit
+                        <button class="action-buttons__btn action-buttons__btn--view" 
+                            onclick="viewVoucherDetail('${voucher.voucherId}')">
+                            <i class="bi bi-eye"></i>
                         </button>
-                        <button class="action-buttons__btn action-buttons__btn--delete" style="margin-top: 5px;"
+                        <button class="action-buttons__btn action-buttons__btn--edit" 
+                            onclick="openEditVoucherModal('${voucher.voucherId}', '${safeCode}', '${safeDescription}', '${voucher.discountPercent}', '${voucher.maxDiscount}', '${voucher.usageLimit}', '${voucher.usedCount}', '${voucher.minOrderAmount}', '${voucher.startDate}', '${voucher.endDate}', '${voucher.isActive}')">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--delete" 
                             onclick="openDeleteVoucherModal('${voucher.voucherId}')">
-                            Delete
+                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
                 </tr>`;
@@ -792,6 +966,55 @@ function loadVouchers() {
                         .then(text => console.warn("Server response is not JSON:", text))
                         .catch(err => console.error("Failed to get error details:", err));
             });
+}
+
+// Function to view voucher details
+function viewVoucherDetail(voucherId) {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+
+    // Get voucher details from server
+    fetch(`${window.location.origin}${contextPath}/admin/vouchers?action=ajaxList`)
+            .then(response => response.json())
+            .then(data => {
+                const voucher = data.find(v => v.voucherId == voucherId);
+
+                if (!voucher) {
+                    console.error('Voucher not found');
+                    return;
+                }
+
+                // Format dates
+                const startDate = voucher.startDate
+                        ? new Date(voucher.startDate + 'T00:00:00').toLocaleDateString('vi-VN', {
+                    day: '2-digit', month: '2-digit', year: 'numeric'
+                })
+                        : 'N/A';
+
+                const endDate = voucher.endDate
+                        ? new Date(voucher.endDate + 'T00:00:00').toLocaleDateString('vi-VN', {
+                    day: '2-digit', month: '2-digit', year: 'numeric'
+                })
+                        : 'N/A';
+
+                // Populate the detail view
+//            document.getElementById('detail-voucher-id').textContent = voucher.voucherId;
+//            document.getElementById('detail-voucher-code').textContent = voucher.code;
+//            document.getElementById('detail-voucher-description').textContent = voucher.description;
+                document.getElementById('detail-voucher-discount').textContent = `${voucher.discountPercent}%`;
+                document.getElementById('detail-voucher-max-discount').textContent = formatVndPrice(voucher.maxDiscount);
+                document.getElementById('detail-voucher-usage-limit').textContent = voucher.usageLimit;
+                document.getElementById('detail-voucher-used-count').textContent = voucher.usedCount;
+                document.getElementById('detail-voucher-min-amount').textContent = formatVndPrice(voucher.minOrderAmount);
+                document.getElementById('detail-voucher-start-date').textContent = startDate;
+                document.getElementById('detail-voucher-end-date').textContent = endDate;
+//            document.getElementById('detail-voucher-status').textContent = voucher.isActive ? 'Active' : 'Inactive';
+
+                // Removed the code that sets up edit and delete button event handlers
+
+                // Open the modal
+                openModal('viewVoucherModal');
+            })
+            .catch(error => console.error('Error fetching voucher details:', error));
 }
 
 
@@ -1092,102 +1315,247 @@ function loadOrders() {
                     console.error('Cannot find tbody in #orderTable');
                     return;
                 }
-                tbody.innerHTML = ''; // Clear current content
+                tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No orders available</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No orders available</td></tr>`;
                     return;
                 }
 
+                // Group orders by referral code
+                const ordersByReferralCode = {};
+
                 data.forEach(order => {
-                    const orderItems = order.orderItems || [];
+                    const refCode = order.referralCode || '';
+                    if (!ordersByReferralCode[refCode]) {
+                        ordersByReferralCode[refCode] = {
+                            orders: [],
+                            products: [],
+                            totalAmount: 0
+                        };
+                    }
 
-                    if (orderItems.length > 0) {
-                        // If order has items, create a row for each item
-                        orderItems.forEach(item => {
-                            // Create status dropdown with appropriate class
-                            const statusDropdown = `
-                            <select class="status-dropdown" name="status_${order.orderId}" onchange="updateOrderStatus('${order.orderId}', this.value)">
-                                <option value="pending" ${order.status === 'pending' ? 'selected' : ''} class="status-pending">Pending</option>
-                                <option value="processing" ${order.status === 'processing' ? 'selected' : ''} class="status-processing">Processing</option>
-                                <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''} class="status-shipped">Shipped</option>
-                                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''} class="status-cancelled">Cancelled</option>
-                            </select>
-                        `;
+                    ordersByReferralCode[refCode].orders.push(order);
 
-                            const row = `
-                        <tr>
-                            <td>${order.referralCode || ''}</td>
-                            <td>${item.productName || 'Unknown Product'}</td>
-                            <td>${item.quantity || 0}</td>
-                            <td>${item.unitPrice ? (Number(item.unitPrice) * item.quantity).toLocaleString() + ' VND' : '0 VND'}</td>
-                            <td>${statusDropdown}</td>
-                            <td>${order.shippingAddress || ''}</td>
-                            <td>${order.customerName || ''}</td>
-                            <td>${order.customerPhoneNumber || ''}</td>
-                            <td>
-                                <button class="action-buttons__btn action-buttons__btn--edit" 
-                                    onclick="openEditOrderModal('${order.orderId}')">
-                                    Edit
-                                </button>
-                                <button class="action-buttons__btn action-buttons__btn--delete" 
-                                    onclick="openDeleteOrderModal('${order.orderId}')">
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>`;
+                    // Add products to the grouped data
+                    if (order.orderItems && order.orderItems.length > 0) {
+                        order.orderItems.forEach(item => {
+                            ordersByReferralCode[refCode].products.push({
+                                productName: item.productName || 'Unknown Product',
+                                quantity: item.quantity || 0,
+                                unitPrice: item.unitPrice || 0,
+                                price: item.price || (item.quantity * item.unitPrice) || 0
+                            });
 
-                            tbody.innerHTML += row;
+                            ordersByReferralCode[refCode].totalAmount += (item.price || (item.quantity * item.unitPrice) || 0);
                         });
-                    } else {
-                        // If order has no items, create a single row
-                        // Create status dropdown with appropriate class
-                        const statusDropdown = `
-                        <select class="status-dropdown" name="status_${order.orderId}" onchange="updateOrderStatus('${order.orderId}', this.value)">
-                            <option value="pending" ${order.status === 'pending' ? 'selected' : ''} class="status-pending">Pending</option>
-                            <option value="processing" ${order.status === 'processing' ? 'selected' : ''} class="status-processing">Processing</option>
-                            <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''} class="status-shipped">Shipped</option>
-                            <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''} class="status-cancelled">Cancelled</option>
-                        </select>
+                    }
+                });
+
+                // Render grouped orders (CHỈ THÊM escape cho bảng & nút)
+                Object.keys(ordersByReferralCode).forEach(refCode => {
+                    const groupData = ordersByReferralCode[refCode];
+                    const firstOrder = groupData.orders[0];
+
+                    // Check if the order is cancelled or shipped to disable status dropdown and edit button
+                    const isLocked = firstOrder.status === 'cancelled' || firstOrder.status === 'shipped';
+                    const disabledAttr = isLocked ? 'disabled' : '';
+                    const disabledStyle = isLocked ? 'background-color: #f0f0f0; cursor: not-allowed;' : '';
+
+                    const statusDropdown = `
+                    <select class="status-dropdown" name="status_${escapeHTML(firstOrder.orderId)}" 
+                            onchange="updateOrderStatus('${escapeJSAttr(firstOrder.orderId)}', this.value)"
+                            ${disabledAttr} style="${disabledStyle}">
+                        <option value="pending" ${firstOrder.status === 'pending' ? 'selected' : ''} class="status-pending">Pending</option>
+                        <option value="processing" ${firstOrder.status === 'processing' ? 'selected' : ''} class="status-processing">Processing</option>
+                        <option value="shipped" ${firstOrder.status === 'shipped' ? 'selected' : ''} class="status-shipped">Shipped</option>
+                        <option value="cancelled" ${firstOrder.status === 'cancelled' ? 'selected' : ''} class="status-cancelled">Cancelled</option>
+                    </select>
                     `;
 
-                        const row = `
-                    <tr>
-                        <td>${order.referralCode || ''}</td>
-                        <td>No products</td>
-                        <td>-</td>
-                        <td>${order.totalAmount ? Number(order.totalAmount).toLocaleString() + ' VND' : '0 VND'}</td>
-                        <td>${statusDropdown}</td>
-                        <td>${order.shippingAddress || ''}</td>
-                        <td>${order.customerName || ''}</td>
-                        <td>${order.customerPhoneNumber || ''}</td>
-                        <td>
-                            <button class="action-buttons__btn action-buttons__btn--edit" 
-                                onclick="openEditOrderModal('${order.orderId}')">
-                                Edit
-                            </button>
-                            <button class="action-buttons__btn action-buttons__btn--delete" 
-                                onclick="openDeleteOrderModal('${order.orderId}')">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>`;
+                    const row = `
+                 <tr>
+                   <td>${escapeHTML(refCode || '')}</td>
+                   <td>${escapeHTML(firstOrder.customerName)}</td>
+                   <td>${escapeHTML(firstOrder.customerPhoneNumber)}</td>
+                   <td>${escapeHTML(firstOrder.shippingAddress)}</td>
+                   <td>${statusDropdown}</td>
+                   <td>
+                  <button class="action-buttons__btn action-buttons__btn--view order-view"
+                  data-referral-code="${String(refCode || '').replace(/'/g, "&#39;")}"
+                  >
+                  <i class="bi bi-eye"></i>
+                  </button>
+                  <button class="action-buttons__btn action-buttons__btn--edit order-edit ${isLocked ? 'disabled' : ''}"
+                  data-order-id="${String(firstOrder.orderId || '').replace(/'/g, "&#39;")}"
+                  ${isLocked ? 'disabled' : ''}
+                  style="${isLocked ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
+                  >
+                  <i class="fas fa-edit"></i>
+                  </button>
+                   </td>
+                 </tr>`;
 
-                        tbody.innerHTML += row;
-                    }
+                    tbody.innerHTML += row;
+                });
+                // Gán event cho nút View
+                document.querySelectorAll('.order-view').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        // Lấy referral code đã escape
+                        const referralCode = this.dataset.referralCode.replace(/&#39;/g, "'");
+                        viewOrderDetail(referralCode);
+                    });
+                });
+// Gán event cho nút Edit
+                document.querySelectorAll('.order-edit').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        // Skip if button is disabled (cancelled order)
+                        if (this.disabled || this.classList.contains('disabled')) {
+                            return;
+                        }
+                        const orderId = this.dataset.orderId.replace(/&#39;/g, "'");
+                        openEditOrderModal(orderId);
+                    });
                 });
             })
             .catch(error => {
                 console.error('Error loading order list:', error);
                 const tbody = document.querySelector('#orderTableBody');
                 if (tbody) {
-                    tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">Error loading orders: ${error.message}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Error loading orders: ${error.message}</td></tr>`;
                 }
             });
 }
 
+// Function to format VND price correctly
+function formatVndPrice(price) {
+    // If price is less than 1000 and greater than 0, multiply by 1000
+    if (price < 1000 && price > 0) {
+        price = price * 1000;
+    }
+    return price.toLocaleString() + ' ₫';
+}
+
+// Function to view order details by referral code
+function viewOrderDetail(referralCode) {
+    if (!referralCode) {
+        console.error('No referral code provided');
+        return;
+    }
+
+    console.log('Viewing details for order with referral code:', referralCode);
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+
+    // Build URL with query parameters
+    let url = `${window.location.origin}${contextPath}/admin/orders?action=ajaxList`;
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Filter orders by referral code
+                const ordersWithSameRefCode = data.filter(order => order.referralCode === referralCode);
+
+                if (ordersWithSameRefCode.length === 0) {
+                    alert('No orders found with this referral code');
+                    return;
+                }
+
+                // Collect all products from these orders
+                const products = [];
+                let totalAmount = 0;
+
+                ordersWithSameRefCode.forEach(order => {
+                    if (order.orderItems && order.orderItems.length > 0) {
+                        order.orderItems.forEach(item => {
+                            const productPrice = item.price || (item.quantity * item.unitPrice) || 0;
+                            products.push({
+                                productName: item.productName || 'Unknown Product',
+                                quantity: item.quantity || 0,
+                                price: productPrice
+                            });
+                            totalAmount += productPrice;
+                        });
+                    }
+                });
+
+                // Display in modal
+                document.getElementById('detailReferralCode').textContent = referralCode;
+
+                const productsTable = document.getElementById('orderDetailProducts');
+                productsTable.innerHTML = '';
+
+                products.forEach(product => {
+                    productsTable.innerHTML += `
+                <tr>
+                    <td>${product.productName}</td>
+                    <td>${product.quantity}</td>
+                    <td>${formatVndPrice(product.price)}</td>
+                </tr>
+                `;
+                });
+
+                document.getElementById('orderDetailTotal').textContent = formatVndPrice(totalAmount);
+
+                // Show modal
+                document.getElementById('orderDetailModal').style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error loading order details:', error);
+                alert('Error loading order details: ' + error.message);
+            });
+}
+
+function closeOrderDetailModal() {
+    document.getElementById('orderDetailModal').style.display = 'none';
+}
+
 // Function to update order status
 function updateOrderStatus(orderId, newStatus) {
+    // Check if the select is disabled (cancelled or shipped order)
+    const statusDropdown = document.querySelector(`select[name="status_${orderId}"]`);
+    if (statusDropdown && statusDropdown.disabled) {
+        // Get the current status
+        const currentStatus = statusDropdown.value;
+
+        // Create notification to inform user that cancelled or shipped orders can't be edited
+        const notification = document.createElement('div');
+        notification.textContent = `${currentStatus === 'cancelled' ? 'Cancelled' : 'Shipped'} orders cannot be modified`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.color = 'red';
+        notification.style.fontWeight = 'bold';
+        notification.style.zIndex = '1000';
+        notification.style.backgroundColor = '#ffe6e6';
+        notification.style.padding = '10px';
+        notification.style.borderRadius = '5px';
+
+        document.body.appendChild(notification);
+
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 500);
+        }, 3000);
+
+        // Reset to previous value
+        setTimeout(() => {
+            if (statusDropdown) {
+                statusDropdown.value = currentStatus;
+            }
+        }, 0);
+
+        return;
+    }
+
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const url = `${window.location.origin}${contextPath}/admin/orders`;
 
@@ -1213,8 +1581,28 @@ function updateOrderStatus(orderId, newStatus) {
                 if (data.status === "updated") {
                     // Update the UI for this specific row
                     const statusCell = document.querySelector(`select[name="status_${orderId}"]`);
+                    const editButton = document.querySelector(`button.order-edit[data-order-id="${orderId}"]`);
+
                     if (statusCell) {
                         statusCell.value = newStatus;
+
+                        // If status changed to cancelled or shipped, disable the controls
+                        if (newStatus === 'cancelled' || newStatus === 'shipped') {
+                            // Disable the dropdown
+                            statusCell.disabled = true;
+                            statusCell.style.backgroundColor = '#f0f0f0';
+                            statusCell.style.cursor = 'not-allowed';
+
+                            // Disable the edit button
+                            if (editButton) {
+                                editButton.disabled = true;
+                                editButton.classList.add('disabled');
+                                editButton.style.opacity = '0.5';
+                                editButton.style.cursor = 'not-allowed';
+                            }
+
+
+                        }
                     }
 
                     // Create simple text notification in the corner
@@ -1275,7 +1663,36 @@ function openEditOrderModal(orderId) {
 
                 // Fill in the form fields with order data
                 document.getElementById('editOrderId').value = order.orderId || '';
-                document.getElementById('editStatus').value = order.status || 'pending';
+                // Make Quantity readonly like Referral Code & Product Name
+                const quantityField = document.getElementById('editOrderQuantity');
+                quantityField.readOnly = true;
+
+                // Create a hidden input to store the status value since the select is removed
+                let hiddenStatus = document.getElementById('hiddenStatusField');
+                if (!hiddenStatus) {
+                    hiddenStatus = document.createElement('input');
+                    hiddenStatus.type = 'hidden';
+                    hiddenStatus.id = 'hiddenStatusField';
+                    hiddenStatus.name = 'status';
+                    document.getElementById('editOrderForm').appendChild(hiddenStatus);
+                }
+                hiddenStatus.value = order.status || 'pending';
+
+                // Remove any existing notices first to avoid duplicates
+                const formBody = document.querySelector('#editOrderForm');
+                const existingNotices = formBody.querySelectorAll('.edit-notice');
+                existingNotices.forEach(notice => notice.remove());
+
+                // If the order status is "shipped" or "cancelled", disable all form fields
+                const isLocked = order.status === 'cancelled' || order.status === 'shipped';
+                if (isLocked) {
+                    // Disable all form fields
+                    document.getElementById('editShippingAddress').readOnly = true;
+                    document.getElementById('editCustomerName').readOnly = true;
+                    document.getElementById('editCustomerPhone').readOnly = true;
+
+                    // No information box needed as requested
+                }
                 document.getElementById('editShippingAddress').value = order.shippingAddress || '';
                 document.getElementById('editCustomerName').value = order.customerName || '';
                 document.getElementById('editCustomerPhone').value = order.customerPhoneNumber || '';
@@ -1330,6 +1747,33 @@ function openEditOrderModal(orderId) {
 function submitEditOrder(form) {
     event.preventDefault();
     console.log("Submitting edit order form");
+
+    // Check if the order status is "shipped" or "cancelled"
+    const hiddenStatus = document.getElementById('hiddenStatusField');
+    if (hiddenStatus && (hiddenStatus.value === 'shipped' || hiddenStatus.value === 'cancelled')) {
+        const resultDiv = document.getElementById("resultEditOrder");
+        resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">${hiddenStatus.value === 'cancelled' ? 'Cancelled' : 'Shipped'} orders cannot be modified</p>`;
+        return false;
+    }
+
+    // Ensure disabled fields' values are still included in the form submission
+    // This is necessary because browsers don't include disabled fields in form submissions
+    const orderQuantity = document.getElementById('editOrderQuantity');
+    if (orderQuantity && orderQuantity.disabled) {
+        // Create a hidden input to ensure the quantity is submitted
+        let hiddenQuantity = document.getElementById('hiddenQuantity');
+        if (!hiddenQuantity) {
+            hiddenQuantity = document.createElement('input');
+            hiddenQuantity.type = 'hidden';
+            hiddenQuantity.id = 'hiddenQuantity';
+            hiddenQuantity.name = 'quantity';
+            form.appendChild(hiddenQuantity);
+        }
+        hiddenQuantity.value = orderQuantity.value;
+    }
+
+    // Hidden status field is already created in openEditOrderModal function
+    // No need to create another hidden status field here
 
     // Validate quantity if present
     const quantityInput = document.getElementById('editOrderQuantity');
@@ -1403,15 +1847,38 @@ function submitEditOrder(form) {
 
 // Function to open delete order modal
 function openDeleteOrderModal(orderId) {
-    console.log("orderId = ", orderId); // Log để kiểm tra
+    console.log("orderId = ", orderId);
+    // Set the form for single order deletion
     document.getElementById("deleteOrderId").value = orderId;
+    document.getElementById("deleteReferralCode").value = "";
+    document.getElementById("deleteFormAction").value = "deleteOrder";
+    document.getElementById("deleteModalTitle").textContent = "Delete Order";
+    document.getElementById("deleteConfirmMessage").textContent = "Are you sure you want to delete this order?";
+    document.getElementById("deleteConfirmButton").textContent = "Delete";
+
     openModal('deleteOrderModal');
 }
 
-// Function to submit order deletion
+// Function to open delete orders by referral code modal
+function openDeleteOrdersByReferralCodeModal(referralCode) {
+    console.log("referralCode = ", referralCode);
+    // Set the form for referral code deletion
+    document.getElementById("deleteOrderId").value = "";
+    document.getElementById("deleteReferralCode").value = referralCode;
+    document.getElementById("deleteFormAction").value = "deleteByReferralCode";
+    document.getElementById("deleteModalTitle").textContent = "Delete All Orders";
+    document.getElementById("deleteConfirmMessage").textContent =
+            "Are you sure you want to delete ALL orders with this referral code? This action cannot be undone.";
+    document.getElementById("deleteConfirmButton").textContent = "Delete All";
+
+    openModal('deleteOrderModal');
+}
+
+// Function to submit order deletion (handles both single order and referral code deletion)
 function submitDeleteOrder(form) {
     event.preventDefault();
-    console.log("Submitting delete order form");
+    const deleteType = document.getElementById("deleteFormAction").value;
+    console.log(`Submitting ${deleteType} form`);
 
     const formData = new FormData(form);
     const params = new URLSearchParams();
@@ -1422,7 +1889,7 @@ function submitDeleteOrder(form) {
     }
 
     const resultDiv = document.getElementById("resultDeleteOrder");
-    resultDiv.innerHTML = `<p style="color:blue; font-weight:bold;">Đang xử lý yêu cầu xóa...</p>`;
+    resultDiv.innerHTML = `<p style="color:blue; font-weight:bold;">Processing delete request...</p>`;
 
     console.log("Form action URL:", form.action);
     console.log("Request body:", params.toString());
@@ -1442,36 +1909,46 @@ function submitDeleteOrder(form) {
                 return res.text();
             })
             .then(text => {
-                console.log("🔍 Raw response:", text);
+                console.log("Raw response:", text);
                 let data;
                 try {
                     data = JSON.parse(text);
                     console.log("Parsed JSON response:", data);
                 } catch (err) {
                     console.error("Error parsing JSON:", err);
-                    throw new Error("Phản hồi không hợp lệ từ server: " + text);
+                    throw new Error("Invalid response from server: " + text);
                 }
 
                 if (data.status === "deleted") {
                     resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">${data.message}</p>`;
 
-                    // Lấy orderId đã xóa
-                    const deletedOrderId = document.getElementById("deleteOrderId").value;
-
-                    // Tìm và xóa các dòng trong bảng có orderId tương ứng
                     const tbody = document.querySelector('#orderTableBody');
                     if (tbody) {
-                        const rows = tbody.querySelectorAll('tr');
-                        rows.forEach(row => {
-                            const editButton = row.querySelector('button.action-buttons__btn--edit');
-                            if (editButton && editButton.getAttribute('onclick').includes(deletedOrderId)) {
-                                row.remove();
-                            }
-                        });
+                        if (deleteType === "deleteOrder") {
+                            // For single order deletion
+                            const deletedOrderId = document.getElementById("deleteOrderId").value;
+                            const rows = tbody.querySelectorAll('tr');
+                            rows.forEach(row => {
+                                const editButton = row.querySelector('button.action-buttons__btn--edit');
+                                if (editButton && editButton.getAttribute('onclick').includes(deletedOrderId)) {
+                                    row.remove();
+                                }
+                            });
+                        } else if (deleteType === "deleteByReferralCode") {
+                            // For referral code deletion
+                            const deletedRefCode = document.getElementById("deleteReferralCode").value;
+                            const rows = tbody.querySelectorAll('tr');
+                            rows.forEach(row => {
+                                const firstCell = row.querySelector('td:first-child');
+                                if (firstCell && firstCell.textContent.trim() === deletedRefCode) {
+                                    row.remove();
+                                }
+                            });
+                        }
 
-                        // Nếu không còn dòng nào, hiển thị thông báo
+                        // If no rows left, show message
                         if (tbody.querySelectorAll('tr').length === 0) {
-                            tbody.innerHTML = `<tr><td colspan="9" style="text-align:center;">No orders available</td></tr>`;
+                            tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No orders available</td></tr>`;
                         }
                     }
 
@@ -1479,12 +1956,12 @@ function submitDeleteOrder(form) {
                         closeModal("deleteOrderModal");
                     }, 800);
                 } else {
-                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Xóa thất bại: ${data.message}</p>`;
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Delete failed: ${data.message}</p>`;
                 }
             })
             .catch(error => {
-                console.error("Lỗi:", error);
-                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi khi xóa đơn hàng: ${error.message}</p>`;
+                console.error("Error:", error);
+                resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Error deleting order(s): ${error.message}</p>`;
             });
 
     return false;
@@ -1520,7 +1997,7 @@ function updateTotalPrice() {
         const unitPrice = parseFloat(unitPriceElement.value) || 0;
         // We can still calculate the total price for internal use if needed
         const totalPrice = quantity * unitPrice;
-        console.log(`Total price updated: ${totalPrice.toLocaleString()} VND`);
+        console.log(`Total price updated: ${formatVndPrice(totalPrice)}`);
     }
 }
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1539,10 +2016,9 @@ function loadStaffData() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const staffSearchUrl = `${window.location.origin}${contextPath}/admin/staffs?action=ajaxList`;
 
-    const searchStaff = document.getElementById("searchStaff").value; // Tìm kiếm theo tên hoặc username
-    const searchPhone = document.getElementById("searchPhone").value; // Lọc theo sdt
+    const searchStaff = document.getElementById("searchStaff").value;
+    const searchPhone = document.getElementById("searchPhone").value;
     const staffFilter = document.getElementById("staffFilter").value;
-
 
     const url = `${staffSearchUrl}&searchStaff=${encodeURIComponent(searchStaff)}&searchPhone=${encodeURIComponent(searchPhone)}&staffFilter=${encodeURIComponent(staffFilter)}`;
 
@@ -1562,38 +2038,59 @@ function loadStaffData() {
                 }
 
                 data.forEach((staff, index) => {
-                    console.log("🧪 Staff Object:", staff);
-                    console.log("➡ Username:", staff.account.username);
-                    console.log("➡ Full Name:", staff.fullName);
-                    console.log("➡ Account:", staff.account); // <== nếu xài object có account bên trong
-                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${staff.account.username}&t=${Date.now()}`;
+                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${encodeURIComponent(staff.account.username)}&t=${Date.now()}`;
                     const row = `
-                    <tr>
-                        <td>${index + 1}</td>                  
-                        <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
-                        <td>${staff.account.username}</td>
-                        <td>${staff.fullName}</td>
-                        <td>${staff.email}</td>
-                        <td>${staff.phone}</td>
-                        <td>${staff.position}</td>
-                        <td>${staff.status}</td>
-                        <td>${staff.staffCode}</td>
-                        <td>
-            
-                            <button class="action-buttons__btn action-buttons__btn--edit"
-                                onclick="openEditStaffModal('${staff.staffId}', '${staff.account.accountId}',
-                                 '${staff.account.username}', '${staff.fullName}',
-                                 '${staff.email}', '${staff.phone}', '${staff.position}', '${staff.status}')">
-                                  Edit
-                            </button>
-                            <button class="action-buttons__btn action-buttons__btn--delete"
-                                onclick="openDeleteStaffModal('${staff.staffId}')">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>${index + 1}</td>                  
+                    <td><img src="${escapeHTML(avatarUrl)}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
+                    <td>${escapeHTML(staff.account.username)}</td>
+                    <td>${escapeHTML(staff.fullName)}</td>
+                    <td>${escapeHTML(staff.email)}</td>
+                    <td>${escapeHTML(staff.phone)}</td>
+                    <td>${escapeHTML(staff.position)}</td>
+                    <td>${escapeHTML(staff.status)}</td>
+                    <td>${escapeHTML(staff.staffCode)}</td>
+                    <td>
+                        <button class="action-buttons__btn action-buttons__btn--edit staff-edit"
+                            data-staff-id='${staff.staffId}'
+                            data-account-id='${staff.account.accountId}'
+                            data-username='${staff.account.username.replace(/'/g, "&#39;")}'
+                            data-fullname='${staff.fullName.replace(/'/g, "&#39;")}'
+                            data-email='${staff.email.replace(/'/g, "&#39;")}'
+                            data-phone='${staff.phone.replace(/'/g, "&#39;")}'
+                            data-position='${staff.position.replace(/'/g, "&#39;")}'
+                            data-status='${staff.status.replace(/'/g, "&#39;")}'
+                        >
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--delete staff-delete"
+                            data-staff-id='${staff.staffId}'>
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
                 `;
                     tbody.innerHTML += row;
+                });
+
+                document.querySelectorAll('.staff-edit').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openEditStaffModal(
+                                this.dataset.staffId,
+                                this.dataset.accountId,
+                                this.dataset.username.replace(/&#39;/g, "'"),
+                                this.dataset.fullname.replace(/&#39;/g, "'"),
+                                this.dataset.email.replace(/&#39;/g, "'"),
+                                this.dataset.phone.replace(/&#39;/g, "'"),
+                                this.dataset.position.replace(/&#39;/g, "'"),
+                                this.dataset.status.replace(/&#39;/g, "'")
+                                );
+                    });
+                });
+                document.querySelectorAll('.staff-delete').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openDeleteStaffModal(this.dataset.staffId);
+                    });
                 });
             })
             .catch(error => {
@@ -1603,6 +2100,7 @@ function loadStaffData() {
                         .then(text => console.warn("Nội dung server trả về không phải JSON:", text));
             });
 }
+
 
 // Gọi hàm loadStaffData khi thay đổi các trường tìm kiếm và lọc
 document.getElementById('searchStaff').addEventListener('input', loadStaffData);
@@ -1724,30 +2222,43 @@ function openDeleteStaffModal(staffId) {
     openModal('deleteStaffModal');
 }
 
-function validateStaffForm(form, errorDivId) {
-    var errorDiv = document.getElementById(errorDivId);
-    if (errorDiv)
-        errorDiv.innerText = ''; // clear old error
+function submitFormAjaxStaff(form, resultDivId) {
+    const formData = new FormData(form);
+    const resultDiv = document.getElementById(resultDivId);
+    resultDiv.innerHTML = ''; // Xóa message cũ
 
-    var phoneInput = form.querySelector('input[name="phone"]');
-    var phone = phoneInput.value.trim();
-    var vietPhoneRegex = /^(0|\+84)(3[2-9]|5[6|8|9]|7[06-9]|8[1-5]|9[0-9])[0-9]{7}$/;
-    if (!vietPhoneRegex.test(phone)) {
-        if (errorDiv)
-            errorDiv.innerText = "Please enter a valid Vietnamese phone number!";
-        phoneInput.focus();
-        return false;
-    }
-    var emailInput = form.querySelector('input[name="email"]');
-    var email = emailInput.value.trim();
-    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    if (!emailRegex.test(email)) {
-        if (errorDiv)
-            errorDiv.innerText = "Please enter a valid email address!";
-        emailInput.focus();
-        return false;
-    }
-    return true;
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/staffs`;
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    resultDiv.style.color = 'green';
+                    resultDiv.innerHTML = data.message;
+
+                    setTimeout(() => {
+                        closeModal(form.closest('.modal').id || 'editStaffModal');
+                        loadStaffData(); // reload lại danh sách staff
+                    }, 1000); // Tải lại danh sách ngay
+                } else {
+                    resultDiv.style.color = 'red';
+                    resultDiv.innerHTML = data.message;
+                }
+            })
+            .catch(error => {
+                resultDiv.style.color = 'red';
+                resultDiv.innerHTML = `Lỗi kết nối: ${error.message}`;
+            });
+
+    return false;
 }
 
 
@@ -1757,14 +2268,65 @@ function validateStaffForm(form, errorDivId) {
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                                              
 
 
+// Regex constants
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Email hợp lệ
+const phoneRegex = /^(0|\+84)[1-9]\d{8,9}$/; // SĐT VN: 0 hoặc +84, theo sau 9-10 chữ số
+
+function validateAddTrainerForm() {
+    let valid = true;
+
+    // Clear old errors
+    document.getElementById('emailError').innerText = '';
+    document.getElementById('phoneError').innerText = '';
+
+    // Email
+    const email = document.getElementById('email').value.trim();
+    if (!emailRegex.test(email)) {
+        document.getElementById('emailError').innerText = 'Email không hợp lệ.';
+        valid = false;
+    }
+
+    // Phone
+    const phone = document.getElementById('phone_number').value.trim();
+    if (!phoneRegex.test(phone)) {
+        document.getElementById('phoneError').innerText = 'Số điện thoại phải là định dạng Việt Nam (bắt đầu bằng 0 hoặc +84, 9-10 chữ số).';
+        valid = false;
+    }
+
+    return valid;
+}
+
+
+
+// Hàm validate cho edit form
+function validateEditTrainerForm() {
+    let valid = true;
+
+    // Email
+    const email = document.getElementById('editTrainerEmail').value.trim();
+    if (!emailRegex.test(email)) {
+        alert('Email không hợp lệ.');
+        valid = false;
+    }
+
+    // Phone
+    const phone = document.getElementById('editTrainerPhone').value.trim();
+    if (!phoneRegex.test(phone)) {
+        alert('Số điện thoại phải là định dạng Việt Nam (bắt đầu bằng 0 hoặc +84, 9-10 chữ số).');
+        valid = false;
+    }
+
+    return valid;
+}
+
 // Hàm tải danh sách Trainer với các bộ lọc và tìm kiếm
 function reloadTrainerList() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const baseUrl = `${window.location.origin}${contextPath}/TrainerServlet?action=json`;
 
-    const searchTerm = document.getElementById("searchTerm").value; // Tìm kiếm theo tên hoặc username
-    const experience = document.getElementById("experienceFilter").value; // Lọc theo kinh nghiệm
-    const rating = document.getElementById("ratingFilter").value; // Lọc theo rating
+    const searchTerm = document.getElementById("searchTerm").value;
+    const experience = document.getElementById("experienceFilter").value;
+    const rating = document.getElementById("ratingFilter").value;
 
     const url = `${baseUrl}&searchTerm=${encodeURIComponent(searchTerm)}&experience=${encodeURIComponent(experience)}&rating=${encodeURIComponent(rating)}`;
 
@@ -1775,61 +2337,74 @@ function reloadTrainerList() {
                 return response.json();
             })
             .then(data => {
-                console.log(data);  // Kiểm tra dữ liệu trả về từ servlet
-                const tbody = document.querySelector('#trainerTable tbody');
-                tbody.innerHTML = ''; // Clear existing data
+                const tbody = document.querySelector('#trainerTableBody');
+                tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="11" style="text-align:center;">Không có huấn luyện viên nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Không có huấn luyện viên nào</td></tr>`;
                     return;
                 }
 
-                // Debug: Kiểm tra dữ liệu trainer và price
-                console.log("Received Trainer Data:", data);
-
                 data.forEach((trainer, index) => {
-
-                    console.log("Trainer ID: ", trainer.trainerId, "Price: ", trainer.price);
-
-                    const account = trainer.accountId; // Object Account
+                    const account = trainer.accountId;
                     const avatarUrl = account && account.username
-                            ? `${window.location.origin}${contextPath}/AvatarServlet?user=${account.username}&t=${Date.now()}`
+                            ? `${window.location.origin}${contextPath}/AvatarServlet?user=${encodeURIComponent(account.username)}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
 
                     const formattedPrice = (trainer.price != null && !isNaN(trainer.price))
-                            ? trainer.price.toLocaleString('vi-VN') + ' VND'
-                            : '0 VND';
+                            ? trainer.price.toLocaleString('vi-VN') + ' ₫'
+                            : '0 ₫';
 
-                    // Giới hạn mô tả (bio) chỉ hiển thị 150 ký tự và thêm "..." nếu dài hơn
-                    const truncatedBio = trainer.bio && trainer.bio.length > 50
-                            ? trainer.bio.slice(0, 50) + "..."
-                            : trainer.bio;
                     const row = `
-                    <tr>
-                        <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%"></td>
-                        <td>${account.username}</td>
-                        <td>${trainer.fullName}</td>
-                        <td>${trainer.email || ''}</td>
-                        <td>${trainer.phone || ''}</td>
-                        <td>${truncatedBio || ''}</td>
-                        <td>${trainer.experienceYears} year</td>
-                        <td>${trainer.rating.toFixed(1)} ★</td>
-                        <td>${formattedPrice}</td>
-                        <td>
-                            <button class="action-buttons__btn action-buttons__btn--edit"
-                               onclick="openEditTrainerModal(${trainer.trainerId})">Edit</button>
-                            <button class="action-buttons__btn action-buttons__btn--delete"
-                                onclick="openDeleteTrainerModal(${trainer.trainerId})">Delete</button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td><img src="${escapeHTML(avatarUrl)}" alt="Avatar" style="width:40px;height:40px;border-radius:50%"></td>
+                    <td>${escapeHTML(account.username)}</td>  
+                    <td>${escapeHTML(trainer.fullName)}</td>
+                    <td>${escapeHTML(String(trainer.experienceYears))} year</td>
+                    <td>${escapeHTML(trainer.rating.toFixed(1))} ★</td>
+                    <td>${escapeHTML(formattedPrice)}</td>
+                    <td>
+                        <button class="action-buttons__btn action-buttons__btn--view trainer-view"
+                            data-trainer-id='${trainer.trainerId}'>
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--edit trainer-edit"
+                            data-trainer-id='${trainer.trainerId}'>
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--delete trainer-delete"
+                            data-trainer-id='${trainer.trainerId}'>
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
                 `;
                     tbody.innerHTML += row;
                 });
+
+                // Thêm event cho các nút sau khi render (bảo vệ chắc)
+                document.querySelectorAll('.trainer-view').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openDetailTrainerModal(this.dataset.trainerId);
+                    });
+                });
+                document.querySelectorAll('.trainer-edit').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openEditTrainerModal(this.dataset.trainerId);
+                    });
+                });
+                document.querySelectorAll('.trainer-delete').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openDeleteTrainerModal(this.dataset.trainerId);
+                    });
+                });
+
             })
             .catch(error => {
                 console.error('Lỗi khi tải danh sách trainer:', error);
             });
 }
+
 
 // Gọi hàm loadTrainers khi thay đổi các trường tìm kiếm và lọc
 document.getElementById('searchTerm').addEventListener('input', reloadTrainerList);
@@ -1842,12 +2417,16 @@ document.addEventListener('DOMContentLoaded', reloadTrainerList);
 
 
 function submitEditTrainerForm(form, resultContainerId) {
+    if (!validateEditTrainerForm()) {
+        return false; // Dừng nếu validation fail
+    }
+
     const formData = new FormData(form);
     formData.append('formAction', 'edit');
 
     // Debug
     for (let [key, val] of formData.entries()) {
-        console.log(`✏️ Edit: ${key} = ${val}`);
+        console.log(`️ Edit: ${key} = ${val}`);
     }
 
     const actionUrl = form.getAttribute("action");
@@ -1859,7 +2438,7 @@ function submitEditTrainerForm(form, resultContainerId) {
     })
             .then(async response => {
                 const rawText = await response.text();
-                console.log("📥 Raw response (edit):", rawText);
+                console.log("Raw response (edit):", rawText);
 
                 if (!rawText)
                     throw new Error("Empty response");
@@ -1868,14 +2447,17 @@ function submitEditTrainerForm(form, resultContainerId) {
                 if (result.status === 'success') {
                     resultContainer.innerHTML = `<p style="color:green;">${result.message}</p>`;
                     form.reset();
-                    closeModal('editTrainerModal');
-                    reloadTrainerList();
+                    setTimeout(() => {
+                        closeModal('editTrainerModal');
+                        reloadTrainerList();
+                    }, 700);
+
                 } else {
                     resultContainer.innerHTML = `<p style="color:red;">${result.message}</p>`;
                 }
             })
             .catch(error => {
-                console.error("❌ Edit Trainer error:", error);
+                console.error(" Edit Trainer error:", error);
                 resultContainer.innerHTML = `<p style="color:red;">Lỗi server: ${error.message}</p>`;
             });
 
@@ -2020,6 +2602,11 @@ function openAddTrainerModal() {
 function submitFormAjaxTrainers(form, resultContainerId) {
     console.log("? Submitting form via AJAX...");
 
+    // Kiểm tra tính hợp lệ của form
+    if (!validateAddTrainerForm()) {
+        return false; // Dừng nếu validation fail
+    }
+
     const formData = new FormData(form);
     for (let [key, val] of formData.entries()) {
         console.log(`? ${key} = ${val}`);
@@ -2040,24 +2627,81 @@ function submitFormAjaxTrainers(form, resultContainerId) {
                     throw new Error("Empty response");
 
                 let result = JSON.parse(rawText);
-                console.log(" Parsed JSON:", result);
+                console.log("Parsed JSON:", result);
 
+                // Kiểm tra kết quả trả về từ server
                 if (result.status === 'success') {
                     resultContainer.innerHTML = `<p style="color:green;">${result.message}</p>`;
+                    console.log(result.message);
                     form.reset();
-                    closeModal('addTrainer');
-                    reloadTrainerList();
+                    setTimeout(() => {
+                        closeModal('addTrainer');
+                        reloadTrainerList();  // Tải lại danh sách trainer
+                    }, 500);
                 } else {
+                    // Hiển thị thông báo lỗi
                     resultContainer.innerHTML = `<p style="color:red;">${result.message}</p>`;
                 }
             })
             .catch(error => {
-                console.error(" Lỗi xử lý response:", error);
-                resultContainer.innerHTML = `<p style="color:red;">Lỗi server: ${error.message}</p>`;
+                console.error("Error handling response:", error);
+                resultContainer.innerHTML = `<p style="color:red;">Server Error: ${error.message}</p>`;
             });
 
     return false;
+}
 
+
+
+
+function openDetailTrainerModal(trainerId) {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+
+    // Gọi API lấy thông tin chi tiết huấn luyện viên từ server
+    fetch(`${window.location.origin}${contextPath}/TrainerServlet?action=getById&trainerId=${trainerId}`)
+            .then(res => {
+                if (!res.ok)
+                    throw new Error("Network error");
+                return res.json();
+            })
+            .then(trainer => {
+                if (trainer) {
+
+
+                    // Cập nhật avatar từ URL (dùng base64 hoặc đường dẫn URL)
+                    const avatarUrl = trainer.accountId
+                            ? `${window.location.origin}${contextPath}/AvatarServlet?user=${trainer.accountId.username}&t=${Date.now()}`
+                            : `${contextPath}/avatar/default.png`; // Default avatar nếu không có avatar
+
+                    // Cập nhật thông tin vào modal
+                    document.getElementById('detailTrainerAvatar').src = avatarUrl;
+                    document.getElementById('detailTrainerId').innerText = trainer.trainerId || '';
+                    document.getElementById('detailTrainerUsername').innerText = trainer.accountId.username || '';
+                    document.getElementById('detailTrainerFullName').innerText = trainer.fullName || '';
+                    document.getElementById('detailTrainerEmail').innerText = trainer.email || '';
+                    document.getElementById('detailTrainerPhone').innerText = trainer.phone || '';
+                    document.getElementById('detailTrainerBio').innerText = trainer.bio || '';
+                    document.getElementById('detailTrainerExperience').innerText = trainer.experienceYears || '';
+                    document.getElementById('detailTrainerRating').innerText = trainer.rating || '';
+                    document.getElementById('detailTrainerPrice').innerText = (trainer.price || 0).toLocaleString('vi-VN') + ' ₫';
+                    document.getElementById('detailTrainerCode').innerText = trainer.trainer_code || '';
+
+
+
+                    // Mở modal chi tiết
+                    document.getElementById('detailTrainerModal').style.display = 'block';
+                } else {
+                    alert("Không tìm thấy trainer.");
+                }
+            })
+            .catch(err => {
+                alert("Lỗi khi lấy trainer: " + err);
+            });
+}
+
+
+function closeDetailTrainerModal() {
+    document.getElementById('detailTrainerModal').style.display = 'none';
 }
 
 function loadMemberPackage() {
@@ -2067,18 +2711,6 @@ function loadMemberPackage() {
     const username = document.getElementById('username').value;
     const packageName = document.getElementById('packageName').value;
     const paymentStatus = document.getElementById('paymentStatus').value;
-
-
-
-
-
-    document.getElementById('username').addEventListener('input', loadMemberPackage);
-    document.getElementById('packageName').addEventListener('change', loadMemberPackage);
-    document.getElementById('startDate').addEventListener('change', loadMemberPackage);
-    document.getElementById('endDate').addEventListener('change', loadMemberPackage);
-    document.getElementById('paymentStatus').addEventListener('change', loadMemberPackage);
-
-
 
     let url = baseUrl;
     const params = [];
@@ -2107,43 +2739,73 @@ function loadMemberPackage() {
                 tbody.innerHTML = '';
 
                 if (!Array.isArray(data) || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Không có gói thành viên nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Không có gói thành viên nào</td></tr>`;
                     return;
                 }
+
+                const currentDate = new Date();
+                currentDate.setHours(0, 0, 0, 0); // Bỏ giờ phút để so sánh chỉ theo ngày
 
                 const rows = data.map((packageItem, index) => {
                     const accountUsername = packageItem.customer && packageItem.customer.fullName ? packageItem.customer.fullName : 'N/A';
                     const packageName = packageItem.membershipPackage ? packageItem.membershipPackage.name : 'N/A';
-                    const startDate = packageItem.startDate ? new Date(packageItem.startDate.year, packageItem.startDate.month - 1, packageItem.startDate.day).toLocaleDateString() : 'Invalid Date';
-                    const endDate = packageItem.endDate ? new Date(packageItem.endDate.year, packageItem.endDate.month - 1, packageItem.endDate.day).toLocaleDateString() : 'Invalid Date';
-                    const paymentStatus = packageItem.paymentStatus || 'pending';
+                    const startDateObj = packageItem.startDate ? new Date(packageItem.startDate.year, packageItem.startDate.month - 1, packageItem.startDate.day) : null;
+                    const endDateObj = packageItem.endDate ? new Date(packageItem.endDate.year, packageItem.endDate.month - 1, packageItem.endDate.day) : null;
+                    const startDate = startDateObj ? startDateObj.toLocaleDateString() : 'Invalid Date';
+                    const endDate = endDateObj ? endDateObj.toLocaleDateString() : 'Invalid Date';
+                    let paymentStatus = packageItem.paymentStatus || 'pending';
                     const membershipId = packageItem.membershipId || null;
 
+                    // Kiểm tra hết hạn
+                    let isExpired = false;
+                    if (endDateObj) {
+                        const endDateOnly = new Date(endDateObj);
+                        endDateOnly.setHours(0, 0, 0, 0);
+                        isExpired = endDateOnly < currentDate;
+                    }
+
+                    // Debug log để kiểm tra
+                    console.log(`Membership ID ${membershipId}: endDate = ${endDate}, currentDate = ${currentDate.toLocaleDateString()}, isExpired = ${isExpired}`);
+
+                    // Nếu hết hạn, buộc trạng thái cancelled
+                    if (isExpired && paymentStatus !== 'cancelled') {
+                        paymentStatus = 'cancelled';
+                    }
+
+                    // Disable dropdown nếu hết hạn
+                    const disabledAttr = isExpired ? 'disabled' : '';
+
                     return `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td>${accountUsername}</td>
-                        <td>${packageName}</td>
-                        <td>${startDate}</td>
-                        <td>${endDate}</td>
-                        <td>
-                            <select class="status-dropdown" data-membership-id="${membershipId}">
-                                <option value="pending" ${paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
-                                <option value="paid" ${paymentStatus === 'paid' ? 'selected' : ''}>Paid</option>
-                                <option value="cancelled" ${paymentStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                            </select>
-                        </td>         
-                    </tr>`;
+                <tr>
+                    <td>${index + 1}</td>
+                    <td>${accountUsername}</td>
+                    <td>${packageName}</td>
+                    <td>${startDate}</td>
+                    <td>${endDate}</td>
+                    <td>
+                        <select class="status-dropdown" data-membership-id="${membershipId}" ${disabledAttr} style="${isExpired ? 'background-color: #f0f0f0; cursor: not-allowed;' : ''}">
+                            <option value="pending" ${paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+                            <option value="paid" ${paymentStatus === 'paid' ? 'selected' : ''}>Paid</option>
+                            <option value="cancelled" ${paymentStatus === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>         
+                </tr>`;
                 });
 
-                tbody.innerHTML = rows.join(''); // Đẩy dữ liệu vào bảng
+                tbody.innerHTML = rows.join('');
 
-                // Lắng nghe sự kiện thay đổi trạng thái
+                // Lắng nghe change, ngăn nếu disabled
                 document.querySelectorAll('.status-dropdown').forEach(select => {
-                    select.addEventListener('change', function () {
+                    select.addEventListener('change', function (event) {
+                        if (this.disabled) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                            console.log('Dropdown bị khóa do hết hạn.');
+                            return;
+                        }
                         const membershipId = this.getAttribute('data-membership-id');
                         const newStatus = this.value;
-                        updateStatus(membershipId, newStatus); // Cập nhật trạng thái
+                        updateStatus(membershipId, newStatus);
                     });
                 });
             })
@@ -2152,13 +2814,11 @@ function loadMemberPackage() {
             });
 }
 
-
-// Hàm cập nhật trạng thái thành viên
+// Hàm updateStatus (hiển thị error trên giao diện)
 function updateStatus(membershipId, newStatus) {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const url = `${window.location.origin}${contextPath}/MemberShipPackageServlet?action=updateStatus`;
 
-    // Kiểm tra giá trị status trước khi gửi
     console.log('Updating status for membershipId:', membershipId, 'with status:', newStatus);
 
     fetch(url, {
@@ -2174,66 +2834,40 @@ function updateStatus(membershipId, newStatus) {
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    // Hiển thị thông báo thành công
                     document.getElementById('successMessage').style.display = 'block';
                     setTimeout(() => {
                         document.getElementById('successMessage').style.display = 'none';
-                    }, 2000); // Ẩn thông báo sau 3 giây
+                    }, 2000);
                     console.log('Trạng thái đã được cập nhật thành công!');
+                    loadMemberPackage();
                 } else {
+                    // Hiển thị thông báo lỗi trên giao diện
+                    const errorMsg = document.getElementById('errorMessage');
+                    errorMsg.textContent = data.error || 'Lỗi khi cập nhật trạng thái!';
+                    errorMsg.style.display = 'block';
+                    setTimeout(() => {
+                        errorMsg.style.display = 'none';
+                    }, 3000);
                     console.error('Lỗi khi cập nhật trạng thái: ', data.error);
                 }
             })
             .catch(error => {
                 console.error('Lỗi khi gửi yêu cầu cập nhật trạng thái:', error);
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = 'Lỗi kết nối khi cập nhật!';
+                errorMsg.style.display = 'block';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 3000);
             });
 }
 
-
-// Hàm load danh sách gói vào dropdown khi trang được tải
-function loadPackagesForDropdown() {
-    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/MemberShipPackageServlet?action=loadPackages`;
-
-    fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    console.error(`Lỗi khi gọi API, mã lỗi: ${response.status}`);
-                    throw new Error(`HTTP ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                const packageDropdown = document.getElementById('packageName');
-                data.forEach(pkg => {
-                    const option = document.createElement('option');
-                    option.value = pkg.name;
-                    option.textContent = pkg.name;
-                    packageDropdown.appendChild(option);
-                });
-            })
-            .catch(error => {
-                console.error('Lỗi khi tải danh sách gói cho dropdown:', error);
-            });
-}
-document.addEventListener('DOMContentLoaded', function () {
-    loadPackagesForDropdown();
-    loadMemberPackage();
-});
-
-
-// Hàm tải danh sách Category với các bộ lọc và tìm kiếm
 function loadCategori() {
-    const searchTerm = document.getElementById("searchTermCategory").value.trim();  // Lấy từ khóa tìm kiếm
+    const searchTerm = document.getElementById("searchTermCategory").value.trim();
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const baseUrl = `${window.location.origin}${contextPath}/Categori?action=json`;
-
-    // Gửi URL tới Servlet với từ khóa tìm kiếm
     const url = `${baseUrl}&searchTerm=${encodeURIComponent(searchTerm)}`;
 
-    console.log("Pathname:", window.location.pathname);
-    console.log("Context path:", contextPath);
-    console.log("Generated URL:", url);
     fetch(url)
             .then(response => {
                 if (!response.ok)
@@ -2242,39 +2876,50 @@ function loadCategori() {
             })
             .then(data => {
                 const tbody = document.querySelector('#categoryTableBody');
-                tbody.innerHTML = ''; // Clear existing data
+                tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    // Thông báo không có danh mục nào nếu không có kết quả
                     tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Không có danh mục nào</td></tr>`;
                     return;
                 }
 
-                // Hiển thị kết quả tìm kiếm
                 data.forEach((category) => {
                     const truncatedDescription = category.description && category.description.length > 50
                             ? category.description.slice(0, 50) + "..."
                             : category.description;
 
                     const row = `
-                    <tr>
-                        <td>${category.category_id}</td>
-                        <td>${category.name}</td>
-                        <td>${category.description}</td>
-                        <td>
-                            <button class="action-buttons__btn action-buttons__btn--edit"
-                                    onclick="openEditCategoryModal(${category.category_id})">Edit</button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>${escapeHTML(String(category.category_id))}</td>
+                    <td>${escapeHTML(category.name)}</td>
+                    <td>${escapeHTML(truncatedDescription)}</td>
+                    <td>
+                        <button class="action-buttons__btn action-buttons__btn--edit category-edit"
+                            data-category-id='${category.category_id}'
+                            data-name='${category.name.replace(/'/g, "&#39;")}'
+                            data-description='${category.description.replace(/'/g, "&#39;")}'
+                        ><i class="fas fa-edit"></i></button>
+                    </td>
+                </tr>
                 `;
                     tbody.innerHTML += row;
+                });
+
+                // Gán sự kiện cho nút Edit an toàn
+                document.querySelectorAll('.category-edit').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openEditCategoryModal(
+                                this.dataset.categoryId,
+                                this.dataset.name.replace(/&#39;/g, "'"),
+                                this.dataset.description.replace(/&#39;/g, "'")
+                                );
+                    });
                 });
             })
             .catch(error => {
                 console.error('Lỗi khi tải danh mục:', error);
             });
 }
-
 // Lắng nghe sự kiện khi người dùng gõ vào ô tìm kiếm
 document.getElementById("searchTerm").addEventListener("input", loadCategori);
 
@@ -2315,35 +2960,12 @@ function submitFormAjaxCategory(form, resultId) {
     return false;
 }
 
-function openEditCategoryModal(categoryId) {
-    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
-    const url = `${window.location.origin}${contextPath}/Categori?action=json`;
-
-    console.log("Fetching URL:", url);
-
-    fetch(url)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status} - ${response.statusText}`);
-                }
-                return response.json();
-            })
-            .then(categories => {
-                console.log("Categories:", categories);
-                const category = categories.find(cat => cat.category_id === categoryId);
-                if (!category) {
-                    throw new Error(`Category with ID ${categoryId} not found`);
-                }
-                document.getElementById('editCategoryId').value = category.category_id;
-                document.getElementById('editCategoryName').value = category.name || '';
-                document.getElementById('editCategoryDescription').value = category.description || '';
-                document.getElementById('editCategoryModal').style.display = 'block';
-            })
-            .catch(error => {
-                console.error('Error fetching category details:', error);
-            });
+function openEditCategoryModal(categoryId, name, description) {
+    document.getElementById('editCategoryId').value = categoryId || '';
+    document.getElementById('editCategoryName').value = name || '';
+    document.getElementById('editCategoryDescription').value = description || '';
+    document.getElementById('editCategoryModal').style.display = 'block';
 }
-
 
 function submitEditCategoryForm(form, resultId) {
     const formData = new FormData(form);
@@ -2392,14 +3014,12 @@ function submitEditCategoryForm(form, resultId) {
 //||                                                                                                                         ||
 //=============================================================================================================================
 let customerDataMap = {};
+
 function loadCustomers() {
-    const searchTerm = document.getElementById('searchInputMember').value;  // Lấy từ khóa tìm kiếm
+    const searchTerm = document.getElementById('searchInputMember').value;
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
 
-    // Nếu có từ khóa tìm kiếm, thêm vào URL để gọi API ajaxList, nếu không thì lấy tất cả khách hàng
-    let url = `${window.location.origin}${contextPath}/admin/customer?action=ajaxList`; // Lấy tất cả khách hàng
-
-    // Nếu có từ khóa tìm kiếm, thêm nó vào URL (dưới dạng tham số)
+    let url = `${window.location.origin}${contextPath}/admin/customer?action=ajaxList`;
     if (searchTerm) {
         url = `${window.location.origin}${contextPath}/admin/customer?action=ajaxList&fullName=${encodeURIComponent(searchTerm)}`;
     }
@@ -2422,32 +3042,32 @@ function loadCustomers() {
 
                 data.forEach((cus, index) => {
                     customerDataMap[cus.customerId] = cus;
-                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${cus.account.username}&t=${Date.now()}`;
+                    const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${encodeURIComponent(cus.account.username)}&t=${Date.now()}`;
                     const row = `
-                <tr>
-                    <td>${index + 1}</td>
-                    <td><img src="${avatarUrl}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
-                    <td>${cus.account.username}</td>
-                    <td>${cus.fullName}</td>
-                    <td>${cus.email}</td>
-                    <td>${cus.phone}</td>
-                    <td>${cus.customerCode || ''}</td>
-                    <td>
-                        <button class="action-buttons__btn action-buttons__btn--edit"
-                        onclick="openEditCustomerModal('${cus.customerId}')">
-                        Edit</button>
-                        <button class="action-buttons__btn action-buttons__btn--delete"
-                        onclick="openDeleteCustomerModal('${cus.customerId}')">Delete</button>
-                    </td>
-                </tr>
-                `;
+                    <tr>
+                     <td>${index + 1}</td>
+                     <td><img src="${escapeHTML(avatarUrl)}" alt="Avatar" style="width:40px;height:40px;border-radius:50%;"></td>
+                     <td>${escapeHTML(cus.account.username)}</td>
+                     <td>${escapeHTML(cus.fullName)}</td>
+                     <td>${escapeHTML(cus.email)}</td>
+                     <td>${escapeHTML(cus.phone)}</td>
+                     <td>${escapeHTML(cus.customerCode || '')}</td>
+                     <td>
+                     <button class="action-buttons__btn action-buttons__btn--edit"
+                     onclick="openEditCustomerModal('${escapeJSAttr(cus.customerId)}')">
+                     <i class="fas fa-edit"></i></button>
+                     <button class="action-buttons__btn action-buttons__btn--delete"
+                     onclick="openDeleteCustomerModal('${escapeJSAttr(cus.customerId)}')">
+                     <i class="fas fa-trash-alt"></i></button>
+                     </td>
+                    </tr>
+                 `;
                     tbody.innerHTML += row;
                 });
                 console.log("DEBUG: customerDataMap", customerDataMap);
-                // In thử 1 object (nếu có)
                 for (let key in customerDataMap) {
                     console.log("Customer:", key, customerDataMap[key]);
-                    break; // chỉ in 1 để xem mẫu
+                    break;
                 }
             })
             .catch(error => {
@@ -2458,9 +3078,8 @@ function loadCustomers() {
             });
 }
 
-
-
 function openEditCustomerModal(customerId) {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const cus = customerDataMap[customerId];
     if (!cus) {
         alert("Không tìm thấy dữ liệu khách hàng!");
@@ -2474,12 +3093,9 @@ function openEditCustomerModal(customerId) {
     document.getElementById("editCustomerAddress").value = cus.address || '';
     document.getElementById("editCustomerAccountId").value = cus.account.accountId || '';
     document.getElementById("editCustomerAvatarPreview").src =
-            `${window.location.origin}${window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : ''}/AvatarServlet?user=${cus.account.username}&t=${Date.now()}`;
+            `${window.location.origin}${contextPath}/AvatarServlet?user=${cus.account.username}&t=${Date.now()}`;
     openModal("editCustomerModal");
 }
-
-
-
 
 function openDeleteCustomerModal(customerId) {
     document.getElementById('deleteCustomerId').value = customerId;
@@ -2488,10 +3104,8 @@ function openDeleteCustomerModal(customerId) {
 
 function submitDeleteCustomer(event) {
     event.preventDefault();
-
     const form = document.getElementById('deleteCustomerForm');
     const formData = new FormData(form);
-
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const url = `${window.location.origin}${contextPath}/admin/customer`;
 
@@ -2502,17 +3116,17 @@ function submitDeleteCustomer(event) {
             .then(res => {
                 if (!res.ok)
                     throw new Error(`HTTP ${res.status}`);
-                return res.text();
+                return res.json();
             })
-            .then(result => {
-                if (result.trim() === "OK") {
-                    document.getElementById("resultDeleteCustomer").innerHTML = `<p style="color:green;font-weight:bold;">Xóa thành công!</p>`;
+            .then(data => {
+                if (data.status === 'success') {
+                    document.getElementById("resultDeleteCustomer").innerHTML = `<p style="color:green;font-weight:bold;">${data.message}</p>`;
                     setTimeout(() => {
                         closeModal("deleteCustomerModal");
-                        loadCustomers(); // Tải lại danh sách
+                        loadCustomers();
                     }, 800);
                 } else {
-                    document.getElementById("resultDeleteCustomer").innerText = "Xóa thất bại: " + result;
+                    document.getElementById("resultDeleteCustomer").innerHTML = `<p style="color:red;">${data.message}</p>`;
                 }
             })
             .catch(error => {
@@ -2521,6 +3135,61 @@ function submitDeleteCustomer(event) {
             });
 
     return false;
+}
+
+// ... (Các hàm khác giữ nguyên)
+
+//// Hàm xử lý submit form AJAX
+function submitFormAjaxCO(form, resultDivId) {
+    const formData = new FormData(form);
+    const resultDiv = document.getElementById(resultDivId);
+    resultDiv.innerHTML = ''; // Xóa message cũ
+
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/customer`;
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status}`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    resultDiv.style.color = 'green';
+                    resultDiv.innerHTML = data.message;
+                    console.log("DEBUG: Success - Preparing to close modal");
+
+                    // Đóng modal ngay lập tức (loại bỏ setTimeout để tránh delay gây lỗi)
+                    const modalId = form.closest('.modal').id || 'editCustomerModal'; // Fallback nếu closest không hoạt động
+                    closeModal(modalId);
+                    loadCustomers(); // Tải lại danh sách ngay
+                } else {
+                    resultDiv.style.color = 'red';
+                    resultDiv.innerHTML = data.message;
+                }
+            })
+            .catch(error => {
+                resultDiv.style.color = 'red';
+                resultDiv.innerHTML = `Lỗi kết nối: ${error.message}`;
+            });
+
+    return false; // Ngăn submit form mặc định
+}
+
+// Hàm đóng modal (thêm fallback display none)
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove('modal--active');
+        modal.style.display = 'none'; // Fallback để đảm bảo ẩn modal
+        console.log("DEBUG: Modal closed successfully", modalId);
+    } else {
+        console.error("DEBUG: Modal not found when closing", modalId);
+    }
 }
 
 
@@ -2540,9 +3209,20 @@ function openDeleteBlogModal(blogId) {
     }
 }
 function reloadBlogList() {
+    console.log('🔄 Loading blogs with filters...');
     const contextPath = '/' + window.location.pathname.split('/')[1];
-    const url = `${window.location.origin}${contextPath}/admin/blogs?action=ajaxList`;
-    console.log(" URL được gọi:", url);
+
+    // Lấy giá trị từ input filter
+    const searchTitle = document.getElementById('searchBlog') ? document.getElementById('searchBlog').value.trim() : '';
+    const startDate = document.getElementById('blogStartDate') ? document.getElementById('blogStartDate').value : '';
+    const endDate = document.getElementById('blogEndDate') ? document.getElementById('blogEndDate').value : '';
+
+    // Tạo URL có query string
+    let url = `${window.location.origin}${contextPath}/admin/blogs?action=ajaxList`;
+    url += `&search=${encodeURIComponent(searchTitle)}`;
+    url += `&startDate=${encodeURIComponent(startDate)}`;
+    url += `&endDate=${encodeURIComponent(endDate)}`;
+
     fetch(url)
             .then(response => {
                 if (!response.ok)
@@ -2550,12 +3230,11 @@ function reloadBlogList() {
                 return response.json();
             })
             .then(data => {
-                console.log(" JSON Blog Data:", data); // ← debug
                 const tbody = document.querySelector('#blogsTable tbody');
                 tbody.innerHTML = '';
 
                 if (!Array.isArray(data) || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Chưa có blog nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Không có blog phù hợp</td></tr>`;
                     return;
                 }
 
@@ -2564,47 +3243,76 @@ function reloadBlogList() {
                             ? `${window.location.origin}${contextPath}/ImagesServlet?type=blog&imageId=${blog.primaryImageId}&t=${Date.now()}`
                             : `${contextPath}/avatar/default.png`;
 
-                    const escapedTitle = escapeHtml(blog.title);
-                    let escapedContent = escapeHtml(blog.content);
-
-                    // Kiểm tra nếu nội dung là null hoặc trống
-                    if (!escapedContent || escapedContent === 'null' || escapedContent === '') {
-                        escapedContent = 'Chưa có nội dung'; // Thông báo khi không có nội dung
+                    // Escape khi render bảng
+                    const escapedTitle = escapeHTML(blog.title || '');
+                    let escapedContent = escapeHTML(blog.content || '');
+                    if (!escapedContent || escapedContent === 'null') {
+                        escapedContent = 'Chưa có nội dung';
                     }
 
-                    // Giới hạn nội dung chỉ còn 150 ký tự và thêm dấu "..."
-                    const truncatedContent = escapedContent.length > 150 ? escapedContent.substring(0, 150) + "..." : escapedContent;
+                    const truncatedContent = escapedContent.length > 150 ? escapedContent.substring(0, 150) + '...' : escapedContent;
 
+                    // Chỉ escape khi hiển thị bảng. Khi truyền data, chỉ escape dấu '
                     const row = `
-                    <tr>
-                        <td>${index + 1}</td>
-                        <td><img src="${imageUrl}" alt="Blog Image" style="width:120px;height:130px;border-radius:10px;"></td>
-                        <td>${escapedTitle}</td>
-                        <td>${truncatedContent}</td>
-                        <td>${new Date(blog.createdAt).toLocaleString('vi-VN')}</td>
-                        <td>${new Date(blog.updatedAt).toLocaleString('vi-VN')}</td>
-                        <td>
-                            <button class="action-buttons__btn action-buttons__btn--edit"
-                                onclick="openEditBlogModal(${blog.blogId}, \`${escapedTitle}\`, \`${escapedContent}\`, '${imageUrl}')">
-                                Edit
-                            </button>
-                            <button class="action-buttons__btn action-buttons__btn--delete"
-                                onclick="openDeleteBlogModal(${blog.blogId})">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>
+                <tr>
+                    <td>${index + 1}</td>
+                    <td><img src="${escapeHTML(imageUrl)}" alt="Blog Image" style="width:90px;height:100px;border-radius:10px;"></td>
+                    <td>${escapedTitle}</td>
+                    <td>${truncatedContent}</td>
+                    <td>${escapeHTML(new Date(blog.createdAt).toLocaleString('vi-VN'))}</td>
+                    <td>${escapeHTML(new Date(blog.updatedAt).toLocaleString('vi-VN'))}</td>
+                    <td>
+                        <button class="action-buttons__btn action-buttons__btn--edit blog-edit"
+                            data-blog-id='${blog.blogId}'
+                            data-title='${(blog.title || '').replace(/'/g, "&#39;")}'
+                            data-content='${(blog.content || '').replace(/'/g, "&#39;")}'
+                            data-image-url='${imageUrl.replace(/'/g, "&#39;")}'
+                        >
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--delete blog-delete"
+                            data-blog-id='${blog.blogId}'>
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
                 `;
                     tbody.innerHTML += row;
                 });
+
+                // Gán sự kiện cho các nút Edit/Delete
+                document.querySelectorAll('.blog-edit').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openEditBlogModal(
+                                this.dataset.blogId,
+                                this.dataset.title.replace(/&#39;/g, "'"),
+                                this.dataset.content.replace(/&#39;/g, "'"),
+                                this.dataset.imageUrl.replace(/&#39;/g, "'")
+                                );
+                    });
+                });
+                document.querySelectorAll('.blog-delete').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openDeleteBlogModal(this.dataset.blogId);
+                    });
+                });
             })
             .catch(error => {
-                console.error('Lỗi khi load blogs:', error);
-                // Debug: in ra nội dung HTML nếu không phải JSON
-                fetch(url)
-                        .then(r => r.text())
-                        .then(text => console.warn("Nội dung không phải JSON:", text));
+                console.error('❌ Lỗi khi load blog list:', error);
             });
+}
+
+// Ví dụ modal:
+function openEditBlogModal(id, title, content, imageUrl) {
+    document.getElementById("editBlogId").value = id;
+    document.getElementById("editBlogTitle").value = title || '';
+    document.getElementById("editBlogContent").value = content || '';
+    document.getElementById("editBlogImagePreview").src = imageUrl || '';
+    document.getElementById("editBlogModal").style.display = "block";
+}
+function openDeleteBlogModal(id) {
+    document.getElementById("deleteBlogId").value = id;
+    document.getElementById("deleteBlogModal").style.display = "block";
 }
 
 
@@ -2828,7 +3536,6 @@ function loadPackages(searchKeyword = '') {
     const contextPath = pathParts.length > 1 ? `/${pathParts[1]}` : '';
     let url = `${contextPath}/admin/packages`;
 
-    // Nếu có từ khóa tìm kiếm, thêm param vào URL
     if (searchKeyword && searchKeyword.trim() !== '') {
         url += `?name=${encodeURIComponent(searchKeyword.trim())}`;
     }
@@ -2847,23 +3554,52 @@ function loadPackages(searchKeyword = '') {
                 data.forEach((pkg, index) => {
                     const tr = document.createElement("tr");
 
-                    // Giới hạn mô tả chỉ hiển thị 150 ký tự, nếu dài hơn thì thêm "..."
                     const shortDescription = pkg.description && pkg.description.length > 150
                             ? pkg.description.slice(0, 150) + "..."
-                            : pkg.description;
+                            : pkg.description || "";
 
                     tr.innerHTML = `
                     <td>${index + 1}</td>
-                    <td>${pkg.name}</td>
-                    <td>${pkg.price.toLocaleString()}₫</td>
-                    <td>${pkg.durationDays}</td>
-                    <td>${shortDescription || ""}</td>
+                    <td>${escapeHTML(pkg.name)}</td>
+                    <td>${escapeHTML(pkg.price.toLocaleString())}₫</td>
+                    <td>${escapeHTML(String(pkg.durationDays))}</td>
+                    <td>${escapeHTML(shortDescription)}</td>
                     <td>
-                        <button class="action-buttons__btn action-buttons__btn--edit" onclick="openEditPackageModal(${pkg.id})">Edit</button>
-                        <button class="action-buttons__btn action-buttons__btn--delete" onclick="openDeletePackageModal(${pkg.id})">Delete</button>
+                        <button class="action-buttons__btn action-buttons__btn--edit package-edit"
+                            data-id='${pkg.id}'
+                            data-name='${pkg.name.replace(/'/g, "&#39;")}'
+                            data-description='${(pkg.description || '').replace(/'/g, "&#39;")}'
+                            data-duration='${pkg.durationDays}'
+                            data-price='${pkg.price}'
+                            data-status='${pkg.isActive ? "1" : "0"}'>
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--delete package-delete"
+                            data-id='${pkg.id}'>
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
                     </td>
                 `;
                     tbody.appendChild(tr);
+                });
+
+                // Gán sự kiện Edit/Delete
+                document.querySelectorAll('.package-edit').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openEditPackageModal(
+                                this.dataset.id,
+                                this.dataset.name.replace(/&#39;/g, "'"),
+                                this.dataset.description.replace(/&#39;/g, "'"),
+                                this.dataset.duration,
+                                this.dataset.price,
+                                this.dataset.status
+                                );
+                    });
+                });
+                document.querySelectorAll('.package-delete').forEach(btn => {
+                    btn.addEventListener('click', function () {
+                        openDeletePackageModal(this.dataset.id);
+                    });
                 });
             })
             .catch(error => {
@@ -2872,44 +3608,25 @@ function loadPackages(searchKeyword = '') {
             });
 }
 
-
-// Gọi lại loadPackages mỗi khi người dùng nhập vào ô tìm kiếm
+// Khi nhập filter và khi trang vừa load
 document.getElementById('packageSearchInput').addEventListener('input', function () {
     loadPackages(this.value);
 });
-
-// Khi trang vừa load, show toàn bộ danh sách (không filter)
 document.addEventListener('DOMContentLoaded', function () {
     loadPackages();
 });
 
-function openEditPackageModal(id) {
-    const pathParts = window.location.pathname.split('/');
-    const contextPath = pathParts.length > 1 ? `/${pathParts[1]}` : '';
+// Nhận đủ data, KHÔNG fetch lại nếu không thật sự cần update mới từ server!
+function openEditPackageModal(id, name, description, duration, price, status) {
+    document.getElementById("editPackageId").value = id || '';
+    document.getElementById("editPackageName").value = name || '';
+    document.getElementById("editPackageDescription").value = description || '';
+    document.getElementById("editPackageDuration").value = duration || '';
+    document.getElementById("editPackagePrice").value = price || '';
+    document.getElementById("editPackageStatus").value = status || '1';
 
-    fetch(`${contextPath}/admin/packages?id=${id}`)
-            .then(res => {
-                if (!res.ok)
-                    throw new Error("Không tìm thấy package");
-                return res.json();
-            })
-            .then(pkg => {
-                document.getElementById("editPackageId").value = pkg.id;
-                document.getElementById("editPackageName").value = pkg.name;
-                document.getElementById("editPackageDescription").value = pkg.description;
-                document.getElementById("editPackageDuration").value = pkg.durationDays;
-                document.getElementById("editPackagePrice").value = pkg.price;
-                document.getElementById("editPackageStatus").value = pkg.isActive ? "1" : "0";
-
-                // Hiển thị modal
-                document.getElementById("editPackageModal").style.display = "block";
-            })
-            .catch(err => {
-                alert(" Không thể tải dữ liệu gói tập.");
-                console.error(err);
-            });
+    document.getElementById("editPackageModal").style.display = "block";
 }
-
 
 function openDeletePackageModal(id) {
     document.getElementById("deletePackageId").value = id;

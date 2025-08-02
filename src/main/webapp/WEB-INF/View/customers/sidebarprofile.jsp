@@ -4,6 +4,8 @@
 <%@include file="/WEB-INF/include/Register.jsp" %>
 <%@include file="/WEB-INF/include/forgotPassword.jsp" %>
 <%@include file="/WEB-INF/include/header.jsp" %>
+<!-- Add Font Awesome CSS -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <main>
     <div class="container-profile">
         <!-- Sidebar -->
@@ -19,26 +21,25 @@
 
                     <!-- Biểu tượng camera -->
                     <label for="avatar-input" class="camera-icon" style="cursor: pointer;">
-                        <i class="fas fa-camera fa-2x"></i> <!-- Font Awesome camera icon -->
+                        <i class="fas fa-camera"></i>
                     </label>
                 </form>
             </div>
             <div class="username">
-                <h2>${customer.fullName}</h2> <!-- Hiển thị tên người dùng -->
+                <h2>${customer.fullName}</h2>
             </div>
             <ul class="menu">
-                <li><a class="tab-btn package" href="#" data-tab="packages">My Packages</a></li>
-                <li><a class="tab-btn work" href="#" data-tab="schedule">Work Schedule</a></li>
-                <li><a class="tab-btn" href="#" data-tab="changepassword">Change Password</a></li>
-
+                <li><a class="tab-btn" href="#" data-tab="profileContent"><i class="fas fa-user-circle"></i> Profile</a></li>
+                <li><a class="tab-btn package" href="#" data-tab="packages"><i class="fas fa-box"></i> My Packages</a></li>
+                <li><a class="tab-btn work" href="#" data-tab="schedule"><i class="fas fa-calendar-alt"></i> Work Schedule</a></li>
+                <li><a class="tab-btn" href="#" data-tab="changepassword"><i class="fas fa-lock"></i> Change Password</a></li>
             </ul>
-
         </div>
 
-        <!-- Content area (sẽ thay đổi nội dung ở đây)-->
-        <div class="profile-form" id="profile-content">
-            <!-- Nội dung mặc định khi trang mở lên sẽ là profile -->
-            <div id="profileContent" class="tab-content">
+        <!-- Content area -->
+        <div class="profile-form" id="profile-content" >
+            <!-- Default content is profile -->
+            <div id="profileContent" class="tab-content" style="display:none;">
                 <jsp:include page="profileContent.jsp"/>
             </div>
             <div id="packages" class="tab-content" style="display:none;">
@@ -50,7 +51,6 @@
             <div id="changepassword" class="tab-content" style="display:none;">
                 <jsp:include page="changepassword.jsp"/>
             </div>
-
         </div>
     </div>
     <script src="js/membership.js"></script>
@@ -89,37 +89,19 @@
     <% session.removeAttribute("updateError"); %>
     <% } %>
 
+    <% if (session.getAttribute("changePasswordError") != null) {%>
     <script>
-        // Kiểm tra nếu có thông báo lỗi từ session
-        <% if (session.getAttribute("changePasswordError") != null) {%>
-        var errorMessage = '<%= session.getAttribute("changePasswordError")%>';
-        // Gọi hàm showTab và hiển thị thông báo lỗi
-        showTab('changepassword');
-        Swal.fire({
-            icon: 'error',
-            title: 'Password Change Failed',
-            text: errorMessage,
-            customClass: {
-                confirmButton: "btn btn-login"
-            }
-        });
-        <% session.removeAttribute("changePasswordError"); %> // Xóa thông báo sau khi đã xử lý
-        <% } %>
-
-        <% if (session.getAttribute("changePasswordSuccess") != null) {%>
-        var successMessage = '<%= session.getAttribute("changePasswordSuccess")%>';
-        // Hiển thị thông báo thành công
         Swal.fire({
             icon: 'success',
-            title: successMessage,
+            title: '<%= session.getAttribute("changePasswordError")%>',
             text: 'Your password has been changed!',
             customClass: {
                 confirmButton: "btn btn-login"
             }
         });
-        <% session.removeAttribute("changePasswordSuccess"); %>
-        <% }%>
     </script>
+    <% session.removeAttribute("updateSuccess"); %>
+    <% }%>
 
     <script src="<%= request.getContextPath()%>/js/profile.js"></script>
 </main>

@@ -99,7 +99,7 @@
         <form method="post"
               action="${pageContext.request.contextPath}/admin/customer"
               enctype="multipart/form-data"
-              onsubmit="return submitFormAjax(this, 'resultEditCustomer')">
+              onsubmit="return submitFormAjaxCO(this, 'resultEditCustomer')">
 
             <input type="hidden" name="action" value="update">
             <input type="hidden" id="editCustomerId" name="customerId">

@@ -1,34 +1,78 @@
 <%@page import="Model.TrainerBooking"%>
 <%@page import="java.util.List"%>
-<div class="container-profile" >
-    <div>
-        <h1 class="header-profile">Work Schedule</h1>
-        <div class="date-picker">
-            <label for="start-date">Ch?n Ngày B?t ??u:</label>
-            <input type="date" id="start-date" onchange="updateWeek()">
-        </div>
 
-        <div class="week-info" id="week-info"></div>
-        <form method="post" action="bookingpt" id="bookingForm">
-            <table class="schedule-table">
-                <thead class="table-header">
-                    <tr>
-                        <th class="time-header">Hours</th>
-                        <th class="day-header">Monday</th>
-                        <th class="day-header">Tuesday</th>
-                        <th class="day-header">Wednesday</th>
-                        <th class="day-header">Thursday</th>
-                        <th class="day-header">Friday</th>
-                        <th class="day-header">Saturday</th>
-                        <th class="day-header">Sunday</th>
-                    </tr>
-                </thead>
-                <tbody id="schedule-table" class="schedule-body"></tbody>
-            </table>
-            <div id="selectedSlotsContainer"></div>
-        </form>
+<div class="container-profile" id="schedule">
+    <div>
+        <h1 class="header-content">Work Schedule</h1>
+        <div class="form-profile">
+            <div class="date-picker">
+                <label for="start-date">Select Start Date:</label>
+                <input type="date" id="start-date" class="date-input" onchange="updateWeek()">
+            </div>
+
+            <div class="week-info" id="week-info"></div>
+            <form method="post" action="profile" id="bookingForm">
+                <input type="hidden" name="action" id="action" value="cancel">
+                <div class="schedule-container">
+                    <table class="schedule-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th class="time-header">Hours</th>
+                                <th class="day-header">Monday</th>
+                                <th class="day-header">Tuesday</th>
+                                <th class="day-header">Wednesday</th>
+                                <th class="day-header">Thursday</th>
+                                <th class="day-header">Friday</th>
+                                <th class="day-header">Saturday</th>
+                                <th class="day-header">Sunday</th>
+                            </tr>
+                        </thead>
+                        <tbody id="schedule-table" class="schedule-body"></tbody>
+                    </table>
+                </div>
+                <div id="selectedSlotsContainer"></div>
+            </form>
+        </div>
     </div>
 </div>
+
+<!-- Modal th?ng b?o -->
+<div id="notificationModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2 id="modal-title">Notification</h2>
+        <p id="modal-message" style="color:#d9ff68"></p>
+        <button id="closeBtn" class="submit-btn" onclick="closeModalMesage()">Close</button>
+    </div>
+</div>
+
+<!-- Modal x?c nh?n h?y -->
+<div id="confirmationModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2 id="modal-title">Confirm Cancellation</h2>
+        <h3 id="modal-name"></h3>
+        <p id="modal-details"></p>
+        <button id="confirmBtn" class="submit-btn" onclick="confirmAction()">Confirm</button>
+        <button id="cancelBtn" class="submit-btn" onclick="closeModal()">Cancel</button>
+    </div>
+</div>
+
+
+<script>
+    // Ki?m tra xem c? th?ng b?o t? Servlet kh?ng
+    <% String notificationMessage = (String) session.getAttribute("notificationMessage");
+        if (notificationMessage != null) {
+            session.removeAttribute("notificationMessage");
+        }%>
+    if ("<%= notificationMessage != null ? notificationMessage : ""%>" !== "") {
+        document.getElementById('modal-message').innerText = "<%= notificationMessage%>";
+        document.getElementById('notificationModal').style.display = "block";
+    }
+
+    // ??ng modal
+    function closeModalMesage() {
+        document.getElementById('notificationModal').style.display = "none";
+    }
+</script>
 
 <script>
     var timeSlots = JSON.parse('<%= request.getAttribute("timeSlots")%>');
@@ -38,39 +82,48 @@
     console.log(mybooking.length);
 
     window.onload = function () {
-        updateWeek(); // G?i hàm ?? t? ??ng hi?n th? tu?n hi?n t?i khi trang ???c t?i
+        // Set default date to today
+        var today = new Date();
+        var dd = String(today.getDate()).padStart(2, '0');
+        var mm = String(today.getMonth() + 1).padStart(2, '0');
+        var yyyy = today.getFullYear();
+        var todayFormatted = yyyy + '-' + mm + '-' + dd;
+        document.getElementById('start-date').value = todayFormatted;
+
+        updateWeek(); // Auto display current week when page loads
     };
+
     function updateWeek() {
         var selectedDate = document.getElementById('start-date').value;
         var startDate = selectedDate ? new Date(selectedDate) : new Date();
         var startDay = startDate.getDay();
         var startOfWeek = new Date(startDate);
         if (startDay === 0) {
-            // Ch? nh?t, lùi v? th? 2 tu?n tr??c
+            // Sunday, go back to Monday of previous week
             startOfWeek.setDate(startDate.getDate() - 6);
         } else {
-            // Các ngày khác, tính ?úng th? 2 tu?n này
+            // Other days, calculate Monday of this week
             startOfWeek.setDate(startDate.getDate() - startDay + 1);
-        }  // Tính ngày b?t ??u tu?n (th? 2)
+        }
 
         var endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); // Ch? nh?t
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Sunday
 
         var weekInfo = document.getElementById('week-info');
-        weekInfo.innerHTML = "T? ngày " + formatDate(startOfWeek) + " ??n " + formatDate(endOfWeek);
+        weekInfo.innerHTML = "From " + formatDate(startOfWeek) + " to " + formatDate(endOfWeek);
         var tbody = document.getElementById('schedule-table');
         tbody.innerHTML = ''; // Clear previous table content
 
         for (var i = 0; i < timeSlots.length; i++) {
             var row = '<tr>';
-            row += '<td>' + timeSlots[i] + '</td>'; // Hi?n th? gi? vào c?t "Gi?"
+            row += '<td class="time-slot">' + timeSlots[i] + '</td>'; // Display hour in "Hour" column
 
             for (var j = 0; j < 7; j++) {
                 var currentDay = new Date(startOfWeek);
-                currentDay.setDate(startOfWeek.getDate() + j); // Tính ngày cho t?ng ngày trong tu?n
+                currentDay.setDate(startOfWeek.getDate() + j); // Calculate day for each day of the week
                 var formattedDate = formatDate(currentDay);
                 var isBooked = false;
-                // Ki?m tra booking v?i status = 'confirmed' và ngày t??ng ?ng
+                // Check booking with status = 'confirmed' and corresponding date
                 for (var k = 0; k < booking.length; k++) {
                     var bookingDate = booking[k].bookingDate;
                     var dateObject = new Date(bookingDate.year, bookingDate.month - 1, bookingDate.day); // month is 0-indexed in JavaScript
@@ -86,9 +139,6 @@
                             '<div class="slot-available"></div>' +
                             '</td>';
                 } else {
-
-
-                    
                     for (var k = 0; k < booking.length; k++) {
                         var bookingDate = booking[k].bookingDate;
                         var dateObject = new Date(bookingDate.year, bookingDate.month - 1, bookingDate.day);
@@ -105,21 +155,20 @@
                                         var className = (slotDateTime.getTime() - now.getTime() < 0) ? 'trainer-name completed' : 'trainer-name upcoming';
                                         row += '<td class="slot-cell">' +
                                                 '<button class="' + className + '" disabled>' + mybooking[g].trainer.fullName + '</button>';
+                                        if ((slotDateTime.getTime() - now.getTime()) > 3 * 60 * 60 * 1000) {
+                                            row += '<button type="button" class="cancel-btn" ' +
+                                                    'data-booking="' + mybooking[g].bookingId + '" ' +
+                                                    'data-schedule-id="' + schedules[i].scheduleId + '" ' +
+                                                    'data-trainer-name="' + mybooking[g].trainer.fullName + '" ' +
+                                                    'onclick="confirmCancel(this, \'' + formattedDate + '\')">Cancel</button>';
+                                        } else {
+                                            row += '<button class="cancel-btn" disabled>Can\'t cancel</button>';
+                                        }
+
                                     }
                                 }
 
-                                var startTime = getStartTimeByScheduleId(currentScheduleId);
-                                var slotDateTime = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate(), startTime.hour, startTime.minute || 0, 0, 0);
-                                var now = new Date();
-//                                if ((slotDateTime.getTime() - now.getTime()) >= 0) {
-//                                    row += '<button type="button" class="cancel-btn" ' +
-//                                            'data-booking="' + booking[k].bookingId + '" ' +
-//                                            'data-schedule-id="' + schedules[i].scheduleId + '" ' +
-//                                            'onclick="confirmCancel(this, \'' + formattedDate + '\')">Huy</button>';
-//                                }
-                            } 
-                            else {
-
+                            } else {
                                 row += '<td class="slot-cell">';
                             }
                             break;
@@ -128,19 +177,59 @@
 
                     row += '</td>';
                 }
-
             }
 
             row += '</tr>';
             tbody.innerHTML += row; // Add the row to the table
-        }  // Add the row to the table
+        }
     }
 
+    function confirmAction() {
+        if (actionType === 'cancel') {
+            document.getElementById("action").value = actionType;
+            console.log(actionType);
+            document.getElementById('bookingForm').submit();
+        }
+    }
+
+    function confirmCancel(button, date) {
+        actionType = 'cancel'; // Set action to "cancel"
+
+        // Get bookingId and scheduleId from data-booking and data-schedule-id attributes
+        var bookingId = button.getAttribute('data-booking');
+        var scheduleId = button.getAttribute('data-schedule-id');
+        var trainerName = button.getAttribute('data-trainer-name');
+
+        var timeSlot = getTimeSlotByScheduleId(scheduleId);  // Get slot time
+        var modalDetails = document.getElementById('modal-details');
+        var modalName = document.getElementById('modal-name');
+
+        // Add hidden input for bookingId to form
+        var details = 'Date: ' + date + '<br>';
+        details += 'Time: ' + timeSlot + '<br>';
+        modalName.innerHTML = trainerName;
+        modalDetails.innerHTML = details;
+        var container = document.getElementById('selectedSlotsContainer');
+        var hiddenBookingId = document.createElement("input");
+        hiddenBookingId.type = "hidden";
+        hiddenBookingId.name = "bookingId";  // Save bookingId
+        hiddenBookingId.value = bookingId;  // Assign bookingId 
+        container.appendChild(hiddenBookingId);
+        // Change modal title
+        document.getElementById('modal-title').innerHTML = 'Confirm Cancellation';
+
+        // Display cancellation modal
+        document.getElementById('confirmationModal').style.display = 'block';
+    }
+
+    function closeModal() {
+        document.getElementById('confirmationModal').style.display = 'none';
+    }
 
     function getStartTimeByScheduleId(scheduleId) {
         for (var i = 0; i < schedules.length; i++) {
             if (String(schedules[i].scheduleId) === String(scheduleId)) {
-                // startTime là object có .hour và .minute
+                // startTime is object with .hour and .minute
                 return schedules[i].startTime;
             }
         }
@@ -156,7 +245,7 @@
             dd = '0' + dd;
         if (mm < 10)
             mm = '0' + mm;
-        return yyyy + '-' + mm + '-' + dd; // ??nh d?ng yyyy-MM-dd cho ngày
+        return yyyy + '-' + mm + '-' + dd; // Format yyyy-MM-dd for date
     }
 
     function addHiddenInput(checkbox) {
@@ -184,18 +273,6 @@
         }
     }
 
-    function confirmAction() {
-        if (actionType === 'book') {
-            document.getElementById("action").value = actionType;
-            document.getElementById('bookingForm').submit(); // ??t l?ch khi ch?n "??t ngay"
-        } else if (actionType === 'cancel') {
-            document.getElementById("action").value = actionType;
-            console.log(actionType);
-            document.getElementById('bookingForm').submit();
-            cancelBooking(); // H?y l?ch
-        }
-    }
-
     function getTimeSlotByScheduleId(scheduleId) {
         for (var i = 0; i < schedules.length; i++) {
             if (String(schedules[i].scheduleId) === String(scheduleId)) {
@@ -210,6 +287,4 @@
         }
         return 'Unknown';
     }
-
-
 </script>

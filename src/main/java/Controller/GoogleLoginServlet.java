@@ -68,8 +68,14 @@ public class GoogleLoginServlet extends HttpServlet {
 
                 // Lưu vào database nếu chưa tồn tại
                 UserDao dao = new UserDao();
+                if (!dao.canLoginWithGoogle(email)) {
+                    json.put("status", "error");
+                    json.put("message", "Email này đã đăng ký bằng tài khoản nội bộ. Vui lòng đăng nhập bằng email và mật khẩu.");
+                    response.getWriter().write(json.toString());
+                    return;
+                }
                 if (!dao.isUsernameExists(username) && !dao.isEmailExists(email)) {
-                    dao.registerCustomer(username, "googleuser", avatarStream, name, email, "");
+                    dao.registerCustomer(username, "googleuser", avatarStream, name, email, "google");
                 }
 
                 // Set session

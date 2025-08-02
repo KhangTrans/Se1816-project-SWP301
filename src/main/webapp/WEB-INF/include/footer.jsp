@@ -8,113 +8,118 @@
 
 <style>
     footer {
-        background-color: #111";
+        background-color: #111;
         color: #f8f9fa;
         font-family: 'Segoe UI', sans-serif;
-        margin-top: 50px
+        margin-top: 50px;
+        border-top: 1px solid #333;
+        padding: 30px 0 15px 0;
     }
 
-    footer h5 {
-        color: #ff7f00;
-        font-weight: 600;
+    .footer-sections {
+        display: flex;
+        justify-content: space-between;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 15px;
+        flex-wrap: wrap;
     }
 
-    footer p, footer a {
-        color: #dcdcdc;
+    .footer-section {
+        flex: 1;
+        min-width: 300px;
+        margin-bottom: 25px;
+    }
+
+    .footer-title {
+        color: #d9ff00 !important;
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 20px;
+        text-transform: uppercase;
+    }
+
+    .footer-content p {
+        color: #fff;
+        margin: 0 0 8px 0;
         font-size: 15px;
+        line-height: 1.5;
     }
 
-    footer a:hover, footer i:hover {
-        color: #ff7f00;
+    .footer-content a {
+        color: #fff;
         text-decoration: none;
-        transition: all 0.3s ease;
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
     }
 
-    .map-responsive {
-        overflow: hidden;
-        padding-bottom: 56.25%;
-        position: relative;
-        border-radius: 10px;
+    .footer-content i {
+        margin-right: 10px;
+        width: 18px;
     }
 
-    .map-responsive iframe {
-        position: absolute;
-        top: 0;
-        left: 0;
+    .footer-map {
+        width: 100%;
+        height: 200px;
+        border-radius: 5px;
+    }
+
+    .footer-map iframe {
         width: 100%;
         height: 100%;
         border: 0;
-    }
-
-    .footer-icon {
-        margin-right: 10px;
+        border-radius: 5px;
     }
 
     .footer-bottom {
-        border-top: 1px solid #444;
-        margin-top: 20px;
-        padding-top: 15px;
+        max-width: 1200px;
+        margin: 20px auto 0;
+        padding: 15px;
         text-align: center;
+        border-top: 1px solid #333;
+        color: #ccc;
         font-size: 14px;
-    }
-    html, body {
-        height: 100%;
-        margin: 0;
-    }
-
-    .wrapper {
-        display: flex;
-        flex-direction: column;
-        min-height: 100vh;
-    }
-
-    .content {
-        flex: 1;
     }
 </style>
 
-<footer class="container-fluid text-white pt-5 pb-4 mt-5" id="footer_gym">
-    <div class="container text-md-left">
-        <div class="row text-md-left">
-            <!-- About section -->
-            <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-3">
-                <h5 class="text-uppercase mb-4 font-weight-bold text-warning">FPT University - Cần Thơ</h5>
+<footer>
+    <div class="footer-sections">
+        <!-- About section -->
+        <div class="footer-section">
+            <h3 class="footer-title" style="color: #d9ff00;">FPT UNIVERSITY - CẦN THƠ</h3>
+            <div class="footer-content">
                 <p>Đào tạo sinh viên toàn diện với chương trình học hiện đại, kỹ năng thực tiễn và môi trường quốc tế.</p>
             </div>
+        </div>
 
-            <!-- Contact section -->
-            <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-3">
-                <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Liên hệ</h5>
-                <p><i class="fas fa-home me-2"></i> 600 Nguyễn Văn Cừ, An Bình, Ninh Kiều, Cần Thơ</p>
-                <p><i class="fas fa-envelope me-2"></i> fpt.ct@fe.edu.vn</p>
-                <p><i class="fas fa-phone me-2"></i> (+84) 292 730 1866</p>
-            </div>
-
-            <!-- Google Map -->
-            <div class="col-md-4 col-lg-4 col-xl-4 mx-auto mt-3">
-                <h5 class="text-uppercase mb-4 font-weight-bold text-warning">Địa chỉ trên bản đồ</h5>
-                <div class="map-responsive">
-                    <iframe 
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3929.058643908444!2d105.735396075019!3d10.012271790092959!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a088a2556e4f4f%3A0x7c56e6603c42d087!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBGUFQgQ-G7rWEgQ8awbiBUaMOybw!5e0!3m2!1svi!2s!4v1715330992296!5m2!1svi!2s" 
-                        width="100%" 
-                        height="200" 
-                        style="border:0;" 
-                        allowfullscreen="" 
-                        loading="lazy" 
-                        referrerpolicy="no-referrer-when-downgrade">
-                    </iframe>
-                </div>
+        <!-- Contact section -->
+        <div class="footer-section">
+            <h3 class="footer-title" style="color: #d9ff00;">LIÊN HỆ</h3>
+            <div class="footer-content">
+                <a href="#"><i class="fas fa-map-marker-alt"></i> 600 Nguyễn Văn Cừ, An Bình, Ninh Kiều, Cần Thơ</a>
+                <a href="mailto:fpt.ct@fe.edu.vn"><i class="fas fa-envelope"></i> fpt.ct@fe.edu.vn</a>
+                <a href="tel:+84292730186"><i class="fas fa-phone"></i> (+84) 292 730 1866</a>
             </div>
         </div>
 
-        <hr class="mb-4">
-
-        <!-- Copyright -->
-        <div class="row align-items-center">
-            <div class="col-md-8 col-lg-8">
-                <p class="text-left">© 2025 Bản quyền thuộc về <strong>Group 4 SE1816 FPTU Cần Thơ</strong>. All rights reserved.</p>
+        <!-- Google Map -->
+        <div class="footer-section">
+            <h3 class="footer-title" style="color: #d9ff00;">ĐỊA CHỈ TRÊN BẢN ĐỒ</h3>
+            <div class="footer-map">
+                <iframe 
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3929.058643908444!2d105.735396075019!3d10.012271790092959!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a088a2556e4f4f%3A0x7c56e6603c42d087!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBGUFQgQ-G7rWEgQ8awbiBUaMOybw!5e0!3m2!1svi!2s!4v1715330992296!5m2!1svi!2s" 
+                    allowfullscreen="" 
+                    loading="lazy" 
+                    referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
             </div>
         </div>
+    </div>
+
+    <!-- Copyright -->
+    <div class="footer-bottom">
+        <p>© 2025 Bản quyền thuộc về Group 4 SE1816 FPTU Cần Thơ. All rights reserved.</p>
     </div>
 </footer>
 <!-- Font Awesome (for icons) -->

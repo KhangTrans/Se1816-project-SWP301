@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Arrays;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -321,28 +322,25 @@ public class OrderServlet extends HttpServlet {
             throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-
+        
+        // Lấy action từ form parameter
         String formAction = request.getParameter("formAction");
         System.out.println("OrderServlet - POST formAction: " + formAction);
-        
+
+        // Xử lý các action khác nhau
         if (formAction == null || formAction.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "FormAction parameter is required");
-            return;
-        }
-        
-        switch (formAction) {
-            case "updateStatus":
-                updateOrderStatus(request, response);
-                break;
-            case "editOrder":
-                editOrder(request, response);
-                break;
-            case "deleteOrder":
-                deleteOrder(request, response);
-                break;
-            default:
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Unknown action: " + formAction);
-                break;
+            listOrders(request, response);
+        } else if (formAction.equals("updateStatus")) {
+            updateOrderStatus(request, response);
+        } else if (formAction.equals("editOrder")) {
+            editOrder(request, response);
+        } else if (formAction.equals("deleteOrder")) {
+            deleteOrder(request, response);
+        } else if (formAction.equals("deleteByReferralCode")) {
+            deleteOrdersByReferralCode(request, response);
+        } else {
+            // Mặc định hiển thị danh sách nếu action không hợp lệ
+            listOrders(request, response);
         }
     }
     
@@ -351,41 +349,38 @@ public class OrderServlet extends HttpServlet {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         
-        try {
+        try (PrintWriter out = response.getWriter()) {
+            // Parse parameters
             int orderId = Integer.parseInt(request.getParameter("orderId"));
             String status = request.getParameter("status");
             
-            System.out.println("DEBUG - updateOrderStatus called with orderId=" + orderId + ", status='" + status + "'");
-            
-            if (status == null || status.isEmpty()) {
-                System.out.println("ERROR - Status parameter is required");
-                sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST, "Status parameter is required");
+            // Validate status
+            if (!isValidStatus(status)) {
+                JsonObject jsonResponse = new JsonObject();
+                jsonResponse.addProperty("status", "error");
+                jsonResponse.addProperty("message", "Invalid status value");
+                out.print(jsonResponse.toString());
                 return;
             }
             
+            // Update status in database
             boolean updated = orderDao.updateOrderStatus(orderId, status);
-            System.out.println("DEBUG - Order status update result: " + (updated ? "success" : "failed"));
             
+            // Send response
             JsonObject jsonResponse = new JsonObject();
-            
             if (updated) {
                 jsonResponse.addProperty("status", "updated");
                 jsonResponse.addProperty("message", "Order status updated successfully");
-                System.out.println("DEBUG - Order " + orderId + " status updated to '" + status + "' successfully");
             } else {
                 jsonResponse.addProperty("status", "error");
                 jsonResponse.addProperty("message", "Failed to update order status");
-                System.out.println("ERROR - Failed to update order " + orderId + " status to '" + status + "'");
             }
-            
-            response.getWriter().print(jsonResponse);
+            out.print(jsonResponse.toString());
         } catch (NumberFormatException e) {
-            System.out.println("ERROR - Invalid order ID format: " + e.getMessage());
             sendJsonError(response, HttpServletResponse.SC_BAD_REQUEST, "Invalid order ID format");
         } catch (Exception e) {
-            System.out.println("ERROR - Exception in updateOrderStatus: " + e.getMessage());
-            sendJsonError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error updating order status: " + e.getMessage());
             e.printStackTrace();
+            sendJsonError(response, HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error updating order status: " + e.getMessage());
         }
     }
     
@@ -540,4 +535,59 @@ public class OrderServlet extends HttpServlet {
         
         response.getWriter().print(jsonError);
     }
+    
+    
+    
+    
+    
+    
+    
+    private void deleteOrdersByReferralCode(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        
+        System.out.println("DEBUG - Starting deleteOrdersByReferralCode method");
+        
+        try {
+            // Get referral code from request
+            String referralCode = request.getParameter("referralCode");
+            System.out.println("DEBUG - Referral Code parameter: " + referralCode);
+            
+            if (referralCode == null || referralCode.trim().isEmpty()) {
+                response.setStatus(400);
+                response.getWriter().write("{\"status\":\"error\",\"message\":\"Referral Code is required\"}");
+                return;
+            }
+            
+            // Delete orders with this referral code
+            boolean deleted = orderDao.deleteOrdersByReferralCode(referralCode);
+            
+            if (deleted) {
+                System.out.println("DEBUG - Orders with referral code deleted successfully");
+                response.getWriter().write("{\"status\":\"deleted\",\"message\":\"All orders with this referral code deleted successfully\"}");
+            } else {
+                System.out.println("DEBUG - Failed to delete orders with referral code");
+                response.setStatus(404);
+                response.getWriter().write("{\"status\":\"error\",\"message\":\"Failed to delete orders - not found or cannot be deleted\"}");
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR - Exception in deleteOrdersByReferralCode: " + e.getMessage());
+            e.printStackTrace();
+            response.setStatus(500);
+            response.getWriter().write("{\"status\":\"error\",\"message\":\"Error deleting orders: " + e.getMessage().replace("\"", "\\\"") + "\"}");
+        }
+    }
+    
+    // Helper method to validate status values
+    private boolean isValidStatus(String status) {
+        if (status == null || status.isEmpty()) {
+            return false;
+        }
+        
+        // List of valid statuses
+        List<String> validStatuses = Arrays.asList("pending", "processing", "shipped", "cancelled");
+        return validStatuses.contains(status.toLowerCase());
+    }
+    
 } 

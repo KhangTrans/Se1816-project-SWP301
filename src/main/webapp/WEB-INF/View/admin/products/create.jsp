@@ -12,11 +12,17 @@
             <div class="modal__body">
                 <div class="modal__form-group">
                     <label class="modal__label">Name</label>
-                    <input type="text" name="name" class="modal__input" required>
+                    <input type="text" name="name"
+                           oninput="validateInput(this)"
+                           class="modal__input" required>
+
+
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Description</label>
-                    <textarea name="description" class="modal__textarea" style="height: 200px" maxlength="250"></textarea>
+                    <textarea name="description"
+                              oninput="validateInput(this)"
+                              class="modal__textarea" style="height: 200px" maxlength="250"></textarea>
                 </div>
                 <div class="modal__form-group">
                     <label class="modal__label">Price</label>
@@ -50,7 +56,7 @@
                 <div id="resultAddProduct"></div>
             </div>
             <div class="modal__footer">
-                <button type="submit" class="modal__btn modal__btn--primary">Save</button>
+                <button type="submit" class="modal__btn modal__btn--primary">Create</button>
                 <button type="button" class="modal__btn modal__btn--secondary" onclick="closeModal('addProductModal')">Cancel</button>
             </div>
         </form>

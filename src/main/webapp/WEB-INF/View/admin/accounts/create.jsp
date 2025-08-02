@@ -16,7 +16,15 @@
             <input type="password" name="password"
                    pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
                    title="Password must be at least 8 characters, including uppercase, lowercase, numbers and special characters"
-                   required><br><br>
+                   required>
+            <h6>Note: </h6>
+            <ul style="color: #555; font-size: 12px; margin-top: 5px; padding-left: 20px;">
+                <li>Password must be at least 8 characters.</li>
+                <li>Contain at least 1 uppercase letter.</li>
+                <li>Contain at least 1 lowercase letter.</li>
+                <li>Contain at least 1 number.</li>
+                <li>Contain at least 1 special character (e.g. @$!%*?&).</li>
+            </ul>
 
             <label>Role:</label>
             <select name="role">

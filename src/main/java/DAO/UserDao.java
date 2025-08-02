@@ -146,7 +146,7 @@ public class UserDao extends DBcontext {
             String fullName, String email, String phone) throws SQLException {
 
         String insertAccount = "INSERT INTO accounts (username, password, avatar, role, auth_provider, created_at) "
-                + "VALUES (?, ?, ?, 'customer', 'internal', GETDATE())";
+                + "VALUES (?, ?, ?, 'customer', 'google', GETDATE())";
 
         String insertCustomer = "INSERT INTO customers (account_id, full_name, email, phone, customer_code, address) "
                 + "VALUES (?, ?, ?, ?, ?, '')";
@@ -190,6 +190,24 @@ public class UserDao extends DBcontext {
             } catch (SQLException e) {
                 conn.rollback();
                 throw e;
+            }
+        }
+    }
+
+    public boolean canLoginWithGoogle(String email) throws SQLException {
+        String sql = "SELECT auth_provider FROM accounts join customers on accounts.account_id = customers.account_id WHERE email = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, email);
+            try ( ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    String authProvider = rs.getString("auth_provider");
+                    // Nếu là "internal", không cho đăng nhập Google
+                    return "google".equalsIgnoreCase(authProvider);
+                } else {
+                    // Email chưa tồn tại -> cho phép đăng nhập (tức là tạo mới bằng Google)
+                    return true;
+                }
             }
         }
     }

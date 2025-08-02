@@ -12,10 +12,6 @@ import java.util.List;
 
 public class CustomerDao extends DBcontext {
 
-//    // Lấy kết nối từ DBcontext
-//    public Connection getConnection() throws SQLException {
-//        return super.getConnection(); // Dùng phương thức getConnection() từ lớp DBcontext
-//    }
     // Thêm khách hàng mới
     public void createCustomer(Customer customer) throws SQLException {
         String sql = "INSERT INTO customers (account_id, full_name, email, phone, customer_code, address) "
@@ -185,7 +181,7 @@ public class CustomerDao extends DBcontext {
     // Tìm khách hàng theo ID
     public Customer getCustomerById(int customerId) {
         Customer customer = null;
-        String query = "SELECT * FROM customers WHERE customer_id = ?"; // sửa
+        String query = "SELECT * FROM customers WHERE customer_id = ?";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
             ps.setInt(1, customerId);
             try ( ResultSet rs = ps.executeQuery()) {
@@ -261,10 +257,9 @@ public class CustomerDao extends DBcontext {
 
     public boolean addMembership(CustomerMembership membership) {
         String sql = "INSERT INTO customer_memberships (account_id, package_id, start_date, end_date, payment_status) VALUES (?, ?, ?, ?, ?)";
-        try (
-                 Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
 
-            int accountId = membership.getCustomer().getAccount().getAccountId(); // <-- CHỈ DÙNG accountId!
+            int accountId = membership.getCustomer().getAccount().getAccountId();
             int packageId = membership.getMembershipPackage().getPackageId();
 
             stmt.setInt(1, accountId);
@@ -368,9 +363,9 @@ public class CustomerDao extends DBcontext {
         return membership;
     }
 
-// 2. Update ngày hết hạn (renew)
+    // 2. Update ngày hết hạn (renew)
     public boolean updateMembershipEndDate(int membershipId, java.time.LocalDate newEndDate) {
-        String sql = "UPDATE customer_memberships SET end_date = ? WHERE membership_id = ?";
+        String sql = "UPDATE customer_memberships SET end_date = ?, payment_status = 'pending' WHERE membership_id = ? ";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setDate(1, java.sql.Date.valueOf(newEndDate));
             ps.setInt(2, membershipId);
@@ -382,7 +377,7 @@ public class CustomerDao extends DBcontext {
         return false;
     }
 
-// 3. Cancel membership (set trạng thái)
+    // 3. Cancel membership (set trạng thái)
     public boolean cancelMembership(int membershipId) {
         String sql = "UPDATE customer_memberships SET payment_status = 'cancelled' WHERE membership_id = ?";
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -401,13 +396,12 @@ public class CustomerDao extends DBcontext {
                 + "FROM customers c "
                 + "JOIN accounts a ON c.account_id = a.account_id "
                 + "WHERE a.role = 'customer' "
-                + "AND c.full_name LIKE ?";  // Chỉ tìm theo full_name
+                + "AND c.full_name LIKE ?";
 
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
-            String searchPattern = "%" + fullName + "%";  // Tạo pattern tìm kiếm với LIKE
+            String searchPattern = "%" + fullName + "%";
 
-            // Cài đặt tham số tìm kiếm vào query
-            ps.setString(1, searchPattern);  // Tìm theo full_name
+            ps.setString(1, searchPattern);
 
             try ( ResultSet rs = ps.executeQuery()) {
                 int count = 0;
@@ -415,7 +409,7 @@ public class CustomerDao extends DBcontext {
                     Account account = new Account();
                     account.setAccountId(rs.getInt("account_id"));
                     account.setUsername(rs.getString("username"));
-                    account.setAvatar(rs.getBytes("avatar")); // BLOB dùng cho AvatarServlet
+                    account.setAvatar(rs.getBytes("avatar"));
 
                     Customer customer = new Customer();
                     customer.setCustomerId(rs.getInt("customer_id"));
@@ -427,7 +421,6 @@ public class CustomerDao extends DBcontext {
 
                     customers.add(customer);
 
-                    // DEBUG LOG
                     System.out.println("Customer #" + (++count));
                     System.out.println("  ID: " + customer.getCustomerId());
                     System.out.println("  Name: " + customer.getFullName());
@@ -483,5 +476,80 @@ public class CustomerDao extends DBcontext {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public Customer getCustomerByAccountId(int accountId) throws SQLException {
+        Customer customer = null;
+        String sql = "SELECT * FROM customers WHERE account_id = ?";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    customer = new Customer();
+                    customer.setCustomerId(rs.getInt("account_id"));
+                    customer.setFullName(rs.getString("full_name"));
+                    customer.setEmail(rs.getString("email"));
+                    customer.setPhone(rs.getString("phone"));
+                    customer.setCustomerCode(rs.getString("customer_code"));
+                    customer.setAddress(rs.getString("address"));
+                }
+            }
+        }
+        return customer;
+    }
+
+    // New method: Check if email exists in customers
+    public boolean isEmailExists(String email) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM customers WHERE email = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+    // New method: Check if phone exists in customers
+    public boolean isPhoneExists(String phone) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM customers WHERE phone = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, phone);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+    // New method: Check if email exists except for the current customer (for edit)
+    public boolean isEmailExistsExceptCustomer(String email, int customerId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM customers WHERE email = ? AND customer_id != ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setInt(2, customerId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+    // New method: Check if phone exists except for the current customer (for edit)
+    public boolean isPhoneExistsExceptCustomer(String phone, int customerId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM customers WHERE phone = ? AND customer_id != ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, phone);
+            stmt.setInt(2, customerId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
     }
 }

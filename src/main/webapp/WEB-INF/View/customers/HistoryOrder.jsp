@@ -22,8 +22,9 @@
             java.util.List<java.util.Map<String, Object>> orderHistory = (java.util.List<java.util.Map<String, Object>>) request.getAttribute("orderHistory");
             if (orderHistory != null && !orderHistory.isEmpty()) {
                 for (java.util.Map<String, Object> order : orderHistory) {
+                    int orderId = (Integer) order.get("orderId");
         %>
-        <article class="order-card" id="order-<%= order.get("orderId")%>">
+        <article class="order-card" id="order-<%= orderId %>">
             <div class="order-card__content">
                 <section class="product-info">
                     <%
@@ -59,26 +60,28 @@
                             <span class="product-info__status <%= statusClass%>"><%= status != null ? status.toUpperCase() : ""%></span>
                         </div>
                         <div class="product-info__price">
-                            <%= order.containsKey("formattedPrice") ? order.get("formattedPrice") : "$0.00" %>
+                            <%
+                                java.math.BigDecimal totalAmount = (java.math.BigDecimal) order.get("totalAmount");
+                                String priceStr = totalAmount != null ? String.format("%,.0f₫", totalAmount) : "0₫";
+                            %>
+                            <%= priceStr%>
                         </div>
                     </div>
                 </section>
 
-                <section class="customer-info">
-                    <h3 class="customer-info__name"><%= order.get("customerName")%></h3>
-                    <div class="customer-info__phone"><%= order.get("customerPhone")%></div>
-                    <address class="customer-info__address">
-                        <%= order.get("shippingAddress")%>
-                    </address>
-                </section>
+                
 
                 <section class="button-info">
+                    <!-- Add View Details Button -->
+                    <button class="action-button view-button" onclick="viewOrderDetails(<%= orderId %>)">
+                        <i class="fas fa-eye"></i> Details
+                    </button>
                     <% if ("cancelled".equalsIgnoreCase((String) order.get("status")) || "shipped".equalsIgnoreCase((String) order.get("status"))) { %>
                         <button class="action-button edit-button disabled" disabled>
                             <i class="fas fa-edit"></i> Edit
                         </button>
                     <% } else { %>
-                        <button class="action-button edit-button" onclick="openEditModal(<%= order.get("orderId") %>)">
+                        <button class="action-button edit-button" onclick="openEditModal(<%= orderId %>)">
                             <i class="fas fa-edit"></i> Edit
                         </button>
                     <% } %>
@@ -88,10 +91,12 @@
                             <i class="fas fa-cancel"></i> Cancel
                         </button>
                     <% } else { %>
-                        <button class="action-button delete-button" onclick="deleteOrder(<%= order.get("orderId")%>)">
+                        <button class="action-button delete-button" onclick="deleteOrder(<%= orderId %>)">
                             <i class="fas fa-cancel"></i> Cancel
                         </button>
                     <% } %>
+
+                    
                 </section>
             </div>
         </article>
@@ -110,6 +115,52 @@
         %>
     </div>
 </main>
+
+<!-- Order Details Modal -->
+<div id="orderDetailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeDetailsModal()">&times;</span>
+        <h2>Order Details</h2>
+        
+        <div class="order-details-container">
+            <div class="order-header">
+                <div class="order-date">Date: <span id="modal-order-date"></span></div>
+                <!--<div class="order-status">Status: <span id="modal-order-status"></span></div>-->
+            </div>
+            
+            <div class="order-product-details">
+                <img id="modal-product-image" class="product-image" src="" alt="Product">
+                <div class="product-details">
+                    <h3 id="modal-product-name"></h3>
+                    <p><strong>Unit Price: </strong><span id="modal-unit-price"></span></p>
+                    <p><strong>Quantity: </strong><span id="modal-quantity"></span></p>
+                    <!--<p>Subtotal: <span id="modal-subtotal"></span></p>-->
+                </div>
+            </div>
+            
+            <div class="order-customer-details">
+                <h3>Customer Information</h3>
+                <p><strong>Name:</strong> <span id="modal-customer-name"></span></p>
+                <p><strong>Phone:</strong> <span id="modal-customer-phone"></span></p>
+                <p><strong>Address:</strong> <span id="modal-customer-address"></span></p>
+            </div>
+            
+            <div class="order-payment-details">
+                <h3>Payment Information</h3>
+                <p class="price-line"><strong>Original Price:</strong> <span id="modal-payment-subtotal"></span></p>
+                
+                <!--<p class="price-line voucher-line"><strong>Voucher:</strong> <span id="modal-voucher-info">No voucher applied</span></p>-->
+                <p class="price-line voucher-line"><strong>Voucher:</strong><span id="modal-discountVoucher"></span></p>
+                <div id="voucher-info-container">
+                    <p class="price-line"><strong>Voucher Code:</strong> <span id="modal-voucher-code"></span></p>
+                    <p class="price-line discount-amount"><strong>Discount Amount:</strong> <span id="modal-discount-amount"></span></p>
+                </div>
+                
+                <p class="total-amount"><strong>Total Price:</strong> <span id="modal-total-amount"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Import modal chỉnh sửa đơn hàng -->
 <%@include file="editOrderModal.jsp" %>

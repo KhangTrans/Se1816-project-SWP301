@@ -304,7 +304,7 @@ public class ProductDao extends DBcontext {
     }
 
     public int getTotalProducts() throws SQLException {
-        String sql = "SELECT COUNT(*) FROM products";  // Đếm tổng số sản phẩm trong bảng products
+        String sql = "SELECT COUNT(*) FROM products where is_active = 1";  // Đếm tổng số sản phẩm trong bảng products
         try ( Connection conn = new DBcontext().getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
@@ -735,6 +735,14 @@ public class ProductDao extends DBcontext {
             stmt.setInt(1, quantityToSubtract);
             stmt.setInt(2, productId);
             stmt.executeUpdate();
+        }
+    }
+
+    public void clearCart(int accountId) throws SQLException {
+        String sql = "DELETE FROM cart_items WHERE account_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, accountId);
+            ps.executeUpdate();
         }
     }
 }

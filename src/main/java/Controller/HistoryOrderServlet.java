@@ -78,8 +78,8 @@ public class HistoryOrderServlet extends HttpServlet {
             // Get the total price directly from the database using the dedicated method
             double totalPrice = historyOrderDao.getOrderTotalPrice(orderId);
             
-            // Store as a String to avoid JSP conversion issues
-            order.put("formattedPrice", String.format("$%.2f", totalPrice));
+            // Format price with comma as thousand separator (e.g., 2,400,000 đ)
+            order.put("formattedPrice", String.format("%,.0f", totalPrice) + " đ");
         }
         
         // Pass the order history to the JSP
@@ -134,8 +134,8 @@ public class HistoryOrderServlet extends HttpServlet {
                     orderDetails.put("price", unitPrice);
                     
                     // Add formatted price values
-                    orderDetails.put("formattedUnitPrice", String.format("$%.2f", unitPrice));
-                    orderDetails.put("formattedPrice", String.format("$%.2f", unitPrice));
+                    orderDetails.put("formattedUnitPrice", String.format("%,.0f", unitPrice) + " đ");
+                    orderDetails.put("formattedPrice", String.format("%,.0f", unitPrice) + " đ");
                 }
                 
                 // Format total price if available
@@ -155,7 +155,7 @@ public class HistoryOrderServlet extends HttpServlet {
                         }
                     }
                     
-                    orderDetails.put("formattedTotalPrice", String.format("$%.2f", totalPrice));
+                    orderDetails.put("formattedTotalPrice", String.format("%,.0f", totalPrice) + " đ");
                     orderDetails.put("totalPrice", totalPrice); // Ensure it's stored as a double
                 }
                 
@@ -334,10 +334,10 @@ public class HistoryOrderServlet extends HttpServlet {
             
             if (deleted) {
                 result.put("success", true);
-                result.put("message", "Order deleted successfully");
+                result.put("message", "Đơn hàng đã bị hủy thành công và số lượng sản phẩm đã được trả về kho");
             } else {
                 result.put("success", false);
-                result.put("message", "Failed to delete order or you don't have permission");
+                result.put("message", "Không thể hủy đơn hàng hoặc bạn không có quyền thực hiện");
             }
             
         } catch (NumberFormatException e) {

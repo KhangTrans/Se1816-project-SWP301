@@ -305,4 +305,32 @@ public class StaffDao extends DBcontext {
             e.printStackTrace();
         }
     }
+
+    public boolean isEmailOrPhoneTaken(String email, String phone, Integer excludeAccountId) throws SQLException {
+        String sql
+                = "SELECT 1 FROM ("
+                + " SELECT email, phone, account_id FROM staff"
+                + " UNION "
+                + " SELECT email, phone, account_id FROM customers"
+                + " UNION "
+                + " SELECT email, phone, account_id FROM trainers"
+                + ") AS all_users "
+                + "WHERE (email = ? OR phone = ?)";
+
+        if (excludeAccountId != null) {
+            sql += " AND account_id <> ?";
+        }
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, phone);
+            if (excludeAccountId != null) {
+                ps.setInt(3, excludeAccountId);
+            }
+            try ( ResultSet rs = ps.executeQuery()) {
+                return rs.next(); // true nếu có dòng nào trùng
+            }
+        }
+    }
+
 }

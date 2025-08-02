@@ -18,6 +18,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.Part;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
@@ -53,7 +54,22 @@ public class BlogsServlet extends HttpServlet {
                 }
                 case "ajaxList": {
                     try {
-                        List<Blog> blogs = blogDao.getAllBlogs();
+
+                        String searchTerm = request.getParameter("search") != null ? request.getParameter("search") : "";
+                        String fromDateStr = request.getParameter("startDate");
+                        String toDateStr = request.getParameter("endDate");
+
+                        LocalDateTime fromDate = null;
+                        LocalDateTime toDate = null;
+                        if (fromDateStr != null && !fromDateStr.isEmpty()) {
+                            fromDate = LocalDateTime.parse(fromDateStr + "T00:00:00");
+                        }
+
+                        if (toDateStr != null && !toDateStr.isEmpty()) {
+                            toDate = LocalDateTime.parse(toDateStr + "T23:59:59");
+                        }
+
+                        List<Blog> blogs = blogDao.searchBlogs(searchTerm, fromDate, toDate);
                         response.setContentType("application/json");
                         response.setCharacterEncoding("UTF-8");
                         Gson gson = new GsonBuilder()
@@ -136,6 +152,7 @@ public class BlogsServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
+
         String action = request.getParameter("action");
         try {
             if ("create".equalsIgnoreCase(action)) {
@@ -178,9 +195,11 @@ public class BlogsServlet extends HttpServlet {
 
     private void createBlog(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
+            HttpSession session = request.getSession(false);
+            Model.Account account = (Model.Account) session.getAttribute("account");
             String title = request.getParameter("title");
             String content = request.getParameter("content");
-            int authorId = 1; // hardcoded
+            int authorId = account.getAccountId(); // hardcoded
             boolean isPublished = true;
             LocalDateTime now = LocalDateTime.now();
 
@@ -224,10 +243,12 @@ public class BlogsServlet extends HttpServlet {
     private void updateBlog(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             // Lấy thông tin từ request
+            HttpSession session = request.getSession(false);
+            Model.Account account = (Model.Account) session.getAttribute("account");
             String blogIdParam = request.getParameter("blogId");
             String title = request.getParameter("title");
             String content = request.getParameter("content");
-            int authorId = 1; // hardcoded
+            int authorId = account.getAccountId(); // hardcoded
             LocalDateTime now = LocalDateTime.now();
 
             if (blogIdParam == null || blogIdParam.trim().isEmpty() || title == null || title.trim().isEmpty() || content == null || content.trim().isEmpty()) {
@@ -244,7 +265,7 @@ public class BlogsServlet extends HttpServlet {
             blog.setTitle(title);
             blog.setContent(content);
             blog.setUpdatedAt(now);
-            blog.setAuthor(blogDao.getbyID(authorId));
+            blog.setAuthor(blogDao.getAccountById(authorId));
 
             // Cập nhật blog vào cơ sở dữ liệu
             blogDao.updateBlog(blog);

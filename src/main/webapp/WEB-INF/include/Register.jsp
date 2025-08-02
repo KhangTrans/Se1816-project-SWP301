@@ -23,15 +23,16 @@
                            value="customer" />
 
                     <div class="mb-3">
-                        <label>Email</label>
+                        <label style="color: black">Email</label>
                         <input type="email"
                                class="form-control"
                                name="email"
+                               pattern="^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$"
                                required />
                     </div>
 
                     <div class="mb-3">
-                        <label>Username</label>
+                        <label style="color: black">Username</label>
                         <input type="text"
                                class="form-control"
                                name="username"
@@ -39,32 +40,42 @@
                     </div>
 
                     <div class="mb-3">
-                        <label>Phone</label>
+                        <label style="color: black">Phone</label>
                         <input type="text"
                                class="form-control"
                                name="phone"
+                               pattern="^(0[35789])[0-9]{8}$" 
+                               title="Please enter a valid phone number (eg: 0912345678)."
                                required/>
                     </div>
 
                     <div class="mb-3">
-                        <label>Password</label>
+                        <label style="color: black">Password</label>
                         <input type="password"
                                class="form-control"
                                name="password"
                                pattern="^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"
                                title="Password must be at least 8 characters, including uppercase, lowercase, numbers and special characters"
                                required/>
+                        <h6>Note: </h6>
+                        <ul style="color: #555; font-size: 12px; margin-top: 5px; padding-left: 20px;">
+                            <li>Password must be at least 8 characters.</li>
+                            <li>Contain at least 1 uppercase letter.</li>
+                            <li>Contain at least 1 lowercase letter.</li>
+                            <li>Contain at least 1 number.</li>
+                            <li>Contain at least 1 special character (e.g. @$!%*?&).</li>
+                        </ul>
                     </div>
 
                     <div class="mb-3">
-                        <label>Confirm Password</label>
+                        <label style="color: black">Confirm Password</label>
                         <input type="password"
                                class="form-control"
                                name="confirm_password"/>
                     </div>
 
                     <div class="mb-3">
-                        <label>Avatar</label>
+                        <label style="color: black">Avatar</label>
                         <input type="file"
                                class="form-control"
                                name="avatar"
@@ -74,7 +85,7 @@
                 <a href="#" class="d-flex justify-content-center"
                    data-bs-toggle="modal"
                    data-bs-target="#loginModal">
-                   Already have an account? Login here</a>
+                    Already have an account? Login here</a>
                 <div class="modal-footer">
                     <button type="submit" class="btn btn-primary w-100">Register</button>
                 </div>

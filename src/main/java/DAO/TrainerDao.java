@@ -495,4 +495,58 @@ public class TrainerDao extends DBcontext {
             return false;
         }
     }
+
+    // Kiểm tra email tồn tại, loại trừ trainerId hiện tại (cho edit)
+    public boolean isEmailExistsExceptTrainer(String email, int trainerId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM trainers WHERE email = ? AND trainer_id != ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            stmt.setInt(2, trainerId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+// Tương tự cho phone
+    public boolean isPhoneExistsExceptTrainer(String phone, int trainerId) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM trainers WHERE phone = ? AND trainer_id != ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, phone);
+            stmt.setInt(2, trainerId);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+    // New method: Check if email exists in trainers
+    public boolean isEmailExists(String email) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM trainers WHERE email = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, email);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
+
+    // New method: Check if phone exists in trainers
+    public boolean isPhoneExists(String phone) throws SQLException {
+        String sql = "SELECT COUNT(*) FROM trainers WHERE phone = ?";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, phone);
+            ResultSet rs = stmt.executeQuery();
+            if (rs.next()) {
+                return rs.getInt(1) > 0;
+            }
+        }
+        return false;
+    }
 }

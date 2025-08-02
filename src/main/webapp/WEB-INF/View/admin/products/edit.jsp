@@ -18,13 +18,21 @@
                 <!-- Name -->
                 <div class="modal__form-group">
                     <label class="modal__label">Name</label>
-                    <input type="text" name="name" id="editProductName" class="modal__input" required>
+                    <input type="text" name="name"
+                           id="editProductName" class="modal__input"
+                           oninput="validateInput(this)" required>
+                    <div id="error-message" style="color: red; display: none;">The text contains invalid characters.</div>
+
                 </div>
 
                 <!-- Description -->
                 <div class="modal__form-group">
                     <label class="modal__label">Description</label>
-                    <textarea name="description" id="editProductDescription" class="modal__textarea" style="height: 200px"></textarea>
+                    <textarea name="description" id="editProductDescription" 
+                              class="modal__textarea" style="height: 200px"
+                              oninput="validateInput(this)">
+                    </textarea>
+                    <div id="error-message" style="color: red; display: none;">The text contains invalid characters.</div>
                 </div>
 
                 <!-- Price -->
@@ -47,7 +55,7 @@
                     </select>
                 </div>
 
-<!--                 Main Image Upload -->
+                <!--                 Main Image Upload -->
                 <div class="modal__form-group" hidden>
                     <label class="modal__label">Change Main Image</label>
                     <input type="file" name="mainImage" class="modal__input" accept="image/*" onchange="previewEditProductImage(this)">
@@ -83,3 +91,17 @@
         </form>
     </div>
 </div>
+<script>
+    function validateInput(input) {
+        // Ki?m tra n?u gi� tr? nh?p v�o ch?a k� t? ??c bi?t
+        const forbiddenChars = /[<>\"'`&]/g;
+
+        // N?u ch?a k� t? ??c bi?t, hi?n th? th�ng b�o l?i v� x�a to�n b? n?i dung
+        if (forbiddenChars.test(input.value)) {
+            document.getElementById("error-message").style.display = "block";  // Hi?n th? th�ng b�o l?i
+            input.value = '';  // X�a to�n b? d? li?u nh?p v�o (l?u d? li?u r?ng)
+        } else {
+            document.getElementById("error-message").style.display = "none";  // ?n th�ng b�o l?i khi kh�ng c� k� t? ??c bi?t
+        }
+    }
+</script>

@@ -6,6 +6,7 @@ package DAO;
 
 import Model.Account;
 import Model.Customer;
+import Model.SlotAvailability;
 import Model.TrainerBooking;
 import Model.TrainerSchedule;
 import Model.Trainers;
@@ -73,7 +74,7 @@ public class ScheduleDao extends DBcontext {
                 int bookingId = rs.getInt("booking_id");
                 if ("cancelled".equalsIgnoreCase(status)) {
                     // Nếu slot đã bị hủy thì update lại thành confirmed
-                    String updateSql = "UPDATE trainer_bookings SET status = 'confirmed', account_id = ?, trainer_id = ? WHERE booking_id = ?";
+                    String updateSql = "UPDATE trainer_bookings SET status = 'pending', account_id = ?, trainer_id = ? WHERE booking_id = ?";
                     try ( PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
                         updatePs.setInt(1, accountId);
                         updatePs.setInt(2, trainerId);
@@ -87,7 +88,7 @@ public class ScheduleDao extends DBcontext {
                 }
             } else {
                 // Nếu chưa tồn tại thì insert mới
-                String insertSql = "INSERT INTO trainer_bookings (account_id, trainer_id, schedule_id, booking_date, status) VALUES (?, ?, ?, ?, 'confirmed')";
+                String insertSql = "INSERT INTO trainer_bookings (account_id, trainer_id, schedule_id, booking_date, status) VALUES (?, ?, ?, ?, 'pending')";
                 try ( PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
                     insertPs.setInt(1, accountId);
                     insertPs.setInt(2, trainerId);
@@ -282,7 +283,7 @@ public class ScheduleDao extends DBcontext {
                 + "FROM trainer_bookings tb "
                 + "JOIN trainer_schedules ts ON tb.schedule_id = ts.schedule_id "
                 + "JOIN trainers t ON tb.trainer_id = t.trainer_id "
-                + "WHERE tb.account_id = ? AND tb.status = 'confirmed' "
+                + "WHERE tb.account_id = ? AND tb.status IN ('confirmed', 'pending')"
                 + "ORDER BY tb.booking_date "; // Sắp xếp theo ngày booking
 
         try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -342,6 +343,102 @@ public class ScheduleDao extends DBcontext {
         }
 
         return bookings;
+    }
+
+    public boolean confirmBooking(int bookingId) throws SQLException {
+        String sql = "UPDATE trainer_bookings SET status = 'confirmed' WHERE booking_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Error confirming booking: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public boolean insertUpdateSlotAvailability(int scheduleId, int trainerId, Date slotDate, boolean isAvailable) {
+        // SQL để kiểm tra xem bản ghi đã tồn tại chưa
+        String checkSql = "SELECT COUNT(*) FROM trainer_slot_availability WHERE schedule_id = ? AND trainer_id = ? AND slot_date = ?";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(checkSql)) {
+            // Set các tham số cho câu lệnh SQL
+            ps.setInt(1, scheduleId);
+            ps.setInt(2, trainerId);
+            ps.setDate(3, slotDate);
+
+            // Thực hiện truy vấn và kiểm tra số lượng bản ghi
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            int count = rs.getInt(1);
+
+            // Nếu bản ghi đã tồn tại, thực hiện cập nhật
+            if (count > 0) {
+                String updateSql = "UPDATE trainer_slot_availability SET is_available = ? WHERE schedule_id = ? AND trainer_id = ? AND slot_date = ?";
+                try ( PreparedStatement updatePs = conn.prepareStatement(updateSql)) {
+                    updatePs.setBoolean(1, isAvailable);
+                    updatePs.setInt(2, scheduleId);
+                    updatePs.setInt(3, trainerId);
+                    updatePs.setDate(4, slotDate);
+
+                    int rowsAffected = updatePs.executeUpdate();
+                    return rowsAffected > 0;  // Trả về true nếu cập nhật thành công
+                }
+            } else {
+                // Nếu bản ghi chưa tồn tại, thực hiện chèn mới
+                String insertSql = "INSERT INTO trainer_slot_availability (schedule_id, trainer_id, slot_date, is_available) VALUES (?, ?, ?, ?)";
+                try ( PreparedStatement insertPs = conn.prepareStatement(insertSql)) {
+                    insertPs.setInt(1, scheduleId);
+                    insertPs.setInt(2, trainerId);
+                    insertPs.setDate(3, slotDate);
+                    insertPs.setBoolean(4, isAvailable);
+
+                    int rowsAffected = insertPs.executeUpdate();
+                    return rowsAffected > 0;  // Trả về true nếu chèn thành công
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();  // In ra lỗi nếu có
+            return false;  // Trả về false nếu có lỗi
+        }
+    }
+
+    public List<SlotAvailability> getSlotAvailabilityByTrainerId(int trainerId) {
+        List<SlotAvailability> slotAvailabilityList = new ArrayList<>();
+        String sql = "SELECT * FROM trainer_slot_availability WHERE trainer_id = ?";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, trainerId);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                SlotAvailability slot = new SlotAvailability();
+                slot.setAvailabilityId(rs.getInt("availability_id"));
+                slot.setScheduleId(rs.getInt("schedule_id"));
+
+                Trainers trainer = getTrainerById(rs.getInt("trainer_id"));
+                slot.setTrainer(trainer);
+                slot.setSlotDate(rs.getDate("slot_date").toLocalDate());
+                slot.setIsAvailable(rs.getBoolean("is_available"));
+                slotAvailabilityList.add(slot);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return slotAvailabilityList;
+    }
+
+    public boolean cancelBooking(int bookingId) throws SQLException {
+        String sql = "UPDATE trainer_bookings SET status = 'cancelled' WHERE booking_id = ?";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, bookingId);
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.out.println("Error confirming booking: " + e.getMessage());
+            return false;
+        }
     }
 
     public static void main(String[] args) throws SQLException {

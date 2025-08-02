@@ -10,7 +10,7 @@ public class Blog {
     private String content;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-    private Staff author; // Nếu bạn dùng Admin thay vì Staff, đổi sang Admin
+    private Account author; // Nếu bạn dùng Admin thay vì Staff, đổi sang Admin
     private boolean isPublished;
     private int primaryImageId; // thêm dòng này
     private List<BlogImage> images;
@@ -35,7 +35,7 @@ public class Blog {
     }
 
     public Blog(int blogId, String title, String content, LocalDateTime createdAt,
-            LocalDateTime updatedAt, Staff author, boolean isPublished) {
+            LocalDateTime updatedAt, Account author, boolean isPublished) {
         this.blogId = blogId;
         this.title = title;
         this.content = content;
@@ -45,7 +45,7 @@ public class Blog {
         this.isPublished = isPublished;
     }
 
-    public Blog(int blogId, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Staff author) {
+    public Blog(int blogId, String title, String content, LocalDateTime createdAt, LocalDateTime updatedAt, Account author) {
         this.blogId = blogId;
         this.title = title;
         this.content = content;
@@ -102,11 +102,11 @@ public class Blog {
         this.updatedAt = updatedAt;
     }
 
-    public Staff getAuthor() {
+    public Account getAuthor() {
         return author;
     }
 
-    public void setAuthor(Staff author) {
+    public void setAuthor(Account author) {
         this.author = author;
     }
 

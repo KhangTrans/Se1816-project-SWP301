@@ -5,128 +5,410 @@
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <%@ include file="/WEB-INF/include/head.jsp" %>
 <%@ include file="/WEB-INF/include/header.jsp" %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <%
     // Retrieve order data set by the controller
     Order order = (Order) request.getAttribute("order");
+    BigDecimal discountAmount = (BigDecimal) request.getAttribute("discountAmount");
 %>
 
 <style>
-    /* General Styles */
     body {
-        font-family: Arial, sans-serif;
-        background-color: #f4f6f8;
-        margin: 0;
+        background-color: #111;
+        color: #fff;
+    }
+
+    .order-confirmation-container {
+        max-width: 1000px;
+        margin: 100px auto;
+        padding: 0 20px;
+    }
+
+    .order-confirmation-card {
+        background: rgba(25, 25, 25, 0.9);
+        border-radius: 20px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        border: 1px solid rgba(217, 255, 104, 0.3);
         padding: 0;
     }
 
-    /* Order Confirmation Section */
-    .order-summary {
-        background-color: white;
-        margin-top: 50px;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    .order-header {
+        background: linear-gradient(135deg, rgba(25, 25, 25, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
+        padding: 25px 40px;
+        border-bottom: 1px solid rgba(217, 255, 104, 0.2);
+        position: relative;
+        overflow: hidden;
     }
 
-    h2 {
+    .order-header::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at top right, rgba(217, 255, 104, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
+        z-index: 1;
+    }
+
+    .order-header h2 {
+        color: #d9ff68;
+        margin: 0;
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        position: relative;
+        z-index: 2;
         text-align: center;
-        color: #4CAF50;
-        font-size: 2.5em;
-        margin-bottom: 20px;
     }
 
-    /* Table Styles */
-    table {
+    .order-id {
+        color: #aaa;
+        text-align: center;
+        margin-top: 5px;
+        font-size: 14px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .order-id span {
+        color: #d9ff68;
+        font-weight: bold;
+    }
+
+    .order-content {
+        padding: 30px;
+    }
+
+    .section-title {
+        color: #d9ff68;
+        font-size: 22px;
+        margin-bottom: 20px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title i {
+        font-size: 20px;
+    }
+
+    .order-table {
         width: 100%;
         border-collapse: collapse;
-        margin-top: 20px;
+        margin: 20px 0 30px;
+        border-radius: 10px;
+        overflow: hidden;
     }
 
-    table th, table td {
-        padding: 12px;
+    .order-table th, .order-table td {
+        padding: 15px;
         text-align: left;
-        border: 1px solid #ddd;
     }
 
-    table th {
-        background-color: #f4f4f4;
+    .order-table th {
+        background-color: rgba(26, 42, 58, 0.8);
+        color: #d9ff68;
+        font-weight: 500;
+        text-transform: uppercase;
+        font-size: 14px;
+        letter-spacing: 0.5px;
     }
 
-    table tr:nth-child(even) {
-        background-color: #f9f9f9;
+    .order-table td {
+        background-color: rgba(30, 30, 30, 0.6);
+        color: #fff;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
 
-    /* Button Styling */
+    .order-table tr:last-child td {
+        border-bottom: none;
+    }
+
+    .product-name {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .product-img {
+        width: 50px;
+        height: 50px;
+        border-radius: 8px;
+        object-fit: contain;
+        background-color: rgba(255, 255, 255, 0.05);
+        padding: 5px;
+    }
+
+    .price-column {
+        text-align: right;
+        font-weight: bold;
+    }
+
+    .subtotal-row td {
+        background-color: rgba(40, 40, 40, 0.6);
+        color: #aaa;
+    }
+
+    .discount-row td {
+        background-color: rgba(40, 40, 40, 0.6);
+        color: #ff6b6b;
+    }
+
+    .total-row td {
+        background-color: rgba(26, 42, 58, 0.8);
+        color: #d9ff68;
+        font-weight: bold;
+        font-size: 18px;
+    }
+
+    .order-summary {
+        background-color: rgba(30, 30, 30, 0.6);
+        border-radius: 12px;
+        padding: 25px;
+        margin-bottom: 30px;
+        border: 1px solid rgba(217, 255, 104, 0.1);
+    }
+
+    .summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .summary-row:last-child {
+        border-bottom: none;
+    }
+
+    .summary-label {
+        color: #aaa;
+    }
+
+    .summary-value {
+        font-weight: bold;
+    }
+
+    .thank-you-section {
+        text-align: center;
+        padding: 30px 20px;
+        background: linear-gradient(135deg, rgba(26, 42, 58, 0.7) 0%, rgba(13, 27, 41, 0.7) 100%);
+        border-radius: 12px;
+        margin-top: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .thank-you-section::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at center, rgba(217, 255, 104, 0.1) 0%, rgba(0, 0, 0, 0) 70%);
+        z-index: 1;
+    }
+
+    .thank-you-title {
+        color: #d9ff68;
+        font-size: 28px;
+        margin-bottom: 15px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .thank-you-message {
+        color: #fff;
+        font-size: 16px;
+        margin-bottom: 25px;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
+        line-height: 1.6;
+        position: relative;
+        z-index: 2;
+    }
+
+    .order-status {
+        display: inline-block;
+        padding: 8px 16px;
+        background-color: rgba(217, 255, 104, 0.15);
+        color: #d9ff68;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: bold;
+        margin-bottom: 25px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .order-status i {
+        margin-right: 5px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-top: 20px;
+        position: relative;
+        z-index: 2;
+    }
+
     .btn {
         display: inline-block;
-        padding: 12px 30px;
-        background-color: #4CAF50;
-        color: white;
-        font-size: 1.2em;
-        border: none;
-        border-radius: 5px;
+        padding: 12px 25px;
+        border-radius: 8px;
+        font-weight: bold;
         text-decoration: none;
-        text-align: center;
-        transition: background-color 0.3s ease;
+        transition: all 0.3s ease;
+        cursor: pointer;
     }
 
-    .btn:hover {
-        background-color: #45a049;
+    .btn-primary {
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        color: #111;
     }
 
-    /* Status Section */
-    .status {
-        text-align: center;
-        font-size: 1.2em;
-        color: #555;
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 15px rgba(217, 255, 104, 0.3);
     }
 
-    .status h3 {
-        font-size: 2em;
-        color: #4CAF50;
+    .btn-secondary {
+        background: rgba(255, 255, 255, 0.1);
+        color: #fff;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.2);
+    }
+
+    .btn i {
+        margin-right: 8px;
+    }
+
+    .divider {
+        height: 1px;
+        background: linear-gradient(to right, rgba(217, 255, 104, 0), rgba(217, 255, 104, 0.3), rgba(217, 255, 104, 0));
+        margin: 30px 0;
+    }
+
+    @media (max-width: 768px) {
+        .order-header {
+            padding: 20px;
+        }
+        
+        .order-content {
+            padding: 20px;
+        }
+        
+        .order-table th, .order-table td {
+            padding: 10px;
+        }
+        
+        .product-img {
+            display: none;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+        }
+        
+        .btn {
+            width: 100%;
+            text-align: center;
+        }
     }
 </style>
 
-<div class="order-summary container" style="margin-top: 100px">
-    <h2>Order Confirmation</h2>
-
-    <!-- Order Items -->
-    <div class="order-items ">
-        <h3 class="header-content">Products in Your Order</h3>
-        <table>
-            <thead>
-                <tr>
-                    <th>Product Name</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Total Price</th>
-                </tr>
-            </thead>
-            <tbody>
-                <%
-                    // Loop through order items and display them
-                    for (OrderItem item : order.getOrderItems()) {
-                        Products product = item.getProduct();  // Assuming Product is already set in OrderItem
-                        BigDecimal totalPrice = BigDecimal.valueOf(item.getQuantity()).multiply(item.getUnitPrice());
-                %>
-                <tr>
-                    <td><%= product.getName() %></td>
-                    <td><%= item.getQuantity() %></td>
-                    <td><%= item.getUnitPrice() %> VND</td>
-                    <td><%= totalPrice %> VND</td>
-                </tr>
-                <%
-                    }
-                %>
-            </tbody>
-        </table>
-    </div>
-
-    <!-- Confirmation Message -->
-    <div class="status">
-        <h3>Thank you for shopping with us!</h3>
-        <p>Your order has been confirmed. We will contact you soon for delivery.</p>
-        <a href="home.jsp" class="btn">Go to Home</a>
+<div class="order-confirmation-container">
+    <div class="order-confirmation-card">
+        <div class="order-header">
+            <h2>Order Confirmation</h2>
+            <p class="order-id">Order ID: <span>#<%= order.getOrderId() %></span></p>
+        </div>
+        
+        <div class="order-content">
+            <h3 class="section-title">
+                <i class="fas fa-shopping-bag"></i>
+                Products in Your Order
+            </h3>
+            
+            <table class="order-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Quantity</th>
+                        <th class="price-column">Unit Price</th>
+                        <th class="price-column">Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <%
+                        BigDecimal orderSubtotal = BigDecimal.ZERO;
+                        for (OrderItem item : order.getOrderItems()) {
+                            Products product = item.getProduct();
+                            BigDecimal itemTotal = item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity()));
+                            orderSubtotal = orderSubtotal.add(itemTotal);
+                    %>
+                    <tr>
+                        <td>
+                            <div class="product-name">
+                                <img src="<%=request.getContextPath()%>/ImagesServlet?type=product&imageId=<%= product.getPrimaryImageId() %>" class="product-img" alt="<%= product.getName() %>">
+                                <span><%= product.getName() %></span>
+                            </div>
+                        </td>
+                        <td><%= item.getQuantity() %></td>
+                        <td class="price-column"><%= item.getUnitPrice().stripTrailingZeros().toPlainString() %> VND</td>
+                        <td class="price-column"><%= itemTotal.stripTrailingZeros().toPlainString() %> VND</td>
+                    </tr>
+                    <% } %>
+                    
+                    <tr class="subtotal-row">
+                        <td colspan="3" class="price-column">Subtotal:</td>
+                        <td class="price-column"><%= orderSubtotal.stripTrailingZeros().toPlainString() %> VND</td>
+                    </tr>
+                    
+                    <% if (discountAmount.compareTo(BigDecimal.ZERO) > 0) { %>
+                    <tr class="discount-row">
+                        <td colspan="3" class="price-column">Discount:</td>
+                        <td class="price-column">-<%= discountAmount.stripTrailingZeros().toPlainString() %> VND</td>
+                    </tr>
+                    <% } %>
+                    
+                    <tr class="total-row">
+                        <td colspan="3" class="price-column">Total:</td>
+                        <td class="price-column">
+                            <%= (order.getTotalAmount() != null ? order.getTotalAmount() : orderSubtotal.subtract(discountAmount)).stripTrailingZeros().toPlainString() %> VND
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            
+            <div class="thank-you-section">
+                <div class="order-status"><i class="fas fa-check-circle"></i> Order Confirmed</div>
+                <h3 class="thank-you-title">Thank you for shopping with us!</h3>
+                <p class="thank-you-message">Your order has been confirmed and is now being processed. We will contact you soon regarding delivery details. Please keep this confirmation for your records.</p>
+                
+                <div class="action-buttons">
+                    <a href="<%=request.getContextPath()%>/homepage" class="btn btn-primary">
+                        <i class="fas fa-home"></i> Back to Home
+                    </a>
+                    <a href="<%=request.getContextPath()%>/historyorder" class="btn btn-secondary">
+                        <i class="fas fa-history"></i> View Order History
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 

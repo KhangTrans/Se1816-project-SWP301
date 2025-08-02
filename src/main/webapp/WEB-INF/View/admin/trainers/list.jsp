@@ -1,6 +1,7 @@
 <%@include file="/WEB-INF/View/admin/trainers/create.jsp" %>
 <%@include file="/WEB-INF/View/admin/trainers/edit.jsp" %>
 <%@include file="/WEB-INF/View/admin/trainers/delete.jsp" %>
+<%@include file="/WEB-INF/View/admin/trainers/viewDetail.jsp" %>
 
 <div class="table-container" id="trainersTable">
     <div class="table-container__header">
@@ -42,15 +43,12 @@
             <thead>
                 <tr>
                     <th style="width: 60px">Avatar</th>
-                    <th style="width: 70px">USN</th>
-                    <th style="width: 90px">Full Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Bio</th>
-                    <th style="width: 95px">Experience</th>
-                    <th style="width: 70px">Rating</th>
-                    <th>Session Price (VND)</th>
-                    <th style="width: 150px">Action</th>
+                    <th style="width: 80px">USN</th>
+                    <th style="width: 150px">Full Name</th>
+                    <th style="width: 50px">Experience</th>
+                    <th style="width: 50px">Rating</th>
+                    <th style="width: 90px">Session Price (VND)</th>
+                    <th style="width: 130px">Action</th>
                 </tr>
             </thead>
             <tbody id="trainerTableBody">

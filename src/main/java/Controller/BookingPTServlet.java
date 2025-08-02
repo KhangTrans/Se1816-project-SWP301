@@ -6,6 +6,7 @@ package Controller;
 
 import DAO.ScheduleDao;
 import DAO.TrainerDao;
+import Model.SlotAvailability;
 import Model.TrainerBooking;
 import Model.TrainerSchedule;
 import Model.Trainers;
@@ -46,23 +47,27 @@ public class BookingPTServlet extends HttpServlet {
         TrainerDao trainerDao = new TrainerDao();
         ScheduleDao scheduleDao = new ScheduleDao();
         if (accountId == null) {
-            response.sendRedirect(request.getContextPath() + "/LoginServlet"); // Redirect đến trang đăng nhập nếu không có session
+            response.sendRedirect(request.getContextPath() + "/homepage"); // Redirect đến trang đăng nhập nếu không có session
             return;
         }
         System.out.println(trainerId);
         List<TrainerSchedule> schedules = new ArrayList<>();
         List<TrainerBooking> booking = new ArrayList<>();
+        List<SlotAvailability> slotAvailability = new ArrayList<>();
+
         // Lấy dữ liệu lịch từ DB theo trainer_id
         try {
             schedules = scheduleDao.getAllTrainerSchedules();
             Trainers trainer = trainerDao.getTrainerDetails(trainerId);
-            booking = scheduleDao.getAllBookings();
+            booking = scheduleDao.getAllBookingByTrainerId(trainerId);
+//            booking = scheduleDao.getAllBookings();
+            slotAvailability = scheduleDao.getSlotAvailabilityByTrainerId(trainer.getTrainerId());
             // Truyền dữ liệu lịch PT xuống JSP
             request.setAttribute("trainer", trainer);
             request.setAttribute("schedules", new Gson().toJson(schedules));
             request.setAttribute("trainerId", trainerId);
             request.setAttribute("booking", new Gson().toJson(booking));
-
+            request.setAttribute("slotAvailability", new Gson().toJson(slotAvailability));
             // Truyền các slot thời gian
             List<String> timeSlots = new ArrayList<>();
             for (TrainerSchedule schedule : schedules) {
@@ -118,40 +123,58 @@ public class BookingPTServlet extends HttpServlet {
                                 try {
                                     int scheduleId = Integer.parseInt(scheduleIds[i]);
                                     Date bookingDate = Date.valueOf(bookingDates[i]);  // Chuyển đổi chuỗi thành Date
+                                    // Kiểm tra xem người dùng đã có booking cho slot này hay chưa
+                                    List<TrainerBooking> existingBookings = scheduleDao.getAllBookings();
+                                    for (TrainerBooking check : existingBookings) {
+                                        // Kiểm tra xem booking có cùng scheduleId và bookingDate và trạng thái là "confirmed" hoặc "pending"
+                                        boolean m = check.getBookingDate().toString().equals(bookingDate.toString());
+                                        System.out.println(m);
+                                        if (check.getCustomer().getAccount().getAccountId() == accountId && check.getScheduleId() == scheduleId
+                                                && check.getBookingDate().toString().equals(bookingDate.toString())
+                                                && ("confirmed".equalsIgnoreCase(check.getStatus())
+                                                || "pending".equalsIgnoreCase(check.getStatus()))) {
+                                            // Nếu đã có booking cho slot này, ngừng việc đặt lịch
+                                            // Đặt vào session
+                                            request.getSession().setAttribute("notificationMessage", "You already have a booking for this slot.");
+                                            response.sendRedirect(request.getContextPath() + "/bookingpt?trainerid=" + trainerId);
+
+                                            return;
+                                        }
+
+                                    }
 
                                     // Đặt lịch cho từng slot
                                     boolean success = scheduleDao.bookTrainerSlot(accountId, trainerId, scheduleId, bookingDate);
                                     if (!success) {
-                                        response.sendRedirect("bookingFailed.jsp");
+                                        request.getSession().setAttribute("notificationMessage", "Booking failed");
+                                        response.sendRedirect(request.getContextPath() + "/bookingpt?trainerid=" + trainerId);
                                         return;
                                     }
 
                                 } catch (NumberFormatException e) {
-                                    // Nếu scheduleId không phải là số hợp lệ, bạn có thể log lỗi hoặc thông báo cho người dùng
-                                    System.err.println("Lỗi khi chuyển đổi scheduleId: " + scheduleIds[i]);
-                                    response.sendRedirect("bookingFailed.jsp");  // Redirect đến trang thất bại
+                                    request.getSession().setAttribute("notificationMessage", "Booking failed");
+                                    response.sendRedirect(request.getContextPath() + "/bookingpt?trainerid=" + trainerId); // Redirect đến trang thất bại
                                     return;
                                 }
                             } else {
-                                // Nếu scheduleId là chuỗi rỗng, bạn có thể xử lý riêng hoặc bỏ qua
-                                response.sendRedirect("bookingFailed.jsp");  // Redirect đến trang thất bại
+                                request.getSession().setAttribute("notificationMessage", "Booking failed");
+                                response.sendRedirect(request.getContextPath() + "/bookingpt?trainerid=" + trainerId);
                                 return;
                             }
                         }
 
-                        // Nếu tất cả các lịch đã được đặt thành công, chuyển hướng đến bookingSuccess.jsp
+                        request.getSession().setAttribute("notificationMessage", "Pending confirmation");
                         response.sendRedirect(request.getContextPath() + "/bookingpt?trainerid=" + trainerId);
                     } else {
                         // Nếu thẻ thành viên đã hết hạn
-                        response.sendRedirect(request.getContextPath() +"/AllPackages");
+                        response.sendRedirect(request.getContextPath() + "/AllPackages");
                     }
                 } catch (SQLException ex) {
                     Logger.getLogger(BookingPTServlet.class.getName()).log(Level.SEVERE, null, ex);
-                    response.sendRedirect("error.jsp");  // Nếu có lỗi, chuyển đến trang lỗi
+                    response.sendRedirect(request.getContextPath() + "/bookingpt?trainerid=" + trainerId);
                 }
             } else {
-                // Nếu không có lịch nào được chọn
-                response.sendRedirect("noSelection.jsp");  // Chuyển hướng đến trang thông báo không có lịch nào được chọn
+                response.sendRedirect(request.getContextPath() + "/bookingpt?trainerid=" + trainerId);
             }
         } else if ("cancel".equals(action)) {
             // Handle cancel action
@@ -164,10 +187,11 @@ public class BookingPTServlet extends HttpServlet {
                 boolean success = scheduleDao.cancelTrainerSlot(bookingId);
 
                 if (success) {
-                    response.sendRedirect(request.getContextPath() + "/bookingpt?trainerid=" + trainerId);
+                    request.getSession().setAttribute("notificationMessage", "Booking successfully canceled");
                 } else {
-                    response.sendRedirect("bookingFailed.jsp");  // Thất bại khi hủy
+                    request.getSession().setAttribute("notificationMessage", "Booking fail canceled");
                 }
+                response.sendRedirect(request.getContextPath() + "/bookingpt?trainerid=" + trainerId);
             } catch (SQLException ex) {
                 response.sendRedirect("error.jsp");
             }

@@ -26,14 +26,35 @@ body, html {
     text-align: center;
 }
 
-.form-profile{
-    /*margin-top: 90px;*/
+.header-content {
+    font-size: 4.5rem;
+    text-align: center;
+}
+
+.form-profile {
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 30px;
+    border-radius: 10px;
+    width: 101%;
+    max-width: 764px;
+    margin: 0 auto;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+#profileContent > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    width: 100%;
+    padding: 20px;
 }
 
 .container-profile {
     display: flex;
     width: 100%;
-    height: 100%;
+    min-height: 100vh;
 }
 
 .sidebar-profile {
@@ -42,12 +63,14 @@ body, html {
     padding: 20px;
     color: white;
     box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.3); /* Sidebar shadow for a slight 3D effect */
+    position: relative;
 }
 
 .profile-image {
     text-align: center;
     margin-bottom: 20px;
-    margin-top: 80px;
+    margin-top: 150px;
+    position: relative;
 }
 
 .profile-image img {
@@ -55,6 +78,32 @@ body, html {
     height: 120px;
     border-radius: 50%;
     border: 3px solid white; /* Border around the profile image */
+    object-fit: cover;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.camera-icon {
+    position: absolute;
+    bottom: 0;
+    right: 75px;
+    background-color: rgba(0, 0, 0, 0.6);
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 0.3s ease;
+}
+
+.camera-icon:hover {
+    background-color: #00bcd4;
+    transform: scale(1.1);
+}
+
+.camera-icon i {
+    font-size: 16px;
+    color: white;
 }
 
 .edit-profile, .edit-username {
@@ -77,35 +126,59 @@ body, html {
     font-size: 18px;
 }
 
+.username h2 {
+    margin: 0;
+    padding: 10px 0;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #d9ff68;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
 .menu {
     list-style-type: none;
     padding: 0;
-    margin-top: 20px;
+    margin-top: 30px;
     margin-right: -20px;
     margin-left: -20px;
 }
 
 .menu li {
     margin-bottom: 15px;
+    transition: all 0.3s ease;
 }
 
-.menu li a{
+.menu li:hover {
+    transform: translateX(3px);
+}
+
+.menu li a {
+    display: block;
     text-decoration: none;
     color: white;
-    font-size: 20px;
-    border: 1px solid white;
-    padding: 8px;
-    padding-left: 45px;
-    margin-left: -19px;
-    padding-right: 63px;
+    font-size: 16px;
+    padding: 12px 15px 12px 45px;
+    border-left: 4px solid transparent;
+    transition: all 0.3s ease;
+    background-color: rgba(255, 255, 255, 0.05);
 }
 
-.package{
-    padding-right: 105px !important;
+.menu li a:hover, .menu li a.active {
+    background-color: rgb(217 255 104 / 22%);
+    border-left: 4px solid #d9ff68;
+    color: #d9ff68;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-.work {
-    padding-right: 87px !important;
+.menu li a i {
+    margin-right: 10px;
+    width: 20px;
+    text-align: center;
+}
+
+.package, .work {
+    width: 100%;
+    text-align: left;
 }
 
 .menu li button {
@@ -117,10 +190,12 @@ body, html {
     width: 100%;
     font-size: 16px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .menu li button:hover {
     background-color: #333;
+    transform: translateX(5px);
 }
 
 .back-home {
@@ -132,22 +207,28 @@ body, html {
     width: 100%;
     border-radius: 5px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 .back-home:hover {
     background-color: #008c99;
+    transform: translateY(-2px);
 }
 
 .profile-form {
     padding: 40px;
-    /*margin-left: 250px;  Sidebar width */
     width: calc(100% - 250px); /* Full width minus sidebar */
     background: url('../img/profile.jpg') no-repeat center center fixed;
     background-size: cover;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     color: white;
     height: 100%;
+    min-height: 100vh;
     overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 h1 {
@@ -159,16 +240,26 @@ label {
     display: block;
     margin-bottom: 10px;
     font-weight: bold;
+    color: #fff;
+    font-size: 16px;
 }
 
 input {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
+    padding: 12px 15px;
+    margin-bottom: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 5px;
-    background-color: rgba(255, 255, 255, 0.8); /* Transparent input fields */
+    background-color: rgba(255, 255, 255, 0.9);
     color: #333;
+    font-size: 16px;
+    transition: all 0.3s ease;
+}
+
+input:focus {
+    border-color: #00bcd4;
+    box-shadow: 0 0 8px rgba(0, 188, 212, 0.6);
+    outline: none;
 }
 
 button {
@@ -178,24 +269,35 @@ button {
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    transition: all 0.3s ease;
 }
 
 button:hover {
     background-color: #008c99;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .change-btn, .back-profile-btn {
     width: 100%;
-    padding: 10px 20px;
-    background-color: #00bcd4;
+    padding: 12px 20px;
+    background-color: rgba(217, 255, 104, 0.6);
     color: white;
     border: none;
     border-radius: 5px;
     cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    margin-top: 10px;
+    text-transform: uppercase;
+    transition: all 0.3s ease;
 }
 
 .change-btn:hover, .back-profile-btn:hover {
-    background-color: #008c99;
+    background-color: rgba(217, 255, 104, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
 .table-container--active {
@@ -204,30 +306,88 @@ button:hover {
 }
 .tab-content {
     display: none;  /* Ẩn tất cả các tab */
+    width: 100%;
 }
 
 .tab-content--active {
     display: block;  /* Hiển thị tab khi được chọn */
 }
-.camera-icon {
-    position: absolute;
-    top: 200px;
-    left: 170px;
+
+#schedule, #changepassword {
+    width: 100%;
 }
 
-.camera-icon i {
-    font-size: 20px;
+#schedule > div, #changepassword > div {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
 }
 
+#profileContent, #schedule, #changepassword, #packages {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 20px;
+}
 
+#packages {
+    width: 100%;
+}
+
+#membership-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 30px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    color: white;
+    text-align: center;
+}
+
+#membership-block p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+#membership-block a {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: rgba(217, 255, 104, 0.6);
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: all 0.3s ease;
+}
+
+#membership-block a:hover {
+    background-color: rgba(217, 255, 104, 0.8);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Rest of the styling remains the same */
 .schedule-container {
     font-family: Arial, sans-serif;
-    max-width: 800px;
+    max-width: 100%;
+    width: 100%;
     margin: 0 auto;
-    padding: 20px;
-    background: #f9f9f9;
+    background: rgba(0, 0, 0, 0.5);
     border-radius: 8px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    color: #fff;
+    overflow-x: auto;
 }
 
 .schedule-header {
@@ -235,27 +395,32 @@ button:hover {
     margin-bottom: 20px;
 }
 
-.date-picker-wrapper {
+.date-picker {
     margin-bottom: 20px;
+    text-align: center;
 }
 
 .date-label {
     margin-right: 10px;
     font-weight: bold;
+    color: #fff;
 }
 
 .date-input {
-    padding: 5px;
+    padding: 10px;
     font-size: 1em;
-    border: 1px solid #ccc;
+    border: 1px solid rgba(255, 255, 255, 0.3);
     border-radius: 4px;
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
 }
 
 .week-info {
     text-align: center;
     font-size: 1.1em;
-    color: #555;
-    margin-bottom: 20px;
+    color: #fff;
+    margin: 15px 0;
+    font-weight: bold;
 }
 
 .schedule-table {
@@ -265,9 +430,11 @@ button:hover {
 }
 
 .table-header th {
-    border: 1px solid #ddd;
-    padding: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    padding: 12px 8px;
     font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
 }
 
 .time-header {
@@ -279,78 +446,83 @@ button:hover {
 }
 
 .schedule-body td {
-    border: 1px solid #ddd;
+    border: 1px solid rgba(255, 255, 255, 0.2);
     padding: 10px;
     text-align: center;
+    color: #fff;
 }
 
 .time-slot {
     font-weight: bold;
+    background-color: rgba(0, 0, 0, 0.3);
 }
 
 .slot-cell {
     position: relative;
+    height: 60px;
 }
 
-/*.slot-available {
-    height: 20px;
-    background-color: #e0f7fa;
+.slot-available {
+    height: 100%;
     cursor: pointer;
-    transition: background-color 0.3s;
-}*/
+    transition: all 0.3s ease;
+}
 
 .slot-available:hover {
-    background-color: #b2ebf2;
+    background-color: rgba(217, 255, 104, 0.3);
 }
 
 .slot-booked {
-    background-color: #ffcccc;
+    background-color: rgba(255, 204, 204, 0.7);
     padding: 5px;
     border: none;
     cursor: default;
-    color: #d32f2f;
+    color: #fff;
 }
 
-.cancel-btn {
-    background-color: #ef5350;
-    color: white;
+.trainer-name {
+    width: 100%;
+    padding: 8px;
     border: none;
-    padding: 5px 10px;
     border-radius: 4px;
-    cursor: pointer;
-    margin-top: 5px;
+    font-weight: bold;
+    cursor: default;
 }
 
-.cancel-btn:disabled {
-    background-color: #ccc;
-    cursor: not-allowed;
-}
-
-.slot-booked + .cancel-btn {
-    margin-left: 5px;
-}
-
-/* Highlight selected time slots like in the image */
-.slot-cell[selected] {
-    background-color: #00bcd4;
-    color: white;
-}
-
-.slot-cell[selected] .slot-booked {
-    color: white;
-    background-color: transparent;
-}
-
-.selected-slots {
-    margin-top: 20px;
-    text-align: center;
-}
 .trainer-name.upcoming {
-    color: #5A4A59;
-    background: #E2B8DF;
+    color: #fff;
+    background: rgba(226, 184, 223, 0.7);
 }
 
 .trainer-name.completed {
-    color: #4A4D5A;
-    background: #9DA3C0;
+    color: #fff;
+    background: rgba(157, 163, 192, 0.7);
+}
+
+button.change-btn, button.back-profile-btn {
+    background-color: rgba(217, 255, 104, 0.6);
+}
+
+button.change-btn:hover, button.back-profile-btn:hover {
+    background-color: rgba(217, 255, 104, 0.8);
+}
+
+/* Màu chữ Profile ở header */
+h1.header-profile, h1#profile-title, .profile-title {
+    color: #d9ff68;
+    text-shadow: none;
+    font-size: 2.5rem;
+    font-weight: bold;
+}
+
+/* Tiêu đề Profile trên trang chính */
+.profile-form > h1:first-child {
+    color: #d9ff68;
+    text-shadow: none;
+}
+
+/* Đảm bảo text "Profile" hiện ở header */
+#profileContent .header-content {
+    color: #d9ff68;
+    text-shadow: none;
 }

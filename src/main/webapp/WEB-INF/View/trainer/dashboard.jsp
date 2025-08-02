@@ -263,6 +263,10 @@
             .blue-event {
                 background-color: #e3f2fd; /* Light blue for general events */
             }
+            .red-event {
+                background-color: #dc3545; /* Light blue for general events */
+            }
+
             .purple-event {
                 background-color: #f0e6f7; /* Light purple for kickboxing */
             }
@@ -329,6 +333,11 @@
                 color: #721c24;
                 border: 1px solid #f5c6cb;
             }
+
+            .btn-confirm{
+                margin-top: 60px;
+            }
+
         </style>
     </head>
     <body>
@@ -440,27 +449,31 @@
                     <input type="date" id="start-date" onchange="updateWeek()">
                 </div>
                 <div class="week-info" id="week-info"></div>
-                <div class="dashboard-section">
-                    <!--<h2>Weekly Schedule</h2>-->
-
-                    <div class="calendar-container">
-                        <table class="calendar">
-                            <thead>
-                                <tr>
-                                    <th></th>
-                                    <th>Monday</th>
-                                    <th>Tuesday</th>
-                                    <th>Wednesday</th>
-                                    <th>Thursday</th>
-                                    <th>Friday</th>
-                                    <th>Saturday</th>
-                                    <th>Sunday</th>
-                                </tr>
-                            </thead>
-                            <tbody id="schedule-table" class="schedule-body"></tbody>
-                        </table>
+                <form method="post" action="dashboard" id="bookingForm">
+                    <input type="hidden" name="trainerId" value="${trainer.trainerId}">
+                    <!--<input type="hidden" name="action" id="action" value="confirm">-->
+                    <div class="dashboard-section">
+                        <!--<h2>Weekly Schedule</h2>-->
+                        <div class="calendar-container">
+                            <table class="calendar">
+                                <thead>
+                                    <tr>
+                                        <th></th>
+                                        <th>Monday</th>
+                                        <th>Tuesday</th>
+                                        <th>Wednesday</th>
+                                        <th>Thursday</th>
+                                        <th>Friday</th>
+                                        <th>Saturday</th>
+                                        <th>Sunday</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="schedule-table" class="schedule-body"></tbody>
+                            </table>
+                        </div>
                     </div>
-                </div>
+                    <div id="selectedSlotsContainer"></div>
+                </form>
             </div>
         </div>
 
@@ -768,6 +781,7 @@
             var booking = JSON.parse('<%= request.getAttribute("booking")%>');
             var trainer = JSON.parse('<%= request.getAttribute("trainerJ")%>');
             var schedules = JSON.parse('<%= request.getAttribute("schedules")%>');
+            var slotAvailability = JSON.parse('<%= request.getAttribute("slotAvailability")%>');
 
             window.onload = function () {
                 updateWeek();
@@ -800,45 +814,93 @@
                         currentDay.setDate(startOfWeek.getDate() + j);
                         var formattedDate = formatDate(currentDay);
                         var isBooked = false;
+                        var isPastTime = false;
                         for (var k = 0; k < booking.length; k++) {
                             var bookingDate = booking[k].bookingDate;
                             var dateObject = new Date(bookingDate.year, bookingDate.month - 1, bookingDate.day); // month is 0-indexed in JavaScript
                             if (booking[k].scheduleId === schedules[i].scheduleId && formatDate(dateObject) === formattedDate) {
-                                if (booking[k].status === 'confirmed') {
+                                if (booking[k].status === 'confirmed' || booking[k].status === 'pending') {
                                     isBooked = true;
                                 }
                                 break;
                             }
                         }
-                        if (!isBooked) {
-                            row += '<td class="calendar-cell"></td>';
+
+                        // Kiểm tra nếu đã quá thời gian
+                        var startTime = getStartTimeByScheduleId(schedules[i].scheduleId);
+                        var slotDateTime = new Date(currentDay);
+                        slotDateTime.setHours(startTime.hour, startTime.minute, 0, 0);  // Kết hợp ngày và giờ
+
+                        var now = new Date();
+                        console.log(slotDateTime);
+                        console.log(now);
+                        if (now > slotDateTime) {
+                            isPastTime = true;
+                        }
+                        console.log(isBooked);
+                        console.log(isPastTime);
+
+                        if (!isBooked && !isPastTime) {
+//                            console.log(slotAvailability[0].slotDate);
+                            var availability = slotAvailability.find(function (item) {
+                                var slotDate = new Date(item.slotDate.year, item.slotDate.month - 1, item.slotDate.day);
+                                console.log(slotDate);
+                                // Chuẩn hóa cả item.slotDate và formattedDate về dạng yyyy-MM-dd
+                                var itemDate = slotDate.toLocaleDateString('en-CA');
+                                console.log(itemDate + '---' + formattedDate);
+                                console.log(item.scheduleId + '--' + schedules[i].scheduleId);
+                                return item.scheduleId === schedules[i].scheduleId && itemDate === formattedDate;
+                            });
+//                            console.log(availability);
+                            var isSlotAvailable = availability ? availability.isAvailable : true;
+
+                            row += '<td class="calendar-cell">' +
+                                    '<select name="slotStatus" data-schedule-id="' + schedules[i].scheduleId + '" data-date="' + formattedDate + '" onchange="updateSlotStatus(this)">' +
+                                    '<option value="true" ' + (isSlotAvailable ? 'selected' : '') + '>ON</option>' +
+                                    '<option value="false" ' + (!isSlotAvailable ? 'selected' : '') + '>OFF</option>' +
+                                    '</select>' +
+                                    '</td>';
+
                         } else {
+                            if (isPastTime && !isBooked) {
+                                row += '<td class="calendar-cell"></td>';
+                            } else {
+                                for (var k = 0; k < booking.length; k++) {
+                                    var bookingDate = booking[k].bookingDate;
+                                    var dateObject = new Date(bookingDate.year, bookingDate.month - 1, bookingDate.day);
+                                    var currentScheduleId = schedules[i].scheduleId;
+                                    if (booking[k].scheduleId === currentScheduleId && formatDate(dateObject) === formattedDate) {
+                                        if (booking[k].status === 'confirmed' && booking[k].trainer.trainerId === trainer.trainerId) {
+                                            console.log(booking[k].bookingId);
 
+                                            var startTime = getStartTimeByScheduleId(currentScheduleId);
+                                            var slotDateTime = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate(), startTime.hour, startTime.minute || 0, 0, 0);
+                                            var now = new Date();
+                                            var className = (slotDateTime.getTime() - now.getTime() < 0) ? 'event red-event' : 'event blue-event';
+                                            row += '<td class="calendar-cell">' +
+                                                    '<div class="' + className + '" disabled>' + booking[k].customer.fullName + '</div>';
 
-                            for (var k = 0; k < booking.length; k++) {
-                                var bookingDate = booking[k].bookingDate;
-                                var dateObject = new Date(bookingDate.year, bookingDate.month - 1, bookingDate.day);
-                                var currentScheduleId = schedules[i].scheduleId;
-                                if (booking[k].scheduleId === currentScheduleId && formatDate(dateObject) === formattedDate) {
-                                    if (booking[k].status === 'confirmed' && booking[k].trainer.trainerId === trainer.trainerId) {
-                                        console.log(booking[k].bookingId);
+                                        } else if (booking[k].status === 'pending' && booking[k].trainer.trainerId === trainer.trainerId) {
+                                            var startTime = getStartTimeByScheduleId(currentScheduleId);
+                                            var slotDateTime = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate(), startTime.hour, startTime.minute || 0, 0, 0);
+                                            var now = new Date();
+                                            if ((slotDateTime.getTime() - now.getTime()) > 0) {
+                                                var className = (slotDateTime.getTime() - now.getTime() < 0) ? 'event red-event' : 'event blue-event';
+                                                row += '<td class="calendar-cell">' +
+                                                        '<div class="' + className + '" disabled>' + booking[k].customer.fullName + '</div>';
+                                                row += '<button class="btn-confirm" type="button" data-bookingConfirm="' + booking[k].bookingId + '" onclick="confirmBooking(this)">Xác Nhận</button>';
+                                                row += '<button class="btn-confirm" type="button" data-bookingConfirm="' + booking[k].bookingId + '" onclick="cancelBooking(this)">Hủy</button>';
 
-                                        var startTime = getStartTimeByScheduleId(currentScheduleId);
-                                        var slotDateTime = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate(), startTime.hour, startTime.minute || 0, 0, 0);
-                                        var now = new Date();
-                                        var className = (slotDateTime.getTime() - now.getTime() < 0) ? 'event blue-event' : 'event blue-event';
-                                        row += '<td class="calendar-cell">' +
-                                                '<div class="' + className + '" disabled>' + booking[k].customer.fullName + '</div>';
+                                                console.log(booking[k].bookingId);
+                                            }
+                                        } else {
 
-                                        var startTime = getStartTimeByScheduleId(currentScheduleId);
-                                        var slotDateTime = new Date(dateObject.getFullYear(), dateObject.getMonth(), dateObject.getDate(), startTime.hour, startTime.minute || 0, 0, 0);
-                                        var now = new Date();
+                                            row += '<td class="calendar-cell">';
+                                        }
+                                        console.log(booking[k].status);
 
-                                    } else {
-
-                                        row += '<td class="calendar-cell">';
+                                        break;
                                     }
-                                    break;
                                 }
                             }
 
@@ -850,6 +912,218 @@
                     row += '</tr>';
                     tbody.innerHTML += row; // Add the row to the table
                 }  // Add the row to the table
+            }
+            function updateSlotStatus(selectElement) {
+                const scheduleId = selectElement.getAttribute("data-schedule-id");
+                const selectedValue = selectElement.value;
+                const selectedDate = selectElement.getAttribute("data-date");
+
+                console.log("Updating slot status for schedule ID: " + scheduleId + " at date: " + selectedDate + " to " + selectedValue);
+
+                var data = new URLSearchParams();
+                data.append('action', 'update');
+                data.append('trainerId', trainer.trainerId); // Giả định trainer.trainerId có sẵn từ biến trainer
+                data.append('scheduleId[]', scheduleId);
+                data.append('bookingDate[]', selectedDate);
+                data.append('slotStatus[]', selectedValue);
+
+                fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: data
+                })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok: ' + response.statusText);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("POST Response data:", data);
+                            if (data.status === "success") {
+                                alert(data.message);
+                                // Lấy dữ liệu mới từ server
+                                fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                                    method: "GET",
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error('GET response was not ok: ' + response.statusText);
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(newData => {
+                                            console.log("GET Response data:", newData);
+                                            // Cập nhật biến với dữ liệu mới, xử lý an toàn
+                                            booking = Array.isArray(newData.booking) ? newData.booking : [];
+                                            timeSlots = Array.isArray(newData.timeSlots) ? newData.timeSlots : [];
+                                            schedules = Array.isArray(newData.schedules) ? newData.schedules : [];
+                                            slotAvailability = Array.isArray(newData.slotAvailability) ? newData.slotAvailability : [];
+                                            trainer = newData.trainer || {};
+                                            // Đảm bảo tab Schedule active
+                                            showTab('schedule');
+                                            // Render lại bảng lịch
+                                            updateWeek();
+                                        })
+                                        .catch(error => {
+                                            console.error("Error fetching new data:", error);
+                                            alert("Failed to update schedule. Please try again. Error: " + error.message);
+                                        });
+                            } else {
+                                alert(data.message || "Failed to update slot");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                            alert("An error occurred, please try again. Error: " + error.message);
+                        });
+            }
+
+            function cancelBooking(button) {
+                var bookingId = button.getAttribute('data-bookingConfirm'); // lấy giá trị từ button
+                console.log(bookingId);
+
+                if (!bookingId) {
+                    alert("Invalid booking ID");
+                    return;
+                }
+
+                var data = new URLSearchParams();
+                data.append('action', 'cancel');
+                data.append('bookingId', bookingId);
+
+                fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: data
+                })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok: ' + response.statusText);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("POST Response data:", data);
+                            if (data.status === "success") {
+                                alert(data.message);
+                                // Lấy dữ liệu mới từ server
+                                fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                                    method: "GET",
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error('GET response was not ok: ' + response.statusText);
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(newData => {
+                                            console.log("GET Response data:", newData);
+                                            // Cập nhật tất cả biến với dữ liệu mới
+                                            booking = newData.booking || newData; // Điều chỉnh cấu trúc JSON
+                                            timeSlots = newData.timeSlots || timeSlots;
+                                            schedules = newData.schedules || schedules;
+                                            slotAvailability = newData.slotAvailability || slotAvailability;
+                                            trainer = newData.trainer || trainer;
+                                            // Đảm bảo tab Schedule active
+                                            showTab('schedule');
+                                            // Render lại bảng lịch
+                                            updateWeek();
+                                        })
+                                        .catch(error => {
+                                            console.error("Error fetching new data:", error);
+                                            alert("Failed to update schedule. Please try again. Error: " + error.message);
+                                        });
+                            } else {
+                                alert(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                            alert("An error occurred, please try again. Error: " + error.message);
+                        });
+            }
+            function confirmBooking(button) {
+                var bookingId = button.getAttribute('data-bookingConfirm');
+                console.log("Confirming booking ID: " + bookingId + " at " + new Date().toLocaleString());
+
+                if (!bookingId) {
+                    alert("Invalid booking ID");
+                    return;
+                }
+
+                var data = new URLSearchParams();
+                data.append('action', 'confirm');
+                data.append('bookingId', bookingId);
+
+                fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: data
+                })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok: ' + response.statusText);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("POST Response data:", data);
+                            if (data.status === "success") {
+                                alert(data.message);
+                                // Lấy dữ liệu mới từ server
+                                fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                                    method: "GET",
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error('GET response was not ok: ' + response.statusText);
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(newData => {
+                                            console.log("GET Response data:", newData);
+                                            // Cập nhật tất cả biến với dữ liệu mới
+                                            booking = newData.booking || newData; // Điều chỉnh cấu trúc JSON
+                                            timeSlots = newData.timeSlots || timeSlots;
+                                            schedules = newData.schedules || schedules;
+                                            slotAvailability = newData.slotAvailability || slotAvailability;
+                                            trainer = newData.trainer || trainer;
+                                            // Đảm bảo tab Schedule active
+                                            showTab('schedule');
+                                            // Render lại bảng lịch
+                                            updateWeek();
+                                        })
+                                        .catch(error => {
+                                            console.error("Error fetching new data:", error);
+                                            alert("Failed to update schedule. Please try again. Error: " + error.message);
+                                        });
+                            } else {
+                                alert(data.message);
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                            alert("An error occurred, please try again. Error: " + error.message);
+                        });
             }
 
 

@@ -596,14 +596,8 @@ public class OrderDao extends DBcontext {
 
         // Add filter conditions
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            sql.append("AND (LOWER(p.name) LIKE LOWER(?) OR "
-                    + "LOWER(o.customer_name) LIKE LOWER(?) OR "
-                    + "o.customer_phone_number LIKE ? OR "
-                    + "CAST(o.order_id AS VARCHAR) LIKE ?) ");
+            sql.append("AND LOWER(o.referral_code) LIKE LOWER(?) ");
             String searchParam = "%" + searchTerm.trim() + "%";
-            parameters.add(searchParam);
-            parameters.add(searchParam);
-            parameters.add(searchParam);
             parameters.add(searchParam);
         }
 
@@ -848,4 +842,193 @@ public class OrderDao extends DBcontext {
         return orderItems;
     }
 
+    // ====================NHAT KHANG=========================
+    /**
+     * Delete all orders with a specific referral code
+     *
+     * @param referralCode The referral code of orders to delete
+     * @return true if deletion was successful, false otherwise
+     */
+    public boolean deleteOrdersByReferralCode(String referralCode) {
+        System.out.println("DEBUG - Starting deleteOrdersByReferralCode for referralCode: " + referralCode);
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false);
+            System.out.println("DEBUG - Connection established, autocommit set to false");
+
+            // First, get all order IDs with this referral code
+            List<Integer> orderIds = new ArrayList<>();
+            try ( PreparedStatement ps = conn.prepareStatement("SELECT order_id FROM orders WHERE referral_code = ?")) {
+                ps.setString(1, referralCode);
+                try ( ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        orderIds.add(rs.getInt("order_id"));
+                    }
+                }
+            }
+
+            System.out.println("DEBUG - Found " + orderIds.size() + " orders with referral code: " + referralCode);
+
+            if (orderIds.isEmpty()) {
+                conn.rollback();
+                return false;
+            }
+
+            // Delete order items for all these orders
+            int totalItemsDeleted = 0;
+            for (Integer orderId : orderIds) {
+                try ( PreparedStatement ps = conn.prepareStatement("DELETE FROM order_items WHERE order_id = ?")) {
+                    ps.setInt(1, orderId);
+                    int itemsDeleted = ps.executeUpdate();
+                    totalItemsDeleted += itemsDeleted;
+                }
+            }
+            System.out.println("DEBUG - Deleted " + totalItemsDeleted + " order items");
+
+            // Delete order vouchers for all these orders if they exist
+            int totalVouchersDeleted = 0;
+            try {
+                for (Integer orderId : orderIds) {
+                    try ( PreparedStatement ps = conn.prepareStatement("DELETE FROM order_vouchers WHERE order_id = ?")) {
+                        ps.setInt(1, orderId);
+                        int vouchersDeleted = ps.executeUpdate();
+                        totalVouchersDeleted += vouchersDeleted;
+                    }
+                }
+                System.out.println("DEBUG - Deleted " + totalVouchersDeleted + " order vouchers");
+            } catch (Exception e) {
+                // Skip if table doesn't exist
+                System.out.println("DEBUG - No order_vouchers table or no records to delete: " + e.getMessage());
+            }
+
+            // Delete all orders with this referral code
+            try ( PreparedStatement ps = conn.prepareStatement("DELETE FROM orders WHERE referral_code = ?")) {
+                ps.setString(1, referralCode);
+                int ordersDeleted = ps.executeUpdate();
+                System.out.println("DEBUG - Orders delete result: " + ordersDeleted + " rows affected");
+
+                // Commit if successful
+                conn.commit();
+                System.out.println("DEBUG - Transaction committed successfully");
+                return ordersDeleted > 0;
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR in deleteOrdersByReferralCode: " + e.getMessage());
+            e.printStackTrace();
+
+            // Rollback on error
+            if (conn != null) {
+                try {
+                    conn.rollback();
+                    System.out.println("DEBUG - Transaction rolled back due to error");
+                } catch (Exception ex) {
+                    System.out.println("ERROR in rollback: " + ex.getMessage());
+                    ex.printStackTrace();
+                }
+            }
+        } finally {
+            // Ensure connection is closed and autoCommit is reset
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true);
+                    conn.close();
+                    System.out.println("DEBUG - Connection closed");
+                } catch (Exception e) {
+                    System.out.println("ERROR closing connection: " + e.getMessage());
+                    e.printStackTrace();
+                }
+            }
+        }
+        return false;
+    }
+
+    public Map<String, Integer> getOrderStatusStats(String range) {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        StringBuilder sql = new StringBuilder("SELECT status, COUNT(*) AS total FROM orders WHERE 1=1 ");
+        if (null == range) { // "7" hoặc mặc định
+            sql.append("AND order_date >= DATEADD(DAY, -6, CAST(GETDATE() AS DATE)) ");
+        } else {
+            switch (range) {
+                case "today":
+                    sql.append("AND CAST(order_date AS DATE) = CAST(GETDATE() AS DATE) ");
+                    break;
+                case "30":
+                    sql.append("AND order_date >= DATEADD(DAY, -29, CAST(GETDATE() AS DATE)) ");
+                    break;
+                default:
+                    // "7" hoặc mặc định
+                    sql.append("AND order_date >= DATEADD(DAY, -6, CAST(GETDATE() AS DATE)) ");
+                    break;
+            }
+        }
+        sql.append("GROUP BY status");
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql.toString());  ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString("status"), rs.getInt("total"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    public Map<String, Object> getOrderSummary(String range) {
+        Map<String, Object> summary = new HashMap<>();
+        String dateCondition = "";
+        if ("today".equals(range)) {
+            dateCondition = "AND CAST(order_date AS DATE) = CAST(GETDATE() AS DATE) ";
+        } else if ("30".equals(range)) {
+            dateCondition = "AND order_date >= DATEADD(DAY, -29, CAST(GETDATE() AS DATE)) ";
+        } else { // "7" hoặc mặc định
+            dateCondition = "AND order_date >= DATEADD(DAY, -6, CAST(GETDATE() AS DATE)) ";
+        }
+
+        String revenueSql = "SELECT SUM(total_amount) FROM orders WHERE status = 'shipped' " + dateCondition;
+        String countSql = "SELECT COUNT(*) FROM orders WHERE status = 'shipped' " + dateCondition;
+
+        BigDecimal revenue = BigDecimal.ZERO;
+        int completedOrders = 0;
+        try ( Connection conn = getConnection()) {
+            try ( PreparedStatement ps = conn.prepareStatement(revenueSql);  ResultSet rs = ps.executeQuery()) {
+                if (rs.next() && rs.getBigDecimal(1) != null) {
+                    revenue = rs.getBigDecimal(1);
+                }
+            }
+            try ( PreparedStatement ps = conn.prepareStatement(countSql);  ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    completedOrders = rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        summary.put("revenue", revenue);
+        summary.put("completedOrders", completedOrders);
+        return summary;
+    }
+
+    public BigDecimal getTotalRevenue() {
+        String sql = "SELECT SUM(total_amount) FROM orders WHERE status = 'shipped'";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getBigDecimal(1) == null ? BigDecimal.ZERO : rs.getBigDecimal(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return BigDecimal.ZERO;
+    }
+
+    public int getCompletedOrderCount() {
+        String sql = "SELECT COUNT(*) FROM orders WHERE status = 'shipped'";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }

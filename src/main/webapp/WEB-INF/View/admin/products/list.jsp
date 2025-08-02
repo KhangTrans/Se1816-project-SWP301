@@ -15,35 +15,28 @@
 <%@include file="/WEB-INF/View/admin/products/create.jsp" %>
 <%@include file="/WEB-INF/View/admin/products/edit.jsp" %>
 <%@include file="/WEB-INF/View/admin/products/delete.jsp" %>
+<%@include file="/WEB-INF/View/admin/products/view.jsp" %>
 
 <div class="table-container" id="productsTable">
     <div class="table-container__header">
         <h2 class="table-container__title">Product List</h2>
         <p class="table-container__description">Manage product information</p>
         <!-- Form tìm kiếm và lọc sản phẩm -->
-        <form id="productFilterForm" onsubmit="event.preventDefault(); reloadProductList();" class="row g-2 mb-3 d-flex justify-content-end">
-            <!-- Ô tìm kiếm -->
-            <div class="col-md-5">
-                <input type="text" id="searchKeyword" class="form-control" placeholder="Search product...">
-            </div>
-
-            <!-- Dropdown thể loại -->
+        <form id="productFilterForm" class="row g-2 mb-3 d-flex justify-content-end">
+            <!-- Dropdown danh mục -->
             <div class="col-md-5">
                 <select id="categoryFilter" class="form-select">
-                    <option value="">---All Category---</option>
+                    <option value="">---All category---</option>
                     <% for (Categories category : categories) {%>
                     <option value="<%= category.getCategory_id()%>"><%= category.getName()%></option>
                     <% }%>
                 </select>
             </div>
-
-            <!-- Nút tìm kiếm có icon -->
-            <div class="col-md-1 d-flex align-items-center">
-                <button type="submit" class="btn btn-success btn-sm d-flex align-items-center justify-content-center"
-                        style="width: 34px; height: 34px; padding: 0; margin-left: 20px">
-                    <i class="bi bi-search"></i>
-                </button>
+            <!-- Ô tìm kiếm -->
+            <div class="col-md-5">
+                <input type="text" id="searchKeyword" class="form-control" placeholder="Search products...">
             </div>
+
 
         </form>
 
@@ -61,14 +54,14 @@
                     <th>Category</th>
                     <th>Price</th>
                     <th>Stock</th>
-                    <th>Description</th>
-                    <th>Action</th>
+                    <th>Action</th>                    
                 </tr>
             </thead>
             <tbody>
                 <%-- dữ liệu sẽ được fill bằng JS/AJAX qua reloadProductList() --%>
             </tbody>
         </table>
+        <div id="pagination" style="margin-top: 20px; text-align:center;"></div>
     </div>
 </div>
 

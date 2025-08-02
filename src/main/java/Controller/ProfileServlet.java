@@ -25,7 +25,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -38,7 +37,6 @@ public class ProfileServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
 
         HttpSession session = request.getSession();
         Integer accountId = (Integer) session.getAttribute("accountId");
@@ -62,11 +60,11 @@ public class ProfileServlet extends HttpServlet {
                 }
             }
             System.out.println(timeSlots);
-            
+
             Customer customer = dao.getCustomerById(accountId);
             myBookings = scheduleDao.getBookingsByAccountId(accountId);
             booking = scheduleDao.getAllBookings();
-            
+
             request.setAttribute("customer", customer);
             request.setAttribute("schedules", new Gson().toJson(schedules));
             request.setAttribute("mybooking", new Gson().toJson(myBookings));
@@ -94,6 +92,26 @@ public class ProfileServlet extends HttpServlet {
             updateAvatar(request, response, accountId);
         } else if ("changepassword".equals(action)) {
             changePassword(request, response, accountId);  // Thêm xử lý đổi mật khẩu
+        } else if ("cancel".equals(action)) {
+            // Handle cancel action
+            try {
+                String bookingIdStr = request.getParameter("bookingId");  // Lấy bookingId từ request
+                System.out.println(bookingIdStr);
+                int bookingId = Integer.parseInt(bookingIdStr);
+                ScheduleDao scheduleDao = new ScheduleDao();
+
+                // Gọi hàm hủy booking
+                boolean success = scheduleDao.cancelTrainerSlot(bookingId);
+
+                if (success) {
+                    request.getSession().setAttribute("notificationMessage", "Booking successfully canceled");
+                } else {
+                    request.getSession().setAttribute("notificationMessage", "Booking fail canceled");
+                }
+                response.sendRedirect(request.getContextPath() + "/profile?tab=schedule");
+            } catch (SQLException ex) {
+                response.sendRedirect("error.jsp");
+            }
         }
 
     }
@@ -106,7 +124,7 @@ public class ProfileServlet extends HttpServlet {
         // Kiểm tra mật khẩu mới và xác nhận mật khẩu có khớp không
         if (!newPassword.equals(confirmPassword)) {
             request.getSession().setAttribute("changePasswordError", "Failed to change password.");
-            response.sendRedirect(request.getContextPath() + "/profile");
+            response.sendRedirect(request.getContextPath() + "/profile?tab=changepassword");
             return;
         }
 
@@ -116,10 +134,10 @@ public class ProfileServlet extends HttpServlet {
             boolean isUpdated = dao.changePassword(accountId, oldPassword, newPassword);
             if (isUpdated) {
                 request.getSession().setAttribute("changePasswordSuccess", "Password changed successfully!");
-                response.sendRedirect(request.getContextPath() + "/profile");
+                response.sendRedirect(request.getContextPath() + "/profile?tab=changepassword");
             } else {
                 request.getSession().setAttribute("changePasswordError", "Failed to change password.");
-                response.sendRedirect(request.getContextPath() + "/profile");
+                response.sendRedirect(request.getContextPath() + "/profile?tab=changepassword");
             }
 
             // Redirect to profile
