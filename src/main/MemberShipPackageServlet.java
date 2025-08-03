@@ -63,6 +63,7 @@ public class MemberShipPackageServlet extends HttpServlet {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);  // Lỗi 500
             response.getWriter().write("An error occurred while processing your request: " + e.getMessage());
         }
+        
     }
 
     @Override
