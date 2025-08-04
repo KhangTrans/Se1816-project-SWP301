@@ -5,7 +5,7 @@
         <p>Are you sure you want to delete this customer?</p>
 
         <form id="deleteCustomerForm"
-              onsubmit="return submitFormAjax(this, 'resultDeleteProduct')"
+              onsubmit="return submitFormAjax(this, 'resultDeleteCustomer')"
               method="post" action="<%= request.getContextPath()%>/admin/customer">
             <input type="hidden" name="action" value="delete">
             <input type="hidden" id="deleteCustomerId" name="customerId">

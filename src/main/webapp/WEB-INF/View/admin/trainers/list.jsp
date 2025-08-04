@@ -43,7 +43,7 @@
             <thead>
                 <tr>
                     <th style="width: 60px">Avatar</th>
-                    <th style="width: 80px">USN</th>
+                    <th style="width: 80px">Username</th>
                     <th style="width: 150px">Full Name</th>
                     <th style="width: 50px">Experience</th>
                     <th style="width: 50px">Rating</th>

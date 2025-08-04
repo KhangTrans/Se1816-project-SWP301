@@ -1,36 +1,29 @@
-<%-- 
-    Document   : edit
-    Created on : Jun 5, 2025, 5:00:36 PM
-    Author     : Admin
---%>
-
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-
 <div class="modal" id="editStaffModal" style="display:none;">
     <div class="modal-content" style="margin-top: 300px">
         <h2>Edit Staff</h2>
-        <form method="post" action="<%= request.getContextPath()%>/admin/staffs"
+        <form id="editStaffForm"
+              action="<%= request.getContextPath()%>/admin/staffs"
               enctype="multipart/form-data"
-              onsubmit="return validateStaffForm(this, 'editStaffError') && submitFormAjax(this, 'resultEditStaff')">
+              method="post"
+              onsubmit="return submitFormAjaxStaff(this, 'resultEditStaff')">
 
             <div id="editStaffError" style="color: red; margin-bottom: 10px;"></div>
-
 
             <input type="hidden" name="action" value="edit">
             <input type="hidden" name="staffId" id="editStaffId" readonly>
 
-
             <label>Full Name:</label>
-            <input type="text" name="fullName" id="editFullName" required><br><br>
+            <input type="text" name="fullName" id="editFullName" required oninput="validateInput(this)"><br><br>
 
             <label>Email:</label>
-            <input type="text" name="email" id="editEmail" required><br><br>
+            <input type="text" name="email" id="editEmail" required oninput="validateInput(this)"><br><br>
 
             <label>Phone:</label>
-            <input type="text" name="phone" id="editPhone" required><br><br>
+            <input type="text" name="phone" id="editPhone" required oninput="validateInput(this)"><br><br>
 
             <label>Position:</label>
-            <input type="text" name="position" id="editPosition" required><br><br>
+            <input type="text" name="position" id="editPosition" required oninput="validateInput(this)"><br><br>
 
             <label>Status:</label>
             <select name="status" id="editStatus" required>
@@ -48,9 +41,7 @@
 
             <button type="submit">Save</button>
             <button type="button" onclick="closeModal('editStaffModal')">Cancel</button>
-
             <div id="resultEditStaff" style="margin-top: 10px;"></div>
         </form>
     </div>
 </div>
-

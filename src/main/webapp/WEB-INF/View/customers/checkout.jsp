@@ -11,8 +11,9 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <%
-    // L?y bi?n t? request, không l?y t? session n?a ?? ??ng b? v?i Servlet
+    // L?y bi?n t? request, kh?ng l?y t? session n?a ?? ??ng b? v?i Servlet
     List<CartItem> cartItems = (List<CartItem>) request.getAttribute("cartItems");
+    System.out.println("cart imtem 1: " + cartItems);
     if (cartItems == null) {
         cartItems = (List<CartItem>) request.getAttribute("cart");
     }
@@ -50,6 +51,7 @@
             total += subtotal;
         }
     }
+    System.out.println("checkout" + cartItems);
 %>
 
 <style>
@@ -58,13 +60,13 @@
         color: #fff;
         font-family: 'Arial', sans-serif;
     }
-    
+
     .checkout-container {
         max-width: 1000px;
         margin: 100px auto;
         padding: 0 20px;
     }
-    
+
     .checkout-content {
         background: rgba(25, 25, 25, 0.9);
         border-radius: 20px;
@@ -72,7 +74,7 @@
         overflow: hidden;
         border: 1px solid rgba(217, 255, 104, 0.3);
     }
-    
+
     .checkout-header {
         background: linear-gradient(135deg, rgba(25, 25, 25, 0.9) 0%, rgba(40, 40, 40, 0.9) 100%);
         padding: 25px 40px;
@@ -80,7 +82,7 @@
         position: relative;
         overflow: hidden;
     }
-    
+
     .checkout-header::before {
         content: "";
         position: absolute;
@@ -91,7 +93,7 @@
         background: radial-gradient(circle at top right, rgba(217, 255, 104, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
         z-index: 1;
     }
-    
+
     .checkout-header h1 {
         color: #d9ff68;
         margin: 0;
@@ -107,11 +109,11 @@
         z-index: 2;
         text-align: center;
     }
-    
+
     .checkout-body {
         padding: 30px;
     }
-    
+
     .section-title {
         color: #d9ff68;
         font-size: 22px;
@@ -120,11 +122,11 @@
         align-items: center;
         gap: 10px;
     }
-    
+
     .section-title i {
         font-size: 20px;
     }
-    
+
     .error {
         background-color: rgba(255, 107, 107, 0.2);
         border: 1px solid rgba(255, 107, 107, 0.5);
@@ -135,12 +137,12 @@
         font-size: 14px;
         line-height: 1.5;
     }
-    
+
     .form-row {
         margin-bottom: 20px;
         position: relative;
     }
-    
+
     .form-row label {
         display: block;
         font-weight: 500;
@@ -148,7 +150,7 @@
         color: #fff;
         font-size: 15px;
     }
-    
+
     .form-row i {
         position: absolute;
         left: 15px;
@@ -156,8 +158,8 @@
         color: #555;
         font-size: 16px;
     }
-    
-    .form-row input, 
+
+    .form-row input,
     .form-row select {
         width: 100%;
         padding: 12px 15px 12px 45px;
@@ -168,18 +170,18 @@
         font-size: 16px;
         transition: all 0.3s ease;
     }
-    
+
     .form-row input:focus,
     .form-row select:focus {
         border-color: #d9ff68;
         box-shadow: 0 0 0 2px rgba(217, 255, 104, 0.25);
         outline: none;
     }
-    
+
     .form-row input::placeholder {
         color: #555;
     }
-    
+
     .order-table {
         width: 100%;
         border-collapse: collapse;
@@ -187,13 +189,13 @@
         border-radius: 10px;
         overflow: hidden;
     }
-    
+
     .order-table th,
     .order-table td {
         padding: 15px;
         text-align: left;
     }
-    
+
     .order-table th {
         background-color: rgba(26, 42, 58, 0.8);
         color: #d9ff68;
@@ -202,23 +204,23 @@
         font-size: 14px;
         letter-spacing: 0.5px;
     }
-    
+
     .order-table td {
         background-color: rgba(30, 30, 30, 0.6);
         color: #fff;
         border-bottom: 1px solid rgba(255, 255, 255, 0.05);
     }
-    
+
     .order-table tr:last-child td {
         border-bottom: none;
     }
-    
+
     .product-name {
         display: flex;
         align-items: center;
         gap: 15px;
     }
-    
+
     .product-img {
         width: 50px;
         height: 50px;
@@ -227,12 +229,12 @@
         background-color: rgba(255, 255, 255, 0.05);
         padding: 5px;
     }
-    
+
     .price-column {
         text-align: right;
         font-weight: bold;
     }
-    
+
     .total-section {
         background: rgba(26, 42, 58, 0.4);
         border-radius: 12px;
@@ -240,7 +242,7 @@
         margin-bottom: 25px;
         border: 1px solid rgba(217, 255, 104, 0.1);
     }
-    
+
     .total-row {
         display: flex;
         justify-content: space-between;
@@ -248,27 +250,27 @@
         border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
         font-size: 16px;
     }
-    
+
     .total-row:last-child {
         border-bottom: none;
         padding-top: 15px;
         font-size: 20px;
     }
-    
+
     .total-label {
         color: #d9ff68;
         font-weight: bold;
     }
-    
+
     .total-value {
         font-weight: bold;
         color: #fff;
     }
-    
+
     .payment-methods {
         margin-bottom: 30px;
     }
-    
+
     .payment-option {
         display: flex;
         align-items: center;
@@ -280,35 +282,35 @@
         transition: all 0.2s ease;
         cursor: pointer;
     }
-    
+
     .payment-option:hover {
         background: rgba(40, 40, 40, 0.6);
         border-color: rgba(217, 255, 104, 0.4);
     }
-    
+
     .payment-option input[type="radio"] {
         margin-right: 15px;
         accent-color: #d9ff68;
         width: 18px;
         height: 18px;
     }
-    
+
     .payment-option-label {
         display: flex;
         align-items: center;
         gap: 15px;
         flex: 1;
     }
-    
+
     .payment-icon {
         color: #d9ff68;
         font-size: 24px;
     }
-    
+
     .payment-option-text {
         font-weight: 500;
     }
-    
+
     .confirm-button {
         background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
         color: #111;
@@ -327,55 +329,55 @@
         align-items: center;
         justify-content: center;
     }
-    
+
     .confirm-button:hover {
         transform: translateY(-3px);
         box-shadow: 0 7px 15px rgba(217, 255, 104, 0.3);
     }
-    
+
     .confirm-button i {
         margin-right: 10px;
         font-size: 20px;
     }
-    
+
     .confirm-button:disabled {
         background: #555;
         cursor: not-allowed;
         transform: none;
         box-shadow: none;
     }
-    
+
     .empty-cart {
         text-align: center;
         padding: 30px;
         color: #aaa;
         font-size: 18px;
     }
-    
+
     .empty-cart i {
         display: block;
         font-size: 50px;
         margin-bottom: 20px;
         color: #555;
     }
-    
+
     @media (max-width: 768px) {
         .checkout-header {
             padding: 20px;
         }
-        
+
         .checkout-body {
             padding: 20px;
         }
-        
+
         .order-table th, .order-table td {
             padding: 10px;
         }
-        
+
         .product-img {
             display: none;
         }
-        
+
         .form-row i {
             top: 38px;
         }
@@ -387,35 +389,40 @@
         <div class="checkout-header">
             <h1>Checkout</h1>
         </div>
-        
+
         <div class="checkout-body">
-            <!-- Hi?n th? thông báo l?i s? l??ng t?n kho -->
+            <!-- Hi?n th? th?ng b?o l?i s? l??ng t?n kho -->
             <% if (hasStockError) {%>
             <div class="error"><%= stockError.toString()%></div>
             <% } %>
             
-            <% if (cartItems != null && !cartItems.isEmpty()) { %>
+            <% 
+System.out.println("Bbbbbb" + cartItems);
+if (cartItems != null && !cartItems.isEmpty()) { %>
             <form action="checkoutsuccess" method="post">
+                <% for (CartItem item : cartItems) {%>
+                <input type="hidden" name="productIds[]" value="<%= item.getCartItemId()%>" />
+                <% } %>
                 <h2 class="section-title"><i class="fas fa-user-circle"></i> Customer Information</h2>
-                
+
                 <div class="form-row">
                     <label for="customerName">Full Name</label>
                     <i class="fas fa-user"></i>
                     <input type="text" id="customerName" name="customerName" placeholder="Enter your full name" required>
                 </div>
-                
+
                 <div class="form-row">
                     <label for="customerPhone">Phone Number</label>
                     <i class="fas fa-phone-alt"></i>
                     <input type="text" id="customerPhone" name="customerPhone" placeholder="Enter your phone number" pattern="09\d{8}" title="Phone number must start with 09 and be followed by 8 digits" required>
                 </div>
-                
+
                 <div class="form-row">
                     <label for="shippingAddress">Shipping Address</label>
                     <i class="fas fa-map-marker-alt"></i>
                     <input type="text" id="shippingAddress" name="shippingAddress" placeholder="Enter your delivery address" required>
                 </div>
-                
+
                 <div class="form-row">
                     <label for="voucherIdDropdown">Apply Voucher</label>
                     <i class="fas fa-ticket-alt"></i>
@@ -432,9 +439,9 @@
                         <% }%>
                     </select>
                 </div>
-                
+
                 <h2 class="section-title"><i class="fas fa-shopping-bag"></i> Order Summary</h2>
-                
+
                 <table class="order-table">
                     <thead>
                         <tr>
@@ -446,6 +453,7 @@
                     </thead>
                     <tbody>
                         <%
+                            System.out.println("Aaaaa " + cartItems);
                             if (cartItems != null && !cartItems.isEmpty()) {
                                 for (CartItem item : cartItems) {
                                     Products product = item.getProduct();
@@ -461,21 +469,21 @@
                         <tr>
                             <td>
                                 <div class="product-name">
-                                    <img src="<%=request.getContextPath()%>/ImagesServlet?type=product&imageId=<%= product.getPrimaryImageId() %>" class="product-img" alt="<%= name %>">
-                                    <%= name %>
+                                    <img src="<%=request.getContextPath()%>/ImagesServlet?type=product&imageId=<%= product.getPrimaryImageId()%>" class="product-img" alt="<%= name%>">
+                                    <%= name%>
                                 </div>
                             </td>
-                            <td><%= quantity %></td>
-                            <td class="price-column"><%= String.format("%,.0f", price) %> VND</td>
+                            <td><%= quantity%></td>
+                            <td class="price-column"><%= String.format("%,.0f", price)%> VND</td>
                             <td class="price-column">
-                                <span class="lineSubtotal" data-price="<%= price %>" data-qty="<%= quantity %>">
-                                    <%= String.format("%,.0f", subtotal) %>
+                                <span class="lineSubtotal" data-price="<%= price%>" data-qty="<%= quantity%>">
+                                    <%= String.format("%,.0f", subtotal)%>
                                 </span> VND
                             </td>
                         </tr>
                         <%
-                                }
-                            } else {
+                            }
+                        } else {
                         %>
                         <tr>
                             <td colspan="4" class="empty-cart">
@@ -488,11 +496,11 @@
                         %>
                     </tbody>
                 </table>
-                
+
                 <div class="total-section">
                     <div class="total-row">
                         <span class="total-label">Subtotal:</span>
-                        <span class="total-value" id="subtotalPrice"><%= String.format("%,.0f", total) %> VND</span>
+                        <span class="total-value" id="subtotalPrice"><%= String.format("%,.0f", total)%> VND</span>
                     </div>
                     <div class="total-row" id="discountRow" style="display: none;">
                         <span class="total-label">Discount:</span>
@@ -500,12 +508,12 @@
                     </div>
                     <div class="total-row">
                         <span class="total-label">Total:</span>
-                        <span class="total-value" id="totalPrice"><%= String.format("%,.0f", total) %> VND</span>
+                        <span class="total-value" id="totalPrice"><%= String.format("%,.0f", total)%> VND</span>
                     </div>
                 </div>
-                
+
                 <h2 class="section-title"><i class="fas fa-credit-card"></i> Payment Method</h2>
-                
+
                 <div class="payment-methods">
                     <div class="payment-option">
                         <input type="radio" id="cashOnDelivery" name="paymentMethod" value="cashOnDelivery" checked>
@@ -515,8 +523,8 @@
                         </label>
                     </div>
                 </div>
-                
-                <!-- Ch? cho phép submit n?u không có l?i s? l??ng t?n kho -->
+
+                <!-- Ch? cho ph?p submit n?u kh?ng c? l?i s? l??ng t?n kho -->
                 <% if (!hasStockError) { %>
                 <button type="submit" class="confirm-button">
                     <i class="fas fa-check-circle"></i> Confirm Order
@@ -527,7 +535,7 @@
                 </button>
                 <% } %>
             </form>
-            <% } else { %>
+            <% } else {%>
             <div class="empty-cart">
                 <i class="fas fa-shopping-cart"></i>
                 <p>Your cart is empty.</p>
@@ -535,7 +543,7 @@
                     <i class="fas fa-store"></i> Continue Shopping
                 </a>
             </div>
-            <% } %>
+            <% }%>
         </div>
     </div>
 </div>
@@ -564,7 +572,7 @@
                 if (total < minOrder) {
                     opt.disabled = true;
                     opt.style.color = '#ccc';
-                    opt.title = '??n hàng c?n t?i thi?u ' + minOrder.toLocaleString('vi-VN') + '? ?? dùng voucher này';
+                    opt.title = '??n h?ng c?n t?i thi?u ' + minOrder.toLocaleString('vi-VN') + '? ?? d?ng voucher n?y';
                 } else {
                     opt.disabled = false;
                     opt.style.color = '';
@@ -591,7 +599,7 @@
                     discount = Math.min(discount, parseFloat(maxDiscount));
                 }
                 discountedPrice = total - discount;
-                
+
                 // Show discount row
                 discountAmount.textContent = "- " + formatMoney(discount) + " VND";
                 discountRow.style.display = "flex";
@@ -601,15 +609,15 @@
 
             totalSpan.textContent = formatMoney(discountedPrice) + " VND";
 
-            // Tính l?i t?ng subtotal theo t? l? gi?m giá trên t?ng
+            // T?nh l?i t?ng subtotal theo t? l? gi?m gi? tr?n t?ng
             subtotalSpans.forEach(function (span) {
                 let price = parseFloat(span.getAttribute('data-price'));
                 let qty = parseInt(span.getAttribute('data-qty'));
                 let rawSubtotal = price * qty;
-                // T? l? gi?m trên t?ng
+                // T? l? gi?m tr?n t?ng
                 let discountRate = discount / total || 0;
                 let discountedSubtotal = rawSubtotal - (rawSubtotal * discountRate);
-                // N?u không ch?n voucher thì discountRate = 0
+                // N?u kh?ng ch?n voucher th? discountRate = 0
                 span.textContent = formatMoney(discountedSubtotal);
             });
         }

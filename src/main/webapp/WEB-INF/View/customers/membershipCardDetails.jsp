@@ -7,7 +7,7 @@
 <html>
     <head>
         <meta charset="UTF-8">
-        <title>Chi tiết gói tập</title>
+        <title>Package Details</title>
         <style>
             body {
                 background: #191919;
@@ -96,10 +96,10 @@
             </div>
 
             <div class="membership-card__info-row">
-                <span class="label">Thời hạn:</span>
-                <span class="value"><%= pkg.getDurationDays()%> ngày</span>
-                <span class="label" style="margin-left: 32px;">Trạng thái:</span>
-                <span class="value"><%= pkg.isIsActive() ? "Đang áp dụng" : "Ngừng áp dụng"%></span>
+                <span class="label">Duration:</span>
+                <span class="value"><%= pkg.getDurationDays()%> days</span>
+                <span class="label" style="margin-left: 32px;">Status:</span>
+                <span class="value"><%= pkg.isIsActive() ? "Active" : "Inactive"%></span>
             </div>
             <form action="payment" method="get" style="width: 100%; text-align: center;">
                 <input type="hidden" name="cardId" value="<%= pkg.getId()%>">

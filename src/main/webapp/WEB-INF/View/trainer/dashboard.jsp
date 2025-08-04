@@ -338,6 +338,382 @@
                 margin-top: 60px;
             }
 
+            /* Update the schedule section styling */
+            .schedule-container {
+                margin-top: 20px;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+                max-width: 100%;
+            }
+
+            .date-picker {
+                display: flex;
+                align-items: center;
+                margin-bottom: 15px;
+                background-color: #f8f9fa;
+                padding: 15px;
+                border-radius: 8px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+
+            .date-picker label {
+                font-weight: bold;
+                margin-right: 15px;
+                color: #333;
+            }
+
+            .date-picker input[type="date"] {
+                padding: 10px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                font-size: 16px;
+                flex-grow: 1;
+                max-width: 200px;
+                transition: border-color 0.2s;
+            }
+
+            .date-picker input[type="date"]:focus {
+                border-color: #007bff;
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+            }
+
+            .week-info {
+                background-color: #e9ecef;
+                color: #495057;
+                padding: 12px 15px;
+                border-radius: 6px;
+                margin-bottom: 15px;
+                font-weight: bold;
+                text-align: center;
+                font-size: 16px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            }
+
+            .calendar-container {
+                overflow-x: auto;
+                border-radius: 8px;
+                background-color: white;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+            }
+
+            .calendar {
+                width: 100%;
+                border-collapse: collapse;
+                table-layout: fixed;
+                font-size: 14px;
+            }
+
+            .calendar th {
+                background-color: #007bff;
+                color: white;
+                padding: 15px 10px;
+                text-align: center;
+                font-weight: bold;
+                border: none;
+            }
+
+            .calendar td {
+                border: 1px solid #e6e6e6;
+                padding: 8px 6px;
+                text-align: center;
+                height: 110px;
+                vertical-align: top;
+                max-width: 120px;
+                width: 12.5%;
+            }
+
+            .time-slot {
+                font-weight: bold;
+                background-color: #f2f8ff;
+                padding: 12px 5px;
+                width: 90px;
+                vertical-align: middle;
+                color: #495057;
+                border-right: 2px solid #c4e0ff;
+            }
+
+            .calendar-cell {
+                position: relative;
+                height: 100%;
+                transition: background-color 0.2s;
+            }
+
+            .calendar-cell select {
+                padding: 8px 12px;
+                border: 1px solid #ddd;
+                border-radius: 4px;
+                background-color: white;
+                font-size: 14px;
+                width: 100%;
+                cursor: pointer;
+                color: #333;
+                transition: all 0.2s;
+            }
+
+            .calendar-cell select:focus {
+                border-color: #007bff;
+                outline: none;
+                box-shadow: 0 0 0 2px rgba(0,123,255,0.25);
+            }
+
+            .calendar-cell select option {
+                padding: 10px;
+            }
+
+            /* Status colors */
+            .calendar-cell select option[value="true"] {
+                background-color: #d4edda;
+                color: #155724;
+            }
+
+            .calendar-cell select option[value="false"] {
+                background-color: #f8d7da;
+                color: #721c24;
+            }
+
+            /* Improve event styling to prevent overflow */
+            .event {
+                background-color: #e3f2fd;
+                border-radius: 6px;
+                padding: 10px;
+                font-size: 14px;
+                width: 92%;
+                box-sizing: border-box;
+                margin-bottom: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+                transition: transform 0.2s, box-shadow 0.2s;
+                border-left: 4px solid #007bff;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                max-width: 100%;
+            }
+
+            .event:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+            }
+
+            .blue-event {
+                background-color: #e3f2fd;
+                border-left-color: #007bff;
+            }
+
+            .red-event {
+                background-color: #feeaea;
+                border-left-color: #dc3545;
+            }
+
+            .purple-event {
+                background-color: #f0e6f7;
+                border-left-color: #6f42c1;
+            }
+
+            .btn-confirm {
+                background-color: #28a745;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 8px 12px;
+                cursor: pointer;
+                margin-top: 0; /* Reset margin since we'll use parent container's margin */
+                margin-right: 0; /* Reset margin since we'll use gap */
+                transition: background-color 0.2s;
+                font-weight: bold;
+                font-size: 13px;
+            }
+
+            button.btn-confirm + button.btn-confirm {
+                background-color: #dc3545;
+            }
+
+            .btn-confirm:hover {
+                opacity: 0.9;
+            }
+
+            /* Modal styling */
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1000;
+                left: 0;
+                top: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0,0,0,0.5);
+                overflow: auto;
+            }
+
+            .modal-content {
+                background-color: white;
+                margin: 15% auto;
+                padding: 25px;
+                border-radius: 8px;
+                width: 400px;
+                max-width: 80%;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+                position: relative;
+            }
+
+            .modal-content h2 {
+                margin-top: 0;
+                color: #333;
+                border-bottom: 1px solid #eee;
+                padding-bottom: 10px;
+            }
+
+            .modal-content h3 {
+                color: #007bff;
+            }
+
+            .submit-btn {
+                background-color: #007bff;
+                color: white;
+                border: none;
+                padding: 10px 20px;
+                border-radius: 4px;
+                cursor: pointer;
+                margin-top: 15px;
+                margin-right: 10px;
+                font-weight: bold;
+            }
+
+            .submit-btn:last-child {
+                background-color: #6c757d;
+            }
+
+            .submit-btn:hover {
+                opacity: 0.9;
+            }
+
+            /* Legend styles */
+            .schedule-legend {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 20px;
+                margin-top: 25px;
+                padding: 15px;
+                background-color: white;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+                justify-content: center;
+            }
+
+            .legend-item {
+                display: flex;
+                align-items: center;
+                margin-right: 10px;
+            }
+
+            .legend-color {
+                display: inline-block;
+                width: 24px;
+                height: 24px;
+                border-radius: 4px;
+                margin-right: 8px;
+                box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            }
+
+            .legend-text {
+                font-size: 14px;
+                color: #495057;
+            }
+
+            /* Dashboard section enhancement */
+            .dashboard-section {
+                background-color: white;
+                border-radius: 10px;
+                box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+                padding: 25px;
+                margin-top: 20px;
+                transition: transform 0.2s;
+            }
+
+            .dashboard-section:hover {
+                transform: translateY(-5px);
+            }
+
+            /* Modal buttons container */
+            .modal-buttons {
+                display: flex;
+                justify-content: flex-end;
+                gap: 10px;
+                margin-top: 20px;
+            }
+
+            /* Responsive adjustments */
+            @media (max-width: 768px) {
+                .calendar th, .calendar td {
+                    padding: 8px 5px;
+                    font-size: 12px;
+                }
+                
+                .time-slot {
+                    width: 60px;
+                    padding: 8px 2px;
+                }
+                
+                .event {
+                    padding: 8px;
+                    font-size: 12px;
+                }
+                
+                .btn-confirm {
+                    padding: 6px 10px;
+                    font-size: 12px;
+                }
+                
+                .schedule-legend {
+                    flex-direction: column;
+                    gap: 10px;
+                }
+            }
+
+            /* Add styles to group buttons together */
+            .button-group {
+                display: flex;
+                gap: 5px;
+                margin-top: 55px;
+                justify-content: center;
+                flex-wrap: wrap;
+                max-width: 100%;
+            }
+
+            .btn-confirm {
+                background-color: #28a745;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                padding: 6px 8px;
+                cursor: pointer;
+                margin-top: 0; /* Reset margin since we'll use parent container's margin */
+                margin-right: 0; /* Reset margin since we'll use gap */
+                transition: background-color 0.2s;
+                font-weight: bold;
+                font-size: 12px;
+                white-space: nowrap;
+                width: 70px;
+                text-align: center;
+            }
+
+            button.btn-confirm + button.btn-confirm {
+                background-color: #dc3545;
+            }
+
+            .btn-confirm:hover {
+                opacity: 0.9;
+            }
+
+            /* Add text overflow handling for customer name */
+            .event-customer-name {
+                font-weight: bold;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                white-space: nowrap;
+                margin-bottom: 5px;
+            }
         </style>
     </head>
     <body>
@@ -444,21 +820,22 @@
 
             <div id="schedule-tab" class="tab-content">
                 <h1>Training Schedule</h1>
-                <div class="date-picker">
-                    <label for="start-date">Choose Day</label>
-                    <input type="date" id="start-date" onchange="updateWeek()">
-                </div>
-                <div class="week-info" id="week-info"></div>
-                <form method="post" action="dashboard" id="bookingForm">
-                    <input type="hidden" name="trainerId" value="${trainer.trainerId}">
-                    <!--<input type="hidden" name="action" id="action" value="confirm">-->
-                    <div class="dashboard-section">
-                        <!--<h2>Weekly Schedule</h2>-->
-                        <div class="calendar-container">
+                
+                <div class="dashboard-section">
+                    <div class="date-picker">
+                        <label for="start-date"><i class="fas fa-calendar-alt"></i> Choose Week Starting Date:</label>
+                        <input type="date" id="start-date" onchange="updateWeek()">
+                    </div>
+                    
+                    <div class="week-info" id="week-info"></div>
+                    
+                    <form method="post" action="dashboard" id="bookingForm">
+                        <input type="hidden" name="trainerId" value="${trainer.trainerId}">
+                        <div class="schedule-container">
                             <table class="calendar">
                                 <thead>
                                     <tr>
-                                        <th></th>
+                                        <th class="time-header"><i class="fas fa-clock"></i> Time</th>
                                         <th>Monday</th>
                                         <th>Tuesday</th>
                                         <th>Wednesday</th>
@@ -471,12 +848,41 @@
                                 <tbody id="schedule-table" class="schedule-body"></tbody>
                             </table>
                         </div>
+                        <div id="selectedSlotsContainer"></div>
+                    </form>
+                </div>
+                
+                <div class="schedule-legend">
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #e3f2fd; border-left: 4px solid #007bff;"></span>
+                        <span class="legend-text">Upcoming Session</span>
                     </div>
-                    <div id="selectedSlotsContainer"></div>
-                </form>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #feeaea; border-left: 4px solid #dc3545;"></span>
+                        <span class="legend-text">Past Session</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #d4edda;"></span>
+                        <span class="legend-text">Available (ON)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="legend-color" style="background-color: #f8d7da;"></span>
+                        <span class="legend-text">Unavailable (OFF)</span>
+                    </div>
+                </div>
             </div>
         </div>
-
+        <div id="confirmationModal" class="modal" style="display: none;">
+            <div class="modal-content">
+                <h2 id="modal-title">Confirm Action</h2>
+                <h3 id="modal-name"></h3>
+                <p id="modal-details"></p>
+                <div class="modal-buttons">
+                    <button id="confirmBtn" class="submit-btn" onclick="confirmAction()">Confirm</button>
+                    <button id="cancelBtn" class="submit-btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </div>
+        </div>
         <script>
             // ==========================================
             // COMMON FUNCTIONS
@@ -837,9 +1243,6 @@
                         if (now > slotDateTime) {
                             isPastTime = true;
                         }
-                        console.log(isBooked);
-                        console.log(isPastTime);
-
                         if (!isBooked && !isPastTime) {
 //                            console.log(slotAvailability[0].slotDate);
                             var availability = slotAvailability.find(function (item) {
@@ -860,10 +1263,11 @@
                                     '<option value="false" ' + (!isSlotAvailable ? 'selected' : '') + '>OFF</option>' +
                                     '</select>' +
                                     '</td>';
-
+                            console.log(row)
+                            console.log(isSlotAvailable)
                         } else {
                             if (isPastTime && !isBooked) {
-                                row += '<td class="calendar-cell"></td>';
+                                row += '<td class="calendar-cell">';
                             } else {
                                 for (var k = 0; k < booking.length; k++) {
                                     var bookingDate = booking[k].bookingDate;
@@ -878,7 +1282,9 @@
                                             var now = new Date();
                                             var className = (slotDateTime.getTime() - now.getTime() < 0) ? 'event red-event' : 'event blue-event';
                                             row += '<td class="calendar-cell">' +
-                                                    '<div class="' + className + '" disabled>' + booking[k].customer.fullName + '</div>';
+                                                    '<div class="' + className + '">' +
+                                                    '<div class="event-customer-name">' + booking[k].customer.fullName + '</div>' +
+                                                    '</div>';
 
                                         } else if (booking[k].status === 'pending' && booking[k].trainer.trainerId === trainer.trainerId) {
                                             var startTime = getStartTimeByScheduleId(currentScheduleId);
@@ -887,10 +1293,14 @@
                                             if ((slotDateTime.getTime() - now.getTime()) > 0) {
                                                 var className = (slotDateTime.getTime() - now.getTime() < 0) ? 'event red-event' : 'event blue-event';
                                                 row += '<td class="calendar-cell">' +
-                                                        '<div class="' + className + '" disabled>' + booking[k].customer.fullName + '</div>';
-                                                row += '<button class="btn-confirm" type="submit" data-bookingConfirm="' + booking[k].bookingId + '" onclick="confirmBooking(this)">Xác Nhận</button>';
-                                                row += '<button class="btn-confirm" type="submit" data-bookingConfirm="' + booking[k].bookingId + '" onclick="cancelBooking(this)">Hủy</button>';
-
+                                                        '<div class="' + className + '">' + 
+                                                        '<div class="event-customer-name">' + booking[k].customer.fullName + '</div>' +
+                                                        '</div>';
+                                                row += '<div class="button-group">';
+                                                row += '<button class="btn-confirm" type="button" data-bookingConfirm="' + booking[k].bookingId + '" onclick="confirmBooking(this)">Confirm</button>';
+                                                row += '<button class="btn-confirm" type="button" data-bookingConfirm="' + booking[k].bookingId + '" onclick="cancelBooking(this)">Cancel</button>';
+                                                row += '</div>';
+                                                
                                                 console.log(booking[k].bookingId);
                                             }
                                         } else {
@@ -914,87 +1324,245 @@
                 }  // Add the row to the table
             }
             function updateSlotStatus(selectElement) {
-                // Lấy các thuộc tính từ select
                 const scheduleId = selectElement.getAttribute("data-schedule-id");
-                const selectedValue = selectElement.value;  // Giá trị "ON" hoặc "OFF"
+                const selectedValue = selectElement.value;
                 const selectedDate = selectElement.getAttribute("data-date");
 
-                // Tạo các input ẩn để gửi dữ liệu qua form
-                const hiddenScheduleId = document.createElement("input");
-                hiddenScheduleId.type = "hidden";
-                hiddenScheduleId.name = "scheduleId[]";
-                hiddenScheduleId.value = scheduleId;
-                document.getElementById('selectedSlotsContainer').appendChild(hiddenScheduleId);
+                console.log("Updating slot status for schedule ID: " + scheduleId + " at date: " + selectedDate + " to " + selectedValue);
 
-                const hiddenDate = document.createElement("input");
-                hiddenDate.type = "hidden";
-                hiddenDate.name = "bookingDate[]";
-                hiddenDate.value = selectedDate;
-                document.getElementById('selectedSlotsContainer').appendChild(hiddenDate);
+                var data = new URLSearchParams();
+                data.append('action', 'update');
+                data.append('trainerId', trainer.trainerId); // Giả định trainer.trainerId có sẵn từ biến trainer
+                data.append('scheduleId[]', scheduleId);
+                data.append('bookingDate[]', selectedDate);
+                data.append('slotStatus[]', selectedValue);
 
-                const hiddenStatus = document.createElement("input");
-                hiddenStatus.type = "hidden";
-                hiddenStatus.name = "slotStatus[]";
-                hiddenStatus.value = selectedValue;
-                document.getElementById('selectedSlotsContainer').appendChild(hiddenStatus);
-
-                // Cập nhật action cho form
-                const actionInput = document.createElement("input");
-                actionInput.type = "hidden";
-                actionInput.name = "action";
-                actionInput.value = "update";  // Đây là giá trị action mà bạn muốn gửi
-                document.getElementById('selectedSlotsContainer').appendChild(actionInput);
-
-                // Gửi form ngay lập tức khi thay đổi giá trị
-                document.getElementById('bookingForm').submit();
+                fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                    method: "POST",
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: data
+                })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok: ' + response.statusText);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log("POST Response data:", data);
+                            if (data.status === "success") {
+                                alert(data.message);
+                                // Lấy dữ liệu mới từ server
+                                fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                                    method: "GET",
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                })
+                                        .then(response => {
+                                            if (!response.ok) {
+                                                throw new Error('GET response was not ok: ' + response.statusText);
+                                            }
+                                            return response.json();
+                                        })
+                                        .then(newData => {
+                                            console.log("GET Response data:", newData);
+                                            // Cập nhật biến với dữ liệu mới, xử lý an toàn
+                                            booking = Array.isArray(newData.booking) ? newData.booking : [];
+                                            timeSlots = Array.isArray(newData.timeSlots) ? newData.timeSlots : [];
+                                            schedules = Array.isArray(newData.schedules) ? newData.schedules : [];
+                                            slotAvailability = Array.isArray(newData.slotAvailability) ? newData.slotAvailability : [];
+                                            trainer = newData.trainer || {};
+                                            // Đảm bảo tab Schedule active
+                                            showTab('schedule');
+                                            // Render lại bảng lịch
+                                            updateWeek();
+                                        })
+                                        .catch(error => {
+                                            console.error("Error fetching new data:", error);
+                                            alert("Failed to update schedule. Please try again. Error: " + error.message);
+                                        });
+                            } else {
+                                alert(data.message || "Failed to update slot");
+                            }
+                        })
+                        .catch(error => {
+                            console.error("Error:", error);
+                            alert("An error occurred, please try again. Error: " + error.message);
+                        });
             }
-            
-            function cancelBooking(button){
+
+            function cancelBooking(button) {
                 var bookingId = button.getAttribute('data-bookingConfirm'); // lấy giá trị từ button
                 console.log(bookingId);
 
-                // Thêm hidden input cho bookingId vào form
-                var form = document.getElementById('bookingForm'); // form cần phải có trong HTML
-                var hiddenBookingId = document.createElement("input");
-                hiddenBookingId.type = "hidden";
-                hiddenBookingId.name = "bookingId";  // Lưu lại bookingId
-                hiddenBookingId.value = bookingId;  // Gán bookingId 
-                form.appendChild(hiddenBookingId); // Thêm vào form
+                if (!bookingId) {
+                    alert("Invalid booking ID");
+                    return;
+                }
 
-// Cập nhật action cho form
-                const actionInput = document.createElement("input");
-                actionInput.type = "hidden";
-                actionInput.name = "action";
-                actionInput.value = "cancel";  // Đây làs giá trị action mà bạn muốn gửi
-                document.getElementById('selectedSlotsContainer').appendChild(actionInput);
+// Hiển thị modal trước khi hủy
+                document.getElementById('modal-title').innerText = "Cancel Booking";
+                document.getElementById('modal-name').innerText = "";
+                document.getElementById('modal-details').innerText = "Are you sure you want to cancel this booking?";
 
-                // Submit form
-                form.submit();
+                // Hiển thị modal
+                document.getElementById('confirmationModal').style.display = 'block';
+
+                // Cập nhật hàm xác nhận khi bấm Confirm
+                document.getElementById('confirmBtn').onclick = function () {
+                    var data = new URLSearchParams();
+                    data.append('action', 'cancel');
+                    data.append('bookingId', bookingId);
+
+                    fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: data
+                    })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok: ' + response.statusText);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log("POST Response data:", data);
+                                if (data.status === "success") {
+                                    closeModal();
+                                    alert(data.message);
+                                    // Lấy dữ liệu mới từ server
+                                    fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                                        method: "GET",
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        }
+                                    })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('GET response was not ok: ' + response.statusText);
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(newData => {
+                                                console.log("GET Response data:", newData);
+                                                // Cập nhật tất cả biến với dữ liệu mới
+                                                booking = newData.booking || newData; // Điều chỉnh cấu trúc JSON
+                                                timeSlots = newData.timeSlots || timeSlots;
+                                                schedules = newData.schedules || schedules;
+                                                slotAvailability = newData.slotAvailability || slotAvailability;
+                                                trainer = newData.trainer || trainer;
+                                                // Đảm bảo tab Schedule active
+                                                showTab('schedule');
+                                                // Render lại bảng lịch                                               
+                                                updateWeek();
+                                            })
+                                            .catch(error => {
+                                                console.error("Error fetching new data:", error);
+                                                alert("Failed to update schedule. Please try again. Error: " + error.message);
+                                            });
+                                } else {
+                                    alert(data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                alert("An error occurred, please try again. Error: " + error.message);
+                            });
+                };
             }
-
             function confirmBooking(button) {
-                var bookingId = button.getAttribute('data-bookingConfirm'); // lấy giá trị từ button
-                console.log(bookingId);
+                var bookingId = button.getAttribute('data-bookingConfirm');
+                console.log("Confirming booking ID: " + bookingId + " at " + new Date().toLocaleString());
 
-                // Thêm hidden input cho bookingId vào form
-                var form = document.getElementById('bookingForm'); // form cần phải có trong HTML
-                var hiddenBookingId = document.createElement("input");
-                hiddenBookingId.type = "hidden";
-                hiddenBookingId.name = "bookingId";  // Lưu lại bookingId
-                hiddenBookingId.value = bookingId;  // Gán bookingId 
-                form.appendChild(hiddenBookingId); // Thêm vào form
+                if (!bookingId) {
+                    alert("Invalid booking ID");
+                    return;
+                }
+                // Hiển thị modal trước khi xác nhận
+                document.getElementById('modal-title').innerText = "Confirm Booking";
+                document.getElementById('modal-name').innerText = "";
+                document.getElementById('modal-details').innerText = "Are you sure you want to confirm this booking?";
 
-// Cập nhật action cho form
-                const actionInput = document.createElement("input");
-                actionInput.type = "hidden";
-                actionInput.name = "action";
-                actionInput.value = "confirm";  // Đây là giá trị action mà bạn muốn gửi
-                document.getElementById('selectedSlotsContainer').appendChild(actionInput);
+                document.getElementById('confirmationModal').style.display = 'block';
+                document.getElementById('confirmBtn').onclick = function () {
+                    var data = new URLSearchParams();
+                    data.append('action', 'confirm');
+                    data.append('bookingId', bookingId);
 
-                // Submit form
-                form.submit();
+                    fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                        method: "POST",
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                            'X-Requested-With': 'XMLHttpRequest'
+                        },
+                        body: data
+                    })
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('Network response was not ok: ' + response.statusText);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log("POST Response data:", data);
+                                if (data.status === "success") {
+                                    closeModal();
+                                    alert(data.message);
+                                    // Lấy dữ liệu mới từ server
+                                    fetch(`${pageContext.request.contextPath}/trainer/dashboard`, {
+                                        method: "GET",
+                                        headers: {
+                                            'X-Requested-With': 'XMLHttpRequest'
+                                        }
+                                    })
+                                            .then(response => {
+                                                if (!response.ok) {
+                                                    throw new Error('GET response was not ok: ' + response.statusText);
+                                                }
+                                                return response.json();
+                                            })
+                                            .then(newData => {
+                                                console.log("GET Response data:", newData);
+                                                // Cập nhật tất cả biến với dữ liệu mới
+                                                booking = newData.booking || newData; // Điều chỉnh cấu trúc JSON
+                                                timeSlots = newData.timeSlots || timeSlots;
+                                                schedules = newData.schedules || schedules;
+                                                slotAvailability = newData.slotAvailability || slotAvailability;
+                                                trainer = newData.trainer || trainer;
+                                                // Đảm bảo tab Schedule active
+                                                showTab('schedule');
+                                                // Render lại bảng lịch
+
+                                                updateWeek();
+                                            })
+                                            .catch(error => {
+                                                console.error("Error fetching new data:", error);
+                                                alert("Failed to update schedule. Please try again. Error: " + error.message);
+                                            });
+                                } else {
+                                    alert(data.message);
+                                }
+                            })
+                            .catch(error => {
+                                console.error("Error:", error);
+                                alert("An error occurred, please try again. Error: " + error.message);
+                            });
+                };
             }
-
+// Hàm đóng modal
+            function closeModal() {
+                document.getElementById('confirmationModal').style.display = 'none';
+            }
+            function confirmAction() {
+                document.getElementById('confirmBtn').onclick();
+            }
 
             function getStartTimeByScheduleId(scheduleId) {
                 for (var i = 0; i < schedules.length; i++) {

@@ -51,7 +51,7 @@
             </div>
         </form>
 
-        <!-- Hi?n th? k?t qu? thông báo l?i/thành công -->
+        <!-- Hi?n th? k?t qu? thï¿½ng bï¿½o l?i/thï¿½nh cï¿½ng -->
         <div id="resultAddTainer" style="margin-top: 10px;"></div>
     </div>
 </div>

@@ -540,3 +540,69 @@ body {
         min-width: 800px;
     }
 }
+
+/* Role and Status Badges */
+/* Customer role */
+.role-customer, .status-customer {
+    background-color: #d4edda;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Admin role */
+.role-admin, .status-admin {
+    background-color: #cce5ff;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Staff role */
+.role-staff, .status-staff {
+    background-color: #cce5ff;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Trainer role */
+.role-trainer, .status-trainer {
+    background-color: #fff3cd;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+/* Voucher statuses */
+.status-active, .status-active-voucher {
+    background-color: #d4edda;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.status-inactive, .status-inactive-voucher {
+    background-color: #f8d7da;
+    color: #333;
+    padding: 4px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    font-size: 13px;
+    font-weight: 500;
+}

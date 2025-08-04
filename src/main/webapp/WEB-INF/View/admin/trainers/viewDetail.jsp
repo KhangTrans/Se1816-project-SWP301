@@ -1,96 +1,119 @@
 <!-- Modal Detail Trainer -->
-<div id="detailTrainerModal" class="modal" style="display: none;">
+<div id="detailTrainerModal" class="modal">
     <div class="modal-content">
-        <span class="close" onclick="closeDetailTrainerModal()">?</span>
-        <h2>TrainerDetail</h2>
+        <h2>Trainer Details</h2>
         <div class="trainer-detail">
-            <img id="detailTrainerAvatar" src="" alt="Avatar" style="width:100px; height:100px; c; margin-left: 110px; border-radius:50%; margin-bottom: 20px;">
-            <p><strong>ID:</strong> <span id="detailTrainerId"></span></p>
-            <p><strong>Username:</strong> <span id="detailTrainerUsername"></span></p>
-            <p><strong>Fullname:</strong> <span id="detailTrainerFullName"></span></p>
-            <p><strong>Email:</strong> <span id="detailTrainerEmail"></span></p>
-            <p><strong>Phone:</strong> <span id="detailTrainerPhone"></span></p>
-            <p><strong>Bio:</strong> <span id="detailTrainerBio"></span></p>
-            <p><strong>Experience:</strong> <span id="detailTrainerExperience"></span></p>
-            <p><strong>Rating:</strong> <span id="detailTrainerRating"></span></p>
-            <p><strong>Price:</strong> <span id="detailTrainerPrice"></span></p>
-            <p><strong>Trainer Code:</strong> <span id="detailTrainerCode"></span></p>
+            <img id="detailTrainerAvatar" src="" alt="Avatar" style="width:100px; height:100px; border-radius:50%; margin-bottom: 20px; display: block; margin: 0 auto 20px;">
+            
+            <table class="detail-table">
+                <tbody>
+                    <tr>
+                        <td><strong>Full Name:</strong></td>
+                        <td><span id="detailTrainerFullName"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Email:</strong></td>
+                        <td><span id="detailTrainerEmail"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Phone:</strong></td>
+                        <td><span id="detailTrainerPhone"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Trainer Code:</strong></td>
+                        <td><span id="detailTrainerCode"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Username:</strong></td>
+                        <td><span id="detailTrainerUsername"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Experience:</strong></td>
+                        <td><span id="detailTrainerExperience"></span> years</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Rating:</strong></td>
+                        <td><span id="detailTrainerRating"></span> <i class="fa fa-star" style="color: orange" aria-hidden="true"></i> </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Price:</strong></td>
+                        <td><span id="detailTrainerPrice"></span></td>
+                    </tr>
+                    <tr>
+                        <td><strong>Bio:</strong></td>
+                        <td><span id="detailTrainerBio"></span></td>
+                    </tr>
+                    <tr style="display: none;">
+                        <td><strong>ID:</strong></td>
+                        <td><span id="detailTrainerId"></span></td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <button style="border-radius: 20px; background-color: #0056b3; " onclick="closeDetailTrainerModal()">Close</button>
+        <button class="btn" onclick="closeDetailTrainerModal()">Close</button>
     </div>
 </div>
 
 <style>
+    .detail-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 20px 0;
+    }
+    
+    .detail-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+    
+    .detail-table td:first-child {
+        font-weight: bold;
+        width: 30%;
+        background-color: #f8f9fa;
+    }
+    
+    .btn {
+        background-color: #4CAF50;
+        color: white;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        float: right;
+        margin-top: 15px;
+    }
+    
+    .btn:hover {
+        background-color: #45a049;
+    }
+    
     .modal {
     display: none;
     position: fixed;
-    z-index: 1;
+        z-index: 1000;
     left: 0;
     top: 0;
     width: 100%;
     height: 100%;
     overflow: auto;
-    background-color: rgb(0,0,0);
     background-color: rgba(0,0,0,0.4);
 }
 
 .modal-content {
     background-color: #fefefe;
-    margin: 15% auto;
+        margin: 5% auto;
     padding: 20px;
     border: 1px solid #888;
-    width: 80%;
-}
-
-.close {
-    color: #aaa;
-    font-size: 28px;
-    font-weight: bold;
-    position: absolute;
-    top: 10px;
-    right: 25px;
-    text-decoration: none;
-
-}
-.trainer-detail p {
-    margin: 8px 0;
-    font-size: 15px;
-    color: #333;
-    display: flex;
-    align-items: baseline;
-    gap: 8px; /* Kho?ng c?ch gi?a label v? value */
-}
-
-.trainer-detail img:hover {
-    transform: scale(1.05);
-}
-.trainer-detail p strong {
-    color: #007bff; /* M?u xanh n?i b?t cho label */
-    font-weight: 600;
-    min-width: 120px; /* ??m b?o label th?ng h?ng */
-}
-
-.close:hover,
-.close:focus {
-    color: black;
-    text-decoration: none;
-    cursor: pointer;
-}
-
-/* Th?m CSS ?? fix text overflow */
-.trainer-detail p span {
-    flex: 1; /* Cho ph?p span chi?m h?t kh?ng gian c?n l?i */
-    word-break: break-word; /* Wrap text d?i, tr?nh overflow */
-    white-space: normal; /* Cho ph?p wrap t? nhi?n */
-    overflow-wrap: break-word; /* H? tr? wrap t? d?i */
-    hyphens: auto; /* T? ??ng ng?t d?ng n?u c?n */
-}
-
-/* Th?m overflow cho modal n?u text qu? d?i */
-.modal-content {
-    overflow: hidden; /* Ng?n text tr?n ra ngo?i modal */
-}
-
-
-
+        width: 70%;
+        max-width: 600px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
 </style>
+
+<script>
+function closeDetailTrainerModal() {
+    document.getElementById('detailTrainerModal').style.display = 'none';
+}
+</script>

@@ -18,7 +18,7 @@
                 <input type="hidden" name="formAction" value="editOrder">
                 
                 <div class="form-group">
-                    <label for="editReferralCode">Referral Code:</label>
+                    <label for="editReferralCode">Code:</label>
                     <input type="text" id="editReferralCode" name="referralCode" readonly>
                 </div>
                 
@@ -29,19 +29,11 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="editOrderQuantity">Quantity:</label>
+                    <label for="editOrderQuantity">Quantity: <span style="color: #888; font-size: 0.9em;"></span></label>
                     <input type="number" id="editOrderQuantity" name="quantity" min="1" required onchange="updateTotalPrice()">
                 </div>
                 
-                <div class="form-group">
-                    <label for="editStatus">Status:</label>
-                    <select id="editStatus" name="status" required>
-                        <option value="pending">Pending</option>
-                        <option value="processing">Processing</option>
-                        <option value="shipped">Shipped</option>
-                        <option value="cancelled">Cancelled</option>
-                    </select>
-                </div>
+                <!-- Status field removed as requested -->
                 
                 <div class="form-group">
                     <label for="editShippingAddress">Shipping Address:</label>
@@ -55,7 +47,7 @@
                 
                 <div class="form-group">
                     <label for="editCustomerPhone">Phone:</label>
-                    <input type="text" id="editCustomerPhone" name="customerPhoneNumber">
+                    <input type="text" id="editCustomerPhone" name="customerPhoneNumber" required>
                 </div>
                 
                 <div class="form-group">

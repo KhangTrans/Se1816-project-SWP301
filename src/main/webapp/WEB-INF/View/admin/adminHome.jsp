@@ -95,7 +95,7 @@
                 color:white; border:none;
                 border-radius:5px;
                 margin-bottom: 10px">
-            Biểu đồ
+            Map
         </button>
 
         <div id="chartWrapper"
@@ -114,9 +114,9 @@
             <!---->
             <div style="flex:1; display: flex; flex-direction: column; align-items: center; justify-content: center; max-width:700px">
                 <select id="rangeSelect" onchange="loadChartData()" style="min-width: 140px;">
-                    <option value="7">7 ngày gần đây</option>
-                    <option value="30">30 ngày gần đây</option>
-                    <option value="today">Hôm nay</option>
+                    <option value="7">Last 7 day</option>
+                    <option value="30">Last 30 day</option>
+                    <option value="today">Today</option>
                 </select>
                 <canvas id="statusDonutChart" style="max-width:100%; margin-top: 10px"></canvas>
             </div>
@@ -172,10 +172,10 @@
                                     const labels = statusOrder.map(s => statusLabelMap[s]);
                                     const values = statusOrder.map(s => data[s] || 0);
                                     const bgColors = [
-                                        'rgb(255, 205, 86)', 
-                                        'rgb(54, 162, 235)', 
-                                        'rgb(75, 192, 192)', 
-                                        'rgb(255, 99, 132)'  
+                                        'rgb(255, 205, 86)', // Chờ xử lý - vàng
+                                        'rgb(54, 162, 235)', // Đang xử lý - xanh
+                                        'rgb(75, 192, 192)', // Đã giao - xanh ngọc
+                                        'rgb(255, 99, 132)'  // Đã hủy - đỏ
                                     ];
 
                                     const ctx = document.getElementById('statusDonutChart').getContext('2d');
@@ -198,7 +198,7 @@
                                                 legend: {position: 'bottom'}
                                             }
                                         }
-                                    });     
+                                    });        // ---- BỔ SUNG: cập nhật hai metric bên trái ----
                                     const total = values.reduce((sum, v) => sum + v, 0);
                                     const shipped = data.shipped || 0;
                                     const cancelled = data.cancelled || 0;
@@ -210,6 +210,7 @@
                                 });
 
 
+                        // 2. Gọi thêm API lấy metric cho cards
                         fetch(`statistics?type=summary&range=` + range)
                                 .then(res => res.json())
                                 .then(data => {

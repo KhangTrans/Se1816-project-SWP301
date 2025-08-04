@@ -662,39 +662,49 @@ html {
 /* ===End Footer=== */
 
 /* ===MEMBER CARD=== */
-/* Original CSS (unchanged) */
+/* Original CSS (enhanced) */
 .membership-card {
     background: linear-gradient(180deg, #4B8137, #153000);
     color: #ffffff;
     padding: 25px;
-    border-radius: 10px;
+    border-radius: 15px;
     width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    flex-direction: column;
     gap: 5px;
     position: relative;
     /* Đặt thẻ cha làm tham chiếu cho position: absolute */
     min-height: 450px;
     /* Đảm bảo chiều cao đủ để button cố định ở dưới */
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.membership-card:hover {
+    transform: translateY(-5px);
+    border-color: #BFFE77;
+    box-shadow: 0 8px 25px rgba(191, 254, 119, 0.2);
 }
 
 .membership-card__duration {
-    font-size: 18px;
+    font-size: 16px;
     font-weight: bold;
     text-transform: uppercase;
-    /*    white-space: nowrap;*/
-    /* Ngăn ngắt dòng */
+    line-height: 1.2;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
 }
 
 .membership-card__price {
     color: #BFFE77;
-    font-size: 40px;
+    font-size: 36px;
     font-weight: bold;
-    line-height: 1;
-    white-space: nowrap;
-    /* Ngăn ngắt dòng */
+    line-height: 1.1;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
 }
 
 .membership-card__price sup {
@@ -708,12 +718,16 @@ html {
 }
 
 .membership-card__description {
-    font-size: 14px;
-    line-height: 1.5;
+    font-size: 13px;
+    line-height: 1.4;
     border-bottom: 1px solid rgba(191, 254, 119, 100);
     /* Adds line below description */
     padding-bottom: 10px;
     /* Adds space below the text */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
+    text-align: justify;
 }
 
 .membership-card__features {
@@ -780,17 +794,96 @@ html {
 .membership-cards-container {
     display: flex;
     gap: 20px;
-    justify-content: space-between;
+    justify-content: flex-start;
     flex-wrap: nowrap;
     /* Keep cards in one row */
-    padding: 10px;
+    padding: 20px 10px;
     overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    /* Smooth scrolling */
+    -webkit-overflow-scrolling: touch;
+    /* Better scrolling on mobile */
+    
+    /* Custom scrollbar styling */
+    scrollbar-width: thin;
+    scrollbar-color: #4B8137 #2a2a2a;
+}
 
+/* Webkit browsers (Chrome, Safari, Edge) */
+.membership-cards-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.membership-cards-container::-webkit-scrollbar-track {
+    background: #2a2a2a;
+    border-radius: 10px;
+}
+
+.membership-cards-container::-webkit-scrollbar-thumb {
+    background: linear-gradient(90deg, #4B8137, #BFFE77);
+    border-radius: 10px;
+    border: 1px solid #153000;
+}
+
+.membership-cards-container::-webkit-scrollbar-thumb:hover {
+    background: linear-gradient(90deg, #BFFE77, #4B8137);
 }
 
 .membership-cards-container .membership-card {
-    flex: 0 0 300px;
+    flex: 0 0 320px;
     /* Fix width to match original max-width */
+    min-width: 320px;
+    /* Ensure minimum width */
+    max-width: 320px;
+    /* Prevent cards from getting too wide */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .membership-cards-container {
+        padding: 15px 5px;
+        gap: 15px;
+    }
+    
+    .membership-cards-container .membership-card {
+        flex: 0 0 300px;
+        min-width: 300px;
+        max-width: 300px;
+    }
+    
+    .membership-card__price {
+        font-size: 32px;
+    }
+    
+    .membership-card__duration {
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .membership-cards-container {
+        padding: 10px 5px;
+        gap: 10px;
+    }
+    
+    .membership-cards-container .membership-card {
+        flex: 0 0 280px;
+        min-width: 280px;
+        max-width: 280px;
+    }
+    
+    .membership-card__price {
+        font-size: 28px;
+    }
+    
+    .membership-card__duration {
+        font-size: 14px;
+    }
+    
+    .membership-card__description {
+        font-size: 12px;
+    }
 }
 
 /* Fix button arrow color on hover */

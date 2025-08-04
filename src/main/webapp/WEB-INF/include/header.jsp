@@ -39,20 +39,16 @@
                     <li class="nav-item"><a class="nav-link" href="#footer_gym">Contact</a></li>
                     <li class="nav-item"><a class="nav-link" href="<%= request.getContextPath()%>/blogPage">Blogs</a></li>
                     <li class="nav-item">
-                        <a class="nav-link position-relative" href="<%= request.getContextPath()%>/CartServlet?action=view">
-                            <i class="fa-solid fa-cart-shopping"></i>     
-                            <%
-
-                                Object cartCountObj = session.getAttribute("cartCount");
-                                int cartCount = cartCountObj != null ? (int) cartCountObj : 0;
-                            %>
-
-                            <% if (cartCount > 0) {%>
-                            <span class="cart-count-badge">
-                                <%= cartCount > 99 ? "99+" : cartCount%>
-                            </span>
-                            <% } %>                            
-                        </a>
+                        <a class="nav-link position-relative" href="#" onclick="viewCart(); return false;">
+    <i class="fa-solid fa-cart-shopping"></i>     
+    <%
+        Object cartCountObj = session.getAttribute("cartCount");
+        int cartCount = cartCountObj != null ? (int) cartCountObj : 0;
+    %>
+    <span class="cart-count-badge" style="<%= cartCount > 0 ? "display: inline-block;" : "display: none;" %>">
+        <%= cartCount > 99 ? "99+" : cartCount %>
+    </span>                            
+</a>
                     </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle d-flex align-items-center"
@@ -74,7 +70,6 @@
                             Account
                             <% } %>
                         </a>
-
                         <ul class="dropdown-menu dropdown-menu-end bg-transparent border-0 mt-3">
                             <% if (username != null) {%>
                             <li><a class="btn w-100 mb-2" href="${pageContext.request.contextPath}/profile">Profile</a></li>
@@ -84,7 +79,7 @@
                             </li>
                             <li><a class="btn w-100 mb-2" href="${pageContext.request.contextPath}/historyorder">History Order</a></li>
                             <li><a class="btn w-100" href="${pageContext.request.contextPath}/logout">Logout</a></li>
-                                <% } else { %>
+                            <% } else { %>
                             <li>
                                 <button type="button"
                                         class="btn w-100 mb-2"
@@ -109,3 +104,28 @@
         </div>
     </nav>
 </header>
+<script>
+    function viewCart() {
+        fetch("CartServlet?action=view", {
+            method: "GET",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "error") {
+                alert(data.message);  // Display error message if not logged in
+            } else {
+                window.location.href = "CartServlet?action=view";  // Redirect to cart if logged in
+            }
+        })
+        .catch(err => {
+            console.error("Error sending Ajax request:", err);
+            alert("An error occurred while accessing cart.");
+        });
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+        loadCartBadge();
+    });
+</script>

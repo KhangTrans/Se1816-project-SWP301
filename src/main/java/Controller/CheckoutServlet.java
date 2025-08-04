@@ -24,6 +24,8 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,16 +44,29 @@ public class CheckoutServlet extends HttpServlet {
             response.sendRedirect("Login.jsp");
             return;
         }
-
+        // Lấy các cartId đã chọn
+        String[] cartItemsToCheckout = request.getParameterValues("cartItemsToCheckout");
+        System.out.println("cart" + Arrays.toString(cartItemsToCheckout));
         // LẤY GIỎ HÀNG (như cũ)
         CartDao cartDao = new CartDao();
         List<CartItem> cartItems = null;
         try {
-            cartItems = cartDao.getCartItems(accountId);
+            if (cartItemsToCheckout != null && cartItemsToCheckout.length > 0) {
+                cartItems = new ArrayList<>();
+                for (String cartItemIdStr : cartItemsToCheckout) {
+                    int cartItemId = Integer.parseInt(cartItemIdStr);
+                    CartItem cartItem = cartDao.getCartItemById(cartItemId);  // Lấy CartItem theo cartItemId
+                    if (cartItem != null) {
+                        cartItems.add(cartItem);  // Thêm vào danh sách giỏ hàng
+                    }
+                }
+            } else {
+                // Nếu không có sản phẩm nào được chọn, lấy tất cả sản phẩm trong giỏ hàng
+                cartItems = cartDao.getCartItems(accountId);
+            }
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        request.setAttribute("cartItems", cartItems);
 
         double total = 0;
         if (cartItems != null) {
@@ -74,9 +89,12 @@ public class CheckoutServlet extends HttpServlet {
             ex.printStackTrace();
         }
         request.setAttribute("claimedVouchers", claimedVouchers);
-
+        request.setAttribute("cartItems", cartItems);
+        System.out.println("Cart item " + cartItems);
         // Forward sang trang checkout JSP
-        request.getRequestDispatcher("/WEB-INF/View/customers/checkout.jsp").forward(request, response);
+        RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/View/customers/checkout.jsp");
+        dispatcher.forward(request, response);
+
     }
 
 }

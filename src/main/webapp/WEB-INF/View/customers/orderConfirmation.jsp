@@ -368,27 +368,27 @@
                             </div>
                         </td>
                         <td><%= item.getQuantity() %></td>
-                        <td class="price-column"><%= item.getUnitPrice().stripTrailingZeros().toPlainString() %> VND</td>
-                        <td class="price-column"><%= itemTotal.stripTrailingZeros().toPlainString() %> VND</td>
+                        <td class="price-column"><%= String.format("%,.0f", item.getUnitPrice()) %>đ</td>
+                        <td class="price-column"><%= String.format("%,.0f", itemTotal) %>đ</td>
                     </tr>
                     <% } %>
                     
                     <tr class="subtotal-row">
                         <td colspan="3" class="price-column">Subtotal:</td>
-                        <td class="price-column"><%= orderSubtotal.stripTrailingZeros().toPlainString() %> VND</td>
+                        <td class="price-column"><%= String.format("%,.0f", orderSubtotal) %>đ</td>
                     </tr>
                     
                     <% if (discountAmount.compareTo(BigDecimal.ZERO) > 0) { %>
                     <tr class="discount-row">
                         <td colspan="3" class="price-column">Discount:</td>
-                        <td class="price-column">-<%= discountAmount.stripTrailingZeros().toPlainString() %> VND</td>
+                        <td class="price-column">-<%= String.format("%,.0f", discountAmount) %>đ</td>
                     </tr>
                     <% } %>
                     
                     <tr class="total-row">
                         <td colspan="3" class="price-column">Total:</td>
                         <td class="price-column">
-                            <%= (order.getTotalAmount() != null ? order.getTotalAmount() : orderSubtotal.subtract(discountAmount)).stripTrailingZeros().toPlainString() %> VND
+                            <%= String.format("%,.0f", (order.getTotalAmount() != null ? order.getTotalAmount() : orderSubtotal.subtract(discountAmount))) %>đ
                         </td>
                     </tr>
                 </tbody>

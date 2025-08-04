@@ -46,8 +46,8 @@
                         </button>
 
                         <ul class="user-dropdown" id="userDropdown">
-                            <li><a href="login.jsp">Đăng nhập</a></li>
-                            <li><a href="register.jsp">Đăng ký</a></li>
+                                            <li><a href="login.jsp">Login</a></li>
+                <li><a href="register.jsp">Register</a></li>
                         </ul>
                     </div>
 

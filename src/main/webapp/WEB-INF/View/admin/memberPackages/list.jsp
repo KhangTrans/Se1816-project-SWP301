@@ -18,8 +18,9 @@
             <label for="paymentStatus"></label>
             <select  style="padding: 8px; border: 1px solid #ccc; border-radius: 5px;" id="paymentStatus" name="paymentStatus" onchange="loadMemberPackage()">
                 <option value="">All</option>
-                <option value="paid">Paid</option>
-                <option value="unpaid">Unpaid</option>
+                <option value="paid">Paid</option>                
+
+                <option value="pending">Pending</option>
                 <option value="cancelled">Cancelled</option>
             </select>
         </div>
@@ -50,4 +51,3 @@
         </table>
     </div>
 </div>
-

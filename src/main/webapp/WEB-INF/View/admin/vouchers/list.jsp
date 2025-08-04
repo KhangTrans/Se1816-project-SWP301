@@ -10,7 +10,7 @@
 
 <%@include file="/WEB-INF/View/admin/vouchers/create.jsp" %>
 <%@include file="/WEB-INF/View/admin/vouchers/edit.jsp" %>
-<%@include file="/WEB-INF/View/admin/vouchers/delete.jsp" %>
+<%--<%@include file="/WEB-INF/View/admin/vouchers/delete.jsp" %>--%>
 <%@include file="/WEB-INF/View/admin/vouchers/viewDetail.jsp" %>
 
 <div class="table-container" id="vouchersTable">
@@ -46,7 +46,7 @@
                     <th style="width: 100px">Code</th>
                     <th style="width: 200px">Description</th>
                     <th style="width: 100px">Discount(%)</th>
-                    <th style="width: 100px">Active</th>
+                    <th style="width: 100px">Status</th>
                     <th style="width: 150px">Action</th>
                 </tr>
             </thead>

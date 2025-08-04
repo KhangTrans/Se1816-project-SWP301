@@ -80,12 +80,7 @@
                 Blogs
             </a>
         </li>
-        <li class="sidebar__nav-item">
-            <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('loginLogsTable')">
-                <i class="fas fa-history"></i>
-                Login Logs
-            </a>
-        </li>
+        
         <li class="sidebar__nav-item">
             <a class="sidebar__nav-link" href="#" onclick="AdminDashboard.showTable('ordersTable')">
                 <i class="fas fa-ticket-alt"></i>

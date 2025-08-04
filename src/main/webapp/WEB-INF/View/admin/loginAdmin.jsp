@@ -631,26 +631,26 @@
 
                 <form class="login__form" id="adminLoginForm" action="${pageContext.request.contextPath}/loginAdmin">
                     <div class="form-group">
-                        <label class="form-group__label" for="username">Tên Đăng Nhập</label>
+                        <label class="form-group__label" for="username">Username</label>
                         <input class="form-group__input"
                                type="text"
                                id="username"
                                name="username"
-                               required placeholder="Nhập tên đăng nhập">
+                               required placeholder="Enter username">
                     </div>
 
                     <div class="form-group">
-                        <label class="form-group__label" for="password">Mật Khẩu</label>
+                        <label class="form-group__label" for="password">Password</label>
                         <input class="form-group__input"
                                type="password"
                                id="password"
                                name="password"
-                               required placeholder="Nhập mật khẩu">
+                               required placeholder="Enter password">
                     </div>
 
                     <div id="loginMessage" class="error-message" style="display:none;"></div>
 
-                    <button class="login__submit" type="submit">Đăng Nhập</button>
+                    <button class="login__submit" type="submit">Login</button>
                 </form>
 
             </div>
@@ -668,18 +668,18 @@
             })
                     .then(response => {
                         if (!response.ok) {
-                            throw new Error("Lỗi server: " + response.status);
+                            throw new Error("Server error: " + response.status);
                         }
                         return response.text();
                     })
                     .then(text => {
                         if (!text)
-                            throw new Error("Không có phản hồi từ máy chủ.");
+                            throw new Error("No response from server.");
                         let json;
                         try {
                             json = JSON.parse(text);
                         } catch (e) {
-                            throw new Error("Phản hồi không hợp lệ: " + text);
+                            throw new Error("Invalid response: " + text);
                         }
 
                         const messageDiv = document.getElementById("loginMessage");

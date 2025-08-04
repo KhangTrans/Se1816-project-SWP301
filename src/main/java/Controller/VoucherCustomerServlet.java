@@ -64,7 +64,7 @@ public class VoucherCustomerServlet extends HttpServlet {
             System.out.println("VoucherCustomerServlet >> accountId from session: " + accountId);
 
             if (accountId == null) {
-                out.print("{\"status\":\"fail\", \"message\":\"Bạn cần đăng nhập để thu thập voucher.\"}");
+                out.print("{\"status\":\"fail\", \"message\":\"You need tp login to collect the vucher\"}");
                 return;
             }
 
@@ -72,13 +72,13 @@ public class VoucherCustomerServlet extends HttpServlet {
             boolean claimed = dao.claimVoucher(voucherId, accountId);
 
             if (claimed) {
-                out.print("{\"status\":\"success\", \"message\":\"Thu thập thành công!\"}");
+                out.print("{\"status\":\"success\", \"message\":\"Collection successfull!\"}");
             } else {
-                out.print("{\"status\":\"info\", \"message\":\"Bạn đã thu thập voucher này rồi.\"}");
+                out.print("{\"status\":\"info\", \"message\":\"You have collected this voucher\"}");
             }
 
         } catch (Exception e) {
-            out.print("{\"status\":\"error\", \"message\":\"Lỗi: " + e.getMessage().replace("\"", "\\\"") + "\"}");
+            out.print("{\"status\":\"error\", \"message\":\"Error: " + e.getMessage().replace("\"", "\\\"") + "\"}");
         }
     }
 

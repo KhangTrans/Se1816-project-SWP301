@@ -14,15 +14,15 @@
         margin: 20px auto 50px;
         padding: 0 20px;
     }
-
+    
     .booking-header {
         text-align: center;
         margin-bottom: 30px;
     }
-
+    
     .booking-title {
         color: #d9ff68;
-        font-size: 50px;
+        font-size: 60px;
         font-weight: bold;
         margin-top: 100px;
         margin-bottom: 20px;
@@ -33,7 +33,7 @@
         -webkit-text-fill-color: transparent;
         background-clip: text;
     }
-
+    
     .trainer-info-bar {
         display: flex;
         align-items: center;
@@ -44,7 +44,7 @@
         padding: 15px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     }
-
+    
     .trainer-avatar {
         width: 60px;
         height: 60px;
@@ -53,19 +53,19 @@
         margin-right: 15px;
         border: 2px solid #d9ff68;
     }
-
+    
     .trainer-avatar img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
-
+    
     .trainer-name {
         font-size: 20px;
         font-weight: bold;
         color: #fff;
     }
-
+    
     .date-picker-container {
         background: rgba(26, 42, 58, 0.8);
         border-radius: 10px;
@@ -73,7 +73,7 @@
         margin-bottom: 30px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     }
-
+    
     .date-picker {
         display: flex;
         align-items: center;
@@ -82,13 +82,13 @@
         gap: 15px;
         margin-bottom: 15px;
     }
-
+    
     .date-picker label {
         color: #d9ff68;
         font-weight: bold;
         font-size: 16px;
     }
-
+    
     .date-picker input[type="date"] {
         padding: 10px 15px;
         border-radius: 8px;
@@ -98,11 +98,11 @@
         color: #333;
         outline: none;
     }
-
+    
     .date-picker input[type="date"]:focus {
         box-shadow: 0 0 0 2px rgba(217, 255, 104, 0.5);
     }
-
+    
     .week-info {
         text-align: center;
         color: #fff;
@@ -113,7 +113,7 @@
         background: rgba(217, 255, 104, 0.2);
         margin-top: 10px;
     }
-
+    
     .schedule-table-container {
         overflow-x: auto;
         margin-bottom: 30px;
@@ -122,19 +122,19 @@
         padding: 20px;
         box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
     }
-
+    
     table {
         width: 100%;
         border-collapse: collapse;
         margin: 0 auto;
     }
-
+    
     table th, table td {
         text-align: center;
         padding: 12px;
         border: 1px solid rgba(217, 255, 104, 0.3);
     }
-
+    
     table th {
         background: rgba(26, 42, 58, 0.9);
         color: #d9ff68;
@@ -142,23 +142,23 @@
         text-transform: uppercase;
         font-size: 14px;
     }
-
+    
     table td {
         color: #fff;
         font-size: 14px;
         vertical-align: middle;
     }
-
+    
     table tr:first-child th {
         border-top: none;
     }
-
+    
     table tr td:first-child {
         background: rgba(26, 42, 58, 0.7);
         font-weight: bold;
         color: #d9ff68;
     }
-
+    
     .slot-checkbox {
         appearance: none;
         -webkit-appearance: none;
@@ -171,11 +171,11 @@
         background-color: transparent;
         position: relative;
     }
-
+    
     .slot-checkbox:checked {
         background-color: #d9ff68;
     }
-
+    
     .slot-checkbox:checked::before {
         content: "";
         font-size: 16px;
@@ -186,7 +186,7 @@
         transform: translate(-50%, -50%);
         font-weight: bold;
     }
-
+    
     .slot-booked {
         padding: 8px 12px;
         background-color: rgba(255, 107, 107, 0.3);
@@ -197,7 +197,7 @@
         width: 100px;
         cursor: not-allowed;
     }
-
+    
     .cancel-btn {
         padding: 5px 10px;
         background-color: rgba(255, 107, 107, 0.8);
@@ -209,16 +209,16 @@
         font-size: 12px;
         transition: all 0.3s ease;
     }
-
+    
     .cancel-btn:hover {
         background-color: rgba(255, 71, 87, 0.9);
     }
-
+    
     .cancel-btn:disabled {
         background-color: #777;
         cursor: not-allowed;
     }
-
+    
     .submit-btn {
         background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
         color: #111;
@@ -234,76 +234,261 @@
         letter-spacing: 1px;
         transition: all 0.3s ease;
     }
-
+    
     .submit-btn:hover {
         transform: translateY(-3px);
         box-shadow: 0 10px 20px rgba(217, 255, 104, 0.3);
         background: linear-gradient(135deg, #d9ff68 0%, #c4ff00 100%);
     }
-
+    
     /* Modal styles */
     #confirmationModal {
         position: fixed;
         top: 0;
         left: 0;
-        width: 100%;
-        height: 100%;
+        width: 100vw;
+        height: 100vh;
         background-color: rgba(0, 0, 0, 0.7);
         display: flex;
         justify-content: center;
-        align-items: center;
-        z-index: 1000;
+        align-items: flex-start;
+        padding-top: 200px;
+        z-index: 10000;
     }
-
+    
     .modal-content {
         background: linear-gradient(to bottom, #1a2a3a, #0d1b29);
         border-radius: 15px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-        padding: 30px;
         width: 90%;
         max-width: 500px;
+        max-height: 70vh;
+        display: flex;
+        flex-direction: column;
         text-align: center;
         position: relative;
         color: #fff;
+        margin: 0 auto;
+        left: 0;
+        right: 0;
+        overflow: hidden;
+        border: 1px solid rgba(217, 255, 104, 0.3);
     }
-
-    #modal-title {
-        color: #d9ff68;
-        margin-bottom: 20px;
-        font-size: 24px;
+    
+    .modal-header {
+        padding: 20px 30px;
+        border-bottom: 1px solid rgba(217, 255, 104, 0.2);
+        position: sticky;
+        top: 0;
+        background: linear-gradient(to right, #1a2a3a, #162533);
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
-
-    #modal-details {
-        margin-bottom: 30px;
-        line-height: 1.8;
+    
+    .modal-body {
+        flex: 1;
+        overflow-y: auto;
+        padding: 25px 50px;
+        max-height: calc(70vh - 140px);
         text-align: left;
     }
-
+    
+    .modal-footer {
+        padding: 20px 30px;
+        border-top: 1px solid rgba(217, 255, 104, 0.2);
+        position: sticky;
+        bottom: 0;
+        background: linear-gradient(to right, #162533, #1a2a3a);
+        z-index: 1;
+    }
+    
+    #modal-title {
+        color: #d9ff68;
+        margin: 0;
+        font-size: 24px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+    }
+    
+    #modal-details {
+        margin-bottom: 20px;
+        line-height: 1.8;
+        color: #fff;
+    }
+    
+    .booking-item {
+        background: rgba(30, 40, 50, 0.5);
+        border-radius: 8px;
+        padding: 20px 30px;
+        margin-bottom: 20px;
+        margin-left: 10px;
+        margin-right: 10px;
+        border-left: 3px solid #d9ff68;
+    }
+    
+    .booking-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .booking-row {
+        display: flex;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-left: 8px;
+    }
+    
+    .booking-row:last-child {
+        margin-bottom: 0;
+    }
+    
+    .booking-label {
+        width: 85px;
+        color: #d9ff68;
+        font-weight: 600;
+        padding-right: 10px;
+    }
+    
+    .booking-value {
+        flex: 1;
+        color: #fff;
+    }
+    
+    .total-price {
+        margin-top: 25px;
+        background: rgba(217, 255, 104, 0.1);
+        padding: 18px 30px;
+        border-radius: 8px;
+        text-align: right;
+        font-weight: bold;
+        color: #d9ff68;
+        font-size: 18px;
+        margin-left: 10px;
+        margin-right: 10px;
+    }
+    
+    .trainer-info {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 10px;
+        margin-bottom: 20px;
+        border-radius: 10px;
+    }
+    
+    #confirmBtn, #cancelBtn {
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        color: #111;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    #confirmBtn {
+        background: linear-gradient(135deg, #d9ff68 0%, #a9db00 100%);
+    }
+    
+    #confirmBtn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(217, 255, 104, 0.3);
+    }
+    
     #cancelBtn {
         background: linear-gradient(135deg, #ff6b6b 0%, #ff4757 100%);
         margin-left: 15px;
     }
-
+    
     #cancelBtn:hover {
         background: linear-gradient(135deg, #ff4757 0%, #ff3545 100%);
         box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+        transform: translateY(-3px);
     }
-
+    
+    /* Notification modal styles */
+    #notificationModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100vw;
+        height: 100vh;
+        background-color: rgba(0, 0, 0, 0.7);
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 200px;
+        z-index: 10000;
+    }
+    
+    #modal-message {
+        margin: 20px 0;
+        font-size: 18px;
+    }
+    
+    #closeBtn {
+        background: linear-gradient(135deg, #d9ff68 0%, #a9db00 100%);
+        color: #111;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+    
+    #closeBtn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(217, 255, 104, 0.3);
+    }
+    
     /* Responsive adjustments */
     @media (max-width: 768px) {
         .booking-title {
             font-size: 28px;
         }
-
+        
         table th, table td {
             padding: 8px 5px;
             font-size: 12px;
         }
-
+        
         .submit-btn {
             padding: 12px 25px;
             font-size: 16px;
         }
+    }
+
+    /* Additional notification styles */
+    .notification-icon {
+        text-align: center;
+        margin: 20px 0;
+    }
+    
+    .notification-icon i {
+        font-size: 60px;
+        color: #d9ff68;
+        animation: pulse 2s infinite;
+    }
+    
+/*    @keyframes pulse {
+        0% {
+            transform: scale(1);
+            opacity: 1;
+        }
+        50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }*/
+    
+    #notificationModal .modal-content {
+        max-width: 400px;
     }
 </style>
 
@@ -320,7 +505,7 @@
             <div class="trainer-name"><%= trainer.getFullName()%></div>
         </div>
     </div>
-
+    
     <div class="date-picker-container">
         <div class="date-picker">
             <label for="start-date"><i class="far fa-calendar-alt"></i> Select Start Date:</label>
@@ -360,30 +545,49 @@
 <!-- Confirmation Modal -->
 <div id="confirmationModal" style="display: none;">
     <div class="modal-content">
-        <h2 id="modal-title">Confirm Booking / Cancellation</h2>
-        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 20px;">
-            <div class="trainer-avatar">
-                <img src="<%= request.getContextPath() + "/AvatarServlet?user=" + trainer.getAccountId().getUsername()%>" alt="<%= trainer.getFullName()%>" />
-            </div>
-            <h3><%= trainer.getFullName()%></h3>
+        <div class="modal-header">
+            <h2 id="modal-title">Confirm Booking</h2>
         </div>
-        <p id="modal-details"></p>
-        <button id="confirmBtn" class="submit-btn" onclick="confirmAction()">Confirm</button>
-        <button id="cancelBtn" class="submit-btn" onclick="closeModal()">Cancel</button>
+        <div class="modal-body">
+            <div class="trainer-info">
+                <div class="trainer-avatar" style="margin-right: 15px;">
+                    <img src="<%= request.getContextPath() + "/AvatarServlet?user=" + trainer.getAccountId().getUsername()%>" alt="<%= trainer.getFullName()%>" />
+                </div>
+                <h3 style="margin: 0; color: #fff;"><%= trainer.getFullName()%></h3>
+            </div>
+            <p id="modal-details"></p>
+        </div>
+        <div class="modal-footer">
+            <div style="display: flex; justify-content: center; gap: 15px; width: 100%;">
+                <button id="confirmBtn" style="flex: 1; max-width: 150px; margin: 0;" onclick="confirmAction()">Confirm</button>
+                <button id="cancelBtn" style="flex: 1; max-width: 150px; margin: 0;" onclick="closeModal()">Cancel</button>
+            </div>
+        </div>
     </div>
 </div>
 
-<!-- Modal th?ng b?o -->
-<div id="notificationModal" class="modal" style="display: none;">
+<!-- Notification Modal -->
+<div id="notificationModal" style="display: none;">
     <div class="modal-content">
-        <h2 id="modal-title">Notification</h2>
-        <p id="modal-message" style="color:#d9ff68"></p>
-        <button id="closeBtn" class="submit-btn" onclick="closeModalMesage()">Close</button>
+        <div class="modal-header">
+            <h2 style="color: #d9ff68;">Notification</h2>
+        </div>
+        <div class="modal-body">
+            <div class="notification-icon">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <p id="modal-message" style="color:#d9ff68; text-align: center; font-size: 20px; margin: 20px 0;"></p>
+        </div>
+        <div class="modal-footer">
+            <div style="display: flex; justify-content: center; width: 100%;">
+                <button id="closeBtn" style="flex: 1; max-width: 150px; margin: 0;" onclick="closeModalMesage()">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // Ki?m tra xem c? th?ng b?o t? Servlet kh?ng
+    // Check for notification messages from the Servlet
     <% String notificationMessage = (String) session.getAttribute("notificationMessage");
     if (notificationMessage != null) {
         session.removeAttribute("notificationMessage");
@@ -393,7 +597,7 @@
         document.getElementById('notificationModal').style.display = "block";
     }
 
-    // ??ng modal
+    // Close notification modal
     function closeModalMesage() {
         document.getElementById('notificationModal').style.display = "none";
     }
@@ -475,24 +679,25 @@
                 });
 
                 var isSlotAvailable = availability ? availability.isAvailable : true;
-
+                
                 if (!isBooked && !isPastTime) {
-                    if (isSlotAvailable) {
+                    if(isSlotAvailable){
                         row += '<td>' +
-                                '<input type="checkbox" name="selectedSlots" class="slot-checkbox" ' +
-                                'value="' + schedules[i].scheduleId + '_' + formattedDate + '" ' +
-                                'data-schedule-id="' + schedules[i].scheduleId + '" ' +
-                                'data-date="' + formattedDate + '" onclick="addHiddenInput(this)">' +
-                                '</td>';
-                    } else {
+                            '<input type="checkbox" name="selectedSlots" class="slot-checkbox" ' +
+                            'value="' + schedules[i].scheduleId + '_' + formattedDate + '" ' +
+                            'data-schedule-id="' + schedules[i].scheduleId + '" ' +
+                            'data-date="' + formattedDate + '" onclick="addHiddenInput(this)">' +
+                            '</td>';
+                    }else{
                         row += '<td></td>';
                     }
-
+                    
                 } else {
                     row += '<td>';
                     if (isPastTime) {
                         row += '<button class="slot-booked" disabled>Time passed</button>';
                     } else {
+
                         // Display "Cancel" button if cancellation time is still valid
                         for (var k = 0; k < booking.length; k++) {
                             var bookingDate = booking[k].bookingDate;
@@ -607,14 +812,18 @@
             var timeSlot = getTimeSlotByScheduleId(scheduleId);
             var price = <%= trainer.getPrice()%>;  // Trainer price from request
             totalPrice += price;
-            details += 'Date: ' + date + '<br>';
-            details += 'Time: ' + timeSlot + '<br>';
-            details += 'Price: ' + price.toLocaleString() + ' VND' + '<br><br>';
+            
+            details += '<div class="booking-item">';
+            details += '<div class="booking-row"><span class="booking-label">Date:</span><span class="booking-value">' + date + '</span></div>';
+            details += '<div class="booking-row"><span class="booking-label">Time:</span><span class="booking-value">' + timeSlot + '</span></div>';
+            details += '<div class="booking-row"><span class="booking-label">Price:</span><span class="booking-value">' + price.toLocaleString() + ' VND</span></div>';
+            details += '</div>';
         });
-        details += 'Total price: ' + totalPrice.toLocaleString() + ' VND';
+        
+        details += '<div class="total-price">Total price: ' + totalPrice.toLocaleString() + ' VND</div>';
         document.getElementById('modal-title').innerHTML = actionType === 'book' ? 'Confirm Booking' : 'Confirm Cancellation';
         modalDetails.innerHTML = details;
-        document.getElementById('confirmationModal').style.display = 'block';
+        document.getElementById('confirmationModal').style.display = 'flex';
     }
 
     function confirmCancel(button, date) {
@@ -629,9 +838,13 @@
         var modalDetails = document.getElementById('modal-details');
 
         // Update information in modal
-        var details = 'Date: ' + date + '<br>';
-        details += 'Time: ' + timeSlot + '<br>';
+        var details = '<div class="booking-item">';
+        details += '<div class="booking-row"><span class="booking-label">Date:</span><span class="booking-value">' + date + '</span></div>';
+        details += '<div class="booking-row"><span class="booking-label">Time:</span><span class="booking-value">' + timeSlot + '</span></div>';
+        details += '</div>';
+        
         modalDetails.innerHTML = details;
+        
         // Add hidden input for bookingId to form
         var container = document.getElementById('selectedSlotsContainer');
         var hiddenBookingId = document.createElement("input");
@@ -650,7 +863,13 @@
         document.getElementById('modal-title').innerHTML = 'Confirm Cancellation';
 
         // Display cancellation modal
-        document.getElementById('confirmationModal').style.display = 'block';
+        document.getElementById('confirmationModal').style.display = 'flex';
+    }
+
+    function cancelBooking() {
+        // Perform cancellation here (call to backend to cancel)
+        alert("Your session has been cancelled!");
+        closeModal();
     }
 
     function closeModal() {

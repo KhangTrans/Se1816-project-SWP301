@@ -153,13 +153,13 @@
 
         // Chuyển đổi giữa việc hiển thị và ẩn nội dung đầy đủ
         if (fullContent.style.display === "none") {
-            fullContent.style.display = "block";   // Hiển thị nội dung đầy đủ
-            shortContent.style.display = "none";   // Ẩn nội dung rút gọn
-            readMoreLink.innerText = "Ẩn bớt";     // Thay đổi văn bản thành "Ẩn bớt"
+            fullContent.style.display = "block";   // Show full content
+            shortContent.style.display = "none";   // Hide shortened content
+            readMoreLink.innerText = "Show Less";     // Change text to "Show Less"
         } else {
-            fullContent.style.display = "none";    // Ẩn nội dung đầy đủ
-            shortContent.style.display = "block";  // Hiển thị nội dung rút gọn
-            readMoreLink.innerText = "Xem Thêm";   // Thay đổi văn bản trở lại "Xem Thêm"
+            fullContent.style.display = "none";    // Hide full content
+            shortContent.style.display = "block";  // Show shortened content
+            readMoreLink.innerText = "Read More";   // Change text back to "Read More"
         }
     }
     // Mở modal và hiển thị hình ảnh lớn

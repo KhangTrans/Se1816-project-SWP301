@@ -22,83 +22,94 @@ import org.json.JSONObject;
  *
  * @author Khaang
  */
-@WebServlet(name="HistoryOrderServlet", urlPatterns={"/historyorder", "/historyorder/details", "/historyorder/update", "/historyorder/delete"})
+@WebServlet(name = "HistoryOrderServlet", urlPatterns = { "/historyorder", "/historyorder/details",
+        "/historyorder/update", "/historyorder/delete", "/historyorder/groupdetails" })
 public class HistoryOrderServlet extends HttpServlet {
-   
+
     private HistoryOrderDao historyOrderDao;
-  
+
     @Override
     public void init() {
         historyOrderDao = new HistoryOrderDao();
     }
-  
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /** 
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
+    // + sign on the left to edit the code.">
+    /**
      * Handles the HTTP <code>GET</code> method.
-     * @param request servlet request
+     * 
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         HttpSession session = request.getSession();
         Integer accountId = (Integer) session.getAttribute("accountId");
         if (accountId == null) {
             response.sendRedirect(request.getContextPath() + "/login"); // Redirect to login page if no session
             return;
         }
-        
+
         String path = request.getServletPath();
-        
+
         // Handle different URL patterns
         if (path.equals("/historyorder/details")) {
             getOrderDetails(request, response, accountId);
+        } else if (path.equals("/historyorder/groupdetails")) {
+            getGroupedOrderDetails(request, response, accountId);
         } else {
             // Default path - show order history
             showOrderHistory(request, response, accountId);
         }
     }
-    
+
     /**
-     * Shows the order history page
+     * Shows the order history page with grouped orders
      */
     private void showOrderHistory(HttpServletRequest request, HttpServletResponse response, int accountId)
-    throws ServletException, IOException {
-        // Get order history for the logged-in account
-        List<Map<String, Object>> orderHistory = historyOrderDao.getOrderHistory(accountId);
-        
+            throws ServletException, IOException {
+        // Get grouped order history for the logged-in account
+        List<Map<String, Object>> orderHistory = historyOrderDao.getGroupedOrderHistory(accountId);
+
         // Format the price for each order for display
         for (Map<String, Object> order : orderHistory) {
-            // Get the order ID
-            int orderId = (int) order.get("orderId");
+            // Get the total amount from the order
+            java.math.BigDecimal totalAmount = (java.math.BigDecimal) order.get("totalAmount");
+            if (totalAmount != null) {
+                // Format price with comma as thousand separator (e.g., 2,400,000 đ)
+                order.put("formattedPrice", String.format("%,.0f", totalAmount) + " đ");
+            }
             
-            // Get the total price directly from the database using the dedicated method
-            double totalPrice = historyOrderDao.getOrderTotalPrice(orderId);
-            
-            // Store as a String to avoid JSP conversion issues
-            order.put("formattedPrice", String.format("$%.2f", totalPrice));
+            // Add item count information for display
+            Integer itemCount = (Integer) order.get("itemCount");
+            if (itemCount != null && itemCount > 1) {
+                order.put("hasMultipleItems", true);
+                order.put("additionalItemsText", "+" + (itemCount - 1) + " more item" + (itemCount > 2 ? "s" : ""));
+            } else {
+                order.put("hasMultipleItems", false);
+            }
         }
-        
+
         // Pass the order history to the JSP
         request.setAttribute("orderHistory", orderHistory);
-        
+
         // Forward to the history order JSP page
         request.getRequestDispatcher("/WEB-INF/View/customers/HistoryOrder.jsp").forward(request, response);
-    } 
-    
+    }
+
     /**
      * Gets details for a specific order and returns as JSON
      */
     private void getOrderDetails(HttpServletRequest request, HttpServletResponse response, int accountId)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         JSONObject result = new JSONObject();
-        
+
         try {
             String orderId = request.getParameter("id");
             if (orderId == null || orderId.isEmpty()) {
@@ -107,15 +118,15 @@ public class HistoryOrderServlet extends HttpServlet {
                 out.print(result.toString());
                 return;
             }
-            
+
             Map<String, Object> orderDetails = historyOrderDao.getOrderDetails(Integer.parseInt(orderId), accountId);
-            
+
             if (orderDetails != null && !orderDetails.isEmpty()) {
                 // Simplify price handling - ensure we have both unitPrice and price fields
                 if (orderDetails.containsKey("unitPrice")) {
                     double unitPrice = 0;
                     Object priceObj = orderDetails.get("unitPrice");
-                    
+
                     if (priceObj instanceof Double) {
                         unitPrice = (Double) priceObj;
                     } else if (priceObj instanceof Integer) {
@@ -128,21 +139,21 @@ public class HistoryOrderServlet extends HttpServlet {
                             unitPrice = 0;
                         }
                     }
-                    
+
                     // Make sure both price fields are available
                     orderDetails.put("unitPrice", unitPrice);
                     orderDetails.put("price", unitPrice);
-                    
+
                     // Add formatted price values
-                    orderDetails.put("formattedUnitPrice", String.format("$%.2f", unitPrice));
-                    orderDetails.put("formattedPrice", String.format("$%.2f", unitPrice));
+                    orderDetails.put("formattedUnitPrice", String.format("%,.0f", unitPrice) + " đ");
+                    orderDetails.put("formattedPrice", String.format("%,.0f", unitPrice) + " đ");
                 }
-                
+
                 // Format total price if available
                 if (orderDetails.containsKey("totalPrice")) {
                     double totalPrice = 0;
                     Object priceObj = orderDetails.get("totalPrice");
-                    
+
                     if (priceObj instanceof Double) {
                         totalPrice = (Double) priceObj;
                     } else if (priceObj instanceof Integer) {
@@ -154,21 +165,21 @@ public class HistoryOrderServlet extends HttpServlet {
                             // Handle parsing error
                         }
                     }
-                    
-                    orderDetails.put("formattedTotalPrice", String.format("$%.2f", totalPrice));
+
+                    orderDetails.put("formattedTotalPrice", String.format("%,.0f", totalPrice) + " đ");
                     orderDetails.put("totalPrice", totalPrice); // Ensure it's stored as a double
                 }
-                
+
                 // Add a debug log to see what we're sending to the client
                 System.out.println("Order details being sent to client: " + new JSONObject(orderDetails).toString());
-                
+
                 result.put("success", true);
                 result.put("order", new JSONObject(orderDetails));
             } else {
                 result.put("success", false);
                 result.put("message", "Order not found or you don't have permission to view it");
             }
-            
+
         } catch (NumberFormatException e) {
             result.put("success", false);
             result.put("message", "Invalid order ID format");
@@ -176,20 +187,120 @@ public class HistoryOrderServlet extends HttpServlet {
             result.put("success", false);
             result.put("message", "Error retrieving order details: " + e.getMessage());
         }
-        
-        out.print(result.toString());
-    } 
 
-    /** 
+        out.print(result.toString());
+    }
+
+    /**
+     * Gets details for all items in a grouped order and returns as JSON
+     */
+    private void getGroupedOrderDetails(HttpServletRequest request, HttpServletResponse response, int accountId)
+            throws ServletException, IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        JSONObject result = new JSONObject();
+
+        try {
+            String referralCode = request.getParameter("code");
+            if (referralCode == null || referralCode.isEmpty()) {
+                result.put("success", false);
+                result.put("message", "Referral code is required");
+                out.print(result.toString());
+                return;
+            }
+
+            List<Map<String, Object>> orderItems = historyOrderDao.getGroupedOrderDetails(referralCode, accountId);
+
+            if (orderItems != null && !orderItems.isEmpty()) {
+                // Process each order item for proper formatting
+                for (Map<String, Object> item : orderItems) {
+                    // Format prices
+                    if (item.containsKey("unitPrice")) {
+                        double unitPrice = 0;
+                        Object priceObj = item.get("unitPrice");
+
+                        if (priceObj instanceof Double) {
+                            unitPrice = (Double) priceObj;
+                        } else if (priceObj instanceof Integer) {
+                            unitPrice = ((Integer) priceObj).doubleValue();
+                        } else if (priceObj instanceof String) {
+                            try {
+                                unitPrice = Double.parseDouble((String) priceObj);
+                            } catch (NumberFormatException e) {
+                                unitPrice = 0;
+                            }
+                        }
+
+                        item.put("unitPrice", unitPrice);
+                        item.put("formattedUnitPrice", String.format("%,.0f", unitPrice) + " đ");
+                    }
+
+                    // Format subtotal
+                    if (item.containsKey("subtotal")) {
+                        double subtotal = 0;
+                        Object subtotalObj = item.get("subtotal");
+
+                        if (subtotalObj instanceof Double) {
+                            subtotal = (Double) subtotalObj;
+                        } else if (subtotalObj instanceof Integer) {
+                            subtotal = ((Integer) subtotalObj).doubleValue();
+                        }
+
+                        item.put("formattedSubtotal", String.format("%,.0f", subtotal) + " đ");
+                    }
+
+                    // Format total amount
+                    if (item.containsKey("totalAmount")) {
+                        java.math.BigDecimal totalAmount = (java.math.BigDecimal) item.get("totalAmount");
+                        if (totalAmount != null) {
+                            item.put("formattedTotalAmount", String.format("%,.0f", totalAmount) + " đ");
+                        }
+                    }
+                }
+
+                result.put("success", true);
+                result.put("orderItems", orderItems);
+                result.put("itemCount", orderItems.size());
+                
+                // Add order summary information from the first item
+                if (!orderItems.isEmpty()) {
+                    Map<String, Object> firstItem = orderItems.get(0);
+                    result.put("orderSummary", new JSONObject()
+                        .put("referralCode", firstItem.get("referralCode"))
+                        .put("orderDate", firstItem.get("orderDate"))
+                        .put("customerName", firstItem.get("customerName"))
+                        .put("customerPhone", firstItem.get("customerPhone"))
+                        .put("shippingAddress", firstItem.get("shippingAddress"))
+                        .put("status", firstItem.get("status"))
+                        .put("totalAmount", firstItem.get("totalAmount"))
+                        .put("formattedTotalAmount", firstItem.get("formattedTotalAmount"))
+                    );
+                }
+            } else {
+                result.put("success", false);
+                result.put("message", "Order not found or you don't have permission to view it");
+            }
+
+        } catch (Exception e) {
+            result.put("success", false);
+            result.put("message", "Error retrieving grouped order details: " + e.getMessage());
+        }
+
+        out.print(result.toString());
+    }
+
+    /**
      * Handles the HTTP <code>POST</code> method.
-     * @param request servlet request
+     * 
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         HttpSession session = request.getSession();
         Integer accountId = (Integer) session.getAttribute("accountId");
         if (accountId == null) {
@@ -202,9 +313,9 @@ public class HistoryOrderServlet extends HttpServlet {
             out.print(result.toString());
             return;
         }
-        
+
         String path = request.getServletPath();
-        
+
         if (path.equals("/historyorder/update")) {
             updateOrder(request, response, accountId);
         } else if (path.equals("/historyorder/delete")) {
@@ -213,65 +324,64 @@ public class HistoryOrderServlet extends HttpServlet {
             doGet(request, response);
         }
     }
-    
+
     /**
      * Updates an order
      */
     private void updateOrder(HttpServletRequest request, HttpServletResponse response, int accountId)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         JSONObject result = new JSONObject();
-        
+
         try {
             // Get parameters from request
             String orderId = request.getParameter("orderId");
             String customerName = request.getParameter("customerName");
             String customerPhone = request.getParameter("customerPhone");
             String shippingAddress = request.getParameter("shippingAddress");
-            
+
             // Validate required fields
             if (orderId == null || orderId.isEmpty() ||
-                customerName == null || customerName.isEmpty() ||
-                customerPhone == null || customerPhone.isEmpty() ||
-                shippingAddress == null || shippingAddress.isEmpty()) {
-                
+                    customerName == null || customerName.isEmpty() ||
+                    customerPhone == null || customerPhone.isEmpty() ||
+                    shippingAddress == null || shippingAddress.isEmpty()) {
+
                 result.put("success", false);
                 result.put("message", "All fields are required");
                 out.print(result.toString());
                 return;
             }
-            
+
             // Kiểm tra trạng thái đơn hàng trước khi cập nhật
             int orderIdInt = Integer.parseInt(orderId);
             Map<String, Object> orderDetails = historyOrderDao.getOrderDetails(orderIdInt, accountId);
-            
+
             if (orderDetails != null) {
                 String status = (String) orderDetails.get("status");
                 if ("cancelled".equalsIgnoreCase(status)) {
                     result.put("success", false);
-                    result.put("message", "Không thể chỉnh sửa đơn hàng đã hủy");
+                    result.put("message", "Cannot edit canceled order");
                     out.print(result.toString());
                     return;
                 }
                 if ("shipped".equalsIgnoreCase(status)) {
                     result.put("success", false);
-                    result.put("message", "Không thể chỉnh sửa đơn hàng đã giao");
+                    result.put("message", "Cannot edit delivered order");
                     out.print(result.toString());
                     return;
                 }
             }
-            
+
             // Update the order
             boolean updated = historyOrderDao.updateOrder(
-                orderIdInt,
-                accountId,
-                customerName,
-                customerPhone,
-                shippingAddress
-            );
-            
+                    orderIdInt,
+                    accountId,
+                    customerName,
+                    customerPhone,
+                    shippingAddress);
+
             if (updated) {
                 result.put("success", true);
                 result.put("message", "Order updated successfully");
@@ -279,7 +389,7 @@ public class HistoryOrderServlet extends HttpServlet {
                 result.put("success", false);
                 result.put("message", "Failed to update order or you don't have permission");
             }
-            
+
         } catch (NumberFormatException e) {
             result.put("success", false);
             result.put("message", "Invalid order ID format");
@@ -287,20 +397,20 @@ public class HistoryOrderServlet extends HttpServlet {
             result.put("success", false);
             result.put("message", "Error updating order: " + e.getMessage());
         }
-        
+
         out.print(result.toString());
     }
-    
+
     /**
      * Deletes an order
      */
     private void deleteOrder(HttpServletRequest request, HttpServletResponse response, int accountId)
-    throws ServletException, IOException {
+            throws ServletException, IOException {
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         PrintWriter out = response.getWriter();
         JSONObject result = new JSONObject();
-        
+
         try {
             String orderId = request.getParameter("id");
             if (orderId == null || orderId.isEmpty()) {
@@ -309,37 +419,37 @@ public class HistoryOrderServlet extends HttpServlet {
                 out.print(result.toString());
                 return;
             }
-            
+
             // Kiểm tra trạng thái đơn hàng trước khi hủy
             int orderIdInt = Integer.parseInt(orderId);
             Map<String, Object> orderDetails = historyOrderDao.getOrderDetails(orderIdInt, accountId);
-            
+
             if (orderDetails != null) {
                 String status = (String) orderDetails.get("status");
                 if ("cancelled".equalsIgnoreCase(status)) {
                     result.put("success", false);
-                    result.put("message", "Đơn hàng đã bị hủy trước đó");
+                    result.put("message", "Order was already canceled");
                     out.print(result.toString());
                     return;
                 }
                 if ("shipped".equalsIgnoreCase(status)) {
                     result.put("success", false);
-                    result.put("message", "Không thể hủy đơn hàng đã giao");
+                    result.put("message", "Cannot cancel delivered order");
                     out.print(result.toString());
                     return;
                 }
             }
-            
+
             boolean deleted = historyOrderDao.deleteOrder(orderIdInt, accountId);
-            
+
             if (deleted) {
                 result.put("success", true);
-                result.put("message", "Order deleted successfully");
+                                    result.put("message", "Order canceled successfully and product quantities have been returned to stock");
             } else {
                 result.put("success", false);
-                result.put("message", "Failed to delete order or you don't have permission");
+                result.put("message", "Cannot cancel order or you do not have permission");
             }
-            
+
         } catch (NumberFormatException e) {
             result.put("success", false);
             result.put("message", "Invalid order ID format");
@@ -347,12 +457,13 @@ public class HistoryOrderServlet extends HttpServlet {
             result.put("success", false);
             result.put("message", "Error deleting order: " + e.getMessage());
         }
-        
+
         out.print(result.toString());
     }
 
-    /** 
+    /**
      * Returns a short description of the servlet.
+     * 
      * @return a String containing servlet description
      */
     @Override

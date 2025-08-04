@@ -71,7 +71,7 @@ public class RegisterServlet extends HttpServlet {
                 boolean success = dao.registerCustomerBinary(username, password, avatarStream, username, email, phone);
                 if (success) {
                     json.put("status", "success");
-                    json.put("message", "Đăng ký thành công!");
+                    json.put("message", "Registration successful!");
                 } else {
                     json.put("status", "error");
                     json.put("message", "Registration failed, try again.");

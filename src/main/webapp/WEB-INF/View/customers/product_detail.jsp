@@ -636,6 +636,7 @@
         font-size: 18px;
         cursor: pointer;
         transition: color 0.2s ease;
+        display: none; /* Hide the close button */
     }
     
     .close-btn:hover {
@@ -782,7 +783,7 @@
                         <% } %>
                     </div>
                     <div class="review-content">
-                        <p><%= review.getComment() %></p>
+                        <p style="color:white"><%= review.getComment() %></p>
                     </div>
                 </div>
                 <% } %>
@@ -895,7 +896,6 @@
 <!-- Alert Box -->
 <div id="alertBox" class="alert-box">
     <span id="alertMessage"></span>
-    <button onclick="closeAlert()" class="close-btn"><i class="fas fa-times"></i></button>
 </div>
 
 <script>
@@ -961,7 +961,7 @@
         // Auto hide after 3 seconds
         setTimeout(function() {
             closeAlert();
-        }, 3000);
+        }, 1000);
     }
 
     function closeAlert() {

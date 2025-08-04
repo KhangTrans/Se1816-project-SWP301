@@ -78,7 +78,7 @@ public class TrainerServlet extends HttpServlet {
 
             } else if ("getById".equalsIgnoreCase(action)) {
                 int trainerId = Integer.parseInt(request.getParameter("trainerId"));
-                Trainers trainer = trainerDao.getTrainerById(trainerId);
+                Trainers trainer = trainerDao.getTrainerDetails(trainerId);
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
                 Gson gson = new Gson();
@@ -132,28 +132,28 @@ public class TrainerServlet extends HttpServlet {
 
                 // Server-side validation
                 if (!fullname.matches("^[a-zA-ZÀ-ỹ\\s]+$")) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Họ tên không được chứa số hoặc ký tự đặc biệt.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Full name cannot contain numbers or special characters.\"}");
                     return;
                 }
 
                 if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email không hợp lệ.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Invalid email.\"}");
                     return;
                 }
 
                 if (!phone.matches("^(0|\\+84)[1-9]\\d{8,9}$")) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Số điện thoại phải là định dạng Việt Nam.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number must be in Vietnamese format.\"}");
                     return;
                 }
 
                 // Kiểm tra tồn tại
                 if (trainerDao.isEmailExists(email)) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email đã được sử dụng.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email is already in use.\"}");
                     return;
                 }
 
                 if (trainerDao.isPhoneExists(phone)) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Số điện thoại đã được sử dụng.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number already in use.\"}");
                     return;
                 }
 
@@ -213,32 +213,32 @@ public class TrainerServlet extends HttpServlet {
 
                 // Server-side validation tương tự create
                 if (!fullname.matches("^[a-zA-ZÀ-ỹ\\s]+$")) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Họ tên không được chứa số hoặc ký tự đặc biệt.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Full name cannot contain numbers or special characters.\"}");
                     return;
                 }
 
                 if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email không hợp lệ.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Invalid email.\"}");
                     return;
                 }
 
                 if (!phone.matches("^(0|\\+84)[1-9]\\d{8,9}$")) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Số điện thoại phải là định dạng Việt Nam.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number must be in Vietnamese format.\"}");
                     return;
                 }
 
                 // Kiểm tra tồn tại, loại trừ trainer hiện tại
                 if (trainerDao.isEmailExistsExceptTrainer(email, trainerId)) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email đã được sử dụng bởi trainer khác.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Email is already in use by another trainer.\"}");
                     return;
                 }
 
                 if (trainerDao.isPhoneExistsExceptTrainer(phone, trainerId)) {
-                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Số điện thoại đã được sử dụng bởi trainer khác.\"}");
+                    response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number is already in use by another trainer.\"}");
                     return;
                 }
 
-                Trainers trainer = trainerDao.getTrainerById(trainerId);
+                Trainers trainer = trainerDao.getTrainerDetails(trainerId);
                 if (trainer == null) {
                     response.getWriter().write("{\"status\":\"error\", \"message\":\"Trainer not found.\"}");
                     return;

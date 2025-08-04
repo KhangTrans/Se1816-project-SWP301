@@ -660,12 +660,6 @@
                 </button>
             </div>
 
-            <form action="CartServlet" method="post" style="display: none;">
-                <input type="hidden" name="action" value="add">
-                <input type="hidden" name="productId" value="${product.productId}">
-                <input type="hidden" name="quantity" value="1">
-            </form>
-
             <%-- Voucher Section --%>
             <%
                 List<Model.Voucher> voucherList = (List<Model.Voucher>) request.getAttribute("voucherList");
@@ -697,21 +691,38 @@
 
             <%-- Filter Bar --%>
             <div class="filter-bar">
+                <!-- Nút Clear Filter -->
+                <form method="get" action="shopAll" style="display:inline; margin-left: 10px;">
+                    <input type="hidden" name="page" value="1">
+                    <button type="submit" class="filter-btn" style="background: #222; color: #d9ff68;">
+                        <i class="fas fa-eraser"></i> Clear Filter
+                    </button>
+                </form>
+
                 <span class="filter-title">Sort By</span>
+                <!-- Sort Desc -->
                 <form method="get" style="display:inline;">
                     <input type="hidden" name="sort" value="desc">
-                    <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
+                    <input type="hidden" name="page" value="1">
+                    <input type="hidden" name="category" value="<%= request.getParameter("category") != null ? request.getParameter("category") : ""%>">
+                    <input type="hidden" name="q" value="<%= request.getParameter("q") != null ? request.getParameter("q") : ""%>">
                     <button type="submit" class="filter-btn <%= "desc".equals(request.getParameter("sort")) ? "active" : ""%>">
                         <i class="fas fa-sort-amount-down"></i> High Price - Low Price
                     </button>
                 </form>
+
+                <!-- Sort Asc -->
                 <form method="get" style="display:inline;">
                     <input type="hidden" name="sort" value="asc">
-                    <input type="hidden" name="page" value="<%=request.getAttribute("currentPage")%>">
+                    <input type="hidden" name="page" value="1">
+                    <input type="hidden" name="category" value="<%= request.getParameter("category") != null ? request.getParameter("category") : ""%>">
+                    <input type="hidden" name="q" value="<%= request.getParameter("q") != null ? request.getParameter("q") : ""%>">
                     <button type="submit" class="filter-btn <%= "asc".equals(request.getParameter("sort")) ? "active" : ""%>">
                         <i class="fas fa-sort-amount-up"></i> Low Price - High Price
                     </button>
                 </form>
+
+                <!-- Category filter -->
                 <form method="get" id="categoryForm" style="display:inline;">
                     <select name="category" onchange="document.getElementById('categoryForm').submit()" class="filter-btn">
                         <option value="">All categories</option>
@@ -729,13 +740,15 @@
                             }
                         %>
                     </select>
-                    <input type="hidden" name="sort" value="<%=request.getParameter("sort") != null ? request.getParameter("sort") : ""%>">
+                    <input type="hidden" name="sort" value="<%= request.getParameter("sort") != null ? request.getParameter("sort") : ""%>">
+                    <input type="hidden" name="q" value="<%= request.getParameter("q") != null ? request.getParameter("q") : ""%>">
                     <input type="hidden" name="page" value="1">
                 </form>
 
+                <!-- Search Box -->
                 <div class="search-box">
                     <form method="get" action="shopAll" style="display: flex; align-items: center;">
-                        <input type="text" name="q" placeholder="Search products..." 
+                        <input type="text" name="q" placeholder="Search products..."
                                value="<%= request.getParameter("q") != null ? request.getParameter("q") : ""%>" />
                         <button type="submit" class="search-icon" style="background: none; border: none; padding: 0;">
                             <i class="fas fa-search" style="color: #777;"></i>
@@ -774,7 +787,6 @@
                         </button>
                         <!-- Buy Now button -->
                         <button 
-                            type="button" 
                             class="cart-icon-btn neon-button buy-now btn-buy-now"
                             data-productid="<%= p.getProductId()%>"
                             <%= stock < 1 ? "disabled style='opacity:0.5;pointer-events:none;' title='Out of stock'" : "title='Buy Now'"%>>
@@ -854,10 +866,66 @@
                                     console.error(err);
                                 });
                     }
-                    window.ERROR_MESSAGE = <%= (errorMessage != null) ? "\"" + errorMessage.replace("\"", "\\\"") + "\"" : "null"%>;
-</script>
 
+                    window.ERROR_MESSAGE = <%= (errorMessage != null) ? "\"" + errorMessage.replace("\"", "\\\"") + "\"" : "null"%>;
+
+                    function addToCart(productId) {
+                        fetch("CartServlet", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded",
+                                "X-Requested-With": "XMLHttpRequest"
+                            },
+                            body: `action=add&productId=${productId}&quantity=1`
+                        })
+                                .then(res => res.json())
+                                .then(data => {
+                                    const result = data.status;
+                                    if (result === "added") {
+                                        const cartCount = data.cartCount;
+                                        const cartBadge = document.querySelector('.cart-count-badge');
+
+                                        if (cartCount > 0) {
+                                            cartBadge.textContent = cartCount > 99 ? "99+" : cartCount;
+                                            cartBadge.style.display = "inline-block";
+                                        } else {
+                                            cartBadge.style.display = "none";
+                                        }
+
+                                        alert("Product added to cart!");
+                                    } else if (result === "error") {
+                                        alert(data.message);  // Display error message if not logged in
+                                    } else {
+                                        alert("Failed to add product.");
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error("Error sending Ajax request:", err);
+                                    alert("An error occurred while adding product.");
+                                });
+                    }
+
+                    function viewCart() {
+                        fetch("CartServlet?action=view", {
+                            method: "GET",
+                            headers: {
+                                "X-Requested-With": "XMLHttpRequest"
+                            }
+                        })
+                                .then(res => res.json())
+                                .then(data => {
+                                    if (data.status === "error") {
+                                        alert(data.message);  // Hiển thị thông báo lỗi nếu chưa đăng nhập
+                                    } else {
+                                        window.location.href = "CartServlet?action=view";  // Redirect to cart if logged in
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error("Error sending Ajax request:", err);
+                                    alert("An error occurred while accessing cart.");
+                                });
+                    }
+</script>
 <script src="<%= request.getContextPath()%>/js/cart.js"></script>
 <script src="<%= request.getContextPath()%>/js/buyNow.js"></script>
-
 <%@include file="/WEB-INF/include/footer.jsp" %>

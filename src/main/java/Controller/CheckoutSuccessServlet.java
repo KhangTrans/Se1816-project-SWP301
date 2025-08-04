@@ -5,6 +5,7 @@
 package Controller;
 
 import DAO.BuyNowDao;
+import DAO.CartDao;
 import DAO.OrderDao;
 import DAO.ProductDao;
 import DAO.VoucherDao;
@@ -24,6 +25,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.math.BigDecimal;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -39,20 +42,42 @@ public class CheckoutSuccessServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
+            String[] productIds = request.getParameterValues("productIds[]");
+            if (productIds == null || productIds.length == 0) {
+                // Handle case when no product IDs are selected
+                request.setAttribute("message", "Your cart is empty.");
+                request.getRequestDispatcher("/WEB-INF/View/customers/checkout.jsp").forward(request, response);
+                return;
+            }
+            System.out.println("IDDDDD " + Arrays.toString(productIds));
             HttpSession session = request.getSession();
             Integer accountId = (Integer) session.getAttribute("accountId");
-            List<CartItem> cart = (List<CartItem>) session.getAttribute("cart");
-
+            List<CartItem> cart = null;
+            CartDao cartDao = new CartDao();
+            if (productIds != null && productIds.length > 0) {
+                cart = new ArrayList<>();
+                for (String cartItemIdStr : productIds) {
+                    int cartItemId = Integer.parseInt(cartItemIdStr);
+                    CartItem cartItem = cartDao.getCartItemById(cartItemId);  // Lấy CartItem theo cartItemId
+                    if (cartItem != null) {
+                        cart.add(cartItem);  // Thêm vào danh sách giỏ hàng
+                    }
+                }
+            } else {
+                // Nếu không có sản phẩm nào được chọn, lấy tất cả sản phẩm trong giỏ hàng
+                cart = cartDao.getCartItems(accountId);
+            }
             // Lấy thông tin khách hàng từ form
             String customerName = request.getParameter("customerName");
             String customerPhone = request.getParameter("customerPhone");
             String shippingAddress = request.getParameter("shippingAddress");
             String voucherIdStr = request.getParameter("voucherId");
-
+            System.out.println("cart successss" + cart);
             // Check cart
             if (cart == null || cart.isEmpty()) {
+                System.out.println("cart succes" + cart);
                 request.setAttribute("message", "Your cart is empty.");
-                request.getRequestDispatcher("/WEB-INF/View/customers/checkout.jsp").forward(request, response);
+                request.getRequestDispatcher(request.getContextPath() + "/checkout").forward(request, response);
                 return;
             }
 
@@ -61,8 +86,12 @@ public class CheckoutSuccessServlet extends HttpServlet {
             boolean enoughStock = true;
             StringBuilder errorMsg = new StringBuilder();
             for (CartItem item : cart) {
+                System.out.println("cARTEO" + cart);
+                System.out.println("item  " + item.toString());
                 try {
-                    Products product = productDao.getProductById(item.getProductId());
+                    Products product = productDao.getProductById(item.getProduct().getProductId());
+//                    System.out.println("id " + item.);
+                    System.out.println("product" + product);
                     if (product == null || product.getStockQuantity() < item.getQuantity()) {
                         enoughStock = false;
                         errorMsg.append("Sản phẩm <b>'")
@@ -73,6 +102,7 @@ public class CheckoutSuccessServlet extends HttpServlet {
                     Logger.getLogger(CheckoutSuccessServlet.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+            System.out.println("enoug" + enoughStock);
             if (!enoughStock) {
                 request.setAttribute("error", errorMsg.toString());
                 request.getRequestDispatcher("/WEB-INF/View/customers/checkout.jsp").forward(request, response);
@@ -83,12 +113,12 @@ public class CheckoutSuccessServlet extends HttpServlet {
             double total = 0;
             for (CartItem item : cart) {
                 try {
-                    Products product = productDao.getProductById(item.getProductId());
+                    Products product = productDao.getProductById(item.getProduct().getProductId());
                     int quantity = item.getQuantity();
                     double price = product.getPrice();
                     total += price * quantity;
                     // Trừ tồn kho
-                    productDao.updateProductQuantity(item.getProductId(), quantity);
+                    productDao.updateProductQuantity(item.getProduct().getProductId(), quantity);
                 } catch (SQLException ex) {
                     Logger.getLogger(CheckoutSuccessServlet.class.getName()).log(Level.SEVERE, null, ex);
                 }
@@ -131,19 +161,24 @@ public class CheckoutSuccessServlet extends HttpServlet {
             for (CartItem cartItem : cart) {
                 OrderItem orderItem = new OrderItem();
                 orderItem.setProduct(cartItem.getProduct());
-                orderItem.setProductId(cartItem.getProductId());
+                orderItem.setProductId(cartItem.getProduct().getProductId());
                 orderItem.setQuantity(cartItem.getQuantity());
                 orderItem.setUnitPrice(BigDecimal.valueOf(cartItem.getProduct().getPrice()));
                 order.getOrderItems().add(orderItem);
             }
             // Lưu DB
             int orderId = new OrderDao().createOrder(order, voucher != null ? voucher.getVoucherId() : null, BigDecimal.valueOf(discountAmount));
-
+            for (String productId : productIds) {
+                cartDao.removeItem(accountId, Integer.parseInt(productId)); // Xóa sản phẩm theo productId
+            }
             // Xóa cart khỏi session và DB
-            session.removeAttribute("cart");
-            productDao.clearCart(accountId);
+//            request.setAttribute("cartItems", cartItems); 
+//            request.setAttribute("cartCount", cartItems.size()); // Cập nhật cartCount về 0
+//            productDao.clearCart(accountId);
 
             // Đẩy data sang JSP xác nhận thành công
+            System.out.println("Cart final" + cart);
+            request.setAttribute("cartItems", cart);  // Set "cartItems" để match ưu tiên ở JSP
             request.setAttribute("cart", cart);
             request.setAttribute("total", total);
             request.setAttribute("customerName", customerName);
@@ -151,6 +186,7 @@ public class CheckoutSuccessServlet extends HttpServlet {
             request.setAttribute("voucher", voucher);
             request.setAttribute("discountAmount", discountAmount);
             request.setAttribute("orderId", orderId);
+            request.setAttribute("cartCount", 0); // Đẩy cartCount cho JSP sử dụng nếu cần
 
             request.getRequestDispatcher("/WEB-INF/View/customers/checkout_success.jsp").forward(request, response);
         } catch (SQLException ex) {

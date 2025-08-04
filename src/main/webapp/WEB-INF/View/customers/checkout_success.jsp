@@ -1,3 +1,4 @@
+<%@page import="java.sql.Array"%>
 <%@page import="Model.Products"%>
 <%@page import="Model.CartItem"%>
 <%@page import="java.util.List"%>
@@ -8,7 +9,8 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 <%
     // Retrieve cart data set by the controller
-    List<CartItem> cartItems = (List<CartItem>) request.getAttribute("cart");
+    List<CartItem> cartItems = (List<CartItem>) request.getAttribute("cartItems");
+    System.out.println("jsp" +cartItems);
     Double total = (Double) request.getAttribute("total");
     // Convert Double to BigDecimal for consistency with orderConfirmation
     BigDecimal totalAsBigDecimal = BigDecimal.valueOf(total != null ? total : 0);

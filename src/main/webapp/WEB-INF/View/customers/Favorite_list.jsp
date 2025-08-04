@@ -18,201 +18,264 @@
 <%@include file="/WEB-INF/include/header.jsp" %>
 
 <style>
-    .alert-box {
-        display: none;
-        position: fixed;
-        top: 10%;
-        left: 50%;
-        transform: translateX(-50%);
-        background-color: #0ba960;
-        color: white;
-        padding: 20px;
-        border-radius: 5px;
-        font-size: 16px;
-        z-index: 1000;
-        max-width: 400px;
-        width: 100%;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .alert-box .close-btn {
-        background: none;
-        border: none;
-        color: white;
-        font-size: 18px;
-        cursor: pointer;
-        position: absolute;
-        top: 5px;
-        right: 10px;
-    }
-
     .body-product {
         background: radial-gradient(circle, #000000, #263302, #000000);
-        height: 100%;
         min-height: 100vh;
+        padding-bottom: 50px;
     }
 
     .header-content {
-        margin-top: 10px;
-        margin-bottom: 20px;
+        padding-top: 100px;
+        margin-bottom: 40px;
         font-size: 60px;
         font-weight: bold;
         text-align: center;
-        background: linear-gradient(90deg, #010101, #9ddb00);
+        color: #d9ff68;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        text-transform: uppercase;
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
-        color: transparent;
     }
 
-/*    .product-grid {
-        padding: 20px;
+    .favorites-container {
         max-width: 1200px;
         margin: 0 auto;
-    }*/
-
-    .product-grid.few {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 20px;
+        padding: 0 20px;
     }
 
-    .product-grid.many {
+    .favorites-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-        gap: 20px;
-        justify-content: center;
-        align-items: center;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 30px;
+        margin-bottom: 40px;
+        max-width: 1800px;
+        margin-left: auto;
+        margin-right: auto;
     }
 
-/*    .product-card {
-        width: 95%;
-        border-radius: 16px;
-        box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.25);
-        overflow: hidden;
+    .favorite-card {
+        background: rgba(25, 25, 25, 0.9);
+        border-radius: 12px;
+        padding: 25px;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        border: 1px solid rgba(217, 255, 104, 0.1);
         display: flex;
         flex-direction: column;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-        color: #fff;
-        text-align: center;
-        max-width: 280px;
-    }*/
-
-    .product-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0px 6px 16px rgba(0, 255, 100, 0.3);
-    }
-
-/*    .product-image {
+        height: 100%;
         width: 100%;
-        height: 280px;
-        object-fit: cover;
-        background-color: #ccc;
-                margin-left: 13px;
-                margin-top: 10px;
-    }*/
+        margin: 0 auto;
+    }
 
-    .product-card p strong {
+    .favorite-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+        border-color: rgba(217, 255, 104, 0.3);
+    }
+
+    .favorite-image-container {
+        position: relative;
+        margin-bottom: 20px;
+    }
+
+    .favorite-image {
+        width: 100%;
+        height: 220px;
+        object-fit: contain;
+        margin: 0 auto 20px;
+        transition: transform 0.3s ease;
+        border-radius: 8px;
         display: block;
-        font-size: 18px;
-        margin-top: 10px;
-        color: #ffffff;
     }
 
-    .product-card p:last-child {
+    .favorite-card:hover .favorite-image {
+        transform: scale(1.05);
+    }
+
+    .favorite-name {
+        color: #d9ff68;
         font-size: 16px;
+        display: block;
+        margin-bottom: 5px;
         font-weight: bold;
-        color: #88ff88;
-        margin: 10px 0 15px;
     }
 
-    .button-container {
+    .favorite-price {
+        font-size: 18px;
+        font-weight: 600;
+        color: #d9ff68;
+        margin: 10px 0 20px;
+    }
+
+    .favorite-actions {
         display: flex;
+        gap: 5px;
         justify-content: center;
-        align-items: center;
-        gap: 10px;
-        margin: 10px auto 15px;
+        margin-top: auto;
+        padding-top: 15px;
     }
 
-    .btn-detail {
-        display: inline-flex;
+    /* Cart and Buy Now button styles exactly matching shopAll */
+    .cart-icon-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 4px;
+        font-size: 13px;
+        font-weight: bold;
+        display: flex;
         align-items: center;
         justify-content: center;
-        background: linear-gradient(45deg, #32CD32, #7CFC00);
-        color: #fff;
+        gap: 8px;
+        transition: all 0.2s ease;
+        cursor: pointer;
+        flex: 1;
+    }
+
+    .cart-icon-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 6px 15px rgba(217, 255, 0, 0.3);
+    }
+
+    .cart-icon-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 8px rgba(217, 255, 0, 0.2);
+    }
+
+    .cart-icon-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+        transition: 0.5s;
+    }
+
+    .cart-icon-btn:hover::before {
+        left: 100%;
+    }
+
+    .cart-icon-btn i {
+        font-size: 14px;
+    }
+
+    .buy-now-btn, .details-btn {
+        background: #d9ff00 !important;
+        color: #000 !important;
+    }
+
+    .buy-now-btn:hover, .details-btn:hover {
+        background: #e5ff40 !important;
+    }
+
+    /* Neon button styles from shopAll */
+    .neon-button {
         border: none;
         border-radius: 8px;
-        padding: 8px 0;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.5;
-        text-decoration: none;
-        transition: all 0.3s ease;
-        cursor: pointer;
-        box-shadow: 0 2px 6px rgba(0, 255, 0, 0.3);
-        width: 110px;
-        text-align: center;
-        box-sizing: border-box;
-    }
-
-    .btn-detail:hover {
-        background: linear-gradient(45deg, #2E8B57, #32CD32);
-        transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(0, 255, 0, 0.5);
-    }
-
-    .btn-detail i {
-        margin-right: 6px;
-    }
-
-    .btn-detail:active {
-        transform: scale(0.95);
-        box-shadow: 0 2px 4px rgba(0, 255, 0, 0.2);
-    }
-
-    .btn-delete-fav {
-        display: inline-flex;
+        font-weight: bold;
+        display: flex;
         align-items: center;
         justify-content: center;
-        background: #fffde7;
-        color: #ff9100;
-        border: 1px solid #ff9100;
-        border-radius: 8px;
-        padding: 20px 0;
-        font-size: 14px;
-        font-weight: 600;
-        line-height: 1.5;
-        transition: all 0.3s ease;
-        width: 110px;
-        text-align: center;
-        box-sizing: border-box;
+        gap: 6px;
+        cursor: pointer;
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275),
+            box-shadow 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
     }
 
-    .btn-delete-fav:hover {
-        background: #ff9100;
+    .neon-button:hover {
+        transform: translateY(-3px);
+    }
+
+    .neon-button:active {
+        transform: translateY(-1px);
+    }
+
+    .neon-button.buy-now {
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        color: #111;
+        box-shadow: 0 4px 12px rgba(156, 219, 0, 0.2);
+    }
+
+    .neon-button.buy-now:hover {
+        box-shadow: 0 8px 20px rgba(156, 219, 0, 0.4);
+    }
+
+    .neon-button.details {
+        background: rgba(30, 30, 30, 0.6);
         color: #fff;
-        transform: scale(1.05);
-        box-shadow: 0 4px 12px rgba(255, 145, 0, 0.5);
+        border: 1px solid rgba(217, 255, 104, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     }
 
-    .btn-delete-fav i {
-        margin-right: 6px;
+    .neon-button.details:hover {
+        background: rgba(30, 30, 30, 0.8);
+        border-color: rgba(217, 255, 104, 0.5);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
     }
 
-    .btn-delete-fav:active {
-        transform: scale(0.95);
-        box-shadow: 0 2px 4px rgba(255, 145, 0, 0.2);
+    .neon-button.cart {
+        background: linear-gradient(135deg, #c4ff00 0%, #9ddb00 100%);
+        color: #111;
+        box-shadow: 0 4px 12px rgba(156, 219, 0, 0.2);
+    }
+
+    .neon-button.cart:hover {
+        background: linear-gradient(135deg, #d1ff20 0%, #aaec00 100%);
+        box-shadow: 0 8px 20px rgba(156, 219, 0, 0.4);
+    }
+
+    /* We can keep the remove button style but update it to match the theme */
+    .btn-remove {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #ff3333;
+        color: #fff;
+        border: none;
+        border-radius: 4px;
+        width: 45px;
+        height: 38px;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .btn-remove:hover {
+        background-color: #cc0000;
+    }
+
+    .empty-favorites {
+        text-align: center;
+        color: #ffffff;
+        padding: 50px 0;
+        font-size: 18px;
+    }
+
+    .empty-favorites i {
+        font-size: 60px;
+        color: #9ddb00;
+        margin-bottom: 20px;
+        display: block;
     }
 
     .pagination-container {
+        margin-top: 40px;
         display: flex;
-        align-items: center;
         justify-content: center;
-        background-color: #3c3c3c;
-        padding: 10px;
+        align-items: center;
+        background-color: rgba(60, 60, 60, 0.7);
+        padding: 15px 20px;
         border-radius: 30px;
+        width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
     }
 
     .pagination-btn {
@@ -224,109 +287,131 @@
         border-radius: 20px;
         font-size: 14px;
         transition: background-color 0.3s, color 0.3s;
+        border: none;
+        cursor: pointer;
     }
 
     .pagination-btn:hover {
-        background-color: #45a049;
+        background-color: #9ddb00;
+        color: #111;
     }
 
     .pagination-btn.active {
-        background-color: #4CAF50;
-        color: white;
+        background-color: #9ddb00;
+        color: #111;
         font-weight: bold;
     }
 
-    .pagination-btn.dots {
-        color: white;
+    .alert-box {
+        position: fixed;
+        top: 10%;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(26, 42, 58, 0.95);
+        color: #fff;
+        padding: 20px 25px;
+        border-radius: 10px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        border-left: 4px solid #d9ff68;
+        z-index: 1000;
+        min-width: 300px;
+        max-width: 500px;
+        display: none;
     }
 
-    .pagination-btn.previous, .pagination-btn.next {
-        background-color: #6a6a6a;
+    .close-btn {
+        display: none; /* Hide the close button */
     }
 
-    .pagination-btn.previous:hover, .pagination-btn.next:hover {
-        background-color: #45a049;
+    @media (max-width: 992px) {
+        .favorites-grid {
+            grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+        }
     }
 
-/*    @media (max-width: 1200px) {
-        .product-grid.few {
+    @media (max-width: 576px) {
+        .favorites-grid {
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        }
+
+        .favorite-actions {
             flex-direction: column;
+            gap: 10px;
         }
-        .product-grid.many {
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-        }
-    }
 
-    @media (min-width: 1201px) {
-        .product-grid.many {
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        .btn-buy-now {
+            width: 100%;
         }
-        .product-grid.many > .product-card {
-            max-width: 280px;
+
+        .btn-cart, .btn-remove {
             margin: 0 auto;
         }
-    }*/
+    }
 </style>
+<script>
+    window.IS_LOGGED_IN = <%= (accountId != null) ? "true" : "false"%>;
+    window.APP_CONTEXT_PATH = '<%= request.getContextPath()%>';
+</script>
+<div class="body-product">
+    <h1 class="header-content">FAVORITE LIST</h1>
 
-<main>
-    <h1 class="header-content" style="margin-top: 100px">FAVORITE</h1>
-
-    <div class="product-grid <%= (productList != null && productList.size() < 3) ? "few" : "many"%>" id="product-list">
-        <%
-            if (productList != null && !productList.isEmpty()) {
-                for (Products product : productList) {
-        %>
-        <div class="product-card" id="product-<%= product.getProductId()%>">
-            <%
-                Product_Images primaryImage = dao.getPrimaryImage(product.getProductId());
-                String imageSrc = (primaryImage != null) ? request.getContextPath() + "/ImagesServlet?type=product&imageId=" + primaryImage.getImageId() : "./img/default-product.jpg";
+    <div class="favorites-container">
+        <div class="favorites-grid" id="product-list">
+            <% if (productList != null && !productList.isEmpty()) {
+                    for (Products product : productList) {
+                        Product_Images primaryImage = dao.getPrimaryImage(product.getProductId());
+                        String imageSrc = (primaryImage != null) ? request.getContextPath() + "/ImagesServlet?type=product&imageId=" + primaryImage.getImageId() : "./img/default-product.jpg";
             %>
-            <img src="<%= imageSrc%>" alt="Product Image" class="product-image" />
-            <p><strong><%= product.getName()%></strong></p>
-            <p><%= String.format("%,.0f", product.getPrice())%>đ</p>
-            <div  class="product-actions" style="margin-top:10px; display: flex; margin-left: 13px">
-                <button 
-                    class="btn btn-cart"
-                    type="button"
-                    onclick="addToCart('<%= product.getProductId()%>')">
-                    <i class="fa fa-cart-plus"></i>
-                </button>
-                <!-- Nút Mua Ngay -->
-                <button 
-                    class="cart-icon-btn"
-                    onclick="window.location.href = '<%= request.getContextPath()%>/ProductDetail?productId=<%= product.getProductId()%>'"
-                    title="Mua ngay">
-                    <i class="fa fa-bolt"> Buy Now</i>
-                </button>
-                <button class="btn-delete-fav" onclick="deleteFavorite('<%= product.getProductId()%>')">
-                    <i class="fas fa-trash-alt"></i> Xóa
-                </button>
-            </div>
-        </div>
-        <% }
-        } else {%>
-        <p><%= (request.getAttribute("noFavoriteMessage") != null) ? (String) request.getAttribute("noFavoriteMessage") : "Không có sản phẩm yêu thích nào."%></p>
-        <% } %>
-    </div>
+            <div class="favorite-card" id="product-<%= product.getProductId()%>">
+                <%
+                    int stock = product.getStockQuantity();
+                    boolean isOutOfStock = (stock < 1);
+                %>
+                <img src="<%= imageSrc%>" alt="<%= product.getName()%>" class="favorite-image">
 
-    <div id="pagination" class="pagination-container">
-        <a href="#" class="pagination-btn previous" onclick="changePage('previous')"> < previous </a>
-        <% if (totalPages > 0) {
-                for (int i = 1; i <= totalPages; i++) {%>
-        <a href="#" class="paginatioFn-btn <%= (i == currentPage) ? "active" : ""%>" onclick="changePage(<%= i%>)">
-            <%= i%>
-        </a>
-        <% }
-        } else { %>
-        <span>No pages available</span>
-        <% }%>
-        <a href="#" class="pagination-btn next" onclick="changePage('next')"> next > </a>
+                <p>
+                    <strong class="favorite-name"><%= product.getName()%></strong>
+                    <% if (isOutOfStock) { %>
+                    <span style="color:#ff6b6b; font-size:13px; margin-top:5px; display:block;">Out of stock</span>
+                    <% } else {%>
+                    <span style="display:block; color:#aaa; font-size:13px; margin-top:5px;">In stock: <%= stock%></span>
+                    <% }%>
+                </p>
+                <p class="favorite-price"><%= String.format("%,.0f", product.getPrice())%>đ</p>
+
+                <div class="favorite-actions">
+                    <button 
+                        onclick="addToCart(<%= product.getProductId()%>)" 
+                        class="cart-icon-btn neon-button cart"
+                        <%= stock < 1 ? "disabled style=\"opacity:0.5;pointer-events:none;\" title=\"Out of stock\"" : ""%>>
+                        <i class="fas fa-shopping-cart"></i> Cart
+                    </button>
+
+                    <button 
+                        class="cart-icon-btn neon-button buy-now btn-buy-now"
+                        data-productid="<%= product.getProductId()%>"
+                        <%= isOutOfStock ? "disabled style='opacity:0.5;pointer-events:none;' title='Out of stock'" : "title='Buy Now'"%>>
+                        <i class="fa fa-bolt"></i> Buy Now
+                    </button>
+
+                    <button class="btn-remove" onclick="deleteFavorite('<%= product.getProductId()%>')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                </div>
+            </div>
+            <% }
+            } else {%>
+            <div class="empty-favorites" style="grid-column: 1 / -1;">
+                <i class="far fa-heart"></i>
+                <p><%= (request.getAttribute("noFavoriteMessage") != null) ? (String) request.getAttribute("noFavoriteMessage") : "Your favorites list is empty."%></p>
+            </div>
+            <% }%>
+        </div>
     </div>
-</main>
+</div>
 
 <div id="alertBox" class="alert-box">
     <span id="alertMessage"></span>
-    <button onclick="closeAlert()" class="close-btn">X</button>
 </div>
 
 <script>
@@ -345,7 +430,7 @@
 
         var accountId = "<%= session.getAttribute("accountId")%>";
         if (!accountId || accountId === "null") {
-            showAlert("Bạn chưa đăng nhập. Vui lòng đăng nhập để quản lý danh sách yêu thích.");
+            showAlert("Please login to manage your favorites list.");
             return;
         }
 
@@ -357,19 +442,37 @@
                 if (response.status === "success") {
                     var productElement = document.getElementById('product-' + productId);
                     if (productElement) {
-                        productElement.remove();
+                        productElement.style.opacity = '0';
+                        productElement.style.transform = 'scale(0.8)';
+                        productElement.style.transition = 'all 0.5s ease';
+
+                        setTimeout(function () {
+                            productElement.remove();
+
+                            // Check if there are any products left
+                            var remainingProducts = document.querySelectorAll('.favorite-card').length;
+                            if (remainingProducts === 0) {
+                                var emptyMessage = document.createElement('div');
+                                emptyMessage.className = 'empty-favorites';
+                                emptyMessage.style.gridColumn = '1 / -1';
+                                emptyMessage.innerHTML = '<i class="far fa-heart"></i><p>Your favorites list is empty.</p>';
+                                document.getElementById('product-list').appendChild(emptyMessage);
+                            }
+                        }, 500);
                     }
-                    showAlert(response.message);
+                    showAlert("The product has been removed from your wishlist.");
                 } else {
                     showAlert(response.message);
                 }
             } else {
-                showAlert("Đã xảy ra lỗi khi xóa sản phẩm.");
+                showAlert("Error removing product from favorites.");
             }
         };
+
         xhr.onerror = function () {
-            showAlert("Lỗi kết nối. Vui lòng thử lại.");
+            showAlert("Connection error. Please try again.");
         };
+
         xhr.send(data);
     }
 
@@ -378,11 +481,54 @@
         var alertMessage = document.getElementById('alertMessage');
         alertMessage.innerHTML = message;
         alertBox.style.display = 'block';
+
+        // Auto hide after 1 second
+        setTimeout(function () {
+            closeAlert();
+        }, 1000);
     }
 
     function closeAlert() {
         document.getElementById('alertBox').style.display = 'none';
     }
-</script>
 
+    function addToCart(productId) {
+        fetch("CartServlet", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-Requested-With": "XMLHttpRequest"
+            },
+            body: `action=add&productId=${productId}&quantity=1`
+        })
+                .then(res => res.json())
+                .then(data => {
+                    const result = data.status;
+                    if (result === "added") {
+                        const cartCount = data.cartCount;
+                        const cartBadge = document.querySelector('.cart-count-badge');
+
+                        if (cartCount > 0) {
+                            cartBadge.textContent = cartCount > 99 ? "99+" : cartCount;
+                            cartBadge.style.display = "inline-block";
+                        } else {
+                            cartBadge.style.display = "none";
+                        }
+
+                        alert("Product added to cart!");
+                    } else if (result === "error") {
+                        alert(data.message);  // Display error message if not logged in
+                    } else {
+                        alert("Failed to add product.");
+                    }
+                })
+                .catch(err => {
+                    console.error("Ajax error");
+                    alert("Failed to add product.");
+                });
+    }
+
+</script>
+<script src="<%= request.getContextPath()%>/js/buyNow.js"></script>
+<script src="<%= request.getContextPath()%>/js/cart.js"></script>
 <%@include file="/WEB-INF/include/footer.jsp" %>

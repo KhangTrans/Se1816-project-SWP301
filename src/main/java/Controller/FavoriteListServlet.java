@@ -27,7 +27,7 @@ public class FavoriteListServlet extends HttpServlet {
             response.setContentType("application/json");
             response.setCharacterEncoding("UTF-8");
             jsonResponse.put("status", "error");
-            jsonResponse.put("message", "Bạn chưa đăng nhập. Vui lòng đăng nhập để xem danh sách yêu thích.");
+            jsonResponse.put("message", "You are not logged in. Please log in to view your favorites list.");
             response.getWriter().write(jsonResponse.toString());
             return;
         }
@@ -35,7 +35,7 @@ public class FavoriteListServlet extends HttpServlet {
         Integer accountId = (Integer) session.getAttribute("accountId");
         if (accountId == null) {
             jsonResponse.put("status", "error");
-            jsonResponse.put("message", "Account ID không hợp lệ.");
+            jsonResponse.put("message", "Invalid Account ID.");
             response.getWriter().write(jsonResponse.toString());
             return;
         }
@@ -49,11 +49,11 @@ public class FavoriteListServlet extends HttpServlet {
                 if ("add".equals(action)) {
                     boolean success = favoriteListDao.addFavorite(accountId, productId);
                     jsonResponse.put("status", success ? "success" : "error");
-                    jsonResponse.put("message", success ? "Sản phẩm đã được thêm vào danh sách yêu thích." : "Không thể thêm sản phẩm vào danh sách yêu thích.");
+                    jsonResponse.put("message", success ? "The product has been added to your wishlist." : "Unable to add product to favorite list.");
                 } else if ("delete".equals(action)) {
                     boolean success = favoriteListDao.deleteFavorite(accountId, productId);
                     jsonResponse.put("status", success ? "success" : "error");
-                    jsonResponse.put("message", success ? "Sản phẩm đã được xóa khỏi danh sách yêu thích." : "Không thể xóa sản phẩm khỏi danh sách yêu thích.");
+                    jsonResponse.put("message", success ? "The product has been removed from your favorite list." : "Cannot remove product from favorite list.");
                 }
                 response.setContentType("application/json");
                 response.setCharacterEncoding("UTF-8");
@@ -65,17 +65,17 @@ public class FavoriteListServlet extends HttpServlet {
                 }
                 request.setAttribute("favoriteProducts", favoriteProducts);
                 if (favoriteProducts.isEmpty()) {
-                    request.setAttribute("noFavoriteMessage", "Không có sản phẩm yêu thích nào.");
+                    request.setAttribute("noFavoriteMessage", "There are no favorite products.");
                 }
                 request.getRequestDispatcher("/WEB-INF/View/customers/Favorite_list.jsp").forward(request, response);
             }
         } catch (NumberFormatException e) {
             jsonResponse.put("status", "error");
-            jsonResponse.put("message", "Dữ liệu không hợp lệ.");
+            jsonResponse.put("message", "Invalid data.");
             response.getWriter().write(jsonResponse.toString());
         } catch (Exception e) {
             jsonResponse.put("status", "error");
-            jsonResponse.put("message", "Đã xảy ra lỗi. Vui lòng thử lại sau.");
+            jsonResponse.put("message", "An error occurred. Please try again later.");
             response.getWriter().write(jsonResponse.toString());
         }
     }
@@ -90,7 +90,7 @@ public class FavoriteListServlet extends HttpServlet {
 
         if (session == null || session.getAttribute("username") == null) {
             jsonResponse.put("status", "error");
-            jsonResponse.put("message", "Bạn chưa đăng nhập. Vui lòng đăng nhập để thêm vào danh sách yêu thích.");
+            jsonResponse.put("message", "You are not logged in. Please log in to view your favorites list.");
             response.getWriter().write(jsonResponse.toString());
             return;
         }
@@ -98,7 +98,7 @@ public class FavoriteListServlet extends HttpServlet {
         Integer accountId = (Integer) session.getAttribute("accountId");
         if (accountId == null) {
             jsonResponse.put("status", "error");
-            jsonResponse.put("message", "Account ID không hợp lệ.");
+            jsonResponse.put("message", "Invalid Account ID.");
             response.getWriter().write(jsonResponse.toString());
             return;
         }
@@ -111,21 +111,21 @@ public class FavoriteListServlet extends HttpServlet {
             if ("add".equals(action)) {
                 boolean success = favoriteListDao.addFavorite(accountId, productId);
                 jsonResponse.put("status", success ? "success" : "error");
-                jsonResponse.put("message", success ? "Sản phẩm đã được thêm vào danh sách yêu thích." : "Không thể thêm sản phẩm vào danh sách yêu thích.");
+                jsonResponse.put("message", success ? "The product has been added to your favorite list." : "Unable to add product to favorite list.");
             } else if ("delete".equals(action)) {
                 boolean success = favoriteListDao.deleteFavorite(accountId, productId);
                 jsonResponse.put("status", success ? "success" : "error");
-                jsonResponse.put("message", success ? "Sản phẩm đã được xóa khỏi danh sách yêu thích." : "Không thể xóa sản phẩm khỏi danh sách yêu thích.");
+                jsonResponse.put("message", success ? "The product has been removed from your favorite list." : "Cannot remove product from favorite list.");
             }
             response.getWriter().write(jsonResponse.toString());
         } catch (NumberFormatException e) {
             jsonResponse.put("status", "error");
-            jsonResponse.put("message", "Dữ liệu không hợp lệ.");
+            jsonResponse.put("message", "Invalid data.");
             response.getWriter().write(jsonResponse.toString());
         } catch (Exception e) {
             e.printStackTrace();
             jsonResponse.put("status", "error");
-            jsonResponse.put("message", "Đã xảy ra lỗi. Vui lòng thử lại sau.");
+            jsonResponse.put("message", "An error occurred. Please try again later.");
             response.getWriter().write(jsonResponse.toString());
         }
     }

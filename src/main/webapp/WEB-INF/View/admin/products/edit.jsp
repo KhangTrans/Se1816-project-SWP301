@@ -93,15 +93,15 @@
 </div>
 <script>
     function validateInput(input) {
-        // Ki?m tra n?u giá tr? nh?p vào ch?a ký t? ??c bi?t
+        // Ki?m tra n?u giï¿½ tr? nh?p vï¿½o ch?a kï¿½ t? ??c bi?t
         const forbiddenChars = /[<>\"'`&]/g;
 
-        // N?u ch?a ký t? ??c bi?t, hi?n th? thông báo l?i và xóa toàn b? n?i dung
+        // N?u ch?a kï¿½ t? ??c bi?t, hi?n th? thï¿½ng bï¿½o l?i vï¿½ xï¿½a toï¿½n b? n?i dung
         if (forbiddenChars.test(input.value)) {
-            document.getElementById("error-message").style.display = "block";  // Hi?n th? thông báo l?i
-            input.value = '';  // Xóa toàn b? d? li?u nh?p vào (l?u d? li?u r?ng)
+            document.getElementById("error-message").style.display = "block";  // Hi?n th? thï¿½ng bï¿½o l?i
+            input.value = '';  // Xï¿½a toï¿½n b? d? li?u nh?p vï¿½o (l?u d? li?u r?ng)
         } else {
-            document.getElementById("error-message").style.display = "none";  // ?n thông báo l?i khi không có ký t? ??c bi?t
+            document.getElementById("error-message").style.display = "none";  // ?n thï¿½ng bï¿½o l?i khi khï¿½ng cï¿½ kï¿½ t? ??c bi?t
         }
     }
 </script>

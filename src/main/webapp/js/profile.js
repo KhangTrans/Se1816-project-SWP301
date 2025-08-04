@@ -1,74 +1,81 @@
 document.addEventListener("DOMContentLoaded", function () {
-    // Default to 'profileContent' tab on page load
-    showTab('profileContent');
+    // Lấy URL hiện tại
+    const currentURL = window.location.href;
+    console.log("Current URL: ", currentURL);  // In URL để kiểm tra
 
-    // Add listeners to all tab buttons
+    // Kiểm tra tham số 'tab' trong URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const tabParam = urlParams.get('tab');
+    console.log("Tab Parameter: ", tabParam);  // Kiểm tra giá trị của 'tab'
+
+    // Nếu có tham số 'tab' trong URL, mở tab đó
+    if (tabParam) {
+        showTab(tabParam);  // Hiển thị tab dựa trên tham số trong URL
+
+        // Cập nhật tab hiện tại
+        const activeTab = document.querySelector(`.tab-btn[data-tab="${tabParam}"]`);
+        if (activeTab) {
+            // Loại bỏ active class khỏi tất cả tab
+            const tabs = document.querySelectorAll('.tab-btn');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            // Thêm active class cho tab hiện tại
+            activeTab.classList.add('active');
+        }
+    } else {
+        showTab('profileContent');
+    }
+
+    // Thêm sự kiện click cho tất cả các tab
     const tabs = document.querySelectorAll('.tab-btn');
-
-    // Add click event listeners for each tab
     tabs.forEach(function (tab) {
         tab.addEventListener('click', function (event) {
             event.preventDefault();
-            
-            // Remove active class from all tabs
+
+            // Loại bỏ active class khỏi tất cả các tab
             tabs.forEach(tab => tab.classList.remove('active'));
 
-            // Add active class to clicked tab
+            // Thêm active class vào tab đã click
             this.classList.add('active');
 
-            // Get tab name and show corresponding content
+            // Lấy tên tab và hiển thị nội dung tương ứng
             const tabName = this.getAttribute('data-tab');
             showTab(tabName);
-            
-            // If packages tab, load membership data
+
+            // Nếu tab là 'packages', load dữ liệu membership
             if (tabName === 'packages') {
                 loadMembershipBlock();
             }
         });
     });
-
-    // Check URL for tab parameter
-    const urlParams = new URLSearchParams(window.location.search);
-    const tabParam = urlParams.get('tab');
-    if (tabParam) {
-        showTab(tabParam);
-        
-        // Update active tab
-        const activeTab = document.querySelector(`.tab-btn[data-tab="${tabParam}"]`);
-        if (activeTab) {
-            tabs.forEach(tab => tab.classList.remove('active'));
-            activeTab.classList.add('active');
-        }
-    }
 });
 
-// Function to load membership data
-function loadMembershipBlock() {
-    fetch('MembershipServlet')
-            .then(response => response.text())
-            .then(html => {
-                document.getElementById('membership-block').innerHTML = html;
-        })
-        .catch(error => {
-            console.error('Error loading membership data:', error);
-        });
-}
-
-// Function to show selected tab content
+// Hàm hiển thị nội dung của tab
 function showTab(tabName) {
-    // Hide all tab contents
+    // Ẩn tất cả các nội dung của các tab
     document.querySelectorAll('.tab-content').forEach(function (tabContent) {
         tabContent.style.display = 'none';
     });
 
-    // Show selected tab content
+    // Hiển thị nội dung của tab hiện tại
     const targetTab = document.getElementById(tabName);
     if (targetTab) {
         targetTab.style.display = 'block';
     }
-    
-    // Update URL without refreshing the page
+
+    // Cập nhật URL mà không cần tải lại trang
     const url = new URL(window.location.href);
-    url.searchParams.set('tab', tabName);
-    window.history.replaceState({}, '', url);
+    url.searchParams.set('tab', tabName);  // Cập nhật tham số 'tab' trong URL
+    window.history.replaceState({}, '', url);  // Thay đổi URL mà không làm mới trang
+}
+
+// Hàm load dữ liệu membership nếu tab là 'packages'
+function loadMembershipBlock() {
+    fetch('MembershipServlet')
+        .then(response => response.text())
+        .then(html => {
+            document.getElementById('membership-block').innerHTML = html;
+        })
+        .catch(error => {
+            console.error('Error loading membership data:', error);
+        });
 }

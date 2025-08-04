@@ -24,19 +24,19 @@
             </div>
 
             <div class="footer__links">
-                <h3 class="footer__heading">Liên kết nhanh</h3>
+                <h3 class="footer__heading">Quick Links</h3>
                 <ul class="footer__list">
-                    <li><a href="#">Trang chủ</a></li>
-                    <li><a href="#">Dịch vụ</a></li>
-                    <li><a href="#">Về chúng tôi</a></li>
-                    <li><a href="#">Liên hệ</a></li>
+                    <li><a href="#">Home</a></li>
+                    <li><a href="#">Services</a></li>
+                    <li><a href="#">About Us</a></li>
+                    <li><a href="#">Contact</a></li>
                 </ul>
             </div>
 
             <div class="footer__contact">
-                <h3 class="footer__heading">Liên hệ</h3>
+                <h3 class="footer__heading">Contact</h3>
                 <p>Email: contact@mywebsite.com</p>
-                <p>Điện thoại: 0123 456 789</p>
+                <p>Phone: 0123 456 789</p>
             </div>
         </div>
 

@@ -22,8 +22,10 @@
             java.util.List<java.util.Map<String, Object>> orderHistory = (java.util.List<java.util.Map<String, Object>>) request.getAttribute("orderHistory");
             if (orderHistory != null && !orderHistory.isEmpty()) {
                 for (java.util.Map<String, Object> order : orderHistory) {
+                    int orderId = (Integer) order.get("orderId");
+                    String referralCode = (String) order.get("referralCode");
         %>
-        <article class="order-card" id="order-<%= order.get("orderId")%>">
+        <article class="order-card" id="order-<%= orderId %>">
             <div class="order-card__content">
                 <section class="product-info">
                     <%
@@ -40,9 +42,17 @@
                     %>
                     <div class="product-info__details">
                         <h2 class="product-info__name"><%= order.get("productName")%></h2>
+                        <%
+                            Boolean hasMultipleItems = (Boolean) order.get("hasMultipleItems");
+                            if (hasMultipleItems != null && hasMultipleItems) {
+                        %>
+                        <p class="product-info__additional-items"><%= order.get("additionalItemsText")%></p>
+                        <%
+                            }
+                        %>
                         <div class="product-info__meta">
                             <span class="product-info__quantity">x<%= order.get("quantity")%></span>
-                            <span class="product-info__code"><%= order.get("referralCode")%></span>
+                            <span class="product-info__code"><%= referralCode%></span>
                             <%
                                 String status = (String) order.get("status");
                                 String statusClass = "";
@@ -68,33 +78,29 @@
                     </div>
                 </section>
 
-                <section class="customer-info">
-                    <h3 class="customer-info__name"><%= order.get("customerName")%></h3>
-                    <div class="customer-info__phone"><%= order.get("customerPhone")%></div>
-                    <address class="customer-info__address">
-                        <%= order.get("shippingAddress")%>
-                    </address>
-                </section>
-
                 <section class="button-info">
+                    <!-- Add View Details Button -->
+                    <button class="action-button view-button" onclick="viewGroupedOrderDetails('<%= referralCode%>')">
+                        <i class="fas fa-eye"></i> Details
+                    </button>
                     <% if ("cancelled".equalsIgnoreCase((String) order.get("status")) || "shipped".equalsIgnoreCase((String) order.get("status"))) { %>
-                    <button class="action-button edit-button disabled" disabled>
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <% } else {%>
-                    <button class="action-button edit-button" onclick="openEditModal(<%= order.get("orderId")%>)">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
+                        <button class="action-button edit-button disabled" disabled>
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                    <% } else { %>
+                        <button class="action-button edit-button" onclick="openEditModal(<%= orderId %>)">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
                     <% } %>
-
+                    
                     <% if ("cancelled".equalsIgnoreCase((String) order.get("status")) || "shipped".equalsIgnoreCase((String) order.get("status"))) { %>
-                    <button class="action-button delete-button disabled" disabled>
-                        <i class="fas fa-cancel"></i> Cancel
-                    </button>
-                    <% } else {%>
-                    <button class="action-button delete-button" onclick="deleteOrder(<%= order.get("orderId")%>)">
-                        <i class="fas fa-cancel"></i> Cancel
-                    </button>
+                        <button class="action-button delete-button disabled" disabled>
+                            <i class="fas fa-cancel"></i> Cancel
+                        </button>
+                    <% } else { %>
+                        <button class="action-button delete-button" onclick="deleteOrder(<%= orderId %>)">
+                            <i class="fas fa-cancel"></i> Cancel
+                        </button>
                     <% } %>
                 </section>
             </div>
@@ -114,6 +120,44 @@
         %>
     </div>
 </main>
+
+<!-- Order Details Modal -->
+<div id="orderDetailsModal" class="modal">
+    <div class="modal-content">
+        <span class="close-modal" onclick="closeDetailsModal()">&times;</span>
+        <h2>Order Details</h2>
+        
+        <div class="order-details-container">
+            <div class="order-header">
+                <div class="order-date">Date: <span id="modal-order-date"></span></div>
+                <div class="order-code">Order Code: <span id="modal-order-code"></span></div>
+            </div>
+            
+            <!-- Container for multiple products -->
+            <div id="order-products-container">
+                <!-- Products will be dynamically inserted here -->
+            </div>
+            
+            <div class="order-customer-details">
+                <h3>Customer Information</h3>
+                <p><strong>Name:</strong> <span id="modal-customer-name"></span></p>
+                <p><strong>Phone:</strong> <span id="modal-customer-phone"></span></p>
+                <p><strong>Address:</strong> <span id="modal-customer-address"></span></p>
+            </div>
+            
+            <div class="order-payment-details">
+                <h3>Payment Information</h3>
+                <p class="price-line"><strong>Original Price:</strong> <span id="modal-payment-subtotal"></span></p>
+                <p class="price-line voucher-line"><strong>Voucher:</strong><span id="modal-discountVoucher"></span></p>
+                <div id="voucher-info-container">
+                    <p class="price-line"><strong>Voucher Code:</strong> <span id="modal-voucher-code"></span></p>
+                    <p class="price-line discount-amount"><strong>Discount Amount:</strong> <span id="modal-discount-amount"></span></p>
+                </div>
+                <p class="total-amount"><strong>Total Price:</strong> <span id="modal-total-amount"></span></p>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Import modal chỉnh sửa đơn hàng -->
 <%@include file="editOrderModal.jsp" %>

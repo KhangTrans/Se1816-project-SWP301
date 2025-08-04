@@ -21,3 +21,27 @@
     </div>
 </div>
 
+<div id="notificationModalChange" class="modal" style="display: none;">
+    <div class="modal-content">
+        <h2 id="modal-title">Notification</h2>
+        <p id="modal-messageChange" style="color:#d9ff68"></p>
+        <button id="closeBtn" class="submit-btn" onclick="closeModalMesage()">Close</button>
+    </div>
+</div>
+
+<script>
+    // Ki?m tra xem có thông báo t? Servlet không
+    <% String notificationMessage = (String) session.getAttribute("changePassword");
+       if (notificationMessage != null) {
+           session.removeAttribute("changePassword");
+       }%>
+     if ("<%= notificationMessage != null ? notificationMessage : ""%>" !== "") {
+         document.getElementById('modal-messageChange').innerText = "<%= notificationMessage%>";
+        document.getElementById('notificationModalChange').style.display = "block";
+    }
+
+    // ?óng modal
+    function closeModalMesage() {
+        document.getElementById('notificationModalChange').style.display = "none";
+    }
+</script>

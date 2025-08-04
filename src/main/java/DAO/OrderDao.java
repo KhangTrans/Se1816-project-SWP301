@@ -69,6 +69,67 @@ public class OrderDao extends DBcontext {
         return 0;
     }
 
+    // Get sales stats for last 7 days
+    public Map<String, Integer> getSalesStatsLast7Days() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        String sql = "SELECT FORMAT(order_date, 'yyyy-MM-dd') AS day, SUM(oi.quantity) AS total_sold "
+                + "FROM order_items oi "
+                + "JOIN orders o ON oi.order_id = o.order_id "
+                + "WHERE o.order_date >= DATEADD(DAY, -6, CAST(GETDATE() AS DATE)) "
+                + "GROUP BY FORMAT(order_date, 'yyyy-MM-dd') "
+                + "ORDER BY day";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString("day"), rs.getInt("total_sold"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    // Get sales stats for last 30 days
+    public Map<String, Integer> getSalesStatsLast30Days() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        String sql = "SELECT FORMAT(order_date, 'yyyy-MM-dd') AS day, SUM(oi.quantity) AS total_sold "
+                + "FROM order_items oi "
+                + "JOIN orders o ON oi.order_id = o.order_id "
+                + "WHERE o.order_date >= DATEADD(DAY, -29, CAST(GETDATE() AS DATE)) "
+                + "GROUP BY FORMAT(order_date, 'yyyy-MM-dd') "
+                + "ORDER BY day";
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                map.put(rs.getString("day"), rs.getInt("total_sold"));
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+    // Get sales stats for today
+    public Map<String, Integer> getSalesStatsToday() {
+        Map<String, Integer> map = new LinkedHashMap<>();
+        String sql = "SELECT FORMAT(order_date, 'HH:00') AS hour_slot, SUM(oi.quantity) AS total_sold "
+                + "FROM order_items oi "
+                + "JOIN orders o ON oi.order_id = o.order_id "
+                + "WHERE CAST(order_date AS DATE) = CAST(GETDATE() AS DATE) "
+                + "GROUP BY FORMAT(order_date, 'HH:00') "
+                + "ORDER BY hour_slot";
+
+        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(sql);  ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                String hour = rs.getString("hour_slot");
+                int sold = rs.getInt("total_sold");
+                map.put(hour, sold);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
     /**
      * Get all orders with required details, grouping items by order
      *
@@ -535,14 +596,8 @@ public class OrderDao extends DBcontext {
 
         // Add filter conditions
         if (searchTerm != null && !searchTerm.trim().isEmpty()) {
-            sql.append("AND (LOWER(p.name) LIKE LOWER(?) OR "
-                    + "LOWER(o.customer_name) LIKE LOWER(?) OR "
-                    + "o.customer_phone_number LIKE ? OR "
-                    + "CAST(o.order_id AS VARCHAR) LIKE ?) ");
+            sql.append("AND LOWER(o.referral_code) LIKE LOWER(?) ");
             String searchParam = "%" + searchTerm.trim() + "%";
-            parameters.add(searchParam);
-            parameters.add(searchParam);
-            parameters.add(searchParam);
             parameters.add(searchParam);
         }
 
@@ -751,41 +806,42 @@ public class OrderDao extends DBcontext {
         }
     }
 
-    public List<OrderItem> getOrderItemsByOrderId(int orderId) {
-        List<OrderItem> orderItems = new ArrayList<>();
-        String query = "SELECT * FROM order_items WHERE order_id = ?";
+   public List<OrderItem> getOrderItemsByOrderId(int orderId) {
+    List<OrderItem> orderItems = new ArrayList<>();
+    String query = "SELECT oi.*, p.name AS product_name, pi.image_id AS primary_image_id " +
+                   "FROM order_items oi " +
+                   "LEFT JOIN products p ON oi.product_id = p.product_id " +
+                   "LEFT JOIN product_images pi ON p.product_id = pi.product_id AND pi.is_primary = 1 " +
+                   "WHERE oi.order_id = ?";
 
-        try ( Connection conn = getConnection();  PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setInt(1, orderId);
-            ResultSet rs = ps.executeQuery();
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(query)) {
+        ps.setInt(1, orderId);
+        ResultSet rs = ps.executeQuery();
 
-            // Lấy danh sách tất cả sản phẩm trong đơn hàng
-            Map<Integer, Products> productMap = new HashMap<>();
+        while (rs.next()) {
+            OrderItem orderItem = new OrderItem();
+            orderItem.setOrderItemId(rs.getInt("order_item_id"));
+            orderItem.setQuantity(rs.getInt("quantity"));
+            orderItem.setUnitPrice(rs.getBigDecimal("unit_price"));
 
-            while (rs.next()) {
-                OrderItem orderItem = new OrderItem();
-                int productId = rs.getInt("product_id");
+            // Tạo object product và set các trường cần thiết
+            Products product = new Products();
+            product.setProductId(rs.getInt("product_id"));
+            product.setName(rs.getString("product_name"));
+            product.setPrimaryImageId(rs.getInt("primary_image_id")); // lấy id ảnh chính (có thể null nếu chưa có ảnh)
 
-                // Chỉ gọi getProductById một lần và lưu vào map để tránh truy vấn nhiều lần
-                if (!productMap.containsKey(productId)) {
-                    Products product = new ProductDao().getProductById(productId);
-                    productMap.put(productId, product);
-                }
+            orderItem.setProduct(product);
 
-                orderItem.setOrderItemId(rs.getInt("order_item_id"));
-                orderItem.setOrder(getOrderById(rs.getInt("order_id")));
-                orderItem.setProduct(productMap.get(productId));  // Lấy sản phẩm từ map
-                orderItem.setQuantity(rs.getInt("quantity"));
-                orderItem.setUnitPrice(rs.getBigDecimal("unit_price"));
-
-                orderItems.add(orderItem);
-            }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
+            orderItems.add(orderItem);
         }
-        return orderItems;
+
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return orderItems;
+}
+
 
     // ====================NHAT KHANG=========================
     /**
@@ -888,7 +944,6 @@ public class OrderDao extends DBcontext {
         return false;
     }
 
-    ////////////////////////////////////////////////////////////////////
     public Map<String, Integer> getOrderStatusStats(String range) {
         Map<String, Integer> map = new LinkedHashMap<>();
         StringBuilder sql = new StringBuilder("SELECT status, COUNT(*) AS total FROM orders WHERE 1=1 ");

@@ -87,17 +87,17 @@
     <div class="footer-sections">
         <!-- About section -->
         <div class="footer-section">
-            <h3 class="footer-title" style="color: #d9ff00;">FPT UNIVERSITY - CẦN THƠ</h3>
-            <div class="footer-content">
-                <p>Đào tạo sinh viên toàn diện với chương trình học hiện đại, kỹ năng thực tiễn và môi trường quốc tế.</p>
+                            <h3 class="footer-title" style="color: #d9ff00;">FPT UNIVERSITY - CAN THO</h3>
+                <div class="footer-content">
+                    <p>Comprehensive student training with modern curriculum, practical skills and international environment.</p>
             </div>
         </div>
 
         <!-- Contact section -->
         <div class="footer-section">
-            <h3 class="footer-title" style="color: #d9ff00;">LIÊN HỆ</h3>
-            <div class="footer-content">
-                <a href="#"><i class="fas fa-map-marker-alt"></i> 600 Nguyễn Văn Cừ, An Bình, Ninh Kiều, Cần Thơ</a>
+                            <h3 class="footer-title" style="color: #d9ff00;">CONTACT</h3>
+                <div class="footer-content">
+                    <a href="#"><i class="fas fa-map-marker-alt"></i> 600 Nguyen Van Cu, An Binh, Ninh Kieu, Can Tho</a>
                 <a href="mailto:fpt.ct@fe.edu.vn"><i class="fas fa-envelope"></i> fpt.ct@fe.edu.vn</a>
                 <a href="tel:+84292730186"><i class="fas fa-phone"></i> (+84) 292 730 1866</a>
             </div>
@@ -105,7 +105,7 @@
 
         <!-- Google Map -->
         <div class="footer-section">
-            <h3 class="footer-title" style="color: #d9ff00;">ĐỊA CHỈ TRÊN BẢN ĐỒ</h3>
+                            <h3 class="footer-title" style="color: #d9ff00;">MAP LOCATION</h3>
             <div class="footer-map">
                 <iframe 
                     src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3929.058643908444!2d105.735396075019!3d10.012271790092959!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a088a2556e4f4f%3A0x7c56e6603c42d087!2zVHLGsOG7nW5nIMSQ4bqhaSBo4buNYyBGUFQgQ-G7rWEgQ8awbiBUaMOybw!5e0!3m2!1svi!2s!4v1715330992296!5m2!1svi!2s" 
@@ -119,7 +119,7 @@
 
     <!-- Copyright -->
     <div class="footer-bottom">
-        <p>© 2025 Bản quyền thuộc về Group 4 SE1816 FPTU Cần Thơ. All rights reserved.</p>
+                    <p>© 2025 Copyright belongs to Group 4 SE1816 FPTU Can Tho. All rights reserved.</p>
     </div>
 </footer>
 <!-- Font Awesome (for icons) -->

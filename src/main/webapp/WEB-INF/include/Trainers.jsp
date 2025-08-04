@@ -177,7 +177,7 @@
         }
     } else {
     %>
-    <p>Không có huấn luyện viên nào</p>
+                <p>No trainers available</p>
     <%
         }
     %>

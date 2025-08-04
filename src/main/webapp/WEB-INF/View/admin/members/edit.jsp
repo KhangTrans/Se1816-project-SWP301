@@ -121,7 +121,7 @@
             <input type="text" id="editCustomerPhone" name="phone" required><br><br>
 
             <label for="editCustomerCode">Customer Code:</label>
-            <input type="text" id="editCustomerCode" name="customerCode" required><br><br>
+            <input type="text" id="editCustomerCode" name="customerCode" disabled><br><br>
 
             <label for="editCustomerAddress">Address:</label>
             <input type="text" id="editCustomerAddress" name="address" ><br><br>

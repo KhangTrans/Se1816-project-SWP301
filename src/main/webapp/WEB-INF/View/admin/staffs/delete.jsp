@@ -12,13 +12,13 @@
         <p>do you want to demote this staff to customer ?</p>
 
         <form id="deleteStaffForm" 
-              onsubmit="return submitFormAjax(this, 'resultDeleteProduct')"
+              onsubmit="return submitFormAjax(this, 'resultDeleteStaff')"
               method="post" action="<%= request.getContextPath()%>/admin/staffs">
             <input type="hidden" name="action" value="delete">
             <input type="hidden" id="deleteStaffId" name="staffId">
 
             <div style="margin-top: 20px; text-align: right;">
-                <button type="submit" class="action-buttons__btn action-buttons__btn--delete">Confirm</button>
+                <button type="submit" class="action-buttons__btn action-buttons__btn--delete">Delete</button>
                 <button type="button" class="action-buttons__btn" onclick="closeModal('deleteStaffModal')">Cancel</button>                
             </div>
 

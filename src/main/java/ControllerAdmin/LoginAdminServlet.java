@@ -59,14 +59,14 @@ public class LoginAdminServlet extends HttpServlet {
                 HttpSession session = request.getSession();
                 session.setAttribute("account", account);
 
-                out.print("{\"status\":\"success\", \"message\":\"Đăng nhập thành công\"}");
+                out.print("{\"status\":\"success\", \"message\":\"Login successful\"}");
             } else {
                 System.out.println(">> Login failed for: " + username);
-                out.print("{\"status\":\"error\", \"message\":\"Sai tài khoản hoặc mật khẩu hoặc không có quyền truy cập\"}");
+                out.print("{\"status\":\"error\", \"message\":\"Invalid username or password or no access permission\"}");
             }
         } catch (Exception e) {
             e.printStackTrace();
-            out.print("{\"status\":\"error\", \"message\":\"Lỗi hệ thống. Vui lòng thử lại sau.\"}");
+            out.print("{\"status\":\"error\", \"message\":\"System error. Please try again later.\"}");
         }
 
     }

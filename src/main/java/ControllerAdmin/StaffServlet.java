@@ -108,9 +108,19 @@ public class StaffServlet extends HttpServlet {
                     String phone = request.getParameter("phone");
                     String position = request.getParameter("position");
 
+                    // Validate format
+                    if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Invalid email format.\"}");
+                        return;
+                    }
+                    if (!phone.matches("^(0|\\+84)[1-9]\\d{8,9}$")) {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number must be in Vietnamese format.\"}");
+                        return;
+                    }
+
+                    // Kiểm tra trùng
                     if (staffdao.isEmailOrPhoneTaken(email, phone, null)) {
-                        response.setStatus(400); // Bad Request
-                        response.getWriter().write("Email or phone number already existed!");
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Email or phone number already exists!\"}");
                         return;
                     }
 
@@ -123,12 +133,11 @@ public class StaffServlet extends HttpServlet {
                         staff.setPhone(phone);
                         staff.setPosition(position);
                         staff.setStatus("active");
-
                         staffdao.addStaff(staff);
+                        response.getWriter().write("{\"status\":\"success\", \"message\":\"Staff added successfully.\"}");
+                    } else {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Account not found.\"}");
                     }
-
-                    response.setContentType("text/plain;charset=UTF-8");
-                    response.getWriter().write("added");
                     break;
                 }
 
@@ -140,9 +149,22 @@ public class StaffServlet extends HttpServlet {
                     String position = request.getParameter("position");
                     String status = request.getParameter("status");
 
+                    if (!email.matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Invalid email format.\"}");
+                        return;
+                    }
+                    if (!phone.matches("^(0|\\+84)[1-9]\\d{8,9}$")) {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Phone number must be in Vietnamese format.\"}");
+                        return;
+                    }
+                    if (staffdao.isEmailOrPhoneTaken(email, phone, accountId)) {
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Email or phone number already exists!\"}");
+                        return;
+                    }
+
                     Account account = userDao.getAccountById(accountId);
                     if (account == null) {
-                        response.sendRedirect("staffs?error=account_not_found");
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Account not found.\"}");
                         return;
                     }
 
@@ -152,16 +174,13 @@ public class StaffServlet extends HttpServlet {
                         avatarStream = avatarPart.getInputStream();
                     }
 
-                    if (staffdao.isEmailOrPhoneTaken(email, phone, null)) {
-                        response.setStatus(400); // Bad Request
-                        response.getWriter().write("Email or phone number already existed!");
-                        return;
+                    try {
+                        staffdao.updateStaff(accountId, fullName, email, phone, position, status, avatarStream);
+                        response.getWriter().write("{\"status\":\"success\", \"message\":\"Staff updated successfully.\"}");
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        response.getWriter().write("{\"status\":\"error\", \"message\":\"Update failed. Please check the data.\"}");
                     }
-
-                    // Truyền thêm email xuống hàm update
-                    staffdao.updateStaff(accountId, fullName, email, phone, position, status, avatarStream);
-
-                    response.sendRedirect("staffs");
                     break;
                 }
                 case "delete": {

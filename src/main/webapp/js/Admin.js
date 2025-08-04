@@ -108,10 +108,13 @@ async function loadAllData() {
 
 // Format currency
 function formatCurrency(amount) {
+    if (isNaN(parseFloat(amount))) {
+        return '0 ₫';
+    }
     return new Intl.NumberFormat('vi-VN', {
-        style: 'currency',
-        currency: 'VND'
-    }).format(amount);
+        style: 'decimal',
+        maximumFractionDigits: 0
+    }).format(amount) + ' ₫';
 }
 
 // Form validation
@@ -201,7 +204,7 @@ function submitFormAjax(form, resultContainerId, event) {
         console.error(" Form không có thuộc tính 'action'");
         const resultDiv = document.getElementById(resultContainerId);
         if (resultDiv) {
-            resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi: form không có action!</p>`;
+            resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Failed to load</p>`;
         }
         return false;
     }
@@ -216,18 +219,21 @@ function submitFormAjax(form, resultContainerId, event) {
                 form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
                 if (!response.ok)
                     return response.text().then(errorMessage => {
-                        throw new Error(errorMessage || `HTTP error! Status: ${response.status}`);
+                        throw new Error(errorMessage || `Failed to load`);
                     });
                 return response.text();
             })
             .then(data => {
                 const resultDiv = document.getElementById(resultContainerId);
+
                 if (resultDiv)
-                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Thành công!</p>`;
+                    resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Succesfully</p>`;
                 const modal = form.closest('.modal');
                 if (modal)
-                    setTimeout(() => closeModal(modal.id), 800);
+                    form.reset();
+                setTimeout(() => closeModal(modal.id), 800);
                 setTimeout(() => {
+                    resultDiv.innerHTML = ``;
                     if (typeof loadAccounts === 'function')
                         loadAccounts();
                     if (typeof reloadProductList === 'function')
@@ -246,6 +252,7 @@ function submitFormAjax(form, resultContainerId, event) {
                         loadPackages();
                     ;
                 }, 500);
+
             })
             .catch(error => {
                 form.querySelectorAll('input, select, textarea, button').forEach(el => el.disabled = false);
@@ -285,7 +292,7 @@ function loadAccounts() {
                 tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">Chưa có tài khoản nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No account yet</td></tr>`;
                     return;
                 }
 
@@ -293,32 +300,33 @@ function loadAccounts() {
                     const createdAtDate = new Date(acc.createdAt);
                     const formattedDate = `${createdAtDate.getMonth() + 1}/${createdAtDate.getDate()}/${createdAtDate.getFullYear()}`;
                     const avatarUrl = `${window.location.origin}${contextPath}/AvatarServlet?user=${encodeURIComponent(acc.username)}&t=${Date.now()}`;
+
+                    const isCustomer = acc.role === 'customer';
+                    const deleteBtnHTML = `
+                    <button class="action-buttons__btn action-buttons__btn--delete account-delete"
+                        data-account-id='${acc.accountId}'
+                        ${isCustomer ? 'disabled title="Unable to delete customer account" style="background-color: #6c757d; border-color: #6c757d; color: white;"' : ''}>
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
+                `;
+
                     const row = `
                     <tr>
                         <td>${index + 1}</td>
                         <td><img src="${escapeHTML(avatarUrl)}" alt="Avatar" style="width:60px;height:60px;border-radius:50%;"></td>
                         <td>${escapeHTML(acc.username)}</td>
-                        <td>${escapeHTML(acc.role)}</td>
+                        <td><span class="role-${acc.role.toLowerCase()}">${escapeHTML(acc.role)}</span></td>
                         <td>${formattedDate}</td>
                         <td>
-                 <button class="action-buttons__btn action-buttons__btn--edit account-edit"
-                    data-account-id='${acc.accountId}'
-                    data-username='${acc.username.replace(/'/g, "&#39;")}'
-                    data-role='${acc.role.replace(/'/g, "&#39;")}'
-                    data-avatar-url='${avatarUrl.replace(/'/g, "&#39;")}'
-                >
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button class="action-buttons__btn action-buttons__btn--delete account-delete"
-                    data-account-id='${acc.accountId}'>
-                    <i class="fas fa-trash-alt"></i>
-                </button>
+                           
+                            ${deleteBtnHTML}
                         </td>
                     </tr>
                 `;
                     tbody.innerHTML += row;
                 });
-                // Thêm event cho nút Edit
+
+                // Gắn sự kiện cho nút Edit
                 document.querySelectorAll('.account-edit').forEach(btn => {
                     btn.addEventListener('click', function () {
                         openEditAccountModal(
@@ -329,9 +337,12 @@ function loadAccounts() {
                                 );
                     });
                 });
-// Thêm event cho nút Delete
+
+                // Gắn sự kiện cho nút Delete (bỏ qua nếu bị disable)
                 document.querySelectorAll('.account-delete').forEach(btn => {
                     btn.addEventListener('click', function () {
+                        if (btn.disabled)
+                            return;
                         openDeleteAccountModal(this.dataset.accountId);
                     });
                 });
@@ -380,7 +391,7 @@ function filterAccounts() {
                         <td>${index + 1}</td>
                         <td><img src="${escapeHTML(avatarUrl)}" style="width:40px;height:40px;border-radius:50%;"></td>
                         <td>${escapeHTML(acc.username)}</td>
-                        <td>${escapeHTML(acc.role)}</td>
+                        <td><span class="role-${acc.role.toLowerCase()}">${escapeHTML(acc.role)}</span></td>
                         <td>${escapeHTML(acc.createdAt)}</td>
                         <td>
                  <button class="action-buttons__btn action-buttons__btn--edit account-edit"
@@ -422,11 +433,11 @@ function deleteAccountAjax(accountId) {
                     loadAccounts();
                     closeModal("deleteAccountModal");
                 } else {
-                    alert("Xóa thất bại.");
+                    alert("Delete failed.");
                 }
             }).catch(err => {
-        console.error("Lỗi khi xóa:", err);
-        alert("Có lỗi xảy ra khi xóa.");
+        console.error("Error when deleting:", err);
+        alert("An error occurred while deleting.");
     });
 }
 
@@ -460,9 +471,12 @@ function submitDeleteAccount(form) {
             .then(result => {
                 if (result === "OK") {
                     if (resultDiv) {
-                        resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Xóa thành công!</p>`;
+                        resultDiv.innerHTML = `<p style="color:green; font-weight:bold;">Delete successfully!</p>`;
                     }
+
                     setTimeout(() => {
+                        form.reset();
+                        resultDiv.innerHTML = ``;
                         closeModal("deleteAccountModal");
                         loadAccounts(); // Reload danh sách tài khoản
                     }, 800);
@@ -475,7 +489,7 @@ function submitDeleteAccount(form) {
             .catch(err => {
                 console.error("Lỗi khi xóa:", err);
                 if (resultDiv) {
-                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Lỗi khi xóa: ${err.message}</p>`;
+                    resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">Delete error</p>`;
                 }
             });
 
@@ -489,7 +503,7 @@ function openEditProductModal(productId) {
     fetch(`/SE1816_Gym_Group_4/CategoryServlet?id=${productId}`)
             .then(res => {
                 if (!res.ok)
-                    throw new Error("Không thể tải dữ liệu sản phẩm");
+                    throw new Error("Unable to load product data");
                 return res.json();
             })
             .then(data => {
@@ -540,7 +554,7 @@ function openEditProductModal(productId) {
                 if (product.primaryImageId) {
                     imagePreview.src = `/SE1816_Gym_Group_4/ImagesServlet?type=product&imageId=${product.primaryImageId}`;
                     imagePreview.style.display = "block";
-                    imageFilenameLabel.textContent = "(ảnh hiện tại)";
+                    imageFilenameLabel.textContent = "(current image)";
                 } else {
                     imagePreview.src = "";
                     imagePreview.style.display = "none";
@@ -554,6 +568,7 @@ function openEditProductModal(productId) {
                 if (Array.isArray(data.images)) {
                     data.images.forEach(img => {
                         const imgWrapper = document.createElement('div');
+                        imgWrapper.setAttribute('data-image-id', img.imageId); 
                         imgWrapper.style.position = "relative";
                         imgWrapper.style.display = "inline-block";
 
@@ -563,10 +578,10 @@ function openEditProductModal(productId) {
                         imgEl.style.margin = "5px";
                         imgEl.style.borderRadius = "6px";
                         imgEl.style.border = img.isPrimary ? "2px solid red" : "1px solid #ccc";
-                        imgEl.title = img.isPrimary ? "Ảnh chính (double click để đổi)" : "Click đúp để chọn ảnh chính";
+                        imgEl.title = img.isPrimary ? "Main image (double click to change)" : "Double click to select as main image";
 
                         imgEl.ondblclick = () => {
-                            if (confirm("Chọn ảnh này làm ảnh đại diện chính?")) {
+                            if (confirm("Select this image as main profile image?")) {
                                 setPrimaryImage(product.productId, img.imageId);
                             }
                         };
@@ -583,11 +598,11 @@ function openEditProductModal(productId) {
                         deleteBtn.style.border = "none";
                         deleteBtn.style.cursor = "pointer";
                         deleteBtn.style.fontSize = "12px";
-                        deleteBtn.title = "Xóa ảnh";
+                        deleteBtn.title = "Delete image";
                         deleteBtn.onclick = () => {
-                            if (confirm("Bạn có chắc chắn muốn xóa ảnh này không?")) {
+//                            if (confirm("Bạn có chắc chắn muốn xóa ảnh này không?")) {
                                 deleteProductImage(img.imageId);
-                            }
+//                            }
                         };
 
                         imgWrapper.appendChild(imgEl);
@@ -619,14 +634,14 @@ function deleteProductImage(imageId) {
             .then(res => res.text())
             .then(result => {
                 if (result === "image_deleted") {
-                    alert("Đã xóa ảnh.");
-                    const pid = document.getElementById('editProductId').value;
-                    openEditProductModal(pid); // Tải lại modal
+//                    alert("Đã xóa ảnh.");
+                    const imgWrapper = document.querySelector(`[data-image-id="${imageId}"]`);
+            if (imgWrapper) imgWrapper.remove();
                 } else {
-                    alert("Không xóa được ảnh.");
+                    alert("Unable to delete image.");
                 }
             })
-            .catch(err => alert("Lỗi khi xóa ảnh: " + err));
+            .catch(err => alert("Error deleting image: " + err));
 }
 
 // ======================== CHỌN ẢNH LÀM ĐẠI DIỆN ========================
@@ -643,13 +658,13 @@ function setPrimaryImage(productId, imageId) {
             .then(res => res.text())
             .then(result => {
                 if (result === "primary_set") {
-                    alert("Đã cập nhật ảnh đại diện.");
-                    openEditProductModal(productId); // Tải lại modal
+                    alert("Profile image updated successfully.");
+                    openEditProductModal(productId); // Reload modal
                 } else {
-                    alert("Không cập nhật được.");
+                    alert("Unable to update.");
                 }
             })
-            .catch(err => alert("Lỗi khi đặt ảnh đại diện: " + err));
+            .catch(err => alert("Error setting profile image: " + err));
 }
 
 
@@ -690,51 +705,45 @@ function reloadProductList() {
                             ? product.description.slice(0, 150) + "..."
                             : product.description;
 
-                    // Khi render bảng: escape!
                     const row = `
-                    <tr>
-                        <td style="width:60px;">${index + 1}</td>
-                        <td><img src="${escapeHTML(imageUrl)}" alt="Image" style="width:100px; height:100px; border-radius:10px; margin-top: 5px"></td>
-                        <td>${escapeHTML(product.name)}</td>
-                        <td>${escapeHTML(product.categoryName)}</td>
-                        <td>${escapeHTML(product.price.toLocaleString('vi-VN'))} đ</td>
-                        <td>${escapeHTML(product.stockQuantity + '')}</td>
-                        <td>
-                           
-                           <button class="action-buttons__btn action-buttons__btn--view product-view"
-                                 data-product-id='${product.productId}'
-                                 data-name='${product.name.replace(/'/g, "&#39;")}'
-                                 data-description='${product.description.replace(/'/g, "&#39;")}'
-                                 data-price='${product.price}'
-                                 data-stock-quantity='${product.stockQuantity}'
-                                 data-category-name='${product.categoryName.replace(/'/g, "&#39;")}'
-                                 data-image-url='${imageUrl.replace(/'/g, "&#39;")}'>
-                                  <i class="fas fa-eye"></i>
-                            </button>
-
-                            <button class="action-buttons__btn action-buttons__btn--edit product-edit"
-                                data-product-id='${product.productId}'
-                                data-name='${product.name.replace(/'/g, "&#39;")}'
-                                data-description='${product.description.replace(/'/g, "&#39;")}'
-                                data-price='${product.price}'
-                                data-stock-quantity='${product.stockQuantity}'
-                                data-category-id='${product.categoryId}'
-                                data-image-url='${imageUrl.replace(/'/g, "&#39;")}'
-                            >
-                                <i class="fas fa-edit"></i>
-                            </button>
-                            <button class="action-buttons__btn action-buttons__btn--delete product-delete"
-                                data-product-id='${product.productId}'>
-                                <i class="fas fa-trash-alt"></i>
-                            </button>
-                        </td>
-            
-                    </tr>
+                <tr>
+                    <td style="width:60px;">${index + 1}</td>
+                    <td><img src="${escapeHTML(imageUrl)}" alt="Image" style="width:100px; height:100px; border-radius:10px; margin-top: 5px"></td>
+                    <td>${escapeHTML(product.name)}</td>
+                    <td>${escapeHTML(product.categoryName)}</td>
+                    <td>${escapeHTML(product.price.toLocaleString('vi-VN'))} đ</td>
+                    <td>${escapeHTML(product.stockQuantity + '')}</td>
+                    <td>
+                        <button class="action-buttons__btn action-buttons__btn--view product-view"
+                            data-product-id='${product.productId}'
+                            data-name='${product.name.replace(/'/g, "&#39;")}'
+                            data-description='${product.description.replace(/'/g, "&#39;")}'
+                            data-price='${product.price}'
+                            data-stock-quantity='${product.stockQuantity}'
+                            data-category-name='${product.categoryName.replace(/'/g, "&#39;")}'
+                            data-image-url='${imageUrl.replace(/'/g, "&#39;")}'>
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--edit product-edit"
+data-product-id='${product.productId}'
+                            data-name='${product.name.replace(/'/g, "&#39;")}'
+                            data-description='${product.description.replace(/'/g, "&#39;")}'
+                            data-price='${product.price}'
+                            data-stock-quantity='${product.stockQuantity}'
+                            data-category-id='${product.categoryId}'
+                            data-image-url='${imageUrl.replace(/'/g, "&#39;")}'>
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="action-buttons__btn action-buttons__btn--delete product-delete"
+                            data-product-id='${product.productId}'>
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
                 `;
                     tbody.innerHTML += row;
                 });
 
-                // Gán sự kiện an toàn
                 document.querySelectorAll('.product-edit').forEach(btn => {
                     btn.addEventListener('click', function () {
                         openEditProductModal(
@@ -777,6 +786,14 @@ function reloadProductList() {
             });
 }
 
+// Thêm trình nghe sự kiện cho tìm kiếm động và bộ lọc danh mục
+document.getElementById('searchKeyword').addEventListener('input', function () {
+    reloadProductList();
+});
+
+document.getElementById('categoryFilter').addEventListener('change', function () {
+    reloadProductList();
+});
 //-----------------------------------------
 
 
@@ -806,12 +823,12 @@ function validateProductForm(form) {
     const stock = parseInt(form.stockQuantity.value);
 
     if (price <= 0 || stock <= 0) {
-        alert("Giá và số lượng trong kho phải lớn hơn 0.");
+        alert("Price and stock quantity must be greater than 0.");
         return false;
     }
 
     if (form.categoryId.value === "") {
-        alert("Vui lòng chọn thể loại.");
+        alert("Please select a category.");
         return false;
     }
 
@@ -923,7 +940,7 @@ function loadVouchers() {
                     <td>${escapeHTML(voucher.code)}</td>
                     <td>${escapeHTML(voucher.description)}</td>
                     <td>${voucher.discountPercent}</td>
-                    <td>${voucher.isActive ? 'Active' : 'Inactive'}</td>
+                    <td><span class="status-${voucher.isActive ? 'active' : 'inactive'}-voucher">${voucher.isActive ? 'Active' : 'Inactive'}</span></td>
                     <td>
                         <button class="action-buttons__btn action-buttons__btn--view" 
                             onclick="viewVoucherDetail('${voucher.voucherId}')">
@@ -932,10 +949,6 @@ function loadVouchers() {
                         <button class="action-buttons__btn action-buttons__btn--edit" 
                             onclick="openEditVoucherModal('${voucher.voucherId}', '${safeCode}', '${safeDescription}', '${voucher.discountPercent}', '${voucher.maxDiscount}', '${voucher.usageLimit}', '${voucher.usedCount}', '${voucher.minOrderAmount}', '${voucher.startDate}', '${voucher.endDate}', '${voucher.isActive}')">
                             <i class="fas fa-edit"></i>
-                        </button>
-                        <button class="action-buttons__btn action-buttons__btn--delete" 
-                            onclick="openDeleteVoucherModal('${voucher.voucherId}')">
-                            <i class="fas fa-trash-alt"></i>
                         </button>
                     </td>
                 </tr>`;
@@ -1341,8 +1354,15 @@ function loadOrders() {
                     const groupData = ordersByReferralCode[refCode];
                     const firstOrder = groupData.orders[0];
 
+                    // Check if the order is cancelled or shipped to disable status dropdown and edit button
+                    const isLocked = firstOrder.status === 'cancelled' || firstOrder.status === 'shipped';
+                    const disabledAttr = isLocked ? 'disabled' : '';
+                    const disabledStyle = isLocked ? 'background-color: #f0f0f0; cursor: not-allowed;' : '';
+
                     const statusDropdown = `
-                    <select class="status-dropdown" name="status_${escapeHTML(firstOrder.orderId)}" onchange="updateOrderStatus('${escapeJSAttr(firstOrder.orderId)}', this.value)">
+                    <select class="status-dropdown" name="status_${escapeHTML(firstOrder.orderId)}" 
+                            onchange="updateOrderStatus('${escapeJSAttr(firstOrder.orderId)}', this.value)"
+                            ${disabledAttr} style="${disabledStyle}">
                         <option value="pending" ${firstOrder.status === 'pending' ? 'selected' : ''} class="status-pending">Pending</option>
                         <option value="processing" ${firstOrder.status === 'processing' ? 'selected' : ''} class="status-processing">Processing</option>
                         <option value="shipped" ${firstOrder.status === 'shipped' ? 'selected' : ''} class="status-shipped">Shipped</option>
@@ -1363,15 +1383,12 @@ function loadOrders() {
                   >
                   <i class="bi bi-eye"></i>
                   </button>
-                  <button class="action-buttons__btn action-buttons__btn--edit order-edit"
+                  <button class="action-buttons__btn action-buttons__btn--edit order-edit ${isLocked ? 'disabled' : ''}"
                   data-order-id="${String(firstOrder.orderId || '').replace(/'/g, "&#39;")}"
+                  ${isLocked ? 'disabled' : ''}
+                  style="${isLocked ? 'opacity: 0.5; cursor: not-allowed;' : ''}"
                   >
                   <i class="fas fa-edit"></i>
-                  </button>
-                  <button class="action-buttons__btn action-buttons__btn--delete order-delete"
-                  data-referral-code="${String(refCode || '').replace(/'/g, "&#39;")}"
-                  >
-                   <i class="fas fa-trash-alt"></i>
                   </button>
                    </td>
                  </tr>`;
@@ -1389,15 +1406,12 @@ function loadOrders() {
 // Gán event cho nút Edit
                 document.querySelectorAll('.order-edit').forEach(btn => {
                     btn.addEventListener('click', function () {
+                        // Skip if button is disabled (cancelled order)
+                        if (this.disabled || this.classList.contains('disabled')) {
+                            return;
+                        }
                         const orderId = this.dataset.orderId.replace(/&#39;/g, "'");
                         openEditOrderModal(orderId);
-                    });
-                });
-// Gán event cho nút Delete
-                document.querySelectorAll('.order-delete').forEach(btn => {
-                    btn.addEventListener('click', function () {
-                        const referralCode = this.dataset.referralCode.replace(/&#39;/g, "'");
-                        openDeleteOrdersByReferralCodeModal(referralCode);
                     });
                 });
             })
@@ -1416,7 +1430,7 @@ function formatVndPrice(price) {
     if (price < 1000 && price > 0) {
         price = price * 1000;
     }
-    return price.toLocaleString() + ' VND';
+    return price.toLocaleString() + ' ₫';
 }
 
 // Function to view order details by referral code
@@ -1499,6 +1513,46 @@ function closeOrderDetailModal() {
 
 // Function to update order status
 function updateOrderStatus(orderId, newStatus) {
+    // Check if the select is disabled (cancelled or shipped order)
+    const statusDropdown = document.querySelector(`select[name="status_${orderId}"]`);
+    if (statusDropdown && statusDropdown.disabled) {
+        // Get the current status
+        const currentStatus = statusDropdown.value;
+
+        // Create notification to inform user that cancelled or shipped orders can't be edited
+        const notification = document.createElement('div');
+        notification.textContent = `${currentStatus === 'cancelled' ? 'Cancelled' : 'Shipped'} orders cannot be modified`;
+        notification.style.position = 'fixed';
+        notification.style.top = '20px';
+        notification.style.right = '20px';
+        notification.style.color = 'red';
+        notification.style.fontWeight = 'bold';
+        notification.style.zIndex = '1000';
+        notification.style.backgroundColor = '#ffe6e6';
+        notification.style.padding = '10px';
+        notification.style.borderRadius = '5px';
+
+        document.body.appendChild(notification);
+
+        // Remove notification after 3 seconds
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            notification.style.transition = 'opacity 0.5s';
+            setTimeout(() => {
+                document.body.removeChild(notification);
+            }, 500);
+        }, 3000);
+
+        // Reset to previous value
+        setTimeout(() => {
+            if (statusDropdown) {
+                statusDropdown.value = currentStatus;
+            }
+        }, 0);
+
+        return;
+    }
+
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const url = `${window.location.origin}${contextPath}/admin/orders`;
 
@@ -1524,8 +1578,28 @@ function updateOrderStatus(orderId, newStatus) {
                 if (data.status === "updated") {
                     // Update the UI for this specific row
                     const statusCell = document.querySelector(`select[name="status_${orderId}"]`);
+                    const editButton = document.querySelector(`button.order-edit[data-order-id="${orderId}"]`);
+
                     if (statusCell) {
                         statusCell.value = newStatus;
+
+                        // If status changed to cancelled or shipped, disable the controls
+                        if (newStatus === 'cancelled' || newStatus === 'shipped') {
+                            // Disable the dropdown
+                            statusCell.disabled = true;
+                            statusCell.style.backgroundColor = '#f0f0f0';
+                            statusCell.style.cursor = 'not-allowed';
+
+                            // Disable the edit button
+                            if (editButton) {
+                                editButton.disabled = true;
+                                editButton.classList.add('disabled');
+                                editButton.style.opacity = '0.5';
+                                editButton.style.cursor = 'not-allowed';
+                            }
+
+
+                        }
                     }
 
                     // Create simple text notification in the corner
@@ -1586,7 +1660,36 @@ function openEditOrderModal(orderId) {
 
                 // Fill in the form fields with order data
                 document.getElementById('editOrderId').value = order.orderId || '';
-                document.getElementById('editStatus').value = order.status || 'pending';
+                // Make Quantity readonly like Referral Code & Product Name
+                const quantityField = document.getElementById('editOrderQuantity');
+                quantityField.readOnly = true;
+
+                // Create a hidden input to store the status value since the select is removed
+                let hiddenStatus = document.getElementById('hiddenStatusField');
+                if (!hiddenStatus) {
+                    hiddenStatus = document.createElement('input');
+                    hiddenStatus.type = 'hidden';
+                    hiddenStatus.id = 'hiddenStatusField';
+                    hiddenStatus.name = 'status';
+                    document.getElementById('editOrderForm').appendChild(hiddenStatus);
+                }
+                hiddenStatus.value = order.status || 'pending';
+
+                // Remove any existing notices first to avoid duplicates
+                const formBody = document.querySelector('#editOrderForm');
+                const existingNotices = formBody.querySelectorAll('.edit-notice');
+                existingNotices.forEach(notice => notice.remove());
+
+                // If the order status is "shipped" or "cancelled", disable all form fields
+                const isLocked = order.status === 'cancelled' || order.status === 'shipped';
+                if (isLocked) {
+                    // Disable all form fields
+                    document.getElementById('editShippingAddress').readOnly = true;
+                    document.getElementById('editCustomerName').readOnly = true;
+                    document.getElementById('editCustomerPhone').readOnly = true;
+
+                    // No information box needed as requested
+                }
                 document.getElementById('editShippingAddress').value = order.shippingAddress || '';
                 document.getElementById('editCustomerName').value = order.customerName || '';
                 document.getElementById('editCustomerPhone').value = order.customerPhoneNumber || '';
@@ -1641,6 +1744,33 @@ function openEditOrderModal(orderId) {
 function submitEditOrder(form) {
     event.preventDefault();
     console.log("Submitting edit order form");
+
+    // Check if the order status is "shipped" or "cancelled"
+    const hiddenStatus = document.getElementById('hiddenStatusField');
+    if (hiddenStatus && (hiddenStatus.value === 'shipped' || hiddenStatus.value === 'cancelled')) {
+        const resultDiv = document.getElementById("resultEditOrder");
+        resultDiv.innerHTML = `<p style="color:red; font-weight:bold;">${hiddenStatus.value === 'cancelled' ? 'Cancelled' : 'Shipped'} orders cannot be modified</p>`;
+        return false;
+    }
+
+    // Ensure disabled fields' values are still included in the form submission
+    // This is necessary because browsers don't include disabled fields in form submissions
+    const orderQuantity = document.getElementById('editOrderQuantity');
+    if (orderQuantity && orderQuantity.disabled) {
+        // Create a hidden input to ensure the quantity is submitted
+        let hiddenQuantity = document.getElementById('hiddenQuantity');
+        if (!hiddenQuantity) {
+            hiddenQuantity = document.createElement('input');
+            hiddenQuantity.type = 'hidden';
+            hiddenQuantity.id = 'hiddenQuantity';
+            hiddenQuantity.name = 'quantity';
+            form.appendChild(hiddenQuantity);
+        }
+        hiddenQuantity.value = orderQuantity.value;
+    }
+
+    // Hidden status field is already created in openEditOrderModal function
+    // No need to create another hidden status field here
 
     // Validate quantity if present
     const quantityInput = document.getElementById('editOrderQuantity');
@@ -1915,7 +2045,7 @@ function loadStaffData() {
                     <td>${escapeHTML(staff.email)}</td>
                     <td>${escapeHTML(staff.phone)}</td>
                     <td>${escapeHTML(staff.position)}</td>
-                    <td>${escapeHTML(staff.status)}</td>
+                    <td><span class="status-${staff.status.toLowerCase() === 'active' ? 'active' : 'inactive'}-voucher">${escapeHTML(staff.status)}</span></td>
                     <td>${escapeHTML(staff.staffCode)}</td>
                     <td>
                         <button class="action-buttons__btn action-buttons__btn--edit staff-edit"
@@ -2089,30 +2219,48 @@ function openDeleteStaffModal(staffId) {
     openModal('deleteStaffModal');
 }
 
-function validateStaffForm(form, errorDivId) {
-    var errorDiv = document.getElementById(errorDivId);
-    if (errorDiv)
-        errorDiv.innerText = ''; // clear old error
+function submitFormAjaxStaff(form, resultDivId) {
+    const formData = new FormData(form);
+    const resultDiv = document.getElementById(resultDivId);
+    // Xóa message cũ
 
-    var phoneInput = form.querySelector('input[name="phone"]');
-    var phone = phoneInput.value.trim();
-    var vietPhoneRegex = /^(0|\+84)(3[2-9]|5[6|8|9]|7[06-9]|8[1-5]|9[0-9])[0-9]{7}$/;
-    if (!vietPhoneRegex.test(phone)) {
-        if (errorDiv)
-            errorDiv.innerText = "Please enter a valid Vietnamese phone number!";
-        phoneInput.focus();
-        return false;
-    }
-    var emailInput = form.querySelector('input[name="email"]');
-    var email = emailInput.value.trim();
-    var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i;
-    if (!emailRegex.test(email)) {
-        if (errorDiv)
-            errorDiv.innerText = "Please enter a valid email address!";
-        emailInput.focus();
-        return false;
-    }
-    return true;
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/admin/staffs`;
+
+    fetch(url, {
+        method: 'POST',
+        body: formData
+    })
+            .then(response => {
+                if (!response.ok)
+                    throw new Error(`Failed to create staff`);
+                return response.json();
+            })
+            .then(data => {
+                if (data.status === 'success') {
+                    resultDiv.style.color = 'green';
+                    resultDiv.innerHTML = data.message;
+
+                    setTimeout(() => {
+                        resultDiv.innerHTML = '';
+                        form.reset();
+                        closeModal(form.closest('.modal').id || 'editStaffModal');
+                        loadStaffData(); // reload lại danh sách staff
+                    }, 1000); // Tải lại danh sách ngay
+                } else {
+                    resultDiv.style.color = 'red';
+                    resultDiv.innerHTML = data.message;
+                    setTimeout(() => {
+                        resultDiv.innerHTML = '';
+                    }, 1000);
+                }
+            })
+            .catch(error => {
+                resultDiv.style.color = 'red';
+                resultDiv.innerHTML = `Failed to create staff`;
+            });
+
+    return false;
 }
 
 
@@ -2136,7 +2284,7 @@ function validateAddTrainerForm() {
     // Email
     const email = document.getElementById('email').value.trim();
     if (!emailRegex.test(email)) {
-        document.getElementById('emailError').innerText = 'Email không hợp lệ.';
+        document.getElementById('emailError').innerText = 'Invalid email format.';
         valid = false;
     }
 
@@ -2159,14 +2307,14 @@ function validateEditTrainerForm() {
     // Email
     const email = document.getElementById('editTrainerEmail').value.trim();
     if (!emailRegex.test(email)) {
-        alert('Email không hợp lệ.');
+        alert('Invalid email format.');
         valid = false;
     }
 
     // Phone
     const phone = document.getElementById('editTrainerPhone').value.trim();
     if (!phoneRegex.test(phone)) {
-        alert('Số điện thoại phải là định dạng Việt Nam (bắt đầu bằng 0 hoặc +84, 9-10 chữ số).');
+        alert('Phone number must be in Vietnamese format (starting with 0 or +84, 9-10 digits).');
         valid = false;
     }
 
@@ -2195,7 +2343,7 @@ function reloadTrainerList() {
                 tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Không có huấn luyện viên nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No trainer</td></tr>`;
                     return;
                 }
 
@@ -2207,7 +2355,7 @@ function reloadTrainerList() {
 
                     const formattedPrice = (trainer.price != null && !isNaN(trainer.price))
                             ? trainer.price.toLocaleString('vi-VN') + ' VND'
-                            : '0 VND';
+                            : '0 ₫';
 
                     const row = `
                 <tr>
@@ -2215,7 +2363,7 @@ function reloadTrainerList() {
                     <td>${escapeHTML(account.username)}</td>  
                     <td>${escapeHTML(trainer.fullName)}</td>
                     <td>${escapeHTML(String(trainer.experienceYears))} year</td>
-                    <td>${escapeHTML(trainer.rating.toFixed(1))} ★</td>
+                    <td>${escapeHTML(trainer.rating.toFixed(1))} <i class="fa fa-star" style="color: orange" aria-hidden="true"></i></td>
                     <td>${escapeHTML(formattedPrice)}</td>
                     <td>
                         <button class="action-buttons__btn action-buttons__btn--view trainer-view"
@@ -2302,6 +2450,7 @@ function submitEditTrainerForm(form, resultContainerId) {
                     resultContainer.innerHTML = `<p style="color:green;">${result.message}</p>`;
                     form.reset();
                     setTimeout(() => {
+                        resultContainer.innerHTML = ``;
                         closeModal('editTrainerModal');
                         reloadTrainerList();
                     }, 700);
@@ -2340,7 +2489,7 @@ function openEditTrainerModal(trainerId) {
                     document.getElementById("editTrainerPrice").value = trainer.price || '0';
                     document.getElementById('editTrainerModal').style.display = 'flex';
                 } else {
-                    alert("Không tìm thấy trainer.");
+                    alert("Trainer not found.");
                 }
             })
             .catch(err => {
@@ -2364,11 +2513,11 @@ function openDeleteTrainerModal(trainerId) {
                     document.getElementById('deleteTrainerId').value = trainerId;
                     document.getElementById('deleteTrainerModal').style.display = 'flex';
                 } else {
-                    alert("Không tìm thấy trainer.");
+                    alert("Trainer not found.");
                 }
             })
             .catch(err => {
-                alert("Lỗi khi lấy trainer: " + err);
+                alert("Error retrieving trainer: " + err);
             });
 }
 
@@ -2391,21 +2540,22 @@ function submitDeleteTrainer() {
                 try {
                     result = JSON.parse(rawText);
                 } catch (err) {
-                    resultDiv.innerHTML = `<p style="color:red;">Lỗi server: ${rawText}</p>`;
+                    resultDiv.innerHTML = `<p style="color:red;">Failed to deleted</p>`;
                     return;
                 }
                 if (result.status === 'success') {
                     resultDiv.innerHTML = `<p style="color:green;">${result.message}</p>`;
                     setTimeout(() => {
+                        resultDiv.innerHTML = ``;
                         closeModal('deleteTrainerModal');
                         reloadTrainerList();
                     }, 700);
                 } else {
-                    resultDiv.innerHTML = `<p style="color:red;">${result.message}</p>`;
+                    resultDiv.innerHTML = `<p style="color:red;">Failed to deleted</p>`;
                 }
             })
             .catch(error => {
-                resultDiv.innerHTML = `<p style="color:red;">Lỗi server: ${error.message}</p>`;
+                resultDiv.innerHTML = `<p style="color:red;">Failed to deleted</p>`;
             });
 }
 
@@ -2489,6 +2639,7 @@ function submitFormAjaxTrainers(form, resultContainerId) {
                     console.log(result.message);
                     form.reset();
                     setTimeout(() => {
+                        resultContainer.innerHTML = ``;
                         closeModal('addTrainer');
                         reloadTrainerList();  // Tải lại danh sách trainer
                     }, 500);
@@ -2537,19 +2688,19 @@ function openDetailTrainerModal(trainerId) {
                     document.getElementById('detailTrainerBio').innerText = trainer.bio || '';
                     document.getElementById('detailTrainerExperience').innerText = trainer.experienceYears || '';
                     document.getElementById('detailTrainerRating').innerText = trainer.rating || '';
-                    document.getElementById('detailTrainerPrice').innerText = (trainer.price || 0).toLocaleString('vi-VN') + ' VND';
+                    document.getElementById('detailTrainerPrice').innerText = (trainer.price || 0).toLocaleString('vi-VN') + ' ₫';
                     document.getElementById('detailTrainerCode').innerText = trainer.trainer_code || '';
 
 
 
-                    // Mở modal chi tiết
+                    // Open detail modal
                     document.getElementById('detailTrainerModal').style.display = 'block';
                 } else {
-                    alert("Không tìm thấy trainer.");
+                    alert("Trainer not found.");
                 }
             })
             .catch(err => {
-                alert("Lỗi khi lấy trainer: " + err);
+                alert("Error retrieving trainer: " + err);
             });
 }
 
@@ -2557,6 +2708,55 @@ function openDetailTrainerModal(trainerId) {
 function closeDetailTrainerModal() {
     document.getElementById('detailTrainerModal').style.display = 'none';
 }
+
+
+
+
+function loadPackageOptions() {
+    const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
+    const url = `${window.location.origin}${contextPath}/MemberShipPackageServlet?action=loadPackages`;
+
+    fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    console.error(`Lỗi khi gọi API loadPackages, mã lỗi: ${response.status}`);
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log("Dữ liệu gói thành viên trả về: ", data);
+                const packageSelect = document.getElementById('packageName');
+                // Xóa các option hiện có ngoại trừ option mặc định "Select Package"
+                packageSelect.innerHTML = '<option value="">Select Package</option>';
+                if (!Array.isArray(data) || data.length === 0) {
+                    console.warn("There are no membership packages to display.");
+                    return;
+                }
+                // Điền dropdown với tên các gói
+                data.forEach(packageItem => {
+                    const option = document.createElement('option');
+                    option.value = packageItem.name; // Giả sử 'name' là trường trong model Package
+                    option.textContent = packageItem.name;
+                    packageSelect.appendChild(option);
+                });
+            })
+            .catch(error => {
+                console.error('Lỗi khi tải danh sách gói:', error);
+                const errorMsg = document.getElementById('errorMessage');
+                errorMsg.textContent = 'Lỗi khi tải danh sách gói thành viên!';
+                errorMsg.style.display = 'block';
+                setTimeout(() => {
+                    errorMsg.style.display = 'none';
+                }, 3000);
+            });
+}
+
+// Gọi loadPackageOptions khi trang tải
+document.addEventListener('DOMContentLoaded', function () {
+    loadPackageOptions();
+    loadMemberPackage(); // Cũng tải bảng gói thành viên
+});
 
 function loadMemberPackage() {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
@@ -2593,7 +2793,7 @@ function loadMemberPackage() {
                 tbody.innerHTML = '';
 
                 if (!Array.isArray(data) || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">Không có gói thành viên nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;">No membership packages available</td></tr>`;
                     return;
                 }
 
@@ -2733,7 +2933,7 @@ function loadCategori() {
                 tbody.innerHTML = '';
 
                 if (data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">Không có danh mục nào</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;">No categories yet</td></tr>`;
                     return;
                 }
 
@@ -2936,7 +3136,7 @@ function openEditCustomerModal(customerId) {
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const cus = customerDataMap[customerId];
     if (!cus) {
-        alert("Không tìm thấy dữ liệu khách hàng!");
+        alert("Customer data not found!");
         return;
     }
     document.getElementById("editCustomerId").value = cus.customerId || '';
@@ -2944,7 +3144,7 @@ function openEditCustomerModal(customerId) {
     document.getElementById("editCustomerEmail").value = cus.email || '';
     document.getElementById("editCustomerPhone").value = cus.phone || '';
     document.getElementById("editCustomerCode").value = cus.customerCode || '';
-    document.getElementById("editCustomerAddress").value = cus.address || '';
+    document.getElementById("editCustomerAddress").value = cus.address ;
     document.getElementById("editCustomerAccountId").value = cus.account.accountId || '';
     document.getElementById("editCustomerAvatarPreview").src =
             `${window.location.origin}${contextPath}/AvatarServlet?user=${cus.account.username}&t=${Date.now()}`;
@@ -2997,7 +3197,7 @@ function submitDeleteCustomer(event) {
 function submitFormAjaxCO(form, resultDivId) {
     const formData = new FormData(form);
     const resultDiv = document.getElementById(resultDivId);
-    resultDiv.innerHTML = ''; // Xóa message cũ
+
 
     const contextPath = window.location.pathname.split('/')[1] ? `/${window.location.pathname.split('/')[1]}` : '';
     const url = `${window.location.origin}${contextPath}/admin/customer`;
@@ -3016,11 +3216,15 @@ function submitFormAjaxCO(form, resultDivId) {
                     resultDiv.style.color = 'green';
                     resultDiv.innerHTML = data.message;
                     console.log("DEBUG: Success - Preparing to close modal");
-
-                    // Đóng modal ngay lập tức (loại bỏ setTimeout để tránh delay gây lỗi)
-                    const modalId = form.closest('.modal').id || 'editCustomerModal'; // Fallback nếu closest không hoạt động
-                    closeModal(modalId);
-                    loadCustomers(); // Tải lại danh sách ngay
+                    setTimeout(() => {
+                        // Đóng modal ngay lập tức (loại bỏ setTimeout để tránh delay gây lỗi)
+                        resultDiv.innerHTML = '';
+                        form.reset()
+                        const modalId = form.closest('.modal').id || 'editCustomerModal'; // Fallback nếu closest không hoạt động
+                        closeModal(modalId);
+                        loadCustomers();
+                    }, 800);
+                    // Tải lại danh sách ngay
                 } else {
                     resultDiv.style.color = 'red';
                     resultDiv.innerHTML = data.message;
@@ -3196,13 +3400,13 @@ function setPrimaryImageForBlog(blogId, imageId) {
             .then(res => res.text())
             .then(result => {
                 if (result === "primary_set") {
-                    alert("Đã cập nhật ảnh chính cho blog.");
-                    reloadBlogList(); // Tải lại danh sách blog
+                    alert("Main image updated for blog successfully.");
+                    reloadBlogList(); // Reload blog list
                 } else {
-                    alert("Không cập nhật được ảnh chính.");
+                    alert("Unable to update main image.");
                 }
             })
-            .catch(err => alert("Lỗi khi đặt ảnh chính: " + err));
+            .catch(err => alert("Error setting main image: " + err));
 }
 
 
@@ -3323,14 +3527,14 @@ function deleteBlogImage(imageId) {
             .then(res => res.text())
             .then(result => {
                 if (result === "image_deleted") {
-                    alert("Đã xóa ảnh.");
+                    alert("Image deleted successfully.");
                     const pid = document.getElementById('editBlogId').value;
-                    openEditProductModal(pid); // Tải lại modal
+                    openEditProductModal(pid); // Reload modal
                 } else {
-                    alert("Không xóa được ảnh.");
+                    alert("Unable to delete image.");
                 }
             })
-            .catch(err => alert("Lỗi khi xóa ảnh: " + err));
+            .catch(err => alert("Error deleting image: " + err));
 }
 
 
@@ -3458,7 +3662,7 @@ function loadPackages(searchKeyword = '') {
             })
             .catch(error => {
                 console.error("❌ Failed to load packages:", error);
-                alert("Không thể tải danh sách gói tập!");
+                alert("Unable to load package list!");
             });
 }
 

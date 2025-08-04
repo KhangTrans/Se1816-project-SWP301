@@ -139,6 +139,8 @@ public class MemberShipPackageDao extends DBcontext {
 
     public List<CustomerMembership> searchCustomerMemberships(String username, String packageName, String paymentStatus) {
         List<CustomerMembership> customerMembershipList = new ArrayList<>();
+        
+        updateExpiredMemberships();
         StringBuilder sql = new StringBuilder("SELECT cm.membership_id, cm.account_id, cm.package_id, cm.start_date, cm.end_date, cm.payment_status, "
                 + "a.username, m.name AS package_name "
                 + "FROM customer_memberships cm "
@@ -207,6 +209,17 @@ public class MemberShipPackageDao extends DBcontext {
             e.printStackTrace();
         }
         return customerMembershipList;
+    }
+    
+    public void updateExpiredMemberships() {
+        String sql = "UPDATE customer_memberships SET payment_status = 'cancelled' "
+                + "WHERE end_date < ? AND payment_status <> 'cancelled'";
+        try ( Connection conn = getConnection();  PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setDate(1, java.sql.Date.valueOf(LocalDate.now()));
+            stmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
 }

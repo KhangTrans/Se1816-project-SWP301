@@ -37,9 +37,9 @@
         </div>
 
         <!-- Content area -->
-        <div class="profile-form" id="profile-content">
+        <div class="profile-form" id="profile-content" >
             <!-- Default content is profile -->
-            <div id="profileContent" class="tab-content">
+            <div id="profileContent" class="tab-content" style="display:none;">
                 <jsp:include page="profileContent.jsp"/>
             </div>
             <div id="packages" class="tab-content" style="display:none;">
@@ -56,11 +56,11 @@
     <script src="js/membership.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <% if (session.getAttribute("updateSuccess") != null) { %>
+    <% if (session.getAttribute("updateSuccess") != null) {%>
     <script>
                         Swal.fire({
                             icon: 'success',
-            title: '<%= session.getAttribute("updateSuccess") %>',
+                            title: '<%= session.getAttribute("updateSuccess")%>',
                             text: 'Your profile has been updated!',
                             confirmButtonText: 'OK',
                             customClass: {
@@ -73,12 +73,12 @@
     <% session.removeAttribute("updateSuccess"); %>
     <% } %>
 
-    <% if (session.getAttribute("updateError") != null) { %>
+    <% if (session.getAttribute("updateError") != null) {%>
     <script>
         Swal.fire({
             icon: 'error',
             title: 'Update Failed',
-            text: '<%= session.getAttribute("updateError") %>',
+            text: '<%= session.getAttribute("updateError")%>',
             customClass: {
                 confirmButton: "btn btn-login"
             }
@@ -89,48 +89,20 @@
     <% session.removeAttribute("updateError"); %>
     <% } %>
 
+    <% if (session.getAttribute("changePasswordError") != null) {%>
     <script>
-        // Check for password change errors
-        <% if (session.getAttribute("changePasswordError") != null) { %>
-        var errorMessage = '<%= session.getAttribute("changePasswordError") %>';
-        showTab('changepassword');
-        Swal.fire({
-            icon: 'error',
-            title: 'Password Change Failed',
-            text: errorMessage,
-            customClass: {
-                confirmButton: "btn btn-login"
-            }
-        });
-        <% session.removeAttribute("changePasswordError"); %>
-        <% } %>
-
-        <% if (session.getAttribute("changePasswordSuccess") != null) { %>
-        var successMessage = '<%= session.getAttribute("changePasswordSuccess") %>';
         Swal.fire({
             icon: 'success',
-            title: successMessage,
+            title: '<%= session.getAttribute("changePasswordError")%>',
             text: 'Your password has been changed!',
             customClass: {
                 confirmButton: "btn btn-login"
             }
         });
-        <% session.removeAttribute("changePasswordSuccess"); %>
-        <% } %>
-        
-        // Add active class to the current tab
-        document.addEventListener('DOMContentLoaded', function() {
-            var currentTab = window.location.hash.substr(1) || 'profileContent';
-            var tabBtn = document.querySelector('.tab-btn[data-tab="' + currentTab + '"]');
-            if (tabBtn) {
-                tabBtn.classList.add('active');
-                showTab(currentTab);
-            } else {
-                document.querySelector('.tab-btn').classList.add('active');
-            }
-        });
     </script>
+    <% session.removeAttribute("updateSuccess"); %>
+    <% }%>
 
-    <script src="<%= request.getContextPath() %>/js/profile.js"></script>
+    <script src="<%= request.getContextPath()%>/js/profile.js"></script>
 </main>
 <%@include file="/WEB-INF/include/footer.jsp" %>

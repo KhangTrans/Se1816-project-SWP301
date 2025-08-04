@@ -19,9 +19,12 @@ import jakarta.servlet.http.HttpSession;
 import java.sql.Date;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.json.JSONObject;
 
 @WebServlet(name = "TrainerDashboardServlet", urlPatterns = {"/trainer/dashboard"})
 public class TrainerDashboardServlet extends HttpServlet {
@@ -60,67 +63,100 @@ public class TrainerDashboardServlet extends HttpServlet {
                         timeSlots.add(timeSlot);
                     }
                 }
-                // Set trainer information as request attribute
-                request.setAttribute("booking", new Gson().toJson(booking));
-                request.setAttribute("trainer", trainer);
-                request.setAttribute("schedules", new Gson().toJson(schedules));
-                request.setAttribute("trainerJ", new Gson().toJson(trainer));
-                request.setAttribute("timeSlots", new Gson().toJson(timeSlots));
-                request.setAttribute("slotAvailability", new Gson().toJson(slotAvailability));
-                System.out.println("Trainer found: " + trainer.getFullName());
+
+                // Kiểm tra nếu là request AJAX
+                String requestedWith = request.getHeader("X-Requested-With");
+                if ("XMLHttpRequest".equals(requestedWith)) {
+                    // Trả về JSON cho AJAX
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+                    Map<String, Object> jsonResponse = new HashMap<>();
+                    jsonResponse.put("booking", booking); // Trả về danh sách booking
+                    jsonResponse.put("timeSlots", timeSlots);
+                    jsonResponse.put("schedules", schedules);
+                    jsonResponse.put("slotAvailability", slotAvailability);
+                    jsonResponse.put("trainer", trainer);
+                    new Gson().toJson(jsonResponse, response.getWriter());
+                    return; // Kết thúc request, không forward
+                } else {
+                    // Set trainer information as request attribute cho JSP
+                    request.setAttribute("booking", new Gson().toJson(booking));
+                    request.setAttribute("trainer", trainer);
+                    request.setAttribute("schedules", new Gson().toJson(schedules));
+                    request.setAttribute("trainerJ", new Gson().toJson(trainer));
+                    request.setAttribute("timeSlots", new Gson().toJson(timeSlots));
+                    request.setAttribute("slotAvailability", new Gson().toJson(slotAvailability));
+                    System.out.println("Trainer found: " + trainer.getFullName());
+                }
             } catch (SQLException ex) {
                 Logger.getLogger(TrainerDashboardServlet.class.getName()).log(Level.SEVERE, null, ex);
+
             }
         } else {
             System.out.println("No trainer data found for account ID: " + account.getAccountId());
         }
 
-        // Forward to the dashboard JSP page
+        // Forward to the dashboard JSP page cho request thông thường
         request.getRequestDispatcher("/WEB-INF/View/trainer/dashboard.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         ScheduleDao scheduleDao = new ScheduleDao();
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        // Debug: In tất cả các tham số nhận được
+        System.out.println("All parameters: " + request.getParameterMap());
         String action = request.getParameter("action");
-        System.out.println(action);
+        String bookingIdStr = request.getParameter("bookingId");
+        System.out.println("Action: " + action);
+        System.out.println("BookingId: " + bookingIdStr);
+        JSONObject jsonResponse = new JSONObject();
+
         if ("confirm".equals(action)) {
-            try {
-                String bookingIdStr = request.getParameter("bookingId");
-                System.out.println(bookingIdStr);
-
-                // Kiểm tra nếu bookingIdStr không hợp lệ
-                if (bookingIdStr != null && !bookingIdStr.isEmpty()) {
+//            String bookingIdStr = request.getParameter("bookingId");
+            if (bookingIdStr != null && !bookingIdStr.isEmpty()) {
+                try {
                     int bookingId = Integer.parseInt(bookingIdStr);
-                    scheduleDao.confirmBooking(bookingId);
-                    response.sendRedirect(request.getContextPath() + "/trainer/dashboard");
-                } else {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid booking ID");
+                    System.out.println("Confirming booking ID: " + bookingId);
+                    boolean check = scheduleDao.confirmBooking(bookingId);
+                    System.out.println(check);
+                    if (check) {
+                        jsonResponse.put("status", "success");
+                        jsonResponse.put("message", "Booking confirmed successfully.");
+                    } else {
+                        System.out.println("fail");
+                    }
+                } catch (SQLException ex) {
+                    jsonResponse.put("status", "error");
+                    jsonResponse.put("message", "Error confirming booking.");
                 }
-            } catch (SQLException ex) {
-                response.sendRedirect("error.jsp");
-            } catch (NumberFormatException ex) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid booking ID format");
+            } else {
+                jsonResponse.put("status", "error");
+                jsonResponse.put("message", "Invalid booking ID.");
             }
-        }else if("cancel".equals(action)){
+            System.out.println("Response: " + jsonResponse.toString());
+            // Send JSON response instead of redirect
+            response.getWriter().write(jsonResponse.toString());
+        } else if ("cancel".equals(action)) {
             try {
-                String bookingIdStr = request.getParameter("bookingId");
-                System.out.println(bookingIdStr);
-
                 // Kiểm tra nếu bookingIdStr không hợp lệ
                 if (bookingIdStr != null && !bookingIdStr.isEmpty()) {
                     int bookingId = Integer.parseInt(bookingIdStr);
                     scheduleDao.cancelBooking(bookingId);
-                    response.sendRedirect(request.getContextPath() + "/trainer/dashboard");
+                    jsonResponse.put("status", "success");
+                    jsonResponse.put("message", "Booking cancel successfully.");
                 } else {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid booking ID");
+                    jsonResponse.put("status", "error");
+                    jsonResponse.put("message", "Error cancel booking.");
                 }
             } catch (SQLException ex) {
-                response.sendRedirect("error.jsp");
-            } catch (NumberFormatException ex) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid booking ID format");
+                jsonResponse.put("status", "error");
+                jsonResponse.put("message", "Error cancel booking.");
             }
-        }else if ("update".equals(action)) {  // Xử lý cập nhật trạng thái ON/OFF của lịch
+            response.getWriter().write(jsonResponse.toString());
+        } else if ("update".equals(action)) {  // Xử lý cập nhật trạng thái ON/OFF của lịch
             try {
                 String trainerIdStr = request.getParameter("trainerId");
                 String[] scheduleIds = request.getParameterValues("scheduleId[]");
@@ -139,17 +175,23 @@ public class TrainerDashboardServlet extends HttpServlet {
                         // Cập nhật trạng thái của slot trong cơ sở dữ liệu
                         boolean updated = scheduleDao.insertUpdateSlotAvailability(scheduleId, trainerId, bookingDate, status);
                         if (!updated) {
-                            response.sendRedirect("error.jsp");
+                            jsonResponse.put("status", "error");
+                            jsonResponse.put("message", "Error cancel booking.");
                             return;
                         }
                     }
-                    response.sendRedirect(request.getContextPath() + "/trainer/dashboard");  // Quay lại dashboard
+                    jsonResponse.put("status", "success");
+                    jsonResponse.put("message", "Slot updated successfully");
+
                 } else {
-                    response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing required parameters");
+                    jsonResponse.put("status", "error");
+                    jsonResponse.put("message", "Error cancel booking.");
                 }
             } catch (NumberFormatException ex) {
-                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid schedule ID format");
+                jsonResponse.put("status", "error");
+                jsonResponse.put("message", "Error cancel booking.");
             }
+            response.getWriter().write(jsonResponse.toString());
         }
     }
 

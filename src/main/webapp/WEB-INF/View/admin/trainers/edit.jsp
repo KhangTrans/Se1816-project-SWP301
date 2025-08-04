@@ -102,29 +102,52 @@
               onsubmit="return submitEditTrainerForm(this, 'editTrainerResult');">
             <input type="hidden" name="formAction" value="edit">
             <input type="hidden" name="trainerId" id="editTrainerId">
+            <div class="modal__body">
+                <label for="editTrainerFullName">Full Name:</label>
+                <input type="text" name="fullname" id="editTrainerFullName" required
+                       pattern="^[A-Za-z\s]+$"
+                       title="Full name should only contain letters and spaces."
+                       aria-describedby="editFullnameError">
+                <span id="editFullnameError" style="color: red; font-size: 12px;"></span><br><br>
 
-            <label for="editTrainerFullName">Full Name:</label>
-            <input type="text" name="fullname" id="editTrainerFullName" required>
+                <label for="editTrainerEmail">Email:</label>
+                <input type="email" name="email" id="editTrainerEmail" required
+                       pattern="^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$"
+                       title="Please enter a valid email address."
+                       aria-describedby="editEmailError">
+                <span id="editEmailError" style="color: red; font-size: 12px;"></span><br><br>
 
-            <label for="editTrainerEmail">Email:</label>
-            <input type="text" name="email" id="editTrainerEmail" required>
+                <label for="editTrainerPhone">Phone:</label>
+                <input type="tel" name="phone_number" id="editTrainerPhone"
+                       pattern="^(0[35789])[0-9]{8}$"
+                       title="Please enter a valid Vietnamese phone number (e.g., 0912345678)."
+                       aria-describedby="editPhoneError" required>
+                <span id="phoneError" style="color: red; font-size: 12px;"></span><br><br>
 
-            <label for="editTrainerPhone">Phone:</label>
-            <input type="text" name="phone_number" id="editTrainerPhone">
+                <label for="editTrainerBio">Bio:</label>
+                <textarea name="bio" id="editTrainerBio" rows="4" maxlength="500"
+                          aria-describedby="editBioError"></textarea>
+                <span id="editBioError" style="color: red; font-size: 12px;"></span><br><br>
 
-            <label for="editTrainerBio">Bio:</label>
-            <input type="text" name="bio" id="editTrainerBio">
+                <label for="editTrainerExperience">Experience (years):</label>
+                <input type="number" name="experience_years" id="editTrainerExperience" min="0"
+                       aria-describedby="editExperienceError">
+                <span id="editExperienceError" style="color: red; font-size: 12px;"></span><br><br>
 
-            <label for="editTrainerExperience">Experience (years):</label>
-            <input type="text" name="experience_years" id="editTrainerExperience">
-            <label for="editTrainerPrice">Session Price (VND):</label>
-            <input type="number" name="price" id="editTrainerPrice" min="0" step="10000" required>
+                <label for="editTrainerPrice">Session Price (VND):</label>
+                <input type="number" name="price" id="editTrainerPrice" min="0" step="10000" required
+                       aria-describedby="editPriceError">
+                <span id="editPriceError" style="color: red; font-size: 12px;"></span><br><br>
 
-            <label for="editTrainerRating">Rating:</label>
-            <input type="text" name="rating" id="editTrainerRating">
-
-            <button type="submit">Save</button>
-            <button type="button" onclick="closeModal('editTrainerModal')">Cancel</button>
+                <label for="editTrainerRating">Rating:</label>
+                <input type="number" name="rating" id="editTrainerRating" min="0" max="5" step="0.1"
+                       aria-describedby="editRatingError">
+                <span id="editRatingError" style="color: red; font-size: 12px;"></span><br><br>
+            </div>
+            <div class="modal__footer">
+                <button type="submit">Save</button>
+                <button type="button" onclick="closeModal('editTrainerModal')">Cancel</button>
+            </div>
         </form>
         <div id="editTrainerResult" style="margin-top: 10px;"></div>
     </div>

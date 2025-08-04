@@ -3,9 +3,8 @@
 <%@ page import="java.text.DecimalFormat" %>
 <%
     Model.Package pkg = (Model.Package) request.getAttribute("pkg");
-    // Tạo đối tượng DecimalFormat để định dạng tiền
     DecimalFormat formatter = new DecimalFormat("#,###");
-    String formattedPrice = formatter.format(pkg.getPrice());  // Định dạng giá tiền
+    String formattedPrice = formatter.format(pkg.getPrice());  
     String membershipError = (String) request.getAttribute("membershipError");
     if (membershipError != null) {
 %>

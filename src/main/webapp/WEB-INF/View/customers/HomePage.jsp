@@ -9,7 +9,7 @@
 <%@include file="/WEB-INF/include/Register.jsp" %>
 <%@include file="/WEB-INF/include/forgotPassword.jsp" %>
 <%@include file="/WEB-INF/include/header.jsp" %>
-<!-- Thêm Font Awesome -->
+<!-- Thï¿½m Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 
 <main class="main">

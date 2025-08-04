@@ -14,11 +14,11 @@ function reloadMembershipCard() {
             const container = document.querySelector('#membership-block'); // Đảm bảo id đúng!
             if (container) {
                 container.innerHTML = html;
-                reattachMembershipHandlers(); // Gắn lại nút bấm cho block mới
+                reattachMembershipHandlers(); // Reattach button handlers for new block
             }
         })
         .catch(error => {
-            console.error('Lỗi khi tải lại thẻ membership:', error);
+            console.error('Error reloading membership card:', error);
         });
 }
 
@@ -50,7 +50,7 @@ function doCancelMembership(id) {
     })
             .then(response => response.json())
             .then(data => {
-                showMembershipMessage(data.success, data.message || "Đã hủy gói thành công!");
+                showMembershipMessage(data.success, data.message || "Package canceled successfully!");
                 setTimeout(() => {
                     reloadMembershipCard();
                 }, 2200); // delay 2.2 giây

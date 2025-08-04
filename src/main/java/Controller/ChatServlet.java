@@ -113,14 +113,14 @@ public class ChatServlet extends HttpServlet {
                 if (isFitnessQuestion(userInput)) {
                     result = callChatGPT(userInput);  // Gọi OpenAI để trả lời câu hỏi liên quan đến gym/fitness
                 } else {
-                    result = "❌ Câu hỏi không liên quan đến gym hoặc fitness.";  // Nếu câu hỏi không liên quan
+                    result = "❌ Question not related to gym or fitness.";  // If question is not related
                 }
             }
 
             jsonResponse.put("reply", result);  // Đưa câu trả lời vào JSON phản hồi
         } catch (Exception e) {
             e.printStackTrace();
-            jsonResponse.put("reply", "❌ Server lỗi: " + e.getMessage());  // Xử lý lỗi
+            jsonResponse.put("reply", "❌ Server error: " + e.getMessage());  // Error handling
         }
 
         // Trả lại phản hồi cho client dưới dạng JSON

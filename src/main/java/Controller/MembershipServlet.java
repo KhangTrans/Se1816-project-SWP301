@@ -75,7 +75,7 @@ public class MembershipServlet extends HttpServlet {
             DAO.CustomerDao dao = new DAO.CustomerDao();
 
             if (null == action) {
-                message = "Action không hợp lệ!";
+                message = "Invalid action!";
             } else {
                 switch (action) {
                     case "renew":
@@ -86,7 +86,7 @@ public class MembershipServlet extends HttpServlet {
                             dao.updateMembershipEndDate(membershipId, newEnd);
                             success = true;
                         } else {
-                            message = "Chỉ được gia hạn khi gói đang hoạt động!";
+                            message = "Can only renew when package is active";
                         }
                         break;
                     case "delete":
@@ -99,11 +99,11 @@ public class MembershipServlet extends HttpServlet {
                                 success = true;
                             }
                         } else {
-                            message = "Không tìm thấy membership!";
+                            message = "Membership not found!";
                         }
                         break;
                     default:
-                        message = "Action không hợp lệ!";
+                        message = "Invalid action!";
                         break;
                 }
             }

@@ -103,13 +103,13 @@
             <input type="hidden" name="action" value="update">
             <input type="hidden" name="accountId" id="editAccountId">
             <label>Username:</label>
-            <input type="text" name="username" id="editUsername" required><br><br>
+            <input type="text" name="username" id="editUsername" disabled><br><br>
 
             <label>Password:</label>
-            <input type="password" name="password"><br><br>
+            <input type="password" name="password"  ><br><br>
 
             <label>Role:</label>
-            <select name="role" id="editRole">
+            <select name="role" id="editRole" disabled>
                 <option value="admin">Admin</option>
                 <option value="staff">Staff</option>
                 <option value="trainer">Trainer</option>
@@ -123,7 +123,7 @@
             <label>Upload New Avatar:</label>
             <input type="file" name="avatar" accept="image/*"><br><br>
 
-            <button type="submit">Save</button>
+            <!--<button type="submit">Save</button>-->
             <button type="button" onclick="closeModal('editAccountModal')">Cancel</button>
              <div id="resultEdit" style="margin-top: 10px;"></div>
         </form>

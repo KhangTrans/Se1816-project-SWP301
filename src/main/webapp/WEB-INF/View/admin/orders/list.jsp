@@ -2,7 +2,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%@include file="/WEB-INF/View/admin/orders/edit.jsp" %>
-<%@include file="/WEB-INF/View/admin/orders/delete.jsp" %>
 <%@include file="/WEB-INF/View/admin/orders/viewDetail.jsp" %>
 
 <style>
@@ -75,7 +74,7 @@
             </select>
 
             <div style="position: relative;">
-                <input type="text" id="searchOrder" placeholder="Search product, customer name or phone..." 
+                <input type="text" id="searchOrder" placeholder="Search by order code (REF...)" 
                        style="padding: 8px 30px 8px 10px; border: 1px solid #ccc; border-radius: 5px;" 
                        onkeyup="clearTimeout(window.orderSearchTimeout); window.orderSearchTimeout = setTimeout(loadOrders, 300);" />
                 <i class="fa fa-search" style="position: absolute; right: 10px; top: 10px; color: #999;"></i>
@@ -87,7 +86,7 @@
         <table class="data-table" id="orderTable">
             <thead>
                 <tr>
-                    <th style="width: 120px">Referral Code</th>
+                    <th style="width: 120px">Code</th>
                     <th>Customer Name</th>
                     <th>Phone</th>
                     <th>Address</th>

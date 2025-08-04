@@ -73,7 +73,7 @@ class ProductCard {
             }, 100);
         } else {
             featuresList.classList.add('collapsed');
-            toggleText.textContent = 'Xem thêm';
+            toggleText.textContent = 'View more';
             toggleBtn.classList.remove('expanded');
 
             // Scroll back to top
@@ -90,12 +90,12 @@ class ProductCard {
             wishlistBtn.style.transform = 'scale(1.2)';
 
             // Show notification
-            this.showNotification('Đã thêm vào danh sách yêu thích!', 'success');
+            this.showNotification('Added to wishlist!', 'success');
         } else {
             wishlistBtn.innerHTML = '❤';
             wishlistBtn.style.transform = 'scale(1)';
 
-            this.showNotification('Đã xóa khỏi danh sách yêu thích!', 'info');
+            this.showNotification('Removed from wishlist!', 'info');
         }
 
         // Reset scale after animation
@@ -137,7 +137,7 @@ class ProductCard {
             cartBtn.style.transform = 'scale(1)';
         }, 150);
 
-        this.showNotification('Đã thêm sản phẩm vào giỏ hàng!', 'success');
+        this.showNotification('Product added to cart!', 'success');
     }
 
     updateCartDisplay() {

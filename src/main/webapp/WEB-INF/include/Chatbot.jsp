@@ -139,12 +139,12 @@
     <div class="chat-messages" id="chatMessages">
         <div class="msg-wrapper">
             <img src="${pageContext.request.contextPath}/img/chatbot.svg" class="avatar">
-            <div class="msg bot">Xin chào! Tôi có thể giúp gì được cho bạn?</div>
+            <div class="msg bot">Hello! How can I help you?</div>
         </div>
     </div>
     <div class="chat-input">
-        <input type="text" id="prompt" placeholder="Nhập câu hỏi..." />
-        <button onclick="sendMessage()">Gửi</button>
+        <input type="text" id="prompt" placeholder="Enter your question..." />
+        <button onclick="sendMessage()">Send</button>
     </div>
 </div>
 
@@ -177,7 +177,7 @@
 
         const typing = document.createElement("div");
         typing.className = "typing";
-        typing.innerText = "Bot đang trả lời...";
+        typing.innerText = "Bot is typing...";
         chatBox.appendChild(typing);
         scrollToBottom();
 
@@ -210,7 +210,7 @@
             errWrap.className = "msg-wrapper";
             const errMsg = document.createElement("div");
             errMsg.className = "msg bot";
-            errMsg.innerText = "❌ Lỗi khi gửi yêu cầu.";
+            errMsg.innerText = "❌ Error sending request.";
             errWrap.appendChild(errMsg);
             chatBox.appendChild(errWrap);
             scrollToBottom();

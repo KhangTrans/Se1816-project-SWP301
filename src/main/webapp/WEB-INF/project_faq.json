@@ -1,383 +1,342 @@
 [
     {
-        "question": "Làm sao để đặt lịch với huấn luyện viên?",
-        "answer": "Bạn có thể đặt lịch qua website hoặc tại quầy."
+        "question": "How do I schedule an appointment with a trainer?",
+        "answer": "You can schedule an appointment through the website or at the front desk."
     },
     {
-        "question": "Làm sao để đăng ký gói thành viên?",
-        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+        "question": "How do I register for a membership package?",
+        "answer": "You can register at the front desk or through our official website."
     },
     {
-        "question": "Thiết bị có thường xuyên được bảo trì?",
-        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+        "question": "Is equipment regularly maintained?",
+        "answer": "We maintain equipment regularly to ensure safety."
     },
     {
-        "question": "Tôi muốn nhận hóa đơn VAT?",
-        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
+        "question": "I want to receive a VAT invoice?",
+        "answer": "Please provide company information at the front desk to receive an invoice."
     },
     {
-        "question": "Tôi mới bắt đầu thì nên tập gì?",
-        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+        "question": "I'm a beginner, what should I start with?",
+        "answer": "You can start with light cardio exercises and ask a trainer for detailed advice."
     },
     {
-        "question": "Có gói tập riêng với HLV không?",
-        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+        "question": "Do you have personal training packages with trainers?",
+        "answer": "We have flexible 1:1 PT packages according to your needs."
     },
     {
-        "question": "Tôi muốn nhận hóa đơn VAT?",
-        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
+        "question": "I want to receive a VAT invoice?",
+        "answer": "Please provide company information at the front desk to receive an invoice."
     },
     {
-        "question": "Làm sao để đăng ký gói thành viên?",
-        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+        "question": "How do I register for a membership package?",
+        "answer": "You can register at the front desk or through our official website."
     },
     {
-        "question": "Có thể đổi huấn luyện viên không?",
-        "answer": "Bạn có thể đổi huấn luyện viên nếu không phù hợp sau buổi tập đầu tiên."
+        "question": "Can I change trainers?",
+        "answer": "You can change trainers if they don't suit you after the first session."
     },
     {
-        "question": "Huấn luyện viên có được chứng chỉ không?",
-        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
+        "question": "Are trainers certified?",
+        "answer": "All trainers have professional certifications and practical experience."
     },
     {
-        "question": "Thiết bị có thường xuyên được bảo trì?",
-        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+        "question": "Is equipment regularly maintained?",
+        "answer": "We maintain equipment regularly to ensure safety."
     },
     {
-        "question": "Tôi mới bắt đầu thì nên tập gì?",
-        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+        "question": "I'm a beginner, what should I start with?",
+        "answer": "You can start with light cardio exercises and ask a trainer for detailed advice."
     },
     {
-        "question": "Tôi có thể sử dụng phòng xông hơi không?",
-        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+        "question": "Can I use the sauna room?",
+        "answer": "The sauna room is free for all members with a membership package."
     },
     {
-        "question": "Phòng tập mở cửa lúc mấy giờ?",
-        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+        "question": "What time does the gym open?",
+        "answer": "The gym is open from 5:00 AM to 10:00 PM every day."
     },
     {
-        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
-        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
+        "question": "How many sessions should I train per week?",
+        "answer": "It's best to train 3-5 sessions per week depending on your goals."
     },
     {
-        "question": "Huấn luyện viên có được chứng chỉ không?",
-        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
+        "question": "Are trainers certified?",
+        "answer": "All trainers have professional certifications and practical experience."
     },
     {
-        "question": "Thiết bị có thường xuyên được bảo trì?",
-        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+        "question": "Is equipment regularly maintained?",
+        "answer": "We maintain equipment regularly to ensure safety."
     },
     {
-        "question": "Tôi mới bắt đầu thì nên tập gì?",
-        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+        "question": "I'm a beginner, what should I start with?",
+        "answer": "You can start with light cardio exercises and ask a trainer for detailed advice."
     },
     {
-        "question": "Làm sao để gửi phản hồi?",
-        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+        "question": "How do I send feedback?",
+        "answer": "You can send feedback through the 'Contact' section in the app."
     },
     {
-        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
-        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
+        "question": "How many sessions should I train per week?",
+        "answer": "It's best to train 3-5 sessions per week depending on your goals."
     },
     {
-        "question": "Tôi có thể sử dụng phòng xông hơi không?",
-        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+        "question": "Can I use the sauna room?",
+        "answer": "The sauna room is free for all members with a membership package."
     },
     {
-        "question": "Tôi muốn nhận hóa đơn VAT?",
-        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
+        "question": "I want to receive a VAT invoice?",
+        "answer": "Please provide company information at the front desk to receive an invoice."
     },
     {
-        "question": "Phòng gym có tư vấn dinh dưỡng không?",
-        "answer": "Chúng tôi có chuyên viên tư vấn dinh dưỡng hỗ trợ miễn phí."
+        "question": "Does the gym provide nutrition counseling?",
+        "answer": "We have nutrition specialists who provide free support."
     },
     {
-        "question": "Có thể đổi huấn luyện viên không?",
-        "answer": "Bạn có thể đổi huấn luyện viên nếu không phù hợp sau buổi tập đầu tiên."
+        "question": "Can I change trainers?",
+        "answer": "You can change trainers if they don't suit you after the first session."
     },
     {
-        "question": "Tôi có thể sử dụng phòng xông hơi không?",
-        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+        "question": "Can I use the sauna room?",
+        "answer": "The sauna room is free for all members with a membership package."
     },
     {
-        "question": "Phòng tập mở cửa lúc mấy giờ?",
-        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+        "question": "What time does the gym open?",
+        "answer": "The gym is open from 5:00 AM to 10:00 PM every day."
     },
     {
-        "question": "Có phòng tắm không?",
-        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+        "question": "Are there shower facilities?",
+        "answer": "We have shower facilities and lockers for members."
     },
     {
-        "question": "Huấn luyện viên có được chứng chỉ không?",
-        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
+        "question": "Are trainers certified?",
+        "answer": "All trainers have professional certifications and practical experience."
     },
     {
-        "question": "Tôi muốn nhận hóa đơn VAT?",
-        "answer": "Vui lòng cung cấp thông tin công ty tại quầy lễ tân để nhận hóa đơn."
+        "question": "I want to receive a VAT invoice?",
+        "answer": "Please provide company information at the front desk to receive an invoice."
     },
     {
-        "question": "Nên ăn gì trước khi tập?",
-        "answer": "Bạn nên ăn nhẹ chứa carb như chuối hoặc yến mạch trước khi tập 30 phút."
+        "question": "What should I eat before working out?",
+        "answer": "You should eat light carbs like bananas or oatmeal 30 minutes before working out."
     },
     {
-        "question": "Có gói tập riêng với HLV không?",
-        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+        "question": "Do you have personal training packages with trainers?",
+        "answer": "We have flexible 1:1 PT packages according to your needs."
     },
     {
-        "question": "Có thể đổi huấn luyện viên không?",
-        "answer": "Bạn có thể đổi huấn luyện viên nếu không phù hợp sau buổi tập đầu tiên."
+        "question": "Can I change trainers?",
+        "answer": "You can change trainers if they don't suit you after the first session."
     },
     {
-        "question": "Tôi mới bắt đầu thì nên tập gì?",
-        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+        "question": "I'm a beginner, what should I start with?",
+        "answer": "You can start with light cardio exercises and ask a trainer for detailed advice."
     },
     {
-        "question": "Có gói tập riêng với HLV không?",
-        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+        "question": "Do you have personal training packages with trainers?",
+        "answer": "We have flexible 1:1 PT packages according to your needs."
     },
     {
-        "question": "Phòng tập mở cửa lúc mấy giờ?",
-        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+        "question": "What time does the gym open?",
+        "answer": "The gym is open from 5:00 AM to 10:00 PM every day."
     },
     {
-        "question": "Huấn luyện viên có được chứng chỉ không?",
-        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
+        "question": "Are trainers certified?",
+        "answer": "All trainers have professional certifications and practical experience."
     },
     {
-        "question": "Làm sao để gia hạn gói tập?",
-        "answer": "Bạn có thể gia hạn online hoặc đến quầy lễ tân để được hỗ trợ."
+        "question": "How do I renew my membership package?",
+        "answer": "You can renew online or visit the front desk for assistance."
     },
     {
-        "question": "Thiết bị có thường xuyên được bảo trì?",
-        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+        "question": "Is equipment regularly maintained?",
+        "answer": "We maintain equipment regularly to ensure safety."
     },
     {
-        "question": "Phòng tập mở cửa lúc mấy giờ?",
-        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+        "question": "What time does the gym open?",
+        "answer": "The gym is open from 5:00 AM to 10:00 PM every day."
     },
     {
-        "question": "Có gói tập riêng với HLV không?",
-        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+        "question": "Do you have personal training packages with trainers?",
+        "answer": "We have flexible 1:1 PT packages according to your needs."
     },
     {
-        "question": "Có những gói tập nào?",
-        "answer": "Chúng tôi có các gói theo ngày, tuần, tháng và năm để bạn lựa chọn."
+        "question": "What membership packages are available?",
+        "answer": "We have various packages including monthly, quarterly, and annual memberships with different benefits."
     },
     {
-        "question": "Tôi có thể sử dụng phòng xông hơi không?",
-        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+        "question": "How do I reset my password?",
+        "answer": "First, click on the 'Sign In' icon. Then, select 'Forgot Password'. Next, enter the correct email you registered with and click 'Confirm Email'."
     },
     {
-        "question": "Thiết bị có thường xuyên được bảo trì?",
-        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+        "question": "What are the steps to reset my password?",
+        "answer": "The first step is to click on the 'Sign In' icon, then select 'Forgot Password'. After entering the correct registered email, click 'Confirm Email'. You will receive an OTP code via email, enter the OTP code and confirm."
     },
     {
-        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
-        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
+        "question": "What should I do if I don't receive the OTP code?",
+        "answer": "If you don't receive the OTP code, please check the registered email again and try again. If you still don't receive the code, you can try resending the code or check your email's spam folder."
     },
     {
-        "question": "Có gói tập riêng với HLV không?",
-        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+        "question": "How do I schedule an appointment with a trainer?",
+        "answer": "You can schedule an appointment through the website or at the front desk."
     },
     {
-        "question": "Làm sao để gửi phản hồi?",
-        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+        "question": "How do I register for a membership package?",
+        "answer": "You can register at the front desk or through our official website."
     },
     {
-        "question": "Có phòng tắm không?",
-        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+        "question": "Is equipment regularly maintained?",
+        "answer": "We maintain equipment regularly to ensure safety."
     },
     {
-        "question": "Làm sao để gửi phản hồi?",
-        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+        "question": "I want to receive a VAT invoice?",
+        "answer": "Please provide company information at the front desk to receive an invoice."
     },
     {
-        "question": "Có phòng tắm không?",
-        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+        "question": "I'm a beginner, what should I start with?",
+        "answer": "You can start with light cardio exercises and ask a trainer for detailed advice."
     },
     {
-        "question": "Có phòng tắm không?",
-        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+        "question": "Do you have personal training packages with trainers?",
+        "answer": "We have flexible 1:1 PT packages according to your needs."
     },
     {
-        "question": "Làm sao để đăng ký gói thành viên?",
-        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+        "question": "I want to receive a VAT invoice?",
+        "answer": "Please provide company information at the front desk to receive an invoice."
     },
     {
-        "question": "Phòng gym có tư vấn dinh dưỡng không?",
-        "answer": "Chúng tôi có chuyên viên tư vấn dinh dưỡng hỗ trợ miễn phí."
+        "question": "How do I register for a membership package?",
+        "answer": "You can register at the front desk or through our official website."
     },
     {
-        "question": "Nên ăn gì trước khi tập?",
-        "answer": "Bạn nên ăn nhẹ chứa carb như chuối hoặc yến mạch trước khi tập 30 phút."
+        "question": "Can I change trainers?",
+        "answer": "You can change trainers if they don't suit you after the first session."
     },
     {
-        "question": "Làm sao để đăng ký gói thành viên?",
-        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+        "question": "Are trainers certified?",
+        "answer": "All trainers have professional certifications and practical experience."
     },
     {
-        "question": "Làm sao để đặt lịch với huấn luyện viên?",
-        "answer": "Bạn có thể đặt lịch qua ứng dụng hoặc tại quầy."
+        "question": "Is equipment regularly maintained?",
+        "answer": "We maintain equipment regularly to ensure safety."
     },
     {
-        "question": "Làm sao để lấy lại mật khẩu nếu quên?",
-        "answer": "Đầu tiên, bấm vào icon 'Sign In'. Sau đó, chọn 'Forgot Password'. Tiếp theo, điền đúng email mà bạn đã đăng ký và bấm vào 'Confirm Email'."
+        "question": "I'm a beginner, what should I start with?",
+        "answer": "You can start with light cardio exercises and ask a trainer for detailed advice."
     },
     {
-        "question": "Quên mật khẩu thì làm sao để reset lại mật khẩu?",
-        "answer": "Bước đầu tiên là bấm vào icon 'Sign In', sau đó chọn 'Forgot Password'. Sau khi điền đúng email đã đăng ký, bấm vào 'Confirm Email'. Bạn sẽ nhận được mã OTP qua email, nhập mã OTP vào và xác nhận."
+        "question": "Can I use the sauna room?",
+        "answer": "The sauna room is free for all members with a membership package."
     },
     {
-        "question": "Làm sao để nhận mã OTP qua email khi quên mật khẩu?",
-        "answer": "Sau khi nhập email của bạn trong phần 'Forgot Password' và bấm 'Confirm Email', bạn sẽ nhận được mã OTP gửi về email. Nhập mã OTP vào ô yêu cầu để tiếp tục."
+        "question": "What time does the gym open?",
+        "answer": "The gym is open from 5:00 AM to 10:00 PM every day."
     },
     {
-        "question": "Tôi không nhận được mã OTP qua email, phải làm sao?",
-        "answer": "Nếu không nhận được mã OTP, hãy kiểm tra lại email đã đăng ký và thử lại. Nếu vẫn không nhận được mã, bạn có thể thử gửi lại mã hoặc kiểm tra trong mục thư rác của email."
+        "question": "How many sessions should I train per week?",
+        "answer": "It's best to train 3-5 sessions per week depending on your goals."
     },
     {
-        "question": "Sau khi nhận mã OTP, tôi phải làm gì để thay đổi mật khẩu?",
-        "answer": "Sau khi nhận được mã OTP qua email, hãy nhập mã vào ô yêu cầu. Tiếp theo, bạn sẽ được yêu cầu nhập mật khẩu mới. Sau khi nhập mật khẩu mới, bấm 'Submit' để hoàn tất."
+        "question": "Are trainers certified?",
+        "answer": "All trainers have professional certifications and practical experience."
     },
     {
-        "question": "Làm sao để thay đổi mật khẩu khi quên mật khẩu?",
-        "answer": "Để thay đổi mật khẩu, bạn cần thực hiện các bước sau: 1. Bấm vào icon 'Sign In' và chọn 'Forgot Password'. 2. Nhập đúng email của bạn và bấm 'Confirm Email'. 3. Kiểm tra email nhận mã OTP, nhập mã vào ô yêu cầu. 4. Nhập mật khẩu mới và xác nhận."
+        "question": "Is equipment regularly maintained?",
+        "answer": "We maintain equipment regularly to ensure safety."
     },
-
     {
-        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
-        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
+        "question": "I'm a beginner, what should I start with?",
+        "answer": "You can start with light cardio exercises and ask a trainer for detailed advice."
     },
     {
-        "question": "Có những gói tập nào?",
-        "answer": "Chúng tôi có các gói theo ngày, tuần, tháng và năm để bạn lựa chọn."
+        "question": "How do I send feedback?",
+        "answer": "You can send feedback through the 'Contact' section in the app."
     },
     {
-        "question": "Tôi mới bắt đầu thì nên tập gì?",
-        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+        "question": "How many sessions should I train per week?",
+        "answer": "It's best to train 3-5 sessions per week depending on your goals."
     },
     {
-        "question": "Làm sao để gửi phản hồi?",
-        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+        "question": "Can I use the sauna room?",
+        "answer": "The sauna room is free for all members with a membership package."
     },
     {
-        "question": "Có gói tập riêng với HLV không?",
-        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+        "question": "I want to receive a VAT invoice?",
+        "answer": "Please provide company information at the front desk to receive an invoice."
     },
     {
-        "question": "Nên ăn gì trước khi tập?",
-        "answer": "Bạn nên ăn nhẹ chứa carb như chuối hoặc yến mạch trước khi tập 30 phút."
+        "question": "Does the gym provide nutrition counseling?",
+        "answer": "We have nutrition specialists who provide free support."
     },
     {
-        "question": "Phòng tập mở cửa lúc mấy giờ?",
-        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+        "question": "Can I change trainers?",
+        "answer": "You can change trainers if they don't suit you after the first session."
     },
     {
-        "question": "Phòng gym có tư vấn dinh dưỡng không?",
-        "answer": "Chúng tôi có chuyên viên tư vấn dinh dưỡng hỗ trợ miễn phí."
+        "question": "Can I use the sauna room?",
+        "answer": "The sauna room is free for all members with a membership package."
     },
     {
-        "question": "Có phòng tắm không?",
-        "answer": "Chúng tôi có phòng tắm và tủ đồ cho hội viên."
+        "question": "What time does the gym open?",
+        "answer": "The gym is open from 5:00 AM to 10:00 PM every day."
     },
     {
-        "question": "Làm sao để đăng ký gói thành viên?",
-        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+        "question": "Are there shower facilities?",
+        "answer": "We have shower facilities and lockers for members."
     },
     {
-        "question": "Tôi mới bắt đầu thì nên tập gì?",
-        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
+        "question": "Are trainers certified?",
+        "answer": "All trainers have professional certifications and practical experience."
     },
     {
-        "question": "Làm sao để gia hạn gói tập?",
-        "answer": "Bạn có thể gia hạn online hoặc đến quầy lễ tân để được hỗ trợ."
+        "question": "I want to receive a VAT invoice?",
+        "answer": "Please provide company information at the front desk to receive an invoice."
     },
     {
-        "question": "Làm sao để gửi phản hồi?",
-        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+        "question": "What should I eat before working out?",
+        "answer": "You should eat light carbs like bananas or oatmeal 30 minutes before working out."
     },
     {
-        "question": "Tôi có thể sử dụng phòng xông hơi không?",
-        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+        "question": "Do you have personal training packages with trainers?",
+        "answer": "We have flexible 1:1 PT packages according to your needs."
     },
     {
-        "question": "Làm sao để gửi phản hồi?",
-        "answer": "Bạn có thể gửi góp ý qua mục 'Liên hệ' trong ứng dụng."
+        "question": "Can I change trainers?",
+        "answer": "You can change trainers if they don't suit you after the first session."
     },
     {
-        "question": "Có những gói tập nào?",
-        "answer": "Chúng tôi có các gói theo ngày, tuần, tháng và năm để bạn lựa chọn."
+        "question": "I'm a beginner, what should I start with?",
+        "answer": "You can start with light cardio exercises and ask a trainer for detailed advice."
     },
     {
-        "question": "Làm sao để đăng ký gói thành viên?",
-        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
+        "question": "Do you have personal training packages with trainers?",
+        "answer": "We have flexible 1:1 PT packages according to your needs."
     },
     {
-        "question": "Phòng tập mở cửa lúc mấy giờ?",
-        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
+        "question": "What time does the gym open?",
+        "answer": "The gym is open from 5:00 AM to 10:00 PM every day."
     },
     {
-        "question": "Làm sao để đặt lịch với huấn luyện viên?",
-        "answer": "Bạn có thể đặt lịch qua ứng dụng hoặc tại quầy."
+        "question": "Are trainers certified?",
+        "answer": "All trainers have professional certifications and practical experience."
     },
     {
-        "question": "Thiết bị có thường xuyên được bảo trì?",
-        "answer": "Chúng tôi bảo trì thiết bị định kỳ để đảm bảo an toàn."
+        "question": "How do I renew my membership package?",
+        "answer": "You can renew online or visit the front desk for assistance."
     },
     {
-        "question": "Có gói tập riêng với HLV không?",
-        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+        "question": "Is equipment regularly maintained?",
+        "answer": "We maintain equipment regularly to ensure safety."
     },
     {
-        "question": "Tôi có thể sử dụng phòng xông hơi không?",
-        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
+        "question": "What time does the gym open?",
+        "answer": "The gym is open from 5:00 AM to 10:00 PM every day."
     },
     {
-        "question": "Phòng gym có tư vấn dinh dưỡng không?",
-        "answer": "Chúng tôi có chuyên viên tư vấn dinh dưỡng hỗ trợ miễn phí."
+        "question": "Do you have personal training packages with trainers?",
+        "answer": "We have flexible 1:1 PT packages according to your needs."
     },
     {
-        "question": "Phòng tập mở cửa lúc mấy giờ?",
-        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
-    },
-    {
-        "question": "Tôi mới bắt đầu thì nên tập gì?",
-        "answer": "Bạn có thể bắt đầu với các bài tập cardio nhẹ và hỏi HLV tư vấn chi tiết."
-    },
-    {
-        "question": "Nên tập bao nhiêu buổi mỗi tuần?",
-        "answer": "Tốt nhất bạn nên tập 3-5 buổi mỗi tuần tùy mục tiêu."
-    },
-    {
-        "question": "Thành viên có thể tạm ngưng không?",
-        "answer": "Bạn có thể tạm ngưng gói tập tối đa 1 tháng/lần với lý do chính đáng."
-    },
-    {
-        "question": "Có thể đổi huấn luyện viên không?",
-        "answer": "Bạn có thể đổi huấn luyện viên nếu không phù hợp sau buổi tập đầu tiên."
-    },
-    {
-        "question": "Huấn luyện viên có được chứng chỉ không?",
-        "answer": "Tất cả HLV đều có chứng chỉ chuyên môn và kinh nghiệm thực tế."
-    },
-    {
-        "question": "Làm sao để đặt lịch với huấn luyện viên?",
-        "answer": "Bạn có thể đặt lịch qua ứng dụng hoặc tại quầy."
-    },
-    {
-        "question": "Tôi có thể sử dụng phòng xông hơi không?",
-        "answer": "Phòng xông hơi miễn phí cho tất cả hội viên có gói thành viên."
-    },
-    {
-        "question": "Làm sao để đăng ký gói thành viên?",
-        "answer": "Bạn có thể đăng ký tại quầy lễ tân hoặc qua trang web chính thức của chúng tôi."
-    },
-    {
-        "question": "Phòng tập mở cửa lúc mấy giờ?",
-        "answer": "Phòng tập mở cửa từ 5:00 sáng đến 10:00 tối mỗi ngày."
-    },
-    {
-        "question": "Có gói tập riêng với HLV không?",
-        "answer": "Chúng tôi có các gói PT 1:1 linh hoạt theo nhu cầu."
+        "question": "What membership packages are available?",
+        "answer": "We have various packages including monthly, quarterly, and annual memberships with different benefits."
     }
 ]

@@ -121,7 +121,7 @@ public class VoucherServlet extends HttpServlet {
         System.out.println("formAction: " + formAction); // Log giá trị formAction
         if (formAction == null || formAction.isEmpty()) {
             response.setStatus(400);
-            response.getWriter().write("{\"status\":\"error\",\"message\":\"Thiếu formAction.\"}");
+            response.getWriter().write("{\"status\":\"error\",\"message\":\"Missing formAction.\"}");
             return;
         }
 
@@ -152,7 +152,7 @@ public class VoucherServlet extends HttpServlet {
                     String idStr = request.getParameter("voucherId");
                     if (idStr == null || idStr.isEmpty()) {
                         response.setStatus(400);
-                        response.getWriter().write("{\"status\":\"error\",\"message\":\"Thiếu voucherId.\"}");
+                        response.getWriter().write("{\"status\":\"error\",\"message\":\"Missing voucherId.\"}");
                         return;
                     }
 
@@ -162,19 +162,19 @@ public class VoucherServlet extends HttpServlet {
                         response.getWriter().write("{\"status\":\"deleted\",\"message\":\"Voucher deleted successfully!\"}");
                     } else {
                         response.setStatus(404);
-                        response.getWriter().write("{\"status\":\"error\",\"message\":\"Không tìm thấy voucher để xóa.\"}");
+                        response.getWriter().write("{\"status\":\"error\",\"message\":\"Voucher not found for deletion.\"}");
                     }
                     break;
 
                 default:
                     response.setStatus(400);
-                    response.getWriter().write("{\"status\":\"error\",\"message\":\"Hành động không hợp lệ.\"}");
+                    response.getWriter().write("{\"status\":\"error\",\"message\":\"Invalid action.\"}");
                     break;
             }
 
         } catch (NumberFormatException e) {
             response.setStatus(400);
-            response.getWriter().write("{\"status\":\"error\",\"message\":\"Định dạng số không hợp lệ.\"}");
+            response.getWriter().write("{\"status\":\"error\",\"message\":\"Invalid number format.\"}");
         } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(500);
@@ -198,7 +198,7 @@ public class VoucherServlet extends HttpServlet {
 
         if (code == null || description == null || discountPercentStr == null || maxDiscountStr == null
                 || usageLimitStr == null || usedCountStr == null || minOrderAmountStr == null || startDateStr == null || endDateStr == null) {
-            throw new IllegalArgumentException("Dữ liệu không hợp lệ: Thiếu thông tin bắt buộc.");
+            throw new IllegalArgumentException("Invalid data: Missing required information.");
         }
 
         voucher.setCode(code);

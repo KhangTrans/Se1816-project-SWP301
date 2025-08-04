@@ -46,7 +46,7 @@
     %>
     <!-- Hiển thị thông báo nếu không có gói tập nào -->
     <div class="no-packages-message">
-        <p>Hiện tại không có gói tập nào.</p>
+                        <p>Currently no packages available.</p>
     </div>
     <%
         }
